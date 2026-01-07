@@ -1,0 +1,4 @@
+enum LocationPickMode {
+  cart,     
+  profile,  
+}

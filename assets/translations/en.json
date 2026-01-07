@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "title": "Profile",
+    "personal_info": "Personal info",
+    "addresses": "Addresses",
+    "language": "Language",
+    "help_center": "Help center",
+    "terms": "Terms & Conditions",
+    "logout": "Logout"
+  },
+  "common": {
+    "retry": "Retry",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "home": {
+    "filters": {
+      "closer": "Closer to you",
+      "stores": "Stores",
+      "discounts": "Discounts",
+      "delivery": "Delivery discounts",
+      "supermarket": "Super Market",
+      "open": "Open now"
+    },
+    "closer_to_you": "Closer to you",
+    "stores": "Stores",
+    "super_market": "Super Market",
+    "open_now": "Open Now",
+    "your_order": "Your order"
+  },
+  "referral": {
+    "copy": "Copy",
+    "share": "Share",
+    "your_referral_link": "Your Referral Link",
+    "link_copied": "Link copied",
+    "share_invite_link": "Share invite link",
+    "share_try_app": "Try our app: {url}",
+    "share_invite_ready": "Your invite is ready! Use this link: {url}"
+  }
+}

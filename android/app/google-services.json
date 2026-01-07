@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "988130211442",
+    "project_id": "breeze-food-4336f",
+    "storage_bucket": "breeze-food-4336f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988130211442:android:456bdb3966a9f0e5ee34eb",
+        "android_client_info": {
+          "package_name": "com.example.breezefood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuhq3WeBRlCgXMy23r_yWXZLuxUzYzHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
