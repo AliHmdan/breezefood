@@ -1,11 +1,14 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/share_icon.dart';
+import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/model/add_to_cart_request.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/request_order/custom_hot.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as mt;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -96,13 +99,13 @@ class _AddOrderBodyState extends State<AddOrderBody> {
   bool _withSpicy = false;
   final TextEditingController _noteCtrl = TextEditingController();
   String _buildShareText() {
-    final price = widget.price.toStringAsFixed(0);
-    final old = widget.oldPrice.toStringAsFixed(0);
+    final price = context.money(widget.price);
+    final old = context.money(widget.oldPrice);
 
     final extrasNames = widget.extras
         .where((e) => _selectedExtrasIds.contains(e.id))
         .map(
-          (e) => (Directionality.of(context) == TextDirection.rtl
+          (e) => (Directionality.of(context) == mt.TextDirection.rtl
               ? e.nameAr
               : e.nameEn),
         )
@@ -119,13 +122,14 @@ class _AddOrderBodyState extends State<AddOrderBody> {
     final noteLine = note.isEmpty ? "" : "\n📝 Notes: $note";
 
     final discountLine = (widget.oldPrice > widget.price && widget.oldPrice > 0)
-        ? "\n💸 Old: $old\$"
+        ? "\n💸 Old: $old"
         : "";
     final productUrl = "";
 
     return """
 ${widget.title}
-💰 Price: $price\$$discountLine
+"💰 Price: $price$discountLine"
+
 $extrasLine$noteLine
 ${productUrl.isEmpty ? "" : "\n$productUrl"}
 """
@@ -154,8 +158,6 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
     return s.startsWith("http://") || s.startsWith("https://");
   }
 
-  String _money(double v) => "${v.toStringAsFixed(0)}\$";
-
   double get _extrasTotal {
     double sum = 0;
     for (final e in widget.extras) {
@@ -169,22 +171,18 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
     return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
         // ✅ عدّل أسماء الحالات إذا عندك مختلفة
-        state.whenOrNull(
-          loading: () {
-            EasyLoading.show(status: "Adding...");
-          },
-          addedSuccess: (message) {
-            EasyLoading.dismiss();
-            EasyLoading.showSuccess(message);
+      state.whenOrNull(
+      addedSuccess: (message) async {
+        EasyLoading.showSuccess(message);
 
-            // ✅ سكّر الشيت بعد النجاح فقط
-            Navigator.of(context).pop(true);
-          },
-          error: (msg) {
-            EasyLoading.dismiss();
-            EasyLoading.showError(msg);
-          },
-        );
+        // ✅ سكّر الشيت بعد لحظة صغيرة (حتى ما يتلخبط overlay مع pop)
+        await Future.delayed(const Duration(milliseconds: 250));
+        if (context.mounted) Navigator.of(context).pop(true);
+      },
+      error: (msg) {
+        EasyLoading.showError(msg);
+      },
+    );
       },
       child: Column(
         children: [
@@ -275,7 +273,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                               children: [
                                 if (_hasDiscount) ...[
                                   Text(
-                                    _money(widget.oldPrice),
+                                    context.money(widget.oldPrice),
                                     style: TextStyle(
                                       color: AppColor.red,
                                       fontSize: 12.sp,
@@ -285,7 +283,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                                   SizedBox(width: 8.w),
                                 ],
                                 Text(
-                                  _money(widget.price),
+                                  context.money(widget.price),
                                   style: TextStyle(
                                     color: AppColor.yellow,
                                     fontSize: 12.sp,
@@ -372,7 +370,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                                   "اكتب ملاحظتك (مثلاً: بدون بصل، زيادة ثوم...)",
                               hintStyle: TextStyle(
                                 color: Colors.white54,
-                                fontSize: 12.sp,
+                                fontSize: 12 ,
                               ),
                               border: InputBorder.none,
                             ),
@@ -445,7 +443,7 @@ class ExtrasList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
 
     return Column(
       children: extras.map((e) {
@@ -480,7 +478,7 @@ class ExtrasList extends StatelessWidget {
                         child: CustomSubTitle(
                           subtitle: name,
                           color: AppColor.white,
-                          fontsize: 14.sp,
+                          fontsize: 14 ,
                         ),
                       ),
                     ],
@@ -488,9 +486,9 @@ class ExtrasList extends StatelessWidget {
                 ),
               ),
               CustomSubTitle(
-                subtitle: "${e.price.toStringAsFixed(0)}\$",
+                subtitle: context.money(e.price),
                 color: AppColor.yellow,
-                fontsize: 14.sp,
+                fontsize: 14  ,
               ),
             ],
           ),
@@ -559,8 +557,9 @@ class _CounterSheetState extends State<CounterSheet> {
                 CustomSubTitle(
                   subtitle: "$count",
                   color: AppColor.white,
-                  fontsize: 18.sp,
+                  fontsize: 18 ,
                 ),
+
                 const SizedBox(width: 10),
                 Material(
                   color: Colors.transparent,
@@ -589,10 +588,12 @@ class _CounterSheetState extends State<CounterSheet> {
                 ),
                 onPressed: isLoading ? null : () => widget.onAdd(count),
                 child: Text(
-                  isLoading ? "ADDING..." : "ADD ${total.toStringAsFixed(0)}\$",
+                  isLoading
+                      ? "ADDING..."
+                      : "${"add_to_cart".tr()}  ${context.money(total)}",
                   style: TextStyle(
                     color: AppColor.white,
-                    fontSize: 14.sp,
+                    fontSize: 14 ,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

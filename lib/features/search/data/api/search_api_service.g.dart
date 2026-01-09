@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'profile_api_service.dart';
+part of 'search_api_service.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'profile_api_service.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
 
-class _ProfileApiService implements ProfileApiService {
-  _ProfileApiService(
+class _SearchApiService implements SearchApiService {
+  _SearchApiService(
     this._dio, {
     this.baseUrl,
     this.errorLogger,
@@ -22,95 +22,48 @@ class _ProfileApiService implements ProfileApiService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<HttpResponse<dynamic>> me() async {
+  Future<HttpResponse<dynamic>> search(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/me',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
-  }
-
-  @override
-  Future<HttpResponse<dynamic>> avatars() async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/avatars',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch(_options);
-    final _value = _result.data;
-    final httpResponse = HttpResponse(_value, _result);
-    return httpResponse;
-  }
-
-  @override
-  Future<HttpResponse<dynamic>> updateProfile({
-    required String firstName,
-    required String lastName,
-    int? avatarId,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    final _data = FormData();
-    _data.fields.add(MapEntry(
-      'first_name',
-      firstName,
-    ));
-    _data.fields.add(MapEntry(
-      'last_name',
-      lastName,
-    ));
-    if (avatarId != null) {
-      _data.fields.add(MapEntry(
-        'profile_image',
-        avatarId.toString(),
-      ));
-    }
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
     final _options = _setStreamType<HttpResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: 'multipart/form-data',
     )
         .compose(
           _dio.options,
-          '/updateProfile',
+          '/search',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
+  }
+
+  @override
+  Future<HttpResponse<dynamic>> history() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<HttpResponse<dynamic>>(Options(
+      method: 'GET',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/history-search',
           queryParameters: queryParameters,
           data: _data,
         )

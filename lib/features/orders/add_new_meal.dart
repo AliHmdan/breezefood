@@ -4,21 +4,18 @@ import 'package:breezefood/features/home/presentation/ui/sections/most_popular.d
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/search.dart';
 import 'package:breezefood/features/orders/add_order.dart';
 import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/orders/request_order/horizontal_products_section.dart';
 import 'package:breezefood/features/orders/request_order/tiem_price.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
+import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddNewMeal extends StatefulWidget {
-  /// ✅ عنصر واحد لإعادة الطلب (اختياري)
   final MenuItemModel? orderAgainItem;
-
-  /// ✅ عناصر “Customer Favorite”
   final List<MenuItemModel> favoriteItems;
 
   const AddNewMeal({
@@ -273,9 +270,7 @@ class _AddNewMealState extends State<AddNewMeal> {
                                   ),
                                 ),
                               )
-                            : SearchPopularItemCard(
-                                item: orderAgain,
-                              ), // ✅ MenuItemModel card
+                            : Search(), // ✅ MenuItemModel card
                       ),
                     ),
                   ),

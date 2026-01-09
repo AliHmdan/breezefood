@@ -21,8 +21,13 @@ mixin _$ProfileState {
     required TResult Function() initial,
     required TResult Function() loading,
     required TResult Function(String message) error,
-    required TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)
+    required TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)
         loaded,
   }) =>
       throw _privateConstructorUsedError;
@@ -31,8 +36,13 @@ mixin _$ProfileState {
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(String message)? error,
-    TResult? Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult? Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
   }) =>
       throw _privateConstructorUsedError;
@@ -41,8 +51,13 @@ mixin _$ProfileState {
     TResult Function()? initial,
     TResult Function()? loading,
     TResult Function(String message)? error,
-    TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
     required TResult orElse(),
   }) =>
@@ -139,8 +154,13 @@ class _$InitialImpl implements _Initial {
     required TResult Function() initial,
     required TResult Function() loading,
     required TResult Function(String message) error,
-    required TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)
+    required TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)
         loaded,
   }) {
     return initial();
@@ -152,8 +172,13 @@ class _$InitialImpl implements _Initial {
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(String message)? error,
-    TResult? Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult? Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
   }) {
     return initial?.call();
@@ -165,8 +190,13 @@ class _$InitialImpl implements _Initial {
     TResult Function()? initial,
     TResult Function()? loading,
     TResult Function(String message)? error,
-    TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
     required TResult orElse(),
   }) {
@@ -262,8 +292,13 @@ class _$LoadingImpl implements _Loading {
     required TResult Function() initial,
     required TResult Function() loading,
     required TResult Function(String message) error,
-    required TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)
+    required TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)
         loaded,
   }) {
     return loading();
@@ -275,8 +310,13 @@ class _$LoadingImpl implements _Loading {
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(String message)? error,
-    TResult? Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult? Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
   }) {
     return loading?.call();
@@ -288,8 +328,13 @@ class _$LoadingImpl implements _Loading {
     TResult Function()? initial,
     TResult Function()? loading,
     TResult Function(String message)? error,
-    TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
     required TResult orElse(),
   }) {
@@ -412,8 +457,13 @@ class _$ErrorImpl implements _Error {
     required TResult Function() initial,
     required TResult Function() loading,
     required TResult Function(String message) error,
-    required TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)
+    required TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)
         loaded,
   }) {
     return error(message);
@@ -425,8 +475,13 @@ class _$ErrorImpl implements _Error {
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(String message)? error,
-    TResult? Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult? Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
   }) {
     return error?.call(message);
@@ -438,8 +493,13 @@ class _$ErrorImpl implements _Error {
     TResult Function()? initial,
     TResult Function()? loading,
     TResult Function(String message)? error,
-    TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
     required TResult orElse(),
   }) {
@@ -508,6 +568,8 @@ abstract class _$$LoadedImplCopyWith<$Res> {
   $Res call(
       {UserModel user,
       List<AddressModel> addresses,
+      List<AvatarModel> avatars,
+      int? selectedAvatarId,
       bool isSaving,
       String? message});
 }
@@ -527,6 +589,8 @@ class __$$LoadedImplCopyWithImpl<$Res>
   $Res call({
     Object? user = null,
     Object? addresses = null,
+    Object? avatars = null,
+    Object? selectedAvatarId = freezed,
     Object? isSaving = null,
     Object? message = freezed,
   }) {
@@ -539,6 +603,14 @@ class __$$LoadedImplCopyWithImpl<$Res>
           ? _value._addresses
           : addresses // ignore: cast_nullable_to_non_nullable
               as List<AddressModel>,
+      avatars: null == avatars
+          ? _value._avatars
+          : avatars // ignore: cast_nullable_to_non_nullable
+              as List<AvatarModel>,
+      selectedAvatarId: freezed == selectedAvatarId
+          ? _value.selectedAvatarId
+          : selectedAvatarId // ignore: cast_nullable_to_non_nullable
+              as int?,
       isSaving: null == isSaving
           ? _value.isSaving
           : isSaving // ignore: cast_nullable_to_non_nullable
@@ -557,9 +629,12 @@ class _$LoadedImpl implements _Loaded {
   const _$LoadedImpl(
       {required this.user,
       required final List<AddressModel> addresses,
+      final List<AvatarModel> avatars = const <AvatarModel>[],
+      this.selectedAvatarId,
       this.isSaving = false,
       this.message})
-      : _addresses = addresses;
+      : _addresses = addresses,
+        _avatars = avatars;
 
   @override
   final UserModel user;
@@ -571,6 +646,17 @@ class _$LoadedImpl implements _Loaded {
     return EqualUnmodifiableListView(_addresses);
   }
 
+  final List<AvatarModel> _avatars;
+  @override
+  @JsonKey()
+  List<AvatarModel> get avatars {
+    if (_avatars is EqualUnmodifiableListView) return _avatars;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_avatars);
+  }
+
+  @override
+  final int? selectedAvatarId;
   @override
   @JsonKey()
   final bool isSaving;
@@ -579,7 +665,7 @@ class _$LoadedImpl implements _Loaded {
 
   @override
   String toString() {
-    return 'ProfileState.loaded(user: $user, addresses: $addresses, isSaving: $isSaving, message: $message)';
+    return 'ProfileState.loaded(user: $user, addresses: $addresses, avatars: $avatars, selectedAvatarId: $selectedAvatarId, isSaving: $isSaving, message: $message)';
   }
 
   @override
@@ -590,14 +676,23 @@ class _$LoadedImpl implements _Loaded {
             (identical(other.user, user) || other.user == user) &&
             const DeepCollectionEquality()
                 .equals(other._addresses, _addresses) &&
+            const DeepCollectionEquality().equals(other._avatars, _avatars) &&
+            (identical(other.selectedAvatarId, selectedAvatarId) ||
+                other.selectedAvatarId == selectedAvatarId) &&
             (identical(other.isSaving, isSaving) ||
                 other.isSaving == isSaving) &&
             (identical(other.message, message) || other.message == message));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, user,
-      const DeepCollectionEquality().hash(_addresses), isSaving, message);
+  int get hashCode => Object.hash(
+      runtimeType,
+      user,
+      const DeepCollectionEquality().hash(_addresses),
+      const DeepCollectionEquality().hash(_avatars),
+      selectedAvatarId,
+      isSaving,
+      message);
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
@@ -613,11 +708,17 @@ class _$LoadedImpl implements _Loaded {
     required TResult Function() initial,
     required TResult Function() loading,
     required TResult Function(String message) error,
-    required TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)
+    required TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)
         loaded,
   }) {
-    return loaded(user, addresses, isSaving, message);
+    return loaded(
+        user, addresses, avatars, selectedAvatarId, isSaving, message);
   }
 
   @override
@@ -626,11 +727,17 @@ class _$LoadedImpl implements _Loaded {
     TResult? Function()? initial,
     TResult? Function()? loading,
     TResult? Function(String message)? error,
-    TResult? Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult? Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
   }) {
-    return loaded?.call(user, addresses, isSaving, message);
+    return loaded?.call(
+        user, addresses, avatars, selectedAvatarId, isSaving, message);
   }
 
   @override
@@ -639,13 +746,19 @@ class _$LoadedImpl implements _Loaded {
     TResult Function()? initial,
     TResult Function()? loading,
     TResult Function(String message)? error,
-    TResult Function(UserModel user, List<AddressModel> addresses,
-            bool isSaving, String? message)?
+    TResult Function(
+            UserModel user,
+            List<AddressModel> addresses,
+            List<AvatarModel> avatars,
+            int? selectedAvatarId,
+            bool isSaving,
+            String? message)?
         loaded,
     required TResult orElse(),
   }) {
     if (loaded != null) {
-      return loaded(user, addresses, isSaving, message);
+      return loaded(
+          user, addresses, avatars, selectedAvatarId, isSaving, message);
     }
     return orElse();
   }
@@ -692,11 +805,15 @@ abstract class _Loaded implements ProfileState {
   const factory _Loaded(
       {required final UserModel user,
       required final List<AddressModel> addresses,
+      final List<AvatarModel> avatars,
+      final int? selectedAvatarId,
       final bool isSaving,
       final String? message}) = _$LoadedImpl;
 
   UserModel get user;
   List<AddressModel> get addresses;
+  List<AvatarModel> get avatars;
+  int? get selectedAvatarId;
   bool get isSaving;
   String? get message;
 

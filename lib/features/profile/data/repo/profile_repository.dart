@@ -48,6 +48,16 @@ class ProfileRepository {
       return AppResponse.fail(message: "فشل تحميل العناوين");
     }
   }
+Future<AppResponse> getAvatars() async {
+  try {
+    final res = await profileApi.avatars();
+    return AppResponse.ok(data: res.data);
+  } on DioException catch (e) {
+    return AppResponseHandler.handleError(e);
+  } catch (_) {
+    return AppResponse.fail(message: "فشل تحميل الأفاتارات");
+  }
+}
 
   Future<AppResponse> addAddress({
     required String address,

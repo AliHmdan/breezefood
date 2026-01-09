@@ -35,8 +35,10 @@ class MarketItemModel {
   final String nameEn;
   final String descriptionAr;
   final String descriptionEn;
+  final String image;
 
-  MarketItemModel({
+  MarketItemModel( {
+    required this.image,
     required this.id,
     required this.categoryId,
     required this.basePrice,
@@ -55,6 +57,7 @@ class MarketItemModel {
         nameAr: (json['name_ar'] ?? '') as String,
         nameEn: (json['name_en'] ?? '') as String,
         descriptionAr: (json['description_ar'] ?? '') as String,
+        image: (json['image'] ?? '') as String,
         descriptionEn: (json['description_en'] ?? '') as String,
       );
 }

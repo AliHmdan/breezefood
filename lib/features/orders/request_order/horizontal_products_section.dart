@@ -1,6 +1,6 @@
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/search.dart';
 import 'package:breezefood/features/orders/add_order.dart';
+import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -75,8 +75,7 @@ class HorizontalProductsSection extends StatelessWidget {
                 );
               },
 
-              child: SearchPopularItemCard(
-                item: item,
+              child: Search(
               ), // ✅ Card بتقبل MenuItemModel
             ),
           );

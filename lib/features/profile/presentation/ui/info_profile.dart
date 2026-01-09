@@ -1,4 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
@@ -18,13 +19,6 @@ class InfoProfile extends StatefulWidget {
 }
 
 class _InfoProfileState extends State<InfoProfile> {
-  final Map<String, String> avatarMap = const {
-    'a1': 'assets/avatars/a1.png',
-    'a2': 'assets/avatars/a2.png',
-  };
-
-  String? _selectedAvatarCode;
-
   final _firstCtrl = TextEditingController();
   final _lastCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
@@ -35,17 +29,15 @@ class _InfoProfileState extends State<InfoProfile> {
   void initState() {
     super.initState();
 
-    // ✅ 1) إذا الداتا مش Loaded → اعمل Fetch
-    // ✅ 2) إذا Loaded جاهزة → عبّي controllers فوراً
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final st = widget.profileCubit.state;
 
       st.maybeWhen(
-        loaded: (_, __, ___, ____) {
+        loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
           _fillFromLoadedOnce(st);
         },
         orElse: () {
-          widget.profileCubit.load(); // ✅ fetch latest
+          widget.profileCubit.load();
         },
       );
     });
@@ -63,7 +55,7 @@ class _InfoProfileState extends State<InfoProfile> {
     if (_didFillOnce) return;
 
     state.maybeWhen(
-      loaded: (user, _, __, ___) {
+      loaded: (user, _, __, ___, ____, _____) {
         _firstCtrl.text = user.firstName;
         _lastCtrl.text = user.lastName;
         _phoneCtrl.text = user.phone;
@@ -73,81 +65,137 @@ class _InfoProfileState extends State<InfoProfile> {
     );
   }
 
-  ImageProvider _avatarImageProvider() {
-    if (_selectedAvatarCode != null &&
-        avatarMap.containsKey(_selectedAvatarCode)) {
-      return AssetImage(avatarMap[_selectedAvatarCode]!);
+  ImageProvider _avatarImageProvider(ProfileState state) {
+    // ✅ 1) إذا المستخدم مختار Avatar من القائمة -> اعرضه فوراً
+    final selectedUrl = state.maybeWhen(
+      loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
+        if (selectedAvatarId == null) return null;
+        final idx = avatars.indexWhere((a) => a.id == selectedAvatarId);
+        if (idx == -1) return null;
+        final url = avatars[idx].fullUrl;
+        return (url.isEmpty) ? null : url;
+      },
+      orElse: () => null,
+    );
+
+    if (selectedUrl != null) return NetworkImage(selectedUrl);
+
+    // ✅ 2) صورة من السيرفر ضمن user.profileImage
+    final serverPath = state.maybeWhen(
+      loaded: (user, _, __, ___, ____, _____) => user.profileImage,
+      orElse: () => null,
+    );
+
+    final fullUrl = UrlHelper.toFullUrl(serverPath);
+    if (fullUrl != null && fullUrl.isNotEmpty) {
+      return NetworkImage(fullUrl);
     }
-    return const AssetImage(
-      'assets/images/person.jpg',
-    ); // إذا عندك مشكلة assets، بدك تحطها بالـ pubspec
+
+    // ✅ 3) fallback
+    return const AssetImage('assets/images/person.jpg');
   }
 
-  void _showAvatarPicker() {
-    final codes = avatarMap.keys.toList();
+  Future<void> _openAvatarPicker(ProfileState state) async {
+    // ✅ حمّل avatars لو فاضيين
+    final avatarsEmpty = state.maybeWhen(
+      loaded: (_, __, avatars, ___, ____, _____) => avatars.isEmpty,
+      orElse: () => true,
+    );
+
+    if (avatarsEmpty) {
+      await widget.profileCubit.loadAvatars();
+      if (!mounted) return;
+    }
+
+    final latestState = widget.profileCubit.state;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColor.Dark,
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
       ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'اختر صورة Avatar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: codes.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemBuilder: (_, i) {
-                final code = codes[i];
-                final selected = _selectedAvatarCode == code;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedAvatarCode = code);
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: selected ? AppColor.LightActive : Colors.white24,
-                        width: selected ? 3 : 1,
+      builder: (_) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: latestState.maybeWhen(
+            loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'اختر صورة Avatar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage(avatarMap[code]!),
-                    ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
-                );
-              },
+                  SizedBox(height: 12.h),
+
+                  if (avatars.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 18.h),
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: avatars.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemBuilder: (_, i) {
+                        final av = avatars[i];
+                        final selected = selectedAvatarId == av.id;
+
+                        return GestureDetector(
+                          onTap: () {
+                            widget.profileCubit.selectAvatar(av.id);
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selected ? AppColor.LightActive : Colors.white24,
+                                width: selected ? 3 : 1,
+                              ),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white10,
+                              backgroundImage: av.fullUrl.isNotEmpty
+                                  ? NetworkImage(av.fullUrl)
+                                  : const AssetImage('assets/images/person.jpg') as ImageProvider,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                ],
+              );
+            },
+            orElse: () => Padding(
+              padding: EdgeInsets.symmetric(vertical: 18.h),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -170,13 +218,11 @@ class _InfoProfileState extends State<InfoProfile> {
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileCubit, ProfileState>(
       bloc: widget.profileCubit,
-
       listener: (context, state) {
-        // ✅ أول ما تجي loaded بعد load() → عبّي controllers
         _fillFromLoadedOnce(state);
 
         final msg = state.maybeWhen(
-          loaded: (_, __, ___, message) => message,
+          loaded: (_, __, ___, ____, _____, message) => message,
           orElse: () => null,
         );
 
@@ -186,10 +232,9 @@ class _InfoProfileState extends State<InfoProfile> {
           );
         }
       },
-
       builder: (context, state) {
         final isSaving = state.maybeWhen(
-          loaded: (_, __, isSaving, ___) => isSaving,
+          loaded: (_, __, ___, ____, isSaving, _____) => isSaving,
           orElse: () => false,
         );
 
@@ -201,13 +246,13 @@ class _InfoProfileState extends State<InfoProfile> {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: CustomAppbarProfile(
                 title: "profile.title".tr(),
-
                 icon: Icons.arrow_back_ios,
                 ontap: () => Navigator.pop(context),
               ),
             ),
           ),
           body: state.maybeWhen(
+            initial: () => const Center(child: CircularProgressIndicator()),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (msg) => Center(
               child: Padding(
@@ -225,20 +270,17 @@ class _InfoProfileState extends State<InfoProfile> {
                       onPressed: () => widget.profileCubit.load(),
                       child: Text(
                         "common.retry".tr(),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            loaded: (_, __, ___, ____) {
+            loaded: (_, __, ___, ____, _____, ______) {
               return SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 12.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   child: Column(
                     children: [
                       Stack(
@@ -246,10 +288,10 @@ class _InfoProfileState extends State<InfoProfile> {
                         children: [
                           CircleAvatar(
                             radius: 70.r,
-                            backgroundImage: _avatarImageProvider(),
+                            backgroundImage: _avatarImageProvider(state),
                           ),
                           GestureDetector(
-                            onTap: _showAvatarPicker,
+                            onTap: () => _openAvatarPicker(state),
                             child: Container(
                               padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
@@ -273,7 +315,6 @@ class _InfoProfileState extends State<InfoProfile> {
                           ),
                         ],
                       ),
-
                       SizedBox(height: 35.h),
 
                       CustomTextfaildInfo(
@@ -283,6 +324,7 @@ class _InfoProfileState extends State<InfoProfile> {
                         keyboardType: TextInputType.text,
                       ),
                       SizedBox(height: 15.h),
+
                       CustomTextfaildInfo(
                         label: "Last Name",
                         hint: "Last Name",
@@ -290,20 +332,18 @@ class _InfoProfileState extends State<InfoProfile> {
                         keyboardType: TextInputType.text,
                       ),
                       SizedBox(height: 15.h),
+
                       CustomTextfaildInfo(
                         label: "Phone Number",
                         hint: "0938204147",
                         controller: _phoneCtrl,
                         keyboardType: TextInputType.phone,
-                        // ✅ إذا ما عندك API لتعديل رقم الهاتف خلّيه readOnly
                         // readOnly: true,
                       ),
-
                       SizedBox(height: 30.h),
 
                       CustomButton(
                         title: isSaving ? "common.saving".tr() : "common.save".tr(),
-
                         onPressed: isSaving
                             ? null
                             : () async {

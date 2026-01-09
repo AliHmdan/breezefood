@@ -122,7 +122,10 @@ class _HomeState extends State<Home> {
           loading: () => true,
           orElse: () => false,
         );
-
+        final homeData = state.maybeWhen(
+          loaded: (data) => data,
+          orElse: () => null,
+        );
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
@@ -132,7 +135,8 @@ class _HomeState extends State<Home> {
                   controller: _scrollController,
                   child: Column(
                     children: [
-                      const AppbarHome(),
+                      AppbarHome(home: homeData),
+
                       HomeFilters(onFilterTap: _onFilterTap),
 
                       loading
@@ -306,8 +310,7 @@ class _HomeState extends State<Home> {
                                 create: (_) => getIt<OrderFlowCubit>(),
                               ),
                             ],
-                            child: RequestOrderScreen(
-                            ),
+                            child: RequestOrderScreen(),
                           ),
                         ),
                       );

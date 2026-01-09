@@ -1,3 +1,4 @@
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -45,8 +46,10 @@ class _DiscountDelevryState extends State<DiscountDelevry>
       duration: const Duration(milliseconds: 250),
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.25)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.25,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   Widget buildImage(String path, {double? height}) {
@@ -131,7 +134,7 @@ class _DiscountDelevryState extends State<DiscountDelevry>
 
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal:2.w,
+                      horizontal: 2.w,
                       vertical: 3.h,
                     ),
                     decoration: BoxDecoration(
@@ -153,9 +156,8 @@ class _DiscountDelevryState extends State<DiscountDelevry>
 
                         SizedBox(width: 4.w),
 
-                        /// السعر القديم
                         Text(
-                          widget.oldPrice,
+                          context.syp(widget.oldPrice),
                           style: TextStyle(
                             color: Colors.red,
                             decoration: TextDecoration.lineThrough,
@@ -166,9 +168,8 @@ class _DiscountDelevryState extends State<DiscountDelevry>
 
                         SizedBox(width: 4.w),
 
-                        /// السعر الجديد
                         Text(
-                          widget.newPrice,
+                          context.syp(widget.newPrice),
                           style: TextStyle(
                             color: Colors.yellow,
                             fontSize: 10.sp,
@@ -181,10 +182,6 @@ class _DiscountDelevryState extends State<DiscountDelevry>
                 ),
               ],
             ),
-
-
-
-
           ],
         ),
       ),

@@ -25,7 +25,7 @@ class AddressesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addresses = profileCubit.state.maybeWhen(
-      loaded: (_, addresses, __, ___) => addresses,
+      loaded: (_, addresses, __, ___,____,_____) => addresses,
       orElse: () => <AddressModel>[],
     );
 

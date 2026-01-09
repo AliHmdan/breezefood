@@ -1,25 +1,21 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
+import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
+import 'package:breezefood/features/orders/add_order.dart';
+import 'package:breezefood/features/search/data/models/search_response.dart';
+import 'package:breezefood/features/search/presentation/cubit/search_cubit.dart';
+import 'package:breezefood/features/search/presentation/cubit/search_state.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:breezefood/features/orders/add_order.dart';
-
-/// بلوك: مطعم + قائمة وجباته (من HomeResponse)
-class RestaurantSearchBlock {
-  final RestaurantModel restaurant;
-  final List<MenuItemModel> items;
-  RestaurantSearchBlock({required this.restaurant, required this.items});
-}
 
 class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+  final int? restaurantId;
+  const Search({Key? key, this.restaurantId}) : super(key: key);
 
   @override
   State<Search> createState() => _SearchState();
@@ -31,32 +27,31 @@ class _SearchState extends State<Search> {
   final GlobalKey _stackKey = GlobalKey();
   final GlobalKey _searchFieldKey = GlobalKey();
 
-  late final HomeCubit cubit;
+  late final SearchCubit searchCubit;
 
   final List<String> searchTags = [];
-  final List<String> _history = ["Burger", "Shawarma", "Pizza"];
-
   final List<String> allSuggestions = const [
     "Syrian food",
     "Desserts",
     "Drinks",
   ];
+
   List<String> filteredSuggestions = [];
   bool showSuggestions = false;
-
-  List<RestaurantSearchBlock> _results = [];
 
   @override
   void initState() {
     super.initState();
-    cubit = getIt<HomeCubit>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => cubit.load());
+    searchCubit = getIt<SearchCubit>();
+    searchCubit.setRestaurantId(widget.restaurantId); // ✅ مهم
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      searchCubit.loadHistory();
+    });
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
-        _filterSuggestions(_controller.text);
         setState(() => showSuggestions = true);
+        _filterSuggestions(_controller.text);
       }
     });
   }
@@ -65,13 +60,14 @@ class _SearchState extends State<Search> {
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    // ✅ لا تعمل close لأنه غالباً Singleton من getIt
     super.dispose();
   }
 
   void _filterSuggestions(String input) {
     final q = input.trim().toLowerCase();
-    final base = {..._history, ...allSuggestions}.toList();
+    final history = searchCubit.state.history;
+
+    final base = {...history, ...allSuggestions}.toList();
 
     setState(() {
       showSuggestions = true;
@@ -84,9 +80,7 @@ class _SearchState extends State<Search> {
   void _addTag(String text) {
     final t = text.trim();
     if (t.isEmpty) return;
-    if (!searchTags.contains(t)) {
-      setState(() => searchTags.add(t));
-    }
+    if (!searchTags.contains(t)) setState(() => searchTags.add(t));
   }
 
   void _removeTag(String tag) => setState(() => searchTags.remove(tag));
@@ -99,43 +93,15 @@ class _SearchState extends State<Search> {
     setState(() => showSuggestions = false);
   }
 
-  /// ✅ البحث الحقيقي: فلترة بيانات HomeResponse
-  void _performSearchOn(HomeResponse data) {
-    final q = _controller.text.trim().toLowerCase();
+  void _doSearchNow() {
+    final q = _controller.text.trim();
     if (q.isEmpty) return;
 
     _addTag(q);
     setState(() => showSuggestions = false);
     _focusNode.unfocus();
 
-    final allItems = <MenuItemModel>[...data.mostPopular, ...data.discounts];
-
-    final filteredItems = allItems.where((it) {
-      final name = (it.nameAr ?? "").toLowerCase();
-      final en = (it.nameEn ?? "").toLowerCase();
-      return name.contains(q) || en.contains(q);
-    }).toList();
-
-    // Group By restaurant_id
-    final Map<int, List<MenuItemModel>> grouped = {};
-    for (final item in filteredItems) {
-      final rid = item.restaurant?.id ?? 0;
-      if (rid == 0) continue;
-      grouped.putIfAbsent(rid, () => []);
-      grouped[rid]!.add(item);
-    }
-
-    // مطاعم من nearbyRestaurants
-    final restaurantsById = {for (final r in data.nearbyRestaurants) r.id: r};
-
-    final blocks = <RestaurantSearchBlock>[];
-    grouped.forEach((rid, items) {
-      final restaurant = restaurantsById[rid];
-      if (restaurant == null) return;
-      blocks.add(RestaurantSearchBlock(restaurant: restaurant, items: items));
-    });
-
-    setState(() => _results = blocks);
+    searchCubit.search(q);
   }
 
   Widget _buildTagChip(String tag) {
@@ -185,13 +151,14 @@ class _SearchState extends State<Search> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // حذف من الـ UI فقط (إذا بدك delete API خبرني)
           InkWell(
             borderRadius: BorderRadius.circular(20.r),
             onTap: () {
-              setState(() {
-                _history.remove(h);
-                _filterSuggestions(_controller.text);
-              });
+              final cur = List<String>.from(searchCubit.state.history);
+              cur.remove(h);
+              searchCubit.emit(searchCubit.state.copyWith(history: cur));
+              _filterSuggestions(_controller.text);
             },
             child: Padding(
               padding: EdgeInsets.all(6.w),
@@ -202,11 +169,7 @@ class _SearchState extends State<Search> {
           InkWell(
             onTap: () {
               _applySuggestionToField(h);
-              final st = cubit.state;
-              st.maybeWhen(
-                loaded: (data) => _performSearchOn(data),
-                orElse: () {},
-              );
+              _doSearchNow();
             },
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -225,9 +188,11 @@ class _SearchState extends State<Search> {
     );
   }
 
-  /// ✅ بلوك مطعم + items
-  Widget _restaurantBlock(RestaurantSearchBlock block) {
+  /// ✅ بلوك مطعم + items (من API)
+  Widget _apiRestaurantBlock(SearchBlock block) {
     final r = block.restaurant;
+    final ratingAvg = (r.rating?.avg ?? 0).toDouble();
+    final ratingCount = r.rating?.count ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,25 +203,42 @@ class _SearchState extends State<Search> {
             children: [
               ClipOval(child: _buildImage(r.logo ?? "")),
               SizedBox(width: 8.w),
+
               Expanded(
-                child: CustomSubTitle(
-                  subtitle: r.name ?? "",
-                  color: AppColor.white,
-                  fontsize: 14.sp,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12.r),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ResturantDetails(restaurant_id: r.id),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6.h),
+                    child: CustomSubTitle(
+                      subtitle: r.name,
+                      color: AppColor.white,
+                      fontsize: 14.sp,
+                    ),
+                  ),
                 ),
               ),
+
               Container(
                 height: 25.h,
                 width: 1,
                 color: Colors.white24,
                 margin: EdgeInsets.symmetric(horizontal: 8.w),
               ),
+
               Row(
                 children: [
                   Icon(Icons.star, color: AppColor.yellow, size: 16.sp),
                   SizedBox(width: 4.w),
                   Text(
-                    ((r.ratingAvg ?? 0).toDouble()).toStringAsFixed(1),
+                    ratingAvg.toStringAsFixed(1),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13.sp,
@@ -265,7 +247,7 @@ class _SearchState extends State<Search> {
                   ),
                   SizedBox(width: 6.w),
                   Text(
-                    "${r.ratingCount ?? 0}+ Order",
+                    "$ratingCount",
                     style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                   ),
                 ],
@@ -273,96 +255,81 @@ class _SearchState extends State<Search> {
             ],
           ),
         ),
-        RepaintBoundary(
-          child: Container(
-            padding: const EdgeInsets.only(
-              top: 10,
-              bottom: 10,
-              left: 8,
-              right: 0.2,
-            ),
-            decoration: BoxDecoration(
-              color: AppColor.LightActive,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            height: 200,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final itemWidth = constraints.maxWidth / 2.3;
 
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: block.items.length,
-                  itemBuilder: (context, index) {
-                    final item = block.items[index];
+        Container(
+          padding: const EdgeInsets.only(
+            top: 10,
+            bottom: 10,
+            left: 8,
+            right: 0.2,
+          ),
+          decoration: BoxDecoration(
+            color: AppColor.LightActive,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          height: 200,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = constraints.maxWidth / 2.3;
 
-                    return Container(
-                      width: itemWidth,
-                      margin: EdgeInsets.only(right: 10.w),
-                      child: GestureDetector(
-                        onTap: () async {
-                          // ✅ عند الضغط: افتح sheet مع extras الحقيقيين
-                          await _openItemBottomSheet(context, item);
-                        },
-                        child: SearchPopularItemCard(
-                          item: item,
-                        ), // ✅ Card خاصة بالـ MenuItemModel
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: block.items.length,
+                itemBuilder: (context, index) {
+                  final it = block.items[index];
+
+                  final title = context.pick(ar: it.names.ar, en: it.names.en);
+
+                  final fullImg = _toFullUrl(it.imageUrl ?? "");
+
+                  return Container(
+                    width: itemWidth,
+                    margin: EdgeInsets.only(right: 10.w),
+                    child: GestureDetector(
+                      onTap: () {
+                        // ✅ فتح نفس Dialog تبع Add Order
+                        showAddOrderDialog(
+                          context,
+                          restaurantId: r.id,
+                          menuItemId: it.id,
+                          title: title,
+                          price: double.tryParse(it.basePrice) ?? 0,
+                          oldPrice: double.tryParse(it.basePrice) ?? 0,
+                          imagePathOrUrl: fullImg.isNotEmpty
+                              ? fullImg
+                              : "assets/images/shawarma_box.png",
+                          description: "",
+                          extraMeals: const [], // search api ما بيرجع extras
+                        );
+                      },
+                      child: _SearchApiItemCard(
+                        title: title,
+                        price: it.basePrice,
+                        imageUrl: fullImg,
                       ),
-                    );
-                  },
-                );
-              },
-            ),
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ),
       ],
     );
   }
 
-  // Cache لنتائج restaurant-details حتى ما نطلب كل مرة
-  final Map<int, RestaurantDetailsResponse> _restaurantDetailsCache = {};
-
-  Future<void> _openItemBottomSheet(
-    BuildContext context,
-    MenuItemModel item,
-  ) async {
-    final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
-
-    final restaurantId = item.restaurant?.id ?? 0; // ✅
-    final menuItemId = item.id; // ✅
-
-    if (restaurantId == 0 || menuItemId == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("لا يمكن تحديد المطعم أو الوجبة")),
-      );
-      return;
-    }
-
-    List<MenuExtra> extras = const [];
-
-    try {} catch (_) {
-      extras = const [];
-    }
-
-    showAddOrderDialog(
-      context,
-      restaurantId: restaurantId, // ✅ جديد
-      menuItemId: menuItemId, // ✅ جديد
-      title: title,
-      price: (item.priceAfter > 0 ? item.priceAfter : item.priceBefore),
-      oldPrice: item.priceBefore,
-      imagePathOrUrl:
-          item.primaryImage?.imageUrl ?? "assets/images/shawarma_box.png",
-      description: "",
-      extraMeals: extras, // ✅ استخدم extras المحسوبة (حالياً فاضية)
-    );
+  String _toFullUrl(String raw) {
+    final v = raw.trim();
+    if (v.isEmpty) return "";
+    if (v.startsWith("http")) return v;
+    return "https://breezefood.cloud/${v.startsWith("/") ? v.substring(1) : v}";
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
-      bloc: cubit,
-      builder: (context, state) {
+    return BlocBuilder<SearchCubit, SearchState>(
+      bloc: searchCubit,
+      builder: (context, s) {
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
@@ -381,6 +348,7 @@ class _SearchState extends State<Search> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // =================== Search Bar ===================
                         Row(
                           children: [
                             CustomArrow(
@@ -399,13 +367,11 @@ class _SearchState extends State<Search> {
                                   controller: _controller,
                                   onTap: () =>
                                       _filterSuggestions(_controller.text),
-                                  onChanged: _filterSuggestions,
-                                  onSubmitted: (_) {
-                                    state.maybeWhen(
-                                      loaded: (data) => _performSearchOn(data),
-                                      orElse: () {},
-                                    );
+                                  onChanged: (v) {
+                                    _filterSuggestions(v);
+                                    searchCubit.searchDebounced(v);
                                   },
+                                  onSubmitted: (_) => _doSearchNow(),
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(10.w),
                                     filled: true,
@@ -439,12 +405,7 @@ class _SearchState extends State<Search> {
                             ),
                             SizedBox(width: 8.w),
                             InkWell(
-                              onTap: () {
-                                state.maybeWhen(
-                                  loaded: (data) => _performSearchOn(data),
-                                  orElse: () {},
-                                );
-                              },
+                              onTap: _doSearchNow,
                               borderRadius: BorderRadius.circular(50.0.r),
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
@@ -462,6 +423,7 @@ class _SearchState extends State<Search> {
                           ],
                         ),
 
+                        // =================== Chips ===================
                         if (searchTags.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(top: 20.h),
@@ -471,13 +433,13 @@ class _SearchState extends State<Search> {
                               children: searchTags.map(_buildTagChip).toList(),
                             ),
                           )
-                        else if (_history.isNotEmpty)
+                        else if (s.history.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(top: 20.h),
                             child: Wrap(
                               spacing: 8.w,
                               runSpacing: 8.h,
-                              children: _history
+                              children: s.history
                                   .map(_buildHistoryChip)
                                   .toList(),
                             ),
@@ -485,46 +447,67 @@ class _SearchState extends State<Search> {
 
                         SizedBox(height: 12.h),
 
+                        if (s.provinceDetected != null &&
+                            s.provinceDetected!.trim().isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.h),
+                            child: Text(
+                              "Province: ${s.provinceDetected!}",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ),
+
+                        // =================== Results ===================
                         Expanded(
-                          child: state.maybeWhen(
-                            loading: () => Center(
-                              child: CircularProgressIndicator(
-                                color: AppColor.white,
-                              ),
-                            ),
-                            error: (msg) => Center(
-                              child: Text(
-                                msg,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                            loaded: (data) {
-                              if (_results.isEmpty) {
-                                return Center(
+                          child: s.loading
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColor.white,
+                                  ),
+                                )
+                              : (s.error != null)
+                              ? Center(
                                   child: Text(
-                                    'اكتب كلمة واضغط بحث لإظهار نتائج حقيقية من most_popular + discounts',
+                                    s.error!,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                )
+                              : (_controller.text.trim().isEmpty)
+                              ? Center(
+                                  child: Text(
+                                    "ابدأ بالبحث عن وجبة أو مطعم",
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14.sp,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                );
-                              }
-                              return ListView.builder(
-                                itemCount: _results.length,
-                                itemBuilder: (context, i) =>
-                                    _restaurantBlock(_results[i]),
-                              );
-                            },
-                            orElse: () => const SizedBox.shrink(),
-                          ),
+                                )
+                              : (s.results.isEmpty)
+                              ? Center(
+                                  child: Text(
+                                    "لا توجد نتائج",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: s.results.length,
+                                  itemBuilder: (context, i) =>
+                                      _apiRestaurantBlock(s.results[i]),
+                                ),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
+
               if (showSuggestions) _suggestionsOverlay(),
             ],
           ),
@@ -587,11 +570,7 @@ class _SearchState extends State<Search> {
                     return InkWell(
                       onTap: () {
                         _applySuggestionToField(suggestion);
-                        final st = cubit.state;
-                        st.maybeWhen(
-                          loaded: (data) => _performSearchOn(data),
-                          orElse: () {},
-                        );
+                        _doSearchNow();
                       },
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -615,7 +594,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  /// ✅ صورة: تقبل URL أو asset
+  /// ✅ صورة: تقبل URL أو path
   Widget _buildImage(String path) {
     final p = path.trim();
 
@@ -633,16 +612,6 @@ class _SearchState extends State<Search> {
 
     if (p.isEmpty) return fallback;
 
-    if (!p.startsWith("http") && p.startsWith("assets/")) {
-      return Image.asset(
-        p,
-        height: 35.h,
-        width: 35.w,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => fallback,
-      );
-    }
-
     final url = p.startsWith("http")
         ? p
         : "https://breezefood.cloud/${p.startsWith("/") ? p.substring(1) : p}";
@@ -657,18 +626,19 @@ class _SearchState extends State<Search> {
   }
 }
 
-class SearchPopularItemCard extends StatelessWidget {
-  final MenuItemModel item;
+class _SearchApiItemCard extends StatelessWidget {
+  final String title;
+  final String price;
+  final String imageUrl;
 
-  const SearchPopularItemCard({super.key, required this.item});
+  const _SearchApiItemCard({
+    required this.title,
+    required this.price,
+    required this.imageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
-    final price = (item.priceAfter > 0 ? item.priceAfter : item.priceBefore);
-
-    final img = item.primaryImage?.imageUrl; // ✅ هذا الموجود عندك
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
@@ -681,12 +651,12 @@ class SearchPopularItemCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: 85.h,
-            child: (img == null || img.isEmpty)
-                ? _imageFallback()
+            child: imageUrl.isEmpty
+                ? _fallback()
                 : Image.network(
-                    img,
+                    imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
+                    errorBuilder: (_, __, ___) => _fallback(),
                   ),
           ),
           Padding(
@@ -706,7 +676,7 @@ class SearchPopularItemCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 6.w, bottom: 6.h),
             child: Text(
-              "$price ل.س",
+              "$price \$",
               style: TextStyle(
                 color: AppColor.white,
                 fontSize: 12.sp,
@@ -720,7 +690,7 @@ class SearchPopularItemCard extends StatelessWidget {
     );
   }
 
-  Widget _imageFallback() {
+  Widget _fallback() {
     return Container(
       color: Colors.grey.shade800,
       alignment: Alignment.center,

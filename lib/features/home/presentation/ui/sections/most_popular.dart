@@ -1,5 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_Page.dart';
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
@@ -309,7 +310,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
           Padding(
             padding: EdgeInsets.only(left: 6.w, bottom: 6.h),
             child: Text(
-              "$price ل.س",
+              context.syp(price),
               style: TextStyle(
                 color: AppColor.white,
                 fontSize: 12.sp,

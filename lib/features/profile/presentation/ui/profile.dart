@@ -44,13 +44,13 @@ class _ProfileState extends State<Profile> {
       bloc: cubit,
       builder: (context, state) {
         final name = state.maybeWhen(
-          loaded: (user, _, __, ___) =>
+          loaded: (user, _, __, ___,____,_____) =>
               user.fullName.isEmpty ? "—" : user.fullName,
           orElse: () => "—",
         );
 
         final phone = state.maybeWhen(
-          loaded: (user, _, __, ___) => user.phone.isEmpty ? "" : user.phone,
+          loaded: (user, _, __, ___,____,_____) => user.phone.isEmpty ? "" : user.phone,
           orElse: () => "",
         );
 

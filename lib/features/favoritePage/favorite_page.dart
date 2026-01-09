@@ -1,5 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/favoritePage/data/model/favorites_response.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
 
@@ -65,7 +67,10 @@ class FavoritePageState extends State<FavoritePage> {
               child: Center(
                 child: SvgPicture.asset(
                   "assets/icons/delete.svg",
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
                   width: 30.w,
                   height: 30.h,
                 ),
@@ -94,7 +99,11 @@ class FavoritePageState extends State<FavoritePage> {
                           height: 100.h,
                           color: AppColor.Dark,
                           child: Center(
-                            child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
+                            child: Icon(
+                              Icons.fastfood,
+                              color: AppColor.white,
+                              size: 30.sp,
+                            ),
                           ),
                         )
                       : Image.network(
@@ -107,7 +116,11 @@ class FavoritePageState extends State<FavoritePage> {
                             height: 100.h,
                             color: AppColor.Dark,
                             child: Center(
-                              child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
+                              child: Icon(
+                                Icons.fastfood,
+                                color: AppColor.white,
+                                size: 30.sp,
+                              ),
                             ),
                           ),
                         ),
@@ -142,7 +155,7 @@ class FavoritePageState extends State<FavoritePage> {
                               ),
                             ),
                             TextSpan(
-                              text: "${item.price.toStringAsFixed(0)} ل.س",
+                              text: context.syp(item.price),
                               style: TextStyle(
                                 color: AppColor.yellow,
                                 fontFamily: "Manrope",
@@ -207,7 +220,12 @@ class FavoritePageState extends State<FavoritePage> {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               child: Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8, top: 30, bottom: 8),
+                padding: const EdgeInsets.only(
+                  left: 8,
+                  right: 8,
+                  top: 30,
+                  bottom: 8,
+                ),
                 child: Column(
                   children: [
                     const CustomAppbarHome(title: "Favorite"),
@@ -216,26 +234,30 @@ class FavoritePageState extends State<FavoritePage> {
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : items.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.favorite_border, color: AppColor.white, size: 50),
-                                      SizedBox(height: 10.h),
-                                      const Text(
-                                        "لا توجد عناصر في المفضلة",
-                                        style: TextStyle(color: Colors.white70),
-                                      ),
-                                    ],
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.favorite_border,
+                                    color: AppColor.white,
+                                    size: 50,
                                   ),
-                                )
-                              : ListView(
-                                  physics: const AlwaysScrollableScrollPhysics(),
-                                  children: [
-                                    for (final f in items) _buildOrderCard(f),
-                                    const SizedBox(height: 40),
-                                  ],
-                                ),
+                                  SizedBox(height: 10.h),
+                                  const Text(
+                                    "لا توجد عناصر في المفضلة",
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                for (final f in items) _buildOrderCard(f),
+                                const SizedBox(height: 40),
+                              ],
+                            ),
                     ),
                   ],
                 ),

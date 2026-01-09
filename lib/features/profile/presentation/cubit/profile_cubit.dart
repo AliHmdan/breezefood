@@ -1,4 +1,5 @@
 import 'package:breezefood/features/profile/data/model/address_model.dart';
+import 'package:breezefood/features/profile/data/model/avatar_model.dart';
 import 'package:breezefood/features/profile/data/model/user_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -137,7 +138,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (raw is Map) {
         final root = raw.cast<String, dynamic>();
 
-        // ✅ updateProfile أحياناً يرجع data وأحياناً user مباشر
         final inner = root["data"];
         final Map<String, dynamic> data = (inner is Map)
             ? inner.cast<String, dynamic>()
@@ -159,6 +159,28 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(current.copyWith(isSaving: false, message: "Saved"));
     }
   }
+Future<void> loadAvatars() async {
+  final current = state;
+  if (current is! _Loaded) return;
+
+  final res = await repo.getAvatars();
+  if (!res.ok) return;
+
+  try {
+    final raw = res.data;
+    if (raw is! Map) return;
+
+    final parsed = AvatarsResponse.fromJson(raw.cast<String, dynamic>());
+    emit(current.copyWith(avatars: parsed.data));
+  } catch (_) {}
+}
+
+void selectAvatar(int avatarId) {
+  final current = state;
+  if (current is! _Loaded) return;
+
+  emit(current.copyWith(selectedAvatarId: avatarId));
+}
 
   Future<void> addAddress({
     required String address,

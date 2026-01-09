@@ -1,5 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/dialogs.dart';
+import 'package:breezefood/core/services/money.dart'; // ✅ context.money()
 import 'package:breezefood/features/orders/model/cart_response.dart';
 import 'package:breezefood/features/orders/model/store_order_request.dart';
 import 'package:breezefood/features/orders/payment_method.dart';
@@ -35,18 +36,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       imageHeight: 24,
     ),
   ];
-
   String _selectedPayment = 'cash';
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CartCubit>().loadCart();
-    });
-  }
-
-  String _money(num v) => "${v.toStringAsFixed(0)}\$";
 
   String _fullUrl(String path) {
     final s = path.trim();
@@ -172,12 +162,15 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         listener: (context, state) async {
           await state.maybeWhen(
             loading: () async {
-              EasyLoading.show(
-                status: isRTL ? "جارٍ إرسال الطلب..." : "Placing order...",
-              );
+              // ✅ prevent stacking
+              if (!EasyLoading.isShow) {
+                EasyLoading.show(
+                  status: isRTL ? "جارٍ إرسال الطلب..." : "Placing order...",
+                );
+              }
             },
-            success: (orderId, status, pricing, raw) {
-              EasyLoading.dismiss();
+            success: (orderId, status, pricing, raw) async {
+              if (EasyLoading.isShow) await EasyLoading.dismiss();
 
               AppDialog.showSuccessDialog(
                 title: isRTL
@@ -190,10 +183,10 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
               context.read<CartCubit>().loadCart();
             },
-
             error: (msg) async {
-              await EasyLoading.dismiss();
+              if (EasyLoading.isShow) await EasyLoading.dismiss();
               if (!context.mounted) return;
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -204,7 +197,10 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                 ),
               );
             },
-            orElse: () async {},
+            orElse: () async {
+              // ✅ ensure dismiss on unexpected state
+              if (EasyLoading.isShow) await EasyLoading.dismiss();
+            },
           );
         },
         child: BlocBuilder<CartCubit, CartState>(
@@ -344,7 +340,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           key: ValueKey(it.id),
                                           image: it.image,
                                           name: title,
-                                          price: it.unitPrice,
+                                          price: it
+                                              .unitPrice, // widget handles formatting inside
                                           counter: CounterRequest(
                                             value: it.quantity,
                                             loading: isUpdating,
@@ -392,12 +389,16 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                     ),
                                                 ],
                                               ),
+
+                                              // ✅ Discount prices
                                               if (it.hasDiscount) ...[
                                                 SizedBox(height: 4.h),
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      _money(it.priceBefore),
+                                                      context.money(
+                                                        it.priceBefore,
+                                                      ),
                                                       style: TextStyle(
                                                         color: Colors.redAccent,
                                                         fontSize: 12.sp,
@@ -408,7 +409,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                     ),
                                                     SizedBox(width: 10.w),
                                                     Text(
-                                                      _money(it.priceAfter),
+                                                      context.money(
+                                                        it.priceAfter,
+                                                      ),
                                                       style: TextStyle(
                                                         color: AppColor.yellow,
                                                         fontSize: 13.sp,
@@ -419,6 +422,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                   ],
                                                 ),
                                               ],
+
                                               if (extras.isNotEmpty) ...[
                                                 SizedBox(height: 8.h),
                                                 Text(
@@ -444,9 +448,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                                   final priceText =
                                                       ex.totalPrice > 0
-                                                      ? "+${_money(ex.totalPrice)}"
+                                                      ? "+${context.money(ex.totalPrice)}"
                                                       : (ex.unitPrice > 0
-                                                            ? "+${_money(ex.unitPrice)}"
+                                                            ? "+${context.money(ex.unitPrice)}"
                                                             : "");
 
                                                   return Padding(
@@ -489,6 +493,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                   );
                                                 }),
                                               ],
+
                                               SizedBox(height: 10.h),
                                               Row(
                                                 children: [
@@ -504,7 +509,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    _money(it.totalPrice),
+                                                    context.money(
+                                                      it.totalPrice,
+                                                    ),
                                                     style: TextStyle(
                                                       color: AppColor.yellow,
                                                       fontSize: 13.sp,
@@ -545,7 +552,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 title: isRTL ? "المجموع الفرعي" : "Sub total",
                                 value: cart.itemsTotalAfter,
                                 before: cart.itemsTotalBefore,
-                                money: _money,
+                                money: (n) => context.money(n),
                               ),
                               if (cart.itemsDiscount > 0)
                                 Total(
@@ -556,7 +563,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 title: isRTL ? "التوصيل" : "Delivery",
                                 value: cart.deliveryAfter,
                                 before: cart.deliveryBefore,
-                                money: _money,
+                                money: (n) => context.money(n),
                               ),
                               if (cart.deliveryDiscount > 0)
                                 Total(
@@ -569,7 +576,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 value: cart.grandAfter,
                                 before: cart.grandBefore,
                                 isTotal: true,
-                                money: _money,
+                                money: (n) => context.money(n),
                               ),
                             ],
                           ),
@@ -627,7 +634,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                         SizedBox(height: 10.h),
 
                         PaymentMethodSection(
-                          amountText: '${cart.grandAfter.toStringAsFixed(0)}\$',
+                          amountText: context.money(cart.grandAfter), // ✅ fixed
                           methods: methods,
                           initialSelectedId: _selectedPayment,
                           onChanged: (id) =>
@@ -877,7 +884,8 @@ class _AddressPickerSheet extends StatelessWidget {
                       vertical: 8.h,
                     ),
                     itemCount: addresses.length,
-                    separatorBuilder: (_, __) => Divider(color: Colors.white10),
+                    separatorBuilder: (_, __) =>
+                        const Divider(color: Colors.white10),
                     itemBuilder: (_, i) {
                       final a = addresses[i];
                       final checked = a.id == selectedId;
@@ -1216,9 +1224,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 10.h),
-
                   SizedBox(
                     width: double.infinity,
                     height: 44.h,

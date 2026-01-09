@@ -1,5 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,7 +57,7 @@ class MealCard extends StatelessWidget {
                         style: TextStyle(color: AppColor.gry, fontSize: 14.sp),
                       ),
                       TextSpan(
-                        text: "${price.toStringAsFixed(0)}\$ ",
+                        text: context.syp(price),
                         style: TextStyle(
                           color: AppColor.yellow,
                           fontSize: 14.sp,
@@ -70,10 +71,7 @@ class MealCard extends StatelessWidget {
           ),
 
           // ✅ العداد من برا
-          if (counter != null) ...[
-            const SizedBox(width: 10),
-            counter!,
-          ],
+          if (counter != null) ...[const SizedBox(width: 10), counter!],
         ],
       ),
     );

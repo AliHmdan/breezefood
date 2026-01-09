@@ -9,10 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class DiscountDelevryGridPageGridPage extends StatelessWidget {
   final List<MenuItemModel> discounts; // ✅ real data
 
-  const DiscountDelevryGridPageGridPage({
-    super.key,
-    required this.discounts,
-  });
+  const DiscountDelevryGridPageGridPage({super.key, required this.discounts});
 
   int _getCrossAxisCount(double width) {
     if (width < 600) return 2;
@@ -31,7 +28,9 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
   }
 
   String _restaurantName(MenuItemModel it) {
-    return (it.restaurant?.name.isNotEmpty == true) ? it.restaurant!.name : "Restaurant";
+    return (it.restaurant?.name.isNotEmpty == true)
+        ? it.restaurant!.name
+        : "Restaurant";
   }
 
   @override
@@ -79,17 +78,12 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
                 final item = list[index];
 
                 return DiscountDelevry(
-                  imagePath: _imageUrl(item), // ✅ network url
+                  imagePath: _imageUrl(item),
                   title: _title(item),
-                  // إذا بدك اسم المطعم يظهر عندك بالويدجت: ضيف باراميتر subtitle
-                  oldPrice: "${item.priceBefore.toStringAsFixed(0)} ل.س",
-                  newPrice: "${item.priceAfter.toStringAsFixed(0)} ل.س",
-                  onTap: () {
-                    // افتح تفاصيل المنتج أو صفحة الطلب
-                  },
-                  onFavoriteToggle: () {
-                    // لاحقاً favorite endpoint
-                  },
+                  oldPrice: item.priceBefore.toString(),
+                  newPrice: item.priceAfter.toString(),
+                  onTap: () {},
+                  onFavoriteToggle: () {},
                 );
               },
             );
