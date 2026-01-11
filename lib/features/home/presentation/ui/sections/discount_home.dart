@@ -4,75 +4,10 @@ import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discount_grid_Page.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-//////////////////////////////////////////////////////////////
-// Rating Popup (UI only)
-//////////////////////////////////////////////////////////////
-
-void showRatingPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    barrierDismissible: true,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
-        ),
-        backgroundColor: const Color(0xFF2F2F2F),
-        child: Padding(
-          padding: EdgeInsets.all(20.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.white),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                "What is your rate?",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 15.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  5,
-                  (index) => Icon(
-                    index < 4 ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                    size: 35.sp,
-                  ),
-                ),
-              ),
-              SizedBox(height: 15.h),
-              Text(
-                "Please share your rate about the restaurant",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 13.sp),
-              ),
-              SizedBox(height: 20.h),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
-//////////////////////////////////////////////////////////////
-// 🧩 Discount Card (works with network images)
-//////////////////////////////////////////////////////////////
 
 class Discount extends StatefulWidget {
   final String imagePath; // ✅ network full url
@@ -98,9 +33,11 @@ class Discount extends StatefulWidget {
   State<Discount> createState() => _DiscountState();
 }
 
-class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin {
+class _DiscountState extends State<Discount>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late bool _isFavorite;
+  double _rating = 4.9; // أو 0.0 حسب بدك
 
   @override
   void initState() {
@@ -151,7 +88,11 @@ class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin
         height: height,
         color: Colors.grey.shade800,
         child: Center(
-          child: Icon(Icons.image_not_supported, color: AppColor.white, size: 30.sp),
+          child: Icon(
+            Icons.image_not_supported,
+            color: AppColor.white,
+            size: 30.sp,
+          ),
         ),
       ),
     );
@@ -179,14 +120,21 @@ class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin
                   child: buildImage(widget.imagePath, height: 100.h),
                 ),
 
-                // ⭐ Rating
                 Positioned(
                   top: 6,
                   left: 6,
                   child: GestureDetector(
-                    onTap: () => showRatingPopup(context),
+                    onTap: () async {
+                      final result = await showRatingDialog(context, _rating);
+                      if (result != null) {
+                        setState(() => _rating = result);
+                      }
+                    },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.45),
                         borderRadius: BorderRadius.circular(20.r),
@@ -196,7 +144,7 @@ class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin
                           Icon(Icons.star, color: Colors.amber, size: 12.sp),
                           SizedBox(width: 4.w),
                           CustomSubTitle(
-                            subtitle: "4.9",
+                            subtitle: _rating.toStringAsFixed(1),
                             color: AppColor.white,
                             fontsize: 12.sp,
                           ),
@@ -205,8 +153,6 @@ class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin
                     ),
                   ),
                 ),
-
-                // ❤️ Favorite
                 Positioned(
                   top: 6,
                   right: 6,
@@ -254,7 +200,10 @@ class _DiscountState extends State<Discount> with SingleTickerProviderStateMixin
                   bottom: 0,
                   left: 0,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.only(
@@ -314,7 +263,8 @@ class DiscountHome extends StatelessWidget {
 
   const DiscountHome({super.key, required this.mostPopular});
 
-  bool _hasDiscount(MenuItemModel it) => it.hasDiscount && (it.discountValue ?? 0) > 0;
+  bool _hasDiscount(MenuItemModel it) =>
+      it.hasDiscount && (it.discountValue ?? 0) > 0;
 
   String _discountText(MenuItemModel it) {
     final v = it.discountValue ?? 0;
@@ -331,7 +281,9 @@ class DiscountHome extends StatelessWidget {
   }
 
   String _restaurantName(MenuItemModel it) {
-    return it.restaurant?.name.isNotEmpty == true ? it.restaurant!.name : "Restaurant";
+    return it.restaurant?.name.isNotEmpty == true
+        ? it.restaurant!.name
+        : "Restaurant";
   }
 
   String _imageUrl(MenuItemModel it) {
@@ -357,7 +309,11 @@ class DiscountHome extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.local_offer, color: AppColor.primaryColor, size: 18.sp),
+              Icon(
+                Icons.local_offer,
+                color: AppColor.primaryColor,
+                size: 18.sp,
+              ),
               SizedBox(width: 10.w),
               Expanded(
                 child: Text(
@@ -381,7 +337,9 @@ class DiscountHome extends StatelessWidget {
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const DiscountGridPage()),
+                MaterialPageRoute(
+                  builder: (_) => DiscountGridPage(items: items), // ✅ نفس items
+                ),
               );
             },
           ),
@@ -416,7 +374,7 @@ class DiscountHome extends StatelessWidget {
                             // لاحقاً تربط favorite endpoint
                           },
                           onTap: () {
-                            // افتح تفاصيل المنتج مثلاً
+                            openDiscountItemFlow(context, it);
                           },
                         ),
                       );

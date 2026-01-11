@@ -3,6 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -152,6 +153,7 @@ class Stores extends StatelessWidget {
                                 ),
                               ),
                             );
+                            context.read<CartCubit>().loadCart();
                           },
                           child: Text(
                             "Order Now",

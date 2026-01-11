@@ -44,13 +44,14 @@ class _ProfileState extends State<Profile> {
       bloc: cubit,
       builder: (context, state) {
         final name = state.maybeWhen(
-          loaded: (user, _, __, ___,____,_____) =>
+          loaded: (user, _, __, ___, ____, _____) =>
               user.fullName.isEmpty ? "—" : user.fullName,
           orElse: () => "—",
         );
 
         final phone = state.maybeWhen(
-          loaded: (user, _, __, ___,____,_____) => user.phone.isEmpty ? "" : user.phone,
+          loaded: (user, _, __, ___, ____, _____) =>
+              user.phone.isEmpty ? "" : user.phone,
           orElse: () => "",
         );
 
@@ -180,21 +181,20 @@ class _ProfileState extends State<Profile> {
                           },
                         ),
 
-                        ListtileProfile(
-                          title: "profile.addresses".tr(),
-                          svgPath: "assets/icons/location-line.svg",
-                          onTap: () async {
-                            final res = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    AddressesScreen(profileCubit: cubit),
-                              ),
-                            );
-                            if (res == true) cubit.load();
-                          },
-                        ),
-
+                        // ListtileProfile(
+                        //   title: "profile.addresses".tr(),
+                        //   svgPath: "assets/icons/location-line.svg",
+                        //   onTap: () async {
+                        //     final res = await Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (_) =>
+                        //             AddressesScreen(profileCubit: cubit),
+                        //       ),
+                        //     );
+                        //     if (res == true) cubit.load();
+                        //   },
+                        // ),
                         ListtileProfile(
                           svgPath: "assets/icons/language.svg",
                           title: "profile.language".tr(),

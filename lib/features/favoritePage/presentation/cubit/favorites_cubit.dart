@@ -31,12 +31,9 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     }
   }
 
-  // ✅ تحميل صامت: لا نعمل emit(loading)
   Future<void> loadSilent() async {
     final res = await repo.getFavorites();
     if (!res.ok) {
-      // ما بدنا نخرّب UI بصمت، بس لو بدك رسالة خطأ ممكن:
-      // emit(FavoritesState.error(res.message ?? "خطأ"));
       return;
     }
 
@@ -44,7 +41,6 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       final parsed = FavoritesResponse.fromJson((res.data as Map).cast<String, dynamic>());
       emit(FavoritesState.loaded(parsed.myFavorites));
     } catch (_) {
-      // ignore
     }
   }
 

@@ -4,11 +4,13 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/model/all_resturants.dart'
     show RestaurantModel;
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
 import 'package:breezefood/features/stores/presentation/cubit/super_markets_list_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
+import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -490,6 +492,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                                           ),
                                         ),
                                       );
+                                      context.read<CartCubit>().loadCart();
                                     },
                                     child: RestaurantCard(
                                       imageUrl: _restaurantImage(r) ?? "",
@@ -557,10 +560,11 @@ class _StoresNavTabState extends State<StoresNavTab>
                                     onTap: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => MarketPagePrice(
-                                            marketId: m.id,
-                                            title: m.name,
-                                          ),
+                                          builder: (_) =>
+                                              MarketCategoriesScreen(
+                                                marketId: m.id,
+                                                title: m.name,
+                                              ),
                                         ),
                                       );
                                     },

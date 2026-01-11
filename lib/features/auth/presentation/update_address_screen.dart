@@ -6,6 +6,7 @@ import 'package:breezefood/features/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 class UpdateAddressScreen extends StatefulWidget {
@@ -29,49 +30,59 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen> {
   }
 
   Future<void> _start() async {
-    log("UpdateAddressScreen started");
-
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         setState(() => _status = 'Location services are disabled');
-        log('Location services disabled');
         return;
       }
+
       LocationPermission permission = await Geolocator.checkPermission();
-      log('Initial permission: $permission');
-
       if (permission == LocationPermission.denied) {
-        log('Requesting permission...');
         permission = await Geolocator.requestPermission();
-        log('After request: $permission');
       }
-
       if (permission == LocationPermission.deniedForever) {
-        log('Permission permanently denied');
         setState(() => _status = 'Permission permanently denied');
         return;
       }
-
       if (permission == LocationPermission.denied) {
-        log('User denied permission');
         setState(() => _status = 'Permission denied');
         return;
       }
 
-      // 3) جلب الموقع الحالي
       setState(() => _status = 'Getting your location...');
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
-      log('Current location: lat=${pos.latitude}, lng=${pos.longitude}');
+      setState(() => _status = 'Resolving address...');
 
-      // 4) استدعاء API لإضافة العنوان (عن طريق cubit)
+      String addressText = "Unknown address";
+      try {
+        final placemarks = await placemarkFromCoordinates(
+          pos.latitude,
+          pos.longitude,
+        );
+        if (placemarks.isNotEmpty) {
+          final p = placemarks.first;
+          // ركّب عنوان مرتب
+          final parts = <String>[
+            if ((p.street ?? '').trim().isNotEmpty) p.street!,
+            if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!,
+            if ((p.locality ?? '').trim().isNotEmpty) p.locality!,
+            if ((p.administrativeArea ?? '').trim().isNotEmpty)
+              p.administrativeArea!,
+            if ((p.country ?? '').trim().isNotEmpty) p.country!,
+          ];
+          addressText = parts.join(', ');
+        }
+      } catch (_) {
+        addressText = "${pos.latitude}, ${pos.longitude}";
+      }
+
       setState(() => _status = 'Updating your address...');
-
       cubit.addAddress(
-        address: "عنوان افتراضي", // لاحقاً بدله من UI
+        address: addressText,
         lat: pos.latitude,
         lon: pos.longitude,
       );
@@ -93,10 +104,7 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen> {
       bloc: cubit,
       listener: (context, state) {
         state.whenOrNull(
-          loading: () {
-            // لو تحب خليها ثابتة بدون تغيير
-            // setState(() => _status = 'Updating...');
-          },
+          loading: () {},
           error: (msg) {
             setState(() => _status = msg);
           },

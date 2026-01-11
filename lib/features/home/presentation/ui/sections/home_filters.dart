@@ -14,12 +14,12 @@ class HomeFilters extends StatefulWidget {
 }
 
 class _HomeFiltersState extends State<HomeFilters> {
-  String selectedFilter = "popular";
+  String selectedFilter = "closer";
 
   @override
   void initState() {
     super.initState();
-    selectedFilter = "popular";
+    selectedFilter = "closer";
   }
 
   @override

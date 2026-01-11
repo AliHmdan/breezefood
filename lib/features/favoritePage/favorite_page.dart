@@ -31,8 +31,6 @@ class FavoritePageState extends State<FavoritePage> {
     cubit = context.read<FavoritesCubit>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // ✅ أول مرة فقط نعرض Loading
-      EasyLoading.show(status: "Loading...");
       await cubit.load();
       _firstLoadDone = true;
     });

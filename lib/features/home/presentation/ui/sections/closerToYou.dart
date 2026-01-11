@@ -4,6 +4,8 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,85 +16,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 //////////////////////////////////////////////////////////////
 // ⭐ Dialog Rating
 //////////////////////////////////////////////////////////////
-
-Future<double?> showRatingDialog(BuildContext context, double currentRating) {
-  double selectedRating = currentRating;
-
-  return showDialog<double>(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A2A2A),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.white),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                "What is your rate?",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                "Please share your rate about the restaurant",
-                style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20.h),
-              RatingBar.builder(
-                initialRating: currentRating <= 0 ? 1 : currentRating,
-                minRating: 1,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemSize: 32.sp,
-                unratedColor: Colors.white30,
-                itemPadding: EdgeInsets.symmetric(horizontal: 4.w),
-                itemBuilder: (context, _) =>
-                    const Icon(Icons.star, color: Colors.amber),
-                onRatingUpdate: (rating) {
-                  selectedRating = rating;
-                },
-              ),
-              SizedBox(height: 20.h),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.pop(context, selectedRating);
-                },
-                child: Text(
-                  "Submit",
-                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
 
 //////////////////////////////////////////////////////////////
 // 🔧 Helpers
@@ -194,7 +117,6 @@ Widget _buildImage(String? urlOrAsset, {required double height}) {
     },
   );
 }
-
 
 class CloserToYouCard extends StatefulWidget {
   final String? image; // network or asset
@@ -410,16 +332,25 @@ class CloserToYou extends StatelessWidget {
               name: r.name,
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg, // fallback لطيف
               deliveryTime: r.deliveryTime,
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => BlocProvider(
-                      create: (context) => getIt<FavoritesCubit>(),
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(create: (_) => getIt<FavoritesCubit>()),
+
+                        // ✅ نفس CartCubit تبع الهوم
+                        BlocProvider.value(value: context.read<CartCubit>()),
+                      ],
                       child: ResturantDetails(restaurant_id: r.id),
                     ),
                   ),
                 );
+
+                if (context.mounted) {
+                  context.read<CartCubit>().loadCart();
+                }
               },
             ),
           );

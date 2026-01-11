@@ -5,6 +5,8 @@ import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cu
 import 'package:breezefood/features/home/presentation/ui/home_screen.dart';
 import 'package:breezefood/features/favoritePage/favorite_page.dart';
 import 'package:breezefood/features/orders/orders.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/stores_nav_tab.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,14 @@ class _MainShellState extends State<MainShell> {
   late final FavoritesCubit _favoritesCubit;
 
   final _pages = <Widget>[
-    Home(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
+        BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
+      ],
+      child: const Home(),
+    ),
+
     StoresNavTab(),
     FavoritePage(),
     BlocProvider(create: (context) => getIt<OrdersCubit>(), child: Orders()),
@@ -54,14 +63,14 @@ class _MainShellState extends State<MainShell> {
     setState(() => _index = i);
 
     if (i == 2) {
-      _favoritesCubit.load(); 
+      _favoritesCubit.load();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _favoritesCubit, 
+      value: _favoritesCubit,
       child: Scaffold(
         backgroundColor: AppColor.Dark,
         extendBody: true,

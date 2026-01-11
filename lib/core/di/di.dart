@@ -141,15 +141,15 @@ Future<void> setupDi() async {
 
   getIt.registerFactory<TermsCubit>(() => TermsCubit(getIt<TermsRepository>()));
 
-  // Cubit
-  getIt.registerFactory(() => HomeCubit(getIt()));
+  getIt.registerFactory<HomeCubit>(
+    () => HomeCubit(getIt<HomeRepository>(), getIt<AuthRepository>()),
+  );
 
   // OrdersApiService
   getIt.registerLazySingleton<OrdersApiService>(
     () => OrdersApiService(getIt<Dio>()),
   );
 
- 
   // OrderFlowCubit
   getIt.registerFactory<OrderFlowCubit>(
     () => OrderFlowCubit(getIt<OrdersRepository>()),
@@ -184,9 +184,11 @@ Future<void> setupDi() async {
   getIt.registerLazySingleton<OrdersRepository>(
     () => OrdersRepository(getIt<OrdersApiService>()),
   );
-getIt.registerLazySingleton<SearchApiService>(() => SearchApiService(getIt<Dio>()));
-getIt.registerLazySingleton(() => SearchRepo(getIt<SearchApiService>()));
-getIt.registerFactory(() => SearchCubit(getIt<SearchRepo>()));
+  getIt.registerLazySingleton<SearchApiService>(
+    () => SearchApiService(getIt<Dio>()),
+  );
+  getIt.registerLazySingleton(() => SearchRepo(getIt<SearchApiService>()));
+  getIt.registerFactory(() => SearchCubit(getIt<SearchRepo>()));
 
   // cubit
   getIt.registerFactory<OrdersCubit>(

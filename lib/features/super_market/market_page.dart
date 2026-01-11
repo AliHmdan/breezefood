@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/presentation/cubit/markets_cubit.dart';
+import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,10 @@ class _MarketPageState extends State<MarketPage> {
           }
           if (state is MarketsError) {
             return Center(
-              child: Text(state.msg, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                state.msg,
+                style: const TextStyle(color: Colors.white),
+              ),
             );
           }
           if (state is MarketsLoaded) {
@@ -76,7 +80,7 @@ class _MarketPageState extends State<MarketPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MarketPagePrice(
+                    builder: (_) => MarketCategoriesScreen(
                       marketId: item.id,
                       title: item.title,
                     ),
@@ -91,7 +95,6 @@ class _MarketPageState extends State<MarketPage> {
     );
   }
 }
-
 
 /// شبكة العناصر (GridView.builder)
 class MarketGrid extends StatelessWidget {

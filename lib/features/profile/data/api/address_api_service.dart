@@ -7,7 +7,6 @@ part 'address_api_service.g.dart';
 abstract class AddressApiService {
   factory AddressApiService(Dio dio, {String? baseUrl}) = _AddressApiService;
 
-  // إذا عندك endpoint لعرض العناوين (شائع):
   @GET("/profile/location")
   Future<HttpResponse<dynamic>> getAddresses();
 
@@ -18,6 +17,6 @@ abstract class AddressApiService {
 
   @DELETE("/profile/addresses")
   Future<HttpResponse<dynamic>> deleteAddress(
-    @Body() Map<String, dynamic> body, // {"id":1}
+    @Body() Map<String, dynamic> body,  
   );
 }

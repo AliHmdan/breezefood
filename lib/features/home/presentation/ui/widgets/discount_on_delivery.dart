@@ -3,15 +3,10 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discount_delevry_grid_page.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-// ------------------------------------------------------------
-// 🧩 DiscountPriceCard Widget — سعر قديم + سعر جديد
-// ------------------------------------------------------------
 
 class DiscountPriceCard extends StatefulWidget {
   final String imageUrl; // ✅ FULL URL (network)
@@ -54,9 +49,10 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.3,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   void _toggleFavorite() {
@@ -78,8 +74,11 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
         height: height,
         color: Colors.grey.shade800,
         alignment: Alignment.center,
-        child: Icon(Icons.image_not_supported,
-            color: Colors.white70, size: 24.sp),
+        child: Icon(
+          Icons.image_not_supported,
+          color: Colors.white70,
+          size: 24.sp,
+        ),
       );
     }
 
@@ -171,8 +170,10 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                     if (result != null) setState(() => _rating = result);
                   },
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 3.h,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.6),
                       borderRadius: BorderRadius.circular(12.r),
@@ -217,8 +218,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                 bottom: 0,
                 left: 0,
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.55),
                     borderRadius: BorderRadius.only(
@@ -271,12 +271,10 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
 //////////////////////////////////////////////////////////////////////
 
 class DiscountDelvery extends StatelessWidget {
-  final List<MenuItemModel> discounts; // ✅ real from API (HomeResponse.discounts)
+  final List<MenuItemModel>
+  discounts; // ✅ real from API (HomeResponse.discounts)
 
-  const DiscountDelvery({
-    super.key,
-    required this.discounts,
-  });
+  const DiscountDelvery({super.key, required this.discounts});
 
   bool _hasDiscount(MenuItemModel it) =>
       it.hasDiscount && (it.priceBefore > it.priceAfter);
@@ -343,11 +341,9 @@ class DiscountDelvery extends StatelessWidget {
                           oldPrice: it.priceBefore.toStringAsFixed(0),
                           newPrice: it.priceAfter.toStringAsFixed(0),
                           initialIsFavorite: it.isFavorite,
-                          onFavoriteToggle: () {
-                            // لاحقاً endpoint
-                          },
+                          onFavoriteToggle: () {},
                           onTap: () {
-                            // افتح تفاصيل المنتج
+                            openDiscountFlow(context, it);
                           },
                         ),
                       );
@@ -361,83 +357,4 @@ class DiscountDelvery extends StatelessWidget {
       ],
     );
   }
-}
-
-//////////////////////////////////////////////////////////////////////
-// Rating Dialog
-//////////////////////////////////////////////////////////////////////
-
-Future<double?> showRatingDialog(BuildContext context, double currentRating) {
-  double selectedRating = currentRating;
-
-  return showDialog<double>(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2A2A2A),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, color: Colors.white),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                "What is your rate?",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                "Please share your rate about the restaurant",
-                style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20.h),
-              RatingBar.builder(
-                initialRating: currentRating,
-                minRating: 1,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemSize: 32.sp,
-                unratedColor: Colors.white30,
-                itemPadding: EdgeInsets.symmetric(horizontal: 4.w),
-                itemBuilder: (context, _) =>
-                    const Icon(Icons.star, color: Colors.amber),
-                onRatingUpdate: (rating) => selectedRating = rating,
-              ),
-              SizedBox(height: 20.h),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                onPressed: () => Navigator.pop(context, selectedRating),
-                child: Text(
-                  "Submit",
-                  style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
 }

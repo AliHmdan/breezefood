@@ -135,7 +135,7 @@ class _HomeState extends State<Home> {
                   controller: _scrollController,
                   child: Column(
                     children: [
-                      AppbarHome(home: homeData),
+                      AppbarHome(home: homeData, homeCubit: cubit),
 
                       HomeFilters(onFilterTap: _onFilterTap),
 
@@ -236,8 +236,6 @@ class _HomeState extends State<Home> {
 
                       const SizedBox(height: 12),
 
-                      // ---------------- Delivery Discounts ----------------
-                      // ---------------- Delivery Discounts ----------------
                       Container(key: _deliveryKey),
                       loading
                           ? _shimmerBox(height: 120.h)
@@ -289,33 +287,47 @@ class _HomeState extends State<Home> {
                 ),
               ),
 
-              // زر الطلب ثابت
+              // زر الطلب ثابت (يظهر فقط إذا السلة فيها عناصر)
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 85,
-                child: Center(
-                  child: CustomButtonOrder(
-                    title: "home.your_order".tr(),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MultiBlocProvider(
-                            providers: [
-                              BlocProvider(
-                                create: (_) => getIt<CartCubit>()..loadCart(),
+                child: BlocBuilder<CartCubit, CartState>(
+                  builder: (context, cartState) {
+                    final hasItems = cartState.maybeWhen(
+                      cartLoaded: (cart, __, ___) => cart.items.isNotEmpty,
+                      orElse: () => false,
+                    );
+
+                    if (!hasItems) return const SizedBox.shrink();
+
+                    return Center(
+                      child: CustomButtonOrder(
+                        title: "home.your_order".tr(),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => MultiBlocProvider(
+                                providers: [
+                                  // ✅ مهم: نمرّر نفس CartCubit (حتى ما نعمل نسخة جديدة)
+                                  BlocProvider.value(
+                                    value: context.read<CartCubit>()
+                                      ..loadCart(),
+                                  ),
+                                  BlocProvider(
+                                    create: (_) => getIt<OrderFlowCubit>(),
+                                  ),
+                                ],
+                                child: const RequestOrderScreen(),
                               ),
-                              BlocProvider(
-                                create: (_) => getIt<OrderFlowCubit>(),
-                              ),
-                            ],
-                            child: RequestOrderScreen(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                            ),
+                          );
+                          context.read<CartCubit>().loadCart();
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

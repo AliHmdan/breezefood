@@ -8,8 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 Future<SupermarketAddToCartResult?> showSupermarketAddOrderDialog(
   BuildContext context, {
   required String title,
-  required String price,
-  String? oldPrice,
+  required num price,
+  num? oldPrice, // ✅
   required String imagePath,
 }) async {
   return showModalBottomSheet<SupermarketAddToCartResult>(
@@ -42,9 +42,9 @@ Future<SupermarketAddToCartResult?> showSupermarketAddOrderDialog(
 
 class SupermarketAddOrderBody extends StatefulWidget {
   final String title;
-  final String price;
+  final num price;
   final String imagePath;
-  final String? oldPrice;
+  final num? oldPrice;
 
   const SupermarketAddOrderBody({
     super.key,
@@ -63,11 +63,6 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
   int _qty = 1;
   final TextEditingController notesController = TextEditingController();
 
-  double _parsePrice(String s) {
-    final cleaned = s.replaceAll(RegExp(r'[^0-9\.\-]'), '');
-    return double.tryParse(cleaned) ?? 0.0;
-  }
-
   @override
   void dispose() {
     notesController.dispose();
@@ -76,7 +71,7 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
 
   @override
   Widget build(BuildContext context) {
-    final pricePerItem = _parsePrice(widget.price);
+    final num pricePerItem = widget.price;
 
     return Column(
       children: [
@@ -156,14 +151,13 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                               fontsize: 16,
                             ),
                           ),
+
+                          // ✅ oldPrice اختياري
                           if (widget.oldPrice != null) ...[
                             Text(
-                              context.money(
-                                widget.oldPrice! as num,
-                                decimals: 0,
-                              ),
+                              context.money(widget.oldPrice!, decimals: 0),
                               style: TextStyle(
-                                color: AppColor.red,
+                                color: Colors.redAccent,
                                 fontSize: 12.sp,
                                 decoration: TextDecoration.lineThrough,
                               ),
@@ -172,7 +166,7 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                           ],
 
                           Text(
-                            widget.price,
+                            context.money(widget.price, decimals: 0),
                             style: TextStyle(
                               color: AppColor.yellow,
                               fontSize: 14.sp,
@@ -182,16 +176,8 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                         ],
                       ),
 
-                      SizedBox(height: 6.h),
-                      CustomSubTitle(
-                        subtitle: "Product details",
-                        color: AppColor.gry,
-                        fontsize: 10.sp,
-                      ),
+                      SizedBox(height: 14.h),
 
-                      _divider(),
-
-                      // ✅ Quantity
                       CustomSubTitle(
                         subtitle: "Quantity",
                         color: AppColor.white,
@@ -202,13 +188,12 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                       QtyCounter(
                         value: _qty,
                         onChanged: (v) => setState(() => _qty = v),
-                        pricePerItem: pricePerItem,
-                        moneyDecimals: 0, // أو 2 إذا بدك
+                        pricePerItem: pricePerItem, // ✅ num
+                        moneyDecimals: 0,
                       ),
 
-                      _divider(),
+                      SizedBox(height: 16.h),
 
-                      // ✅ Notes
                       CustomSubTitle(
                         subtitle: "Notes (optional)",
                         color: AppColor.white,
@@ -264,8 +249,8 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                 );
               },
               child: Text(
-                "ADD TO CART  ${context.money(pricePerItem * _qty, decimals: 0)}",
-                style: TextStyle(
+                "ADD TO CART  ${context.money((pricePerItem * _qty), decimals: 0)}",
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -275,13 +260,6 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _divider() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 18.h),
-      child: Divider(color: AppColor.gry, thickness: 1.2),
     );
   }
 }

@@ -32,7 +32,7 @@ class PaymentMethod {
 
 /// ويدجت اختيار طريقة الدفع + زر الطلب
 class PaymentMethodSection extends StatefulWidget {
-  final String headerTitle; // العنوان (Payment method)
+  final String headerTitle;  
   final String amountText; // مثل: 5.00$
   final List<PaymentMethod> methods;
   final String? initialSelectedId;

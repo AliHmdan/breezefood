@@ -12,8 +12,8 @@ import 'package:breezefood/features/orders/request_order/total.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RequestOrderScreen extends StatefulWidget {
@@ -24,8 +24,8 @@ class RequestOrderScreen extends StatefulWidget {
 }
 
 class _RequestOrderScreenState extends State<RequestOrderScreen> {
-  int? _selectedAddressId; // للعناوين المحفوظة
-  OrderAddress? _tempOrderAddress; // ✅ عنوان مؤقت للطلب الحالي فقط
+  int? _selectedAddressId; // saved addresses
+  OrderAddress? _tempOrderAddress; // ✅ temporary for this order only
 
   final methods = const [
     PaymentMethod(
@@ -36,13 +36,13 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       imageHeight: 24,
     ),
   ];
+
   String _selectedPayment = 'cash';
 
   String _fullUrl(String path) {
     final s = path.trim();
     if (s.isEmpty) return "";
     if (s.startsWith("http://") || s.startsWith("https://")) return s;
-
     final clean = s.replaceFirst(RegExp(r'^/+'), '');
     return "https://breezefood.cloud/$clean";
   }
@@ -60,7 +60,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         text,
         style: TextStyle(
           color: fg ?? Colors.white,
-          fontSize: 11.sp,
+          fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -162,7 +162,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         listener: (context, state) async {
           await state.maybeWhen(
             loading: () async {
-              // ✅ prevent stacking
               if (!EasyLoading.isShow) {
                 EasyLoading.show(
                   status: isRTL ? "جارٍ إرسال الطلب..." : "Placing order...",
@@ -198,7 +197,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
               );
             },
             orElse: () async {
-              // ✅ ensure dismiss on unexpected state
               if (EasyLoading.isShow) await EasyLoading.dismiss();
             },
           );
@@ -219,10 +217,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 8.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
                     child: Column(
                       children: [
                         if (toast != null && toast.trim().isNotEmpty) ...[
@@ -242,10 +237,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                             ),
                             child: Text(
                               toast,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12.sp,
-                              ),
+                              style: const TextStyle(color: Colors.red, fontSize: 12),
                             ),
                           ),
                         ],
@@ -265,7 +257,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                               isRTL ? "السلة فارغة" : "Cart is empty",
                               style: TextStyle(
                                 color: AppColor.white,
-                                fontSize: 16.sp,
+                                fontSize: 16,
                               ),
                             ),
                           )
@@ -275,12 +267,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                               final isUpdating = updatingIds.contains(it.id);
 
                               final title = isRTL
-                                  ? (it.nameAr.trim().isNotEmpty
-                                        ? it.nameAr
-                                        : it.nameEn)
-                                  : (it.nameEn.trim().isNotEmpty
-                                        ? it.nameEn
-                                        : it.nameAr);
+                                  ? (it.nameAr.trim().isNotEmpty ? it.nameAr : it.nameEn)
+                                  : (it.nameEn.trim().isNotEmpty ? it.nameEn : it.nameAr);
 
                               final extras = it.extras;
 
@@ -291,9 +279,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                   direction: DismissDirection.endToStart,
                                   background: Container(
                                     alignment: Alignment.centerRight,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w,
-                                    ),
+                                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                                     decoration: BoxDecoration(
                                       color: Colors.red.withOpacity(0.85),
                                       borderRadius: BorderRadius.circular(12.r),
@@ -301,16 +287,13 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        const Icon(
-                                          Icons.delete,
-                                          color: Colors.white,
-                                        ),
+                                        const Icon(Icons.delete, color: Colors.white),
                                         SizedBox(width: 8.w),
                                         Text(
                                           isRTL ? "حذف" : "Delete",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 14.sp,
+                                            fontSize: 14,
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
@@ -319,14 +302,10 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                   ),
                                   confirmDismiss: (_) async {
                                     if (isUpdating) return false;
-                                    return _confirmDelete(
-                                      context,
-                                      isRTL: isRTL,
-                                    );
+                                    return _confirmDelete(context, isRTL: isRTL);
                                   },
-                                  onDismissed: (_) => context
-                                      .read<CartCubit>()
-                                      .removeItem(it.id),
+                                  onDismissed: (_) =>
+                                      context.read<CartCubit>().removeItem(it.id),
                                   child: Container(
                                     padding: EdgeInsets.only(bottom: 10.h),
                                     decoration: BoxDecoration(
@@ -340,15 +319,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           key: ValueKey(it.id),
                                           image: it.image,
                                           name: title,
-                                          price: it
-                                              .unitPrice, // widget handles formatting inside
+                                          price: it.unitPrice,
                                           counter: CounterRequest(
                                             value: it.quantity,
                                             loading: isUpdating,
                                             onChanged: (newQty) {
-                                              context
-                                                  .read<CartCubit>()
-                                                  .updateQty(
+                                              context.read<CartCubit>().updateQty(
                                                     cartItemId: it.id,
                                                     quantity: newQty,
                                                   );
@@ -356,12 +332,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 12.w,
-                                          ),
+                                          padding: EdgeInsets.symmetric(horizontal: 12.w),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               SizedBox(height: 6.h),
                                               Wrap(
@@ -369,8 +342,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                   if (it.isSpicy)
                                                     _chip(
                                                       "🌶️ ${isRTL ? "حار" : "Hot"}",
-                                                      bg: Colors.red
-                                                          .withOpacity(0.15),
+                                                      bg: Colors.red.withOpacity(0.15),
                                                     ),
                                                   if (it.deliveryTime > 0)
                                                     _chip(
@@ -381,42 +353,31 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                     _chip(
                                                       it.discountPercent > 0
                                                           ? "-${it.discountPercent}%"
-                                                          : (isRTL
-                                                                ? "خصم"
-                                                                : "Discount"),
-                                                      bg: Colors.green
-                                                          .withOpacity(0.15),
+                                                          : (isRTL ? "خصم" : "Discount"),
+                                                      bg: Colors.green.withOpacity(0.15),
                                                     ),
                                                 ],
                                               ),
 
-                                              // ✅ Discount prices
                                               if (it.hasDiscount) ...[
                                                 SizedBox(height: 4.h),
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      context.money(
-                                                        it.priceBefore,
-                                                      ),
-                                                      style: TextStyle(
+                                                      context.money(it.priceBefore),
+                                                      style: const TextStyle(
                                                         color: Colors.redAccent,
-                                                        fontSize: 12.sp,
-                                                        decoration:
-                                                            TextDecoration
-                                                                .lineThrough,
+                                                        fontSize: 12,
+                                                        decoration: TextDecoration.lineThrough,
                                                       ),
                                                     ),
                                                     SizedBox(width: 10.w),
                                                     Text(
-                                                      context.money(
-                                                        it.priceAfter,
-                                                      ),
+                                                      context.money(it.priceAfter),
                                                       style: TextStyle(
                                                         color: AppColor.yellow,
-                                                        fontSize: 13.sp,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],
@@ -427,36 +388,27 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                 SizedBox(height: 8.h),
                                                 Text(
                                                   isRTL ? "الإضافات" : "Extras",
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: 13.sp,
+                                                    fontSize: 13,
                                                     fontWeight: FontWeight.w700,
                                                   ),
                                                 ),
                                                 ...extras.map((ex) {
-                                                  final arName =
-                                                      ex.nameArObj?.name ?? "";
-                                                  final enName =
-                                                      ex.nameEnObj?.name ?? "";
+                                                  final arName = ex.nameArObj?.name ?? "";
+                                                  final enName = ex.nameEnObj?.name ?? "";
                                                   final exTitle = isRTL
-                                                      ? (arName.isNotEmpty
-                                                            ? arName
-                                                            : enName)
-                                                      : (enName.isNotEmpty
-                                                            ? enName
-                                                            : arName);
+                                                      ? (arName.isNotEmpty ? arName : enName)
+                                                      : (enName.isNotEmpty ? enName : arName);
 
-                                                  final priceText =
-                                                      ex.totalPrice > 0
+                                                  final priceText = ex.totalPrice > 0
                                                       ? "+${context.money(ex.totalPrice)}"
                                                       : (ex.unitPrice > 0
-                                                            ? "+${context.money(ex.unitPrice)}"
-                                                            : "");
+                                                          ? "+${context.money(ex.unitPrice)}"
+                                                          : "");
 
                                                   return Padding(
-                                                    padding: EdgeInsets.only(
-                                                      top: 6.h,
-                                                    ),
+                                                    padding: EdgeInsets.only(top: 6.h),
                                                     child: Row(
                                                       children: [
                                                         const Icon(
@@ -468,24 +420,19 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                         Expanded(
                                                           child: Text(
                                                             "$exTitle  ×${ex.quantity}",
-                                                            style: TextStyle(
-                                                              color: Colors
-                                                                  .white70,
-                                                              fontSize: 12.sp,
+                                                            style: const TextStyle(
+                                                              color: Colors.white70,
+                                                              fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
-                                                        if (priceText
-                                                            .isNotEmpty)
+                                                        if (priceText.isNotEmpty)
                                                           Text(
                                                             priceText,
                                                             style: TextStyle(
-                                                              color: AppColor
-                                                                  .yellow,
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
+                                                              color: AppColor.yellow,
+                                                              fontSize: 12,
+                                                              fontWeight: FontWeight.w600,
                                                             ),
                                                           ),
                                                       ],
@@ -499,24 +446,19 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                 children: [
                                                   Expanded(
                                                     child: Text(
-                                                      isRTL
-                                                          ? "مجموع العنصر"
-                                                          : "Item total",
-                                                      style: TextStyle(
+                                                      isRTL ? "مجموع العنصر" : "Item total",
+                                                      style: const TextStyle(
                                                         color: Colors.white60,
-                                                        fontSize: 12.sp,
+                                                        fontSize: 12,
                                                       ),
                                                     ),
                                                   ),
                                                   Text(
-                                                    context.money(
-                                                      it.totalPrice,
-                                                    ),
+                                                    context.money(it.totalPrice),
                                                     style: TextStyle(
                                                       color: AppColor.yellow,
-                                                      fontSize: 13.sp,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                 ],
@@ -555,10 +497,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 money: (n) => context.money(n),
                               ),
                               if (cart.itemsDiscount > 0)
-                                Total(
-                                  isRTL ? "خصم العناصر" : "Items discount",
-                                  cart.itemsDiscount,
-                                ),
+                                Total(isRTL ? "خصم العناصر" : "Items discount",
+                                    cart.itemsDiscount),
                               _totalLine(
                                 title: isRTL ? "التوصيل" : "Delivery",
                                 value: cart.deliveryAfter,
@@ -566,10 +506,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 money: (n) => context.money(n),
                               ),
                               if (cart.deliveryDiscount > 0)
-                                Total(
-                                  isRTL ? "خصم التوصيل" : "Delivery discount",
-                                  cart.deliveryDiscount,
-                                ),
+                                Total(isRTL ? "خصم التوصيل" : "Delivery discount",
+                                    cart.deliveryDiscount),
                               const Divider(color: Colors.white30),
                               _totalLine(
                                 title: isRTL ? "الإجمالي" : "Total",
@@ -584,19 +522,17 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                         SizedBox(height: 10.h),
 
-                        // ✅ Address picker (saved OR temporary)
+                        // ✅ Address Card (BOX + MiniMap)
                         _AddressCard(
                           isRTL: isRTL,
                           cart: cart,
-                          selectedSavedId:
-                              _selectedAddressId ?? cart.defaultAddress?.id,
+                          selectedSavedId: _selectedAddressId ?? cart.defaultAddress?.id,
                           tempAddress: _tempOrderAddress,
                           onTap: () async {
                             final action = await _openAddressPickerSheet(
                               isRTL: isRTL,
                               addresses: cart.addresses,
-                              selectedId:
-                                  _selectedAddressId ?? cart.defaultAddress?.id,
+                              selectedId: _selectedAddressId ?? cart.defaultAddress?.id,
                             );
 
                             if (action == null) return;
@@ -605,25 +541,21 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 action.savedId != null) {
                               setState(() {
                                 _selectedAddressId = action.savedId;
-                                _tempOrderAddress = null; // ✅ مسح المؤقت
+                                _tempOrderAddress = null;
                               });
                             }
 
                             if (action.type == _PickAddressActionType.temp) {
-                              final temp = await _openTempAddressPicker(
-                                isRTL: isRTL,
-                              );
-
+                              final temp = await _openTempAddressPicker(isRTL: isRTL);
                               if (temp != null) {
                                 setState(() {
-                                  _tempOrderAddress = temp; // ✅ تعيين المؤقت
-                                  _selectedAddressId = null; // ✅ تجاهل المحفوظ
+                                  _tempOrderAddress = temp;
+                                  _selectedAddressId = null;
                                 });
                               }
                             }
 
-                            if (action.type ==
-                                _PickAddressActionType.clearTemp) {
+                            if (action.type == _PickAddressActionType.clearTemp) {
                               setState(() {
                                 _tempOrderAddress = null;
                               });
@@ -633,12 +565,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                         SizedBox(height: 10.h),
 
+                        // order
                         PaymentMethodSection(
-                          amountText: context.money(cart.grandAfter), // ✅ fixed
+                          amountText: context.money(cart.grandAfter),
                           methods: methods,
                           initialSelectedId: _selectedPayment,
-                          onChanged: (id) =>
-                              setState(() => _selectedPayment = id),
+                          onChanged: (id) => setState(() => _selectedPayment = id),
                           onOrder: isPlacingOrder
                               ? null
                               : (paymentId) {
@@ -680,6 +612,21 @@ class _AddressCard extends StatelessWidget {
     required this.onTap,
   });
 
+  bool _canShowMapPreview(CartUserAddress? saved, OrderAddress? temp) {
+    final lat = temp?.latitude ?? saved?.latitude;
+    final lng = temp?.longitude ?? saved?.longitude;
+    if (lat == null || lng == null) return false;
+    return lat != 0 && lng != 0;
+  }
+
+  double _pickedLat(CartUserAddress? saved, OrderAddress? temp) {
+    return (temp?.latitude ?? saved?.latitude ?? 0).toDouble();
+  }
+
+  double _pickedLng(CartUserAddress? saved, OrderAddress? temp) {
+    return (temp?.longitude ?? saved?.longitude ?? 0).toDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     final addresses = cart.addresses;
@@ -704,54 +651,158 @@ class _AddressCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.white10),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            isRTL ? "عنوان التوصيل" : "Delivery address",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w800,
-            ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14.r),
+        child: Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.white10,
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: Colors.white12),
           ),
-          SizedBox(height: 10.h),
-          InkWell(
-            onTap: onTap,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Colors.white12),
-              ),
-              child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Row: icon + title + change
+              Row(
                 children: [
-                  const Icon(Icons.location_on, color: Colors.white70),
+                  Container(
+                    width: 34.w,
+                    height: 34.w,
+                    decoration: BoxDecoration(
+                      color: AppColor.primaryColor.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: const Icon(Icons.location_on, color: Colors.white),
+                  ),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Text(
                       shownText.isEmpty
                           ? (isRTL ? "اختر عنوان" : "Select address")
-                          : shownText,
-                      style: TextStyle(color: Colors.white70, fontSize: 11.sp),
+                          : (isRTL ? "عنوان التوصيل" : "Delivery address"),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                  const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          isRTL ? "تغيير" : "Change",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
+
+              SizedBox(height: 10.h),
+
+              // Address text visualization box
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                decoration: BoxDecoration(
+                  color: AppColor.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: Text(
+                  shownText.isEmpty
+                      ? (isRTL ? "لا يوجد عنوان محدد" : "No address selected")
+                      : shownText,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11.sp,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              // Mini map preview
+              if (_canShowMapPreview(selectedSaved, tempAddress)) ...[
+                SizedBox(height: 10.h),
+                _MiniMapPreview(
+                  lat: _pickedLat(selectedSaved, tempAddress),
+                  lng: _pickedLng(selectedSaved, tempAddress),
+                ),
+              ],
+
+              if (tempAddress != null && (tempAddress!.text.trim().isNotEmpty)) ...[
+                SizedBox(height: 8.h),
+                Text(
+                  isRTL
+                      ? "هذا عنوان مؤقت للطلب فقط"
+                      : "This is temporary for this order only",
+                  style: TextStyle(color: Colors.white54, fontSize: 11.sp),
+                ),
+              ],
+            ],
           ),
-          if (tempAddress != null && (tempAddress!.text.trim().isNotEmpty)) ...[
-            SizedBox(height: 8.h),
-            Text(
-              isRTL
-                  ? "هذا عنوان مؤقت للطلب فقط"
-                  : "This is temporary for this order only",
-              style: TextStyle(color: Colors.white54, fontSize: 11.sp),
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniMapPreview extends StatelessWidget {
+  final double lat;
+  final double lng;
+
+  const _MiniMapPreview({required this.lat, required this.lng});
+
+  @override
+  Widget build(BuildContext context) {
+    final pos = LatLng(lat, lng);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14.r),
+      child: Container(
+        height: 120.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white10),
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: CameraPosition(target: pos, zoom: 15),
+              zoomControlsEnabled: false,
+              myLocationButtonEnabled: false,
+              myLocationEnabled: false,
+              compassEnabled: false,
+              mapToolbarEnabled: false,
+              liteModeEnabled: true, // ✅ Android preview
+            ),
+            Center(
+              child: Icon(
+                Icons.location_pin,
+                size: 34.sp,
+                color: AppColor.primaryColor,
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -764,13 +815,15 @@ class _PickAddressAction {
   final int? savedId;
 
   const _PickAddressAction.saved(this.savedId)
-    : type = _PickAddressActionType.saved;
+      : type = _PickAddressActionType.saved;
+
   const _PickAddressAction.temp()
-    : type = _PickAddressActionType.temp,
-      savedId = null;
+      : type = _PickAddressActionType.temp,
+        savedId = null;
+
   const _PickAddressAction.clearTemp()
-    : type = _PickAddressActionType.clearTemp,
-      savedId = null;
+      : type = _PickAddressActionType.clearTemp,
+        savedId = null;
 }
 
 class _AddressPickerSheet extends StatelessWidget {
@@ -806,15 +859,13 @@ class _AddressPickerSheet extends StatelessWidget {
           SizedBox(height: 12.h),
           Text(
             isRTL ? "اختر عنوان" : "Choose address",
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 14.sp,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
           ),
           SizedBox(height: 12.h),
-
-          // ✅ خيار عنوان مؤقت
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             child: Column(
@@ -825,13 +876,8 @@ class _AddressPickerSheet extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () =>
                         Navigator.pop(context, const _PickAddressAction.temp()),
-                    icon: const Icon(
-                      Icons.edit_location_alt,
-                      color: Colors.white,
-                    ),
-                    label: Text(
-                      isRTL ? "إدخال عنوان مؤقت" : "Enter temporary address",
-                    ),
+                    icon: const Icon(Icons.edit_location_alt, color: Colors.white),
+                    label: Text(isRTL ? "إدخال عنوان مؤقت" : "Enter temporary address"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.primaryColor,
                       shape: RoundedRectangleBorder(
@@ -850,11 +896,7 @@ class _AddressPickerSheet extends StatelessWidget {
                       const _PickAddressAction.clearTemp(),
                     ),
                     icon: const Icon(Icons.close, color: Colors.white70),
-                    label: Text(
-                      isRTL
-                          ? "إلغاء العنوان المؤقت"
-                          : "Clear temporary address",
-                    ),
+                    label: Text(isRTL ? "إلغاء العنوان المؤقت" : "Clear temporary address"),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white24),
                       shape: RoundedRectangleBorder(
@@ -866,23 +908,18 @@ class _AddressPickerSheet extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(height: 10.h),
           const Divider(color: Colors.white24),
-
           Expanded(
             child: addresses.isEmpty
                 ? Center(
                     child: Text(
                       isRTL ? "لا يوجد عناوين محفوظة" : "No saved addresses",
-                      style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                   )
                 : ListView.separated(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 8.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                     itemCount: addresses.length,
                     separatorBuilder: (_, __) =>
                         const Divider(color: Colors.white10),
@@ -896,19 +933,12 @@ class _AddressPickerSheet extends StatelessWidget {
                           _PickAddressAction.saved(a.id),
                         ),
                         leading: Icon(
-                          checked
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_off,
-                          color: checked
-                              ? AppColor.primaryColor
-                              : Colors.white54,
+                          checked ? Icons.radio_button_checked : Icons.radio_button_off,
+                          color: checked ? AppColor.primaryColor : Colors.white54,
                         ),
                         title: Text(
                           a.address,
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12.sp,
-                          ),
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
                         ),
                       );
                     },
@@ -938,7 +968,7 @@ Widget _totalLine({
             title,
             style: TextStyle(
               color: isTotal ? Colors.white : Colors.white70,
-              fontSize: isTotal ? 14.sp : 13.sp,
+              fontSize: isTotal ? 14 : 13,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
             ),
           ),
@@ -946,9 +976,9 @@ Widget _totalLine({
         if (hasBefore) ...[
           Text(
             money(before!),
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.redAccent,
-              fontSize: 12.sp,
+              fontSize: 12,
               decoration: TextDecoration.lineThrough,
             ),
           ),
@@ -958,7 +988,7 @@ Widget _totalLine({
           money(value),
           style: TextStyle(
             color: isTotal ? AppColor.yellow : Colors.white,
-            fontSize: isTotal ? 15.sp : 13.sp,
+            fontSize: isTotal ? 15 : 13,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
           ),
         ),
@@ -1012,20 +1042,18 @@ class _CartHeader extends StatelessWidget {
               children: [
                 Text(
                   restaurantName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 14.sp,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  isRTL
-                      ? "طلب #$orderId • $orderStatus"
-                      : "Order #$orderId • $orderStatus",
-                  style: TextStyle(
+                  isRTL ? "طلب #$orderId • $orderStatus" : "Order #$orderId • $orderStatus",
+                  style: const TextStyle(
                     color: Colors.white54,
-                    fontSize: 11.sp,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1047,7 +1075,6 @@ Future<void> _storeOrder(
 }) async {
   final isRTL = Directionality.of(context) == TextDirection.rtl;
 
-  // ✅ لازم يكون في عنوان (مؤقت أو محفوظ أو primary)
   final hasTemp = temp != null && temp.text.trim().isNotEmpty;
   final hasAnySaved = cart.addresses.isNotEmpty;
 
@@ -1063,34 +1090,30 @@ Future<void> _storeOrder(
     return;
   }
 
-  // saved
   final pickedSaved = (selectedAddressId == null)
       ? cart.defaultAddress
       : cart.addresses.firstWhere(
           (a) => a.id == selectedAddressId,
           orElse: () =>
               cart.defaultAddress ??
-              (cart.addresses.isNotEmpty
-                  ? cart.addresses.first
-                  : cart.defaultAddress!),
+              (cart.addresses.isNotEmpty ? cart.addresses.first : cart.defaultAddress!),
         );
 
   final primary = cart.primaryAddress;
 
-  // ✅ priority: temp -> saved -> primary
   final addressToSend = hasTemp
       ? temp!
       : (pickedSaved != null)
-      ? OrderAddress(
-          text: pickedSaved.address,
-          latitude: pickedSaved.latitude,
-          longitude: pickedSaved.longitude,
-        )
-      : OrderAddress(
-          text: primary?.address ?? "",
-          latitude: primary?.latitude ?? 0,
-          longitude: primary?.longitude ?? 0,
-        );
+          ? OrderAddress(
+              text: pickedSaved.address,
+              latitude: pickedSaved.latitude,
+              longitude: pickedSaved.longitude,
+            )
+          : OrderAddress(
+              text: primary?.address ?? "",
+              latitude: primary?.latitude ?? 0,
+              longitude: primary?.longitude ?? 0,
+            );
 
   final req = StoreOrderRequest(
     restaurantId: cart.restaurantId,
@@ -1110,7 +1133,6 @@ Future<void> _storeOrder(
     appetizers: const [],
   );
 
-  // ✅ أهم سطر: لا تستخدم getIt هون
   context.read<OrderFlowCubit>().store(req);
 }
 
@@ -1133,11 +1155,8 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
   @override
   void initState() {
     super.initState();
-
-    // default location (اذا ما في initial)
     final initLat = widget.initial?.latitude ?? 37.4219983;
     final initLng = widget.initial?.longitude ?? -122.084;
-
     _pickedLatLng = LatLng(initLat, initLng);
     _textCtrl = TextEditingController(text: widget.initial?.text ?? "");
   }
@@ -1149,9 +1168,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
     super.dispose();
   }
 
-  void _setPicked(LatLng p) {
-    setState(() => _pickedLatLng = p);
-  }
+  void _setPicked(LatLng p) => setState(() => _pickedLatLng = p);
 
   @override
   Widget build(BuildContext context) {
@@ -1170,10 +1187,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       body: Stack(
         children: [
           GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _pickedLatLng,
-              zoom: 16,
-            ),
+            initialCameraPosition: CameraPosition(target: _pickedLatLng, zoom: 16),
             onMapCreated: (c) => _map = c,
             myLocationButtonEnabled: true,
             myLocationEnabled: true,
@@ -1182,18 +1196,16 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
             onCameraIdle: () => setState(() {}),
           ),
 
-          // ✅ pin ثابت بالنص (أسهل UX من marker)
           Center(
             child: IgnorePointer(
               child: Icon(
                 Icons.location_pin,
-                size: 46.sp,
+                size: 46,
                 color: AppColor.primaryColor,
               ),
             ),
           ),
 
-          // ✅ bottom card
           Positioned(
             left: 12.w,
             right: 12.w,
@@ -1212,9 +1224,8 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                     controller: _textCtrl,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: isRTL
-                          ? "اكتب العنوان (Text فقط)"
-                          : "Type address (text only)",
+                      hintText:
+                          isRTL ? "اكتب العنوان (Text فقط)" : "Type address (text only)",
                       hintStyle: const TextStyle(color: Colors.white54),
                       filled: true,
                       fillColor: Colors.white10,
@@ -1250,9 +1261,9 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                       },
                       child: Text(
                         isRTL ? "تأكيد العنوان" : "Confirm",
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13.sp,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

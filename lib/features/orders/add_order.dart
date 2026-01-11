@@ -128,8 +128,8 @@ class _AddOrderBodyState extends State<AddOrderBody> {
 
     return """
 ${widget.title}
-"💰 Price: $price$discountLine"
-
+💰 Price: $price$discountLine
+$spicyLine
 $extrasLine$noteLine
 ${productUrl.isEmpty ? "" : "\n$productUrl"}
 """
@@ -170,19 +170,16 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
   Widget build(BuildContext context) {
     return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
-        // ✅ عدّل أسماء الحالات إذا عندك مختلفة
-      state.whenOrNull(
-      addedSuccess: (message) async {
-        EasyLoading.showSuccess(message);
+        state.whenOrNull(
+          addedSuccess: (message) async {
+            EasyLoading.showSuccess(message);
 
-        // ✅ سكّر الشيت بعد لحظة صغيرة (حتى ما يتلخبط overlay مع pop)
-        await Future.delayed(const Duration(milliseconds: 250));
-        if (context.mounted) Navigator.of(context).pop(true);
-      },
-      error: (msg) {
-        EasyLoading.showError(msg);
-      },
-    );
+            if (context.mounted) Navigator.of(context).pop(true);
+          },
+          error: (msg) {
+            EasyLoading.showError(msg);
+          },
+        );
       },
       child: Column(
         children: [
@@ -370,7 +367,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                                   "اكتب ملاحظتك (مثلاً: بدون بصل، زيادة ثوم...)",
                               hintStyle: TextStyle(
                                 color: Colors.white54,
-                                fontSize: 12 ,
+                                fontSize: 12,
                               ),
                               border: InputBorder.none,
                             ),
@@ -478,7 +475,7 @@ class ExtrasList extends StatelessWidget {
                         child: CustomSubTitle(
                           subtitle: name,
                           color: AppColor.white,
-                          fontsize: 14 ,
+                          fontsize: 14,
                         ),
                       ),
                     ],
@@ -488,7 +485,7 @@ class ExtrasList extends StatelessWidget {
               CustomSubTitle(
                 subtitle: context.money(e.price),
                 color: AppColor.yellow,
-                fontsize: 14  ,
+                fontsize: 14,
               ),
             ],
           ),
@@ -557,7 +554,7 @@ class _CounterSheetState extends State<CounterSheet> {
                 CustomSubTitle(
                   subtitle: "$count",
                   color: AppColor.white,
-                  fontsize: 18 ,
+                  fontsize: 18,
                 ),
 
                 const SizedBox(width: 10),
@@ -593,7 +590,7 @@ class _CounterSheetState extends State<CounterSheet> {
                       : "${"add_to_cart".tr()}  ${context.money(total)}",
                   style: TextStyle(
                     color: AppColor.white,
-                    fontSize: 14 ,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

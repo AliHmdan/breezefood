@@ -1,21 +1,22 @@
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/core/services/money.dart';
+import 'package:breezefood/core/prices_helper.dart';
+import 'package:breezefood/core/services/money.dart'; // ✅ فيه context.syp(...)
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/orders/model/add_to_cart_request.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
+import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/stores/data/repo/super_market_repo.dart';
 import 'package:breezefood/features/stores/presentation/cubit/market_details_cubit.dart';
 import 'package:breezefood/features/super_market/supermarket_add_order_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MarketPagePrice extends StatelessWidget {
   final int marketId;
@@ -27,6 +28,79 @@ class MarketPagePrice extends StatelessWidget {
     required this.title,
   });
 
+  num _asNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+    return num.tryParse(v.toString()) ?? 0;
+  }
+
+  int _cartCount(dynamic cart) {
+    if (cart == null) return 0;
+
+    // ✅ CartResponse غالباً عنده items: List
+    try {
+      final items = (cart as dynamic).items;
+      if (items is List) return items.length;
+    } catch (_) {}
+
+    // بعض الناس يسموها data أو cartItems
+    try {
+      final items = (cart as dynamic).data;
+      if (items is List) return items.length;
+    } catch (_) {}
+
+    try {
+      final items = (cart as dynamic).cartItems;
+      if (items is List) return items.length;
+    } catch (_) {}
+
+    // ✅ إذا عنده count جاهز
+    try {
+      final c = (cart as dynamic).count;
+      if (c is num) return c.toInt();
+      return int.tryParse(c.toString()) ?? 0;
+    } catch (_) {}
+
+    try {
+      final c = (cart as dynamic).itemsCount;
+      if (c is num) return c.toInt();
+      return int.tryParse(c.toString()) ?? 0;
+    } catch (_) {}
+
+    return 0;
+  }
+
+  num _cartTotal(dynamic cart) {
+    if (cart == null) return 0;
+
+    // ✅ جرّب أشهر أسماء
+    try {
+      final v = (cart as dynamic).total;
+      if (v is num) return v;
+      return num.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    try {
+      final v = (cart as dynamic).totalPrice;
+      if (v is num) return v;
+      return num.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    try {
+      final v = (cart as dynamic).grandTotal;
+      if (v is num) return v;
+      return num.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    try {
+      final v = (cart as dynamic).subTotal;
+      if (v is num) return v;
+      return num.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -37,11 +111,12 @@ class MarketPagePrice extends StatelessWidget {
             marketId: marketId,
           )..load(),
         ),
-        BlocProvider(create: (_) => getIt<CartCubit>()),
+        // ✅ حمّل السلة مباشرة
+        BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
       ],
       child: MultiBlocListener(
         listeners: [
-          // ✅ Market loading feedback (اختياري)
+          // ✅ Market loading feedback
           BlocListener<MarketDetailsCubit, MarketDetailsState>(
             listenWhen: (p, c) =>
                 p.loading != c.loading ||
@@ -63,30 +138,24 @@ class MarketPagePrice extends StatelessWidget {
             },
           ),
 
+          // ✅ Cart feedback
           BlocListener<CartCubit, CartState>(
             listener: (context, state) {
               state.when(
                 initial: () {},
-                loading: () {
-                  EasyLoading.show(status: "Adding...".tr());
-                },
+                loading: () => EasyLoading.show(status: "Adding...".tr()),
                 addedSuccess: (message) {
                   EasyLoading.dismiss();
-
-                  // ✅ فيدباك واضح
                   EasyLoading.showSuccess(
                     message.isEmpty ? "added_success".tr() : message,
                   );
 
-                  // ✅ حمّل السلة لتحديث الزر/العدد
+                  // ✅ رفّش السلة ليحدث زر الطلب
                   context.read<CartCubit>().loadCart();
                 },
                 cartLoaded: (cart, updatingIds, toast) {
                   EasyLoading.dismiss();
-
-                  // ✅ لو بدك toast خفيف من السيرفر/الكيوبيت
                   if (toast != null && toast.trim().isNotEmpty) {
-                    // either EasyLoading or SnackBar
                     EasyLoading.showInfo(toast);
                   }
                 },
@@ -201,6 +270,20 @@ class MarketPagePrice extends StatelessWidget {
                                         childAspectRatio: 0.80,
                                       ),
                                   itemBuilder: (context, index) {
+                                    num toNum(dynamic v) {
+                                      if (v == null) return 0;
+                                      if (v is num) return v;
+
+                                      final s = v.toString().trim();
+                                      if (s.isEmpty) return 0;
+
+                                      final cleaned = s.replaceAll(
+                                        RegExp(r'[^0-9\.\-]'),
+                                        '',
+                                      );
+                                      return num.tryParse(cleaned) ?? 0;
+                                    }
+
                                     final it = state.items[index];
 
                                     final titleTxt = context.pick(
@@ -211,8 +294,11 @@ class MarketPagePrice extends StatelessWidget {
                                       ar: it.descriptionAr,
                                       en: it.descriptionEn,
                                     );
-                                    final priceStr = it.basePrice.money(
-                                      context,
+
+                                    final num priceNum = it.basePrice; // ✅
+                                    final String priceText = context.syp(
+                                      priceNum,
+                                      decimals: 0,
                                     );
 
                                     final imgUrl =
@@ -233,13 +319,15 @@ class MarketPagePrice extends StatelessWidget {
                                                     await showSupermarketAddOrderDialog(
                                                       context,
                                                       title: titleTxt,
-                                                      price: priceStr,
-                                                      oldPrice: null,
+                                                      price: priceNum, // ✅ num
+                                                      oldPrice:
+                                                          null, // ✅ optional
                                                       imagePath:
                                                           imgUrl.isNotEmpty
                                                           ? imgUrl
                                                           : "assets/images/bread.png",
                                                     );
+
                                                 if (res == null) return;
 
                                                 final req = AddToCartRequest(
@@ -257,7 +345,7 @@ class MarketPagePrice extends StatelessWidget {
                                           product: Product(
                                             title: titleTxt,
                                             desc: descTxt,
-                                            price: priceStr,
+                                            price: priceText, // ✅ صح
                                             image: imgUrl.isNotEmpty
                                                 ? imgUrl
                                                 : "assets/images/bread.png",
@@ -274,37 +362,55 @@ class MarketPagePrice extends StatelessWidget {
                 ),
               ),
 
-              // ✅ زر Your Order ثابت تحت + feedback لو السلة فاضية
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 16.h,
                 child: SafeArea(
                   top: false,
-                  child: Center(
-                    child: CustomButtonOrder(
-                      title: "home.your_order".tr(),
-                      onPressed: () async {
-                        // لو بدك: تأكد السلة مو فاضية قبل ما تفتح
-                        // (حسب CartCubit عندك: items length)
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MultiBlocProvider(
-                              providers: [
-                                BlocProvider(
-                                  create: (_) => getIt<CartCubit>()..loadCart(),
+                  child: BlocBuilder<CartCubit, CartState>(
+                    builder: (context, st) {
+                      int count = 0;
+                      num total = 0;
+
+                      st.maybeWhen(
+                        cartLoaded: (cart, _, __) {
+                          count = _cartCount(cart);
+                          total = _cartTotal(cart);
+                        },
+                        orElse: () {},
+                      );
+
+                      if (count <= 0) return const SizedBox.shrink();
+
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: CustomButtonOrder(
+                          title: "home.your_order".tr(),
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(
+                                      value: context.read<CartCubit>(),
+                                    ),
+                                    BlocProvider(
+                                      create: (_) => getIt<OrderFlowCubit>(),
+                                    ),
+                                  ],
+                                  child: const RequestOrderScreen(),
                                 ),
-                                BlocProvider(
-                                  create: (_) => getIt<OrderFlowCubit>(),
-                                ),
-                              ],
-                              child: const RequestOrderScreen(),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                              ),
+                            );
+
+                            if (context.mounted)
+                              context.read<CartCubit>().loadCart();
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -359,9 +465,7 @@ class ProductCard extends StatelessWidget {
                     ),
             ),
           ),
-
           SizedBox(height: 6.h),
-
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: Text(
@@ -375,9 +479,7 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(height: 2.h),
-
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: Text(
@@ -390,9 +492,7 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(height: 2.h),
-
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w),
             child: Text(
@@ -405,7 +505,6 @@ class ProductCard extends StatelessWidget {
               ),
             ),
           ),
-
           SizedBox(height: 8.h),
         ],
       ),
@@ -413,14 +512,10 @@ class ProductCard extends StatelessWidget {
   }
 }
 
-/* ===========================
-        Product Model
-=========================== */
-
 class Product {
   final String title;
   final String price;
-  final String image; // ممكن url أو asset
+  final String image; // url أو asset
   final String desc;
 
   Product({

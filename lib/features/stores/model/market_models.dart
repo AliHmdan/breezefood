@@ -25,11 +25,13 @@ class CategoryModel {
         image: json['image'] as String?,
       );
 }
-
 class MarketItemModel {
   final int id;
   final int categoryId;
-  final String basePrice;
+
+  /// ✅ صار num بدل String
+  final num basePrice;
+
   final bool isAvailable;
   final String nameAr;
   final String nameEn;
@@ -37,7 +39,7 @@ class MarketItemModel {
   final String descriptionEn;
   final String image;
 
-  MarketItemModel( {
+  const MarketItemModel({
     required this.image,
     required this.id,
     required this.categoryId,
@@ -49,15 +51,29 @@ class MarketItemModel {
     required this.descriptionEn,
   });
 
+  static num _toNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+
+    final s = v.toString().trim();
+    if (s.isEmpty) return 0;
+
+    final cleaned = s.replaceAll(RegExp(r'[^0-9\.\-]'), '');
+    return num.tryParse(cleaned) ?? 0;
+  }
+
   factory MarketItemModel.fromJson(Map<String, dynamic> json) => MarketItemModel(
         id: (json['id'] ?? 0) as int,
         categoryId: (json['category_id'] ?? 0) as int,
-        basePrice: (json['base_price'] ?? '0') as String,
+
+        /// ✅ يحول "1200.00" -> 1200
+        basePrice: _toNum(json['base_price']),
+
         isAvailable: (json['is_available'] ?? false) as bool,
         nameAr: (json['name_ar'] ?? '') as String,
         nameEn: (json['name_en'] ?? '') as String,
         descriptionAr: (json['description_ar'] ?? '') as String,
-        image: (json['image'] ?? '') as String,
         descriptionEn: (json['description_en'] ?? '') as String,
+        image: (json['image'] ?? '') as String,
       );
 }
