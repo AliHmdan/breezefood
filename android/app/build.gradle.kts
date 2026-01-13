@@ -31,7 +31,7 @@ android {
         applicationId = "com.example.breezefood"
 
         // ✅ FIX for firebase_messaging (minSdk 23)
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

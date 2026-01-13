@@ -3,6 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart'; // ✅ NEW
 import 'package:breezefood/core/services/pick_by_langu.dart';
+import 'package:breezefood/features/dialog/RateDialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
@@ -428,38 +429,54 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             horizontal: 16,
                             vertical: 5,
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: CustomSubTitle(
-                                  subtitle: description,
-                                  color: AppColor.gry,
-                                  fontsize: 8.sp,
+                          child: GestureDetector( onTap: () async {
+                            final rate = await showDialog<int>(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (_) => const RateDialog(),
+                            );
+
+                            if (rate != null) {
+                              debugPrint('User rate = $rate');
+                              // لاحقًا:
+                              // - خزنه محليًا
+                              // - أو أرسله للباك اند
+                              // - أو حدّث UI
+                            }
+                          },
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: CustomSubTitle(
+                                    subtitle: description,
+                                    color: AppColor.gry,
+                                    fontsize: 8.sp,
+                                  ),
                                 ),
-                              ),
-                              _divider(),
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                ratingText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
+                                _divider(),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 18,
                                 ),
-                              ),
-                              _divider(),
-                              Text(
-                                ordersText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                                const SizedBox(width: 2),
+                                Text(
+                                  ratingText,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                _divider(),
+                                Text(
+                                  ordersText,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 
