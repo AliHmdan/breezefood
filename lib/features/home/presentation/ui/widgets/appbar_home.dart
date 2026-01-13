@@ -4,6 +4,7 @@ import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/profile/presentation/ui/map_picker_screen.dart';
+import 'package:breezefood/features/profile/presentation/ui/profile.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,19 +33,22 @@ class AppbarHome extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: Column(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _openLocationSheet(context),
-            child: AbsorbPointer(
-              child: CustomAppbarHome(
-                title: title,
-                subtitle: subtitle,
-                image: "assets/icons/location.svg",
-                onTap: () {},
-                icon: Icons.keyboard_arrow_down,
-              ),
-            ),
+          CustomAppbarHome(
+            title: title,
+            subtitle: subtitle,
+            image: "assets/icons/location.svg",
+            icon: Icons.keyboard_arrow_down,
+
+            onLocationTap: () => _openLocationSheet(context),
+
+            onProfileTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const Profile()),
+              );
+            },
           ),
+
           const SizedBox(height: 15),
           CustomSearch(
             hint: 'Search',

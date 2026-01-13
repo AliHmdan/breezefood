@@ -25,7 +25,7 @@ mixin _$ProfileState {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)
         loaded,
@@ -40,7 +40,7 @@ mixin _$ProfileState {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -55,7 +55,7 @@ mixin _$ProfileState {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -158,7 +158,7 @@ class _$InitialImpl implements _Initial {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)
         loaded,
@@ -176,7 +176,7 @@ class _$InitialImpl implements _Initial {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -194,7 +194,7 @@ class _$InitialImpl implements _Initial {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -296,7 +296,7 @@ class _$LoadingImpl implements _Loading {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)
         loaded,
@@ -314,7 +314,7 @@ class _$LoadingImpl implements _Loading {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -332,7 +332,7 @@ class _$LoadingImpl implements _Loading {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -461,7 +461,7 @@ class _$ErrorImpl implements _Error {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)
         loaded,
@@ -479,7 +479,7 @@ class _$ErrorImpl implements _Error {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -497,7 +497,7 @@ class _$ErrorImpl implements _Error {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -569,7 +569,7 @@ abstract class _$$LoadedImplCopyWith<$Res> {
       {UserModel user,
       List<AddressModel> addresses,
       List<AvatarModel> avatars,
-      int? selectedAvatarId,
+      String? selectedAvatarPath,
       bool isSaving,
       String? message});
 }
@@ -590,7 +590,7 @@ class __$$LoadedImplCopyWithImpl<$Res>
     Object? user = null,
     Object? addresses = null,
     Object? avatars = null,
-    Object? selectedAvatarId = freezed,
+    Object? selectedAvatarPath = freezed,
     Object? isSaving = null,
     Object? message = freezed,
   }) {
@@ -607,10 +607,10 @@ class __$$LoadedImplCopyWithImpl<$Res>
           ? _value._avatars
           : avatars // ignore: cast_nullable_to_non_nullable
               as List<AvatarModel>,
-      selectedAvatarId: freezed == selectedAvatarId
-          ? _value.selectedAvatarId
-          : selectedAvatarId // ignore: cast_nullable_to_non_nullable
-              as int?,
+      selectedAvatarPath: freezed == selectedAvatarPath
+          ? _value.selectedAvatarPath
+          : selectedAvatarPath // ignore: cast_nullable_to_non_nullable
+              as String?,
       isSaving: null == isSaving
           ? _value.isSaving
           : isSaving // ignore: cast_nullable_to_non_nullable
@@ -628,9 +628,9 @@ class __$$LoadedImplCopyWithImpl<$Res>
 class _$LoadedImpl implements _Loaded {
   const _$LoadedImpl(
       {required this.user,
-      required final List<AddressModel> addresses,
-      final List<AvatarModel> avatars = const <AvatarModel>[],
-      this.selectedAvatarId,
+      final List<AddressModel> addresses = const [],
+      final List<AvatarModel> avatars = const [],
+      this.selectedAvatarPath,
       this.isSaving = false,
       this.message})
       : _addresses = addresses,
@@ -640,6 +640,7 @@ class _$LoadedImpl implements _Loaded {
   final UserModel user;
   final List<AddressModel> _addresses;
   @override
+  @JsonKey()
   List<AddressModel> get addresses {
     if (_addresses is EqualUnmodifiableListView) return _addresses;
     // ignore: implicit_dynamic_type
@@ -656,7 +657,7 @@ class _$LoadedImpl implements _Loaded {
   }
 
   @override
-  final int? selectedAvatarId;
+  final String? selectedAvatarPath;
   @override
   @JsonKey()
   final bool isSaving;
@@ -665,7 +666,7 @@ class _$LoadedImpl implements _Loaded {
 
   @override
   String toString() {
-    return 'ProfileState.loaded(user: $user, addresses: $addresses, avatars: $avatars, selectedAvatarId: $selectedAvatarId, isSaving: $isSaving, message: $message)';
+    return 'ProfileState.loaded(user: $user, addresses: $addresses, avatars: $avatars, selectedAvatarPath: $selectedAvatarPath, isSaving: $isSaving, message: $message)';
   }
 
   @override
@@ -677,8 +678,8 @@ class _$LoadedImpl implements _Loaded {
             const DeepCollectionEquality()
                 .equals(other._addresses, _addresses) &&
             const DeepCollectionEquality().equals(other._avatars, _avatars) &&
-            (identical(other.selectedAvatarId, selectedAvatarId) ||
-                other.selectedAvatarId == selectedAvatarId) &&
+            (identical(other.selectedAvatarPath, selectedAvatarPath) ||
+                other.selectedAvatarPath == selectedAvatarPath) &&
             (identical(other.isSaving, isSaving) ||
                 other.isSaving == isSaving) &&
             (identical(other.message, message) || other.message == message));
@@ -690,7 +691,7 @@ class _$LoadedImpl implements _Loaded {
       user,
       const DeepCollectionEquality().hash(_addresses),
       const DeepCollectionEquality().hash(_avatars),
-      selectedAvatarId,
+      selectedAvatarPath,
       isSaving,
       message);
 
@@ -712,13 +713,13 @@ class _$LoadedImpl implements _Loaded {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)
         loaded,
   }) {
     return loaded(
-        user, addresses, avatars, selectedAvatarId, isSaving, message);
+        user, addresses, avatars, selectedAvatarPath, isSaving, message);
   }
 
   @override
@@ -731,13 +732,13 @@ class _$LoadedImpl implements _Loaded {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
   }) {
     return loaded?.call(
-        user, addresses, avatars, selectedAvatarId, isSaving, message);
+        user, addresses, avatars, selectedAvatarPath, isSaving, message);
   }
 
   @override
@@ -750,7 +751,7 @@ class _$LoadedImpl implements _Loaded {
             UserModel user,
             List<AddressModel> addresses,
             List<AvatarModel> avatars,
-            int? selectedAvatarId,
+            String? selectedAvatarPath,
             bool isSaving,
             String? message)?
         loaded,
@@ -758,7 +759,7 @@ class _$LoadedImpl implements _Loaded {
   }) {
     if (loaded != null) {
       return loaded(
-          user, addresses, avatars, selectedAvatarId, isSaving, message);
+          user, addresses, avatars, selectedAvatarPath, isSaving, message);
     }
     return orElse();
   }
@@ -804,16 +805,16 @@ class _$LoadedImpl implements _Loaded {
 abstract class _Loaded implements ProfileState {
   const factory _Loaded(
       {required final UserModel user,
-      required final List<AddressModel> addresses,
+      final List<AddressModel> addresses,
       final List<AvatarModel> avatars,
-      final int? selectedAvatarId,
+      final String? selectedAvatarPath,
       final bool isSaving,
       final String? message}) = _$LoadedImpl;
 
   UserModel get user;
   List<AddressModel> get addresses;
   List<AvatarModel> get avatars;
-  int? get selectedAvatarId;
+  String? get selectedAvatarPath;
   bool get isSaving;
   String? get message;
 

@@ -12,30 +12,6 @@ import 'package:breezefood/features/orders/add_order.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/orders/request_order.dart';
-import 'package:breezefood/features/orders/request_order/tiem_price.dart';
-import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
-import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
-import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
-import 'package:breezefood/features/stores/presentation/cubit/most_popular_cubit.dart';
-import 'package:breezefood/features/stores/presentation/cubit/restaurant_details_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/core/services/money.dart';
-import 'package:breezefood/core/services/pick_by_langu.dart';
-import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
-import 'package:breezefood/features/orders/add_order.dart';
-import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
-import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/orders/request_order/tiem_price.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
@@ -96,9 +72,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     return UrlHelper.toFullUrl(v) ?? "";
   }
 
-  // =========================
-  // Cart helpers
-  // =========================
   double _extractCartTotal(dynamic cart) {
     if (cart == null) return 0.0;
 
@@ -183,9 +156,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
         context.read<CartCubit>().loadCart();
       },
       child: Scaffold(
-        backgroundColor: AppColor.Dark,
-
-        // ✅ زر السلة تحت (يظهر فقط إذا السلة مليانة)
         bottomNavigationBar: SafeArea(
           child: BlocBuilder<CartCubit, CartState>(
             builder: (context, st) {

@@ -21,22 +21,27 @@ class ProfileRepository {
     }
   }
 
+
   Future<AppResponse> updateProfile({
-    required String firstName,
-    required String lastName,
+    String? firstName,
+    String? lastName,
+    String? profileImagePath,
   }) async {
     try {
-      final res = await profileApi.updateProfile(
-        firstName: firstName,
-        lastName: lastName,
-      );
+      final body = <String, dynamic>{};
+
+      if (firstName != null) body["first_name"] = firstName;
+      if (lastName != null) body["last_name"] = lastName;
+      if (profileImagePath != null) body["profile_image"] = profileImagePath;
+
+      final res = await profileApi.updateProfile(body);
       return AppResponse.ok(data: res.data);
-    } on DioException catch (e) {
-      return AppResponseHandler.handleError(e);
-    } catch (_) {
-      return AppResponse.fail(message: "فشل تحديث الحساب");
+    } catch (e) {
+      return AppResponse.fail(message: e.toString());
     }
   }
+
+
 
   Future<AppResponse> getAddresses() async {
     try {

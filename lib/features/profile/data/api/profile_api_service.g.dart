@@ -78,35 +78,16 @@ class _ProfileApiService implements ProfileApiService {
   }
 
   @override
-  Future<HttpResponse<dynamic>> updateProfile({
-    required String firstName,
-    required String lastName,
-    int? avatarId,
-  }) async {
+  Future<HttpResponse<dynamic>> updateProfile(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
-    final _data = FormData();
-    _data.fields.add(MapEntry(
-      'first_name',
-      firstName,
-    ));
-    _data.fields.add(MapEntry(
-      'last_name',
-      lastName,
-    ));
-    if (avatarId != null) {
-      _data.fields.add(MapEntry(
-        'profile_image',
-        avatarId.toString(),
-      ));
-    }
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
     final _options = _setStreamType<HttpResponse<dynamic>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: 'multipart/form-data',
     )
         .compose(
           _dio.options,

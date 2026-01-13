@@ -48,6 +48,11 @@ class _ProfileState extends State<Profile> {
               user.fullName.isEmpty ? "—" : user.fullName,
           orElse: () => "—",
         );
+        final profileImage = state.maybeWhen(
+          loaded: (user, _, __, ___, ____, _____) =>
+              user.profileImage, // عدّل الاسم حسب موديلك
+          orElse: () => null,
+        );
 
         final phone = state.maybeWhen(
           loaded: (user, _, __, ___, ____, _____) =>
@@ -87,15 +92,7 @@ class _ProfileState extends State<Profile> {
                     child: Column(
                       children: [
                         // ✅ ما عاد نعتمد على asset ممكن يكون غير موجود
-                        CircleAvatar(
-                          radius: 60.r,
-                          backgroundColor: AppColor.black,
-                          child: Icon(
-                            Icons.person,
-                            color: AppColor.white,
-                            size: 44.sp,
-                          ),
-                        ),
+                        _avatar(fullUrl(profileImage)),
 
                         SizedBox(height: 12.h),
 
@@ -252,4 +249,43 @@ class _ProfileState extends State<Profile> {
       },
     );
   }
+}
+
+Widget _avatar(String? url) {
+  final hasUrl = (url ?? '').trim().isNotEmpty;
+
+  return CircleAvatar(
+    radius: 60.r,
+    backgroundColor: AppColor.black,
+    child: ClipOval(
+      child: hasUrl
+          ? Image.network(
+              url!,
+              width: 120.w,
+              height: 120.w,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.person, color: AppColor.white, size: 44.sp),
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) return child;
+                return Center(
+                  child: SizedBox(
+                    width: 22.w,
+                    height: 22.w,
+                    child: const CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              },
+            )
+          : Icon(Icons.person, color: AppColor.white, size: 44.sp),
+    ),
+  );
+}
+
+String fullUrl(String? path) {
+  final s = (path ?? '').trim();
+  if (s.isEmpty) return '';
+  if (s.startsWith('http')) return s;
+  final clean = s.replaceFirst(RegExp(r'^/+'), '');
+  return "https://breezefood.cloud/$clean";
 }

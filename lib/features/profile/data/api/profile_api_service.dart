@@ -10,15 +10,12 @@ abstract class ProfileApiService {
   @GET("/me")
   Future<HttpResponse<dynamic>> me();
 
-  @GET("/avatars") // ✅
+  @GET("/avatars")
   Future<HttpResponse<dynamic>> avatars();
 
+  // ✅ JSON
   @POST("/updateProfile")
-  @MultiPart()
-  Future<HttpResponse<dynamic>> updateProfile({
-    @Part(name: "first_name") required String firstName,
-    @Part(name: "last_name") required String lastName,
-    @Part(name: "profile_image") int? avatarId,
-  });
+  Future<HttpResponse<dynamic>> updateProfile(
+    @Body() Map<String, dynamic> body,
+  );
 }
-

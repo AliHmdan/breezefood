@@ -60,10 +60,7 @@ class AuthRepository {
     String? firebaseToken, // ✅ هذا هو FCM token
   }) async {
     try {
-      final body = <String, dynamic>{
-        "phone": phone,
-        "code": code,
-      };
+      final body = <String, dynamic>{"phone": phone, "code": code};
 
       // ✅ ينرسل بالفيرفاي وباسم token
       if (firebaseToken != null && firebaseToken.trim().isNotEmpty) {
@@ -124,21 +121,24 @@ class AuthRepository {
   Future<AppResponse> updateProfile({
     required String firstName,
     required String lastName,
+    String? profileImagePath,  
   }) async {
     try {
-      final res = await api.updateProfile({
+      final body = <String, dynamic>{
         "first_name": firstName,
         "last_name": lastName,
-      });
+      };
 
-      return AppResponse.ok(
-        message: res.data["message"] ?? "تم تحديث الحساب",
-        data: res.data,
-      );
+      if (profileImagePath != null && profileImagePath.trim().isNotEmpty) {
+        body["profile_image"] = profileImagePath.trim();
+      }
+
+      final res = await api.updateProfile(body);
+      return AppResponse.ok(data: res.data);
     } on DioException catch (e) {
       return AppResponseHandler.handleError(e);
     } catch (_) {
-      return AppResponse.fail(message: "فشل تحديث الحساب");
+      return AppResponse.fail(message: "فشل تحديث المعلومات");
     }
   }
 

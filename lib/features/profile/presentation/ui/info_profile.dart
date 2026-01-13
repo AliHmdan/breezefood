@@ -33,9 +33,10 @@ class _InfoProfileState extends State<InfoProfile> {
       final st = widget.profileCubit.state;
 
       st.maybeWhen(
-        loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
-          _fillFromLoadedOnce(st);
-        },
+        loaded:
+            (user, addresses, avatars, selectedAvatarId, isSaving, message) {
+              _fillFromLoadedOnce(st);
+            },
         orElse: () {
           widget.profileCubit.load();
         },
@@ -66,19 +67,17 @@ class _InfoProfileState extends State<InfoProfile> {
   }
 
   ImageProvider _avatarImageProvider(ProfileState state) {
-    // ✅ 1) إذا المستخدم مختار Avatar من القائمة -> اعرضه فوراً
-    final selectedUrl = state.maybeWhen(
-      loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
-        if (selectedAvatarId == null) return null;
-        final idx = avatars.indexWhere((a) => a.id == selectedAvatarId);
-        if (idx == -1) return null;
-        final url = avatars[idx].fullUrl;
-        return (url.isEmpty) ? null : url;
-      },
+    // ✅ 1) Preview: إذا المستخدم اختار Avatar (حتى لو ما عمل save)
+    final selectedPath = state.maybeWhen(
+      loaded: (_, __, ___, selectedAvatarPath, ____, _____) =>
+          selectedAvatarPath,
       orElse: () => null,
     );
 
-    if (selectedUrl != null) return NetworkImage(selectedUrl);
+    final selectedFull = UrlHelper.toFullUrl(selectedPath);
+    if (selectedFull != null && selectedFull.isNotEmpty) {
+      return NetworkImage(selectedFull);
+    }
 
     // ✅ 2) صورة من السيرفر ضمن user.profileImage
     final serverPath = state.maybeWhen(
@@ -86,9 +85,9 @@ class _InfoProfileState extends State<InfoProfile> {
       orElse: () => null,
     );
 
-    final fullUrl = UrlHelper.toFullUrl(serverPath);
-    if (fullUrl != null && fullUrl.isNotEmpty) {
-      return NetworkImage(fullUrl);
+    final serverFull = UrlHelper.toFullUrl(serverPath);
+    if (serverFull != null && serverFull.isNotEmpty) {
+      return NetworkImage(serverFull);
     }
 
     // ✅ 3) fallback
@@ -121,76 +120,93 @@ class _InfoProfileState extends State<InfoProfile> {
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: latestState.maybeWhen(
-            loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+            loaded:
+                (
+                  user,
+                  addresses,
+                  avatars,
+                  selectedAvatarPath,
+                  isSaving,
+                  message,
+                ) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: Text(
-                          'اختر صورة Avatar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12.h),
-
-                  if (avatars.isEmpty)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 18.h),
-                      child: const Center(child: CircularProgressIndicator()),
-                    )
-                  else
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: avatars.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
-                      itemBuilder: (_, i) {
-                        final av = avatars[i];
-                        final selected = selectedAvatarId == av.id;
-
-                        return GestureDetector(
-                          onTap: () {
-                            widget.profileCubit.selectAvatar(av.id);
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: selected ? AppColor.LightActive : Colors.white24,
-                                width: selected ? 3 : 1,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'اختر صورة Avatar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            padding: const EdgeInsets.all(4),
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white10,
-                              backgroundImage: av.fullUrl.isNotEmpty
-                                  ? NetworkImage(av.fullUrl)
-                                  : const AssetImage('assets/images/person.jpg') as ImageProvider,
-                            ),
                           ),
-                        );
-                      },
-                    ),
-                ],
-              );
-            },
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12.h),
+
+                      if (avatars.isEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 18.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: avatars.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                          itemBuilder: (_, i) {
+                            final av = avatars[i];
+                            final selected = selectedAvatarPath == av.path;
+                            return GestureDetector(
+                              onTap: () {
+                                widget.profileCubit.selectAvatar(
+                                  av,
+                                ); // تخزن path
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: selected
+                                        ? AppColor.LightActive
+                                        : Colors.white24,
+                                    width: selected ? 3 : 1,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(4),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white10,
+                                  backgroundImage: av.fullUrl.isNotEmpty
+                                      ? NetworkImage(av.fullUrl)
+                                      : const AssetImage(
+                                              'assets/images/person.jpg',
+                                            )
+                                            as ImageProvider,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  );
+                },
             orElse: () => Padding(
               padding: EdgeInsets.symmetric(vertical: 18.h),
               child: const Center(child: CircularProgressIndicator()),
@@ -280,7 +296,10 @@ class _InfoProfileState extends State<InfoProfile> {
             loaded: (_, __, ___, ____, _____, ______) {
               return SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 12.h,
+                  ),
                   child: Column(
                     children: [
                       Stack(
@@ -343,12 +362,12 @@ class _InfoProfileState extends State<InfoProfile> {
                       SizedBox(height: 30.h),
 
                       CustomButton(
-                        title: isSaving ? "common.saving".tr() : "common.save".tr(),
+                        title: isSaving
+                            ? "common.saving".tr()
+                            : "common.save".tr(),
                         onPressed: isSaving
                             ? null
                             : () async {
-                                if (!_validate()) return;
-
                                 await widget.profileCubit.saveProfile(
                                   firstName: _firstCtrl.text.trim(),
                                   lastName: _lastCtrl.text.trim(),

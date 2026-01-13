@@ -6,74 +6,100 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 
-
 class CustomAppbarHome extends StatelessWidget {
   final String title;
   final String? subtitle;
   final String? image;
   final IconData? icon;
-  final void Function()? onTap;
-  const CustomAppbarHome({super.key,  this.image, this.icon,  this.subtitle, required this.title, this.onTap});
+
+  /// ✅ كبسة صورة البروفايل
+  final VoidCallback? onProfileTap;
+
+  /// ✅ كبسة قسم الموقع (العنوان + السطر التاني)
+  final VoidCallback? onLocationTap;
+
+  const CustomAppbarHome({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.image,
+    this.icon,
+    this.onProfileTap,
+    this.onLocationTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return  Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // صورة البروفايل
-       InkWell(onTap:onTap ,
-         child: CircleAvatar(
-           radius: 20.r,
-           child: ClipOval(
-             child: Image.asset(
-               'assets/images/01.jpg',
-               width: 40.w,
-               height: 40.h,
-               fit: BoxFit.cover,
-             ),
-           ),
-         ),
-       ),
-
-        // النص والموقع
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CustomTitle(title: title, color: AppColor.white),
-            Row(
-              children: [
-                if (image != null) // <-- شرط حتى لا يعطي خطأ لو null
-                  SvgPicture.asset(
-                    image!,
-                    color: AppColor.LightActive,
-                    width: 20,
-                    height: 20,
-                  ),
-                SizedBox(width: image != null ? 4 : 0),
-                if (subtitle !=null)
-                CustomSubTitle(
-                  subtitle: "$subtitle",
-                  color: AppColor.LightActive,
-                  fontsize: 12.sp,
-                ),
-                if (icon != null)
-                  Icon(
-                    icon,
-                    color: AppColor.LightActive,
-                    size: 24.sp,
-                  ),
-              ],
+        // ✅ صورة البروفايل: تفتح الإعدادات فقط
+        InkWell(
+          onTap: onProfileTap,
+          child: CircleAvatar(
+            radius: 20.r,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/01.jpg',
+                width: 40.w,
+                height: 40.h,
+                fit: BoxFit.cover,
+              ),
             ),
-          ],
+          ),
         ),
 
-        // أيقونة الإشعارات
-        GestureDetector(onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NotificationPage()),
-          );
-        },
+        // ✅ النص والموقع: يفتح اختيار الموقع فقط
+        Expanded(
+          child: InkWell(
+            onTap: onLocationTap,
+            borderRadius: BorderRadius.circular(12.r),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomTitle(title: title, color: AppColor.white),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (image != null)
+                        SvgPicture.asset(
+                          image!,
+                          color: AppColor.LightActive,
+                          width: 20,
+                          height: 20,
+                        ),
+                      SizedBox(width: image != null ? 4 : 0),
+                      if (subtitle != null)
+                        CustomSubTitle(
+                          subtitle: "$subtitle",
+                          color: AppColor.LightActive,
+                          fontsize: 12.sp,
+                        ),
+                      if (icon != null)
+                        Icon(
+                          icon,
+                          color: AppColor.LightActive,
+                          size: 24.sp,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // ✅ الإشعارات: تبقى مثل ما هي
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NotificationPage()),
+            );
+          },
           child: Container(
             width: 35.w,
             height: 35.h,
