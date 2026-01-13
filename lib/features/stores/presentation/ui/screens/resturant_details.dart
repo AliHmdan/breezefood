@@ -3,6 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart'; // ✅ NEW
 import 'package:breezefood/core/services/pick_by_langu.dart';
+import 'package:breezefood/features/dialog/Cubit/RateCubit.dart';
 import 'package:breezefood/features/dialog/RateDialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
@@ -424,61 +425,83 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                         SizedBox(height: 8.h),
 
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 5,
-                          ),
-                          child: GestureDetector( onTap: () async {
-                            final rate = await showDialog<int>(
-                              context: context,
-                              barrierDismissible: true,
-                              builder: (_) => const RateDialog(),
-                            );
-
-                            if (rate != null) {
-                              debugPrint('User rate = $rate');
-                              // لاحقًا:
-                              // - خزنه محليًا
-                              // - أو أرسله للباك اند
-                              // - أو حدّث UI
-                            }
-                          },
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: CustomSubTitle(
-                                    subtitle: description,
-                                    color: AppColor.gry,
-                                    fontsize: 8.sp,
-                                  ),
-                                ),
-                                _divider(),
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  ratingText,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                                _divider(),
-                                Text(
-                                  ordersText,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        // ==================== ⭐ UI LOCAL RATING (NO API) ====================
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 5,
                         ),
+                        child: BlocBuilder<RatingCubit, Map<int, double>>(
+                          builder: (context, ratings) {
+                            // 🔹 جلب التقييم المحلي لهذا المطعم فقط
+                            final rate = ratings[widget.restaurant_id] ?? 0.0;
+
+                            return GestureDetector(
+                              onTap: () async {
+                                final selectedRate = await showDialog<double>(
+                                  context: context,
+                                  useRootNavigator: true, // ⭐ مهم لمنع Navigator lock
+                                  barrierDismissible: true,
+                                  builder: (_) => const RateDialog(),
+                                );
+
+                                // 🔹 حفظ التقييم محليًا (UI only)
+                                if (selectedRate != null) {
+                                  context.read<RatingCubit>().setRating(
+                                    widget.restaurant_id,
+                                    selectedRate,
+                                  );
+                                }
+                              },
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomSubTitle(
+                                      subtitle: description,
+                                      color: AppColor.gry,
+                                      fontsize: 8.sp,
+                                    ),
+                                  ),
+                                  _divider(),
+
+                                  /// ⭐ Star Icon
+                                  const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 4),
+
+                                  /// ⭐ Rating Value (Local State)
+                                  Text(
+                                    rate == 0.0
+                                        ? ratingText
+                                        : rate.toStringAsFixed(1), // 3.5 / 4.0
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+
+                                  _divider(),
+
+                                  Text(
+                                    ordersText,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+// ==================== ⭐ END LOCAL RATING ====================
+
+
 
                         // ---------------- Categories ----------------
                         Padding(

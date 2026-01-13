@@ -4,6 +4,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/router/navigation_key.dart';
 import 'package:breezefood/core/services/app_notification_service.dart';
 import 'package:breezefood/core/services/launch_screen.dart';
+import 'package:breezefood/features/dialog/Cubit/RateCubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,10 @@ class MyApp extends StatelessWidget {
     configEasyLoading();
 
     return MultiBlocProvider(
-      providers: [BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>())],
+      providers: [
+        BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
+        BlocProvider(create: (_) => RatingCubit()),
+      ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),
         minTextAdapt: true,

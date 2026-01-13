@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class RateDialog extends StatefulWidget {
   const RateDialog({super.key});
@@ -8,7 +9,7 @@ class RateDialog extends StatefulWidget {
 }
 
 class _RateDialogState extends State<RateDialog> {
-  int selectedRate = 0;
+  double selectedRate = 3.0; // ⭐ double (يدعم 3.5)
 
   @override
   Widget build(BuildContext context) {
@@ -30,35 +31,34 @@ class _RateDialogState extends State<RateDialog> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
-            /// ⭐ Stars
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                final starIndex = index + 1;
-                return IconButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedRate = starIndex;
-                    });
-                  },
-                  icon: Icon(
-                    starIndex <= selectedRate
-                        ? Icons.star
-                        : Icons.star_border,
-                    color: Colors.amber,
-                    size: 32,
-                  ),
-                );
-              }),
+            /// ⭐ RatingBar (DOUBLE – 3.5 SAFE)
+            RatingBar.builder(
+              initialRating: selectedRate, // 🔹 مهم
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: true, // ⭐ يدعم 0.5
+              itemCount: 5,
+              itemSize: 32,
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (double rating) {
+                setState(() {
+                  selectedRate = rating; // 🔹 حفظ القيمة المختارة
+                });
+              },
             ),
 
             const SizedBox(height: 8),
-            const Text(
-              'Please share your rate\nabout the restaurant',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+
+            /// عرض القيمة المختارة (3.5 مثلًا)
+            Text(
+              selectedRate.toStringAsFixed(1),
+              style: const TextStyle(color: Colors.white),
             ),
 
             const SizedBox(height: 20),
@@ -68,7 +68,9 @@ class _RateDialogState extends State<RateDialog> {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      Navigator.of(context).pop(null);
+                    },
                     child: const Text(
                       'Cancel',
                       style: TextStyle(color: Colors.grey),
@@ -77,12 +79,9 @@ class _RateDialogState extends State<RateDialog> {
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: selectedRate == 0
-                        ? null
-                        : () {
-                      /// 🔹 هنا فقط نغلق الـ dialog
-                      /// (أو ترجع القيمة إذا حبيت)
-                      Navigator.pop(context, selectedRate);
+                    onPressed: () {
+                      // 🔹 يرجّع double (مثل 3.5)
+                      Navigator.of(context).pop<double>(selectedRate);
                     },
                     child: const Text('Submit'),
                   ),

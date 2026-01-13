@@ -1,53 +1,17 @@
-import 'package:bloc/bloc.dart';
-import 'package:breezefood/features/dialog/Cubit/RateState.dart';
-import 'package:breezefood/features/dialog/RateApiService.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+class RatingCubit extends Cubit<Map<int, double>> {
+  RatingCubit() : super({});
 
-class RateCubit extends Cubit<RateState> {
-  final RateApiService api;
-
-  RateCubit(this.api) : super(RateState());
-
-  void selectRate(int value) {
-    emit(state.copyWith(selectedRate: value));
+  /// 🔹 حفظ / تحديث التقييم (UI Only)
+  void setRating(int restaurantId, double rating) {
+    final updated = Map<int, double>.from(state);
+    updated[restaurantId] = rating;
+    emit(updated);
   }
 
-  Future<void> submitRate(int restaurantId) async {
-    emit(state.copyWith(isLoading: true));
-
-    final result = await api.createRate(
-      restaurantId: restaurantId,
-      rate: state.selectedRate,
-    );
-
-    emit(state.copyWith(
-      isLoading: false,
-      rateModel: result,
-    ));
-  }
-
-  Future<void> updateRate() async {
-    if (state.rateModel == null) return;
-
-    emit(state.copyWith(isLoading: true));
-
-    final result = await api.updateRate(
-      rateId: state.rateModel!.id,
-      rate: state.selectedRate,
-    );
-
-    emit(state.copyWith(
-      isLoading: false,
-      rateModel: result,
-    ));
-  }
-
-  Future<void> deleteRate() async {
-    if (state.rateModel == null) return;
-
-    emit(state.copyWith(isLoading: true));
-    await api.deleteRate(state.rateModel!.id);
-
-    emit(RateState());
+  /// 🔹 جلب التقييم الحالي
+  double getRating(int restaurantId) {
+    return state[restaurantId] ?? 0.0;
   }
 }
