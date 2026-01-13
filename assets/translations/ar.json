@@ -1,0 +1,40 @@
+{
+  "profile": {
+    "title": "الملف الشخصي",
+    "personal_info": "المعلومات الشخصية",
+    "addresses": "العناوين",
+    "language": "اللغة",
+    "help_center": "مركز المساعدة",
+    "terms": "الشروط والأحكام",
+    "logout": "تسجيل الخروج"
+  },
+  "common": {
+    "retry": "إعادة المحاولة",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ..."
+  },
+  "home": {
+    "filters": {
+      "closer": "الأقرب إليك",
+      "stores": "المتاجر",
+      "discounts": "الخصومات",
+      "delivery": "خصومات التوصيل",
+      "supermarket": "سوبر ماركت",
+      "open": "مفتوح الآن"
+    },
+    "closer_to_you": "الأقرب إليك",
+    "stores": "المتاجر",
+    "super_market": "السوبر ماركت",
+    "open_now": "مفتوح الآن",
+    "your_order": "طلبك"
+  },
+  "referral": {
+    "copy": "نسخ",
+    "share": "مشاركة",
+    "your_referral_link": "رابط الإحالة الخاص بك",
+    "link_copied": "تم نسخ الرابط",
+    "share_invite_link": "مشاركة رابط الدعوة",
+    "share_try_app": "جرّب تطبيقنا: {url}",
+    "share_invite_ready": "دعوتك جاهزة! استخدم هذا الرابط: {url}"
+  }
+}
