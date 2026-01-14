@@ -23,10 +23,18 @@ class Supermarketslider extends StatelessWidget {
 
     return CarouselSlider.builder(
       options: CarouselOptions(
-        height: 120.h,
+        height: 160.h,
         autoPlay: true,
         enlargeCenterPage: true,
         viewportFraction: 0.9,
+        // ⏱️ كل كم ثانية يتغير السلايد
+        autoPlayInterval: const Duration(seconds: 4),
+
+        // 🎞️ سرعة الانتقال
+        autoPlayAnimationDuration: const Duration(milliseconds: 800),
+
+        // 🧠 نوع الحركة
+        autoPlayCurve: Curves.easeInOut,
       ),
       itemCount: restaurants.length,
       itemBuilder: (context, index, _) {
@@ -134,8 +142,8 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
           ),
 
           // Delivery chip (نفس الشكل)
-          Positioned(
-            left: 12,
+          PositionedDirectional(
+            start: 12,
             top: 12,
             child: _InfoChip(
               icon: SvgPicture.asset(
@@ -149,8 +157,8 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
           ),
 
           // Rating chip (قابل للتعديل بنفس الديالوج)
-          Positioned(
-            right: 12,
+          PositionedDirectional(
+            end: 12,
             top: 12,
             child: GestureDetector(
               onTap: () async {

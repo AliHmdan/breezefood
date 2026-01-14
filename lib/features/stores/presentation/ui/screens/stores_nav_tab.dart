@@ -5,6 +5,7 @@ import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cu
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/model/all_resturants.dart'
     show RestaurantModel;
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
@@ -68,7 +69,7 @@ class RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
+      borderRadius: BorderRadius.circular(50.r),
       child: Stack(
         children: [
           // 1. الخلفية
@@ -394,7 +395,8 @@ class _StoresNavTabState extends State<StoresNavTab>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Column(
             children: [
-              const CustomAppbarHome(title: "Stores"),
+              // const CustomAppbarHome(title: "Stores"),
+              CustomAppbarProfile(ontap: (){},title:"Stores" ,),
 
               // Tabs
               Row(

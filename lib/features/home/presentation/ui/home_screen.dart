@@ -246,7 +246,7 @@ class _HomeState extends State<Home> {
                               orElse: () => const SizedBox.shrink(),
                             ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
 
                       // ---------------- Super Market ----------------
                       Container(key: _supermarketKey),
@@ -281,7 +281,7 @@ class _HomeState extends State<Home> {
                               orElse: () => const SizedBox.shrink(),
                             ),
 
-                      const SizedBox(height: 120),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),

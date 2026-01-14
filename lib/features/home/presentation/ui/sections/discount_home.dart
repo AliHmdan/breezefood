@@ -120,9 +120,9 @@ class _DiscountState extends State<Discount>
                   child: buildImage(widget.imagePath, height: 100.h),
                 ),
 
-                Positioned(
+                PositionedDirectional(
                   top: 6,
-                  left: 6,
+                  end: 6,
                   child: GestureDetector(
                     onTap: () async {
                       final result = await showRatingDialog(context, _rating);
@@ -153,18 +153,7 @@ class _DiscountState extends State<Discount>
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: GestureDetector(
-                    onTap: _toggleFavorite,
-                    child: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite ? Colors.red : Colors.white,
-                      size: 20.sp,
-                    ),
-                  ),
-                ),
+
 
                 // Restaurant name overlay
                 Positioned.fill(
@@ -196,9 +185,9 @@ class _DiscountState extends State<Discount>
                 ),
 
                 // Discount chip
-                Positioned(
+                PositionedDirectional(
                   bottom: 0,
-                  left: 0,
+                  start: 0,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 6.w,
@@ -206,9 +195,9 @@ class _DiscountState extends State<Discount>
                     ),
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(20.r),
-                        bottomRight: Radius.circular(20.r),
+                      borderRadius: BorderRadiusDirectional.only(
+                        topEnd: Radius.circular(20.r),
+                        bottomEnd: Radius.circular(20.r),
                       ),
                     ),
                     child: Row(

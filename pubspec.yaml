@@ -76,3 +76,7 @@ flutter:
     - assets/avatars/
     - assets/video/splachscreen.mp4
     - assets/translations/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/static/Inter_18pt-Bold.ttf

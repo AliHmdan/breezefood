@@ -215,6 +215,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                             color: Colors.white,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.bold,
+
                           ),
                         ),
                       ],

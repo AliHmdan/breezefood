@@ -113,153 +113,151 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      child: Column(
+      child:
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Stack(
-            children: [
-              SizedBox(
-                height: 100.h,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6.r),
-                  child: _buildNetworkImage(widget.imageUrl, height: 100.h),
-                ),
-              ),
-
-              // Gradient overlay + title
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.6),
-                        Colors.black.withOpacity(0.3),
-                        Colors.transparent,
-                      ],
-                    ),
+          AspectRatio( aspectRatio: 1.6,
+            child: Stack(
+              children: [
+                SizedBox(
+                  // height: 140.h,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6.r),
+                    child: _buildNetworkImage(widget.imageUrl, height: 150.h),
                   ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      child: Text(
-                        widget.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                ),
+            
+                // Gradient overlay + title
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          // Colors.black.withOpacity(0.6),
+                          // Colors.black.withOpacity(0.3),
+                          Colors.transparent,
+                        ],
                       ),
                     ),
-                  ),
-                ),
-              ),
-
-              // ⭐ Rating (top-right)
-              Positioned(
-                top: 6.h,
-                right: 6.w,
-                child: GestureDetector(
-                  onTap: () async {
-                    final result = await showRatingDialog(context, _rating);
-                    if (result != null) setState(() => _rating = result);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.w,
-                      vertical: 3.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 12.sp),
-                        SizedBox(width: 4.w),
-                        Text(
-                          _rating.toStringAsFixed(1),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Text(
+                          widget.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-
-              // ❤️ Favorite (اختياري، نفس الأنيميشن بدون تغيير الشكل)
-              Positioned(
-                top: 6.h,
-                left: 6.w,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
+            
+                // ⭐ Rating (top-right)
+                PositionedDirectional(
+                  top: 6.h,
+                  end: 6.w,
                   child: GestureDetector(
-                    onTap: _toggleFavorite,
-                    child: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite ? Colors.red : Colors.white,
-                      size: 18.sp,
+                    onTap: () async {
+                      final result = await showRatingDialog(context, _rating);
+                      if (result != null) setState(() => _rating = result);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 12.sp),
+                          SizedBox(width: 4.w),
+                          Text(
+                            _rating.toStringAsFixed(1),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-
-              // prices bottom-left
-              Positioned(
-                bottom: 0,
-                left: 0,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.55),
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(20.r),
-                      bottomRight: Radius.circular(20.r),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset(
-                        "assets/icons/motor.svg",
-                        color: AppColor.white,
-                        width: 15,
-                        height: 15,
-                      ),
-                      const SizedBox(width: 4),
-
-                      Text(
-                        "${widget.oldPrice}\$",
-                        style: TextStyle(
-                          color: AppColor.LightActive,
-                          decoration: TextDecoration.lineThrough,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        "${widget.newPrice}\$",
-                        style: TextStyle(
-                          color: AppColor.white,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            
+                // ❤️ Favorite (اختياري، نفس الأنيميشن بدون تغيير الشكل)
+                // Positioned(
+                //   top: 6.h,
+                //   left: 6.w,
+                //   child: ScaleTransition(
+                //     scale: _scaleAnimation,
+                //     child: GestureDetector(
+                //       onTap: _toggleFavorite,
+                //       child: Icon(
+                //         _isFavorite ? Icons.favorite : Icons.favorite_border,
+                //         color: _isFavorite ? Colors.red : Colors.white,
+                //         size: 18.sp,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+            
+                // prices bottom-left
+                // Positioned(
+                //   bottom: 0,
+                //   left: 0,
+                //   child:
+                //
+                // ),
+              ],
+            ),
           ),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              "assets/icons/motor.svg",
+              color: AppColor.white,
+              width: 15,
+              height: 15,
+            ),
+            SizedBox(width: 4.w),
+            Text(
+              "${widget.oldPrice}\$",
+              style: TextStyle(
+                color: AppColor.LightActive,
+                decoration: TextDecoration.lineThrough,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(width: 6.w),
+            Text(
+              "${widget.newPrice}\$",
+              style: TextStyle(
+                color: AppColor.red,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),)
         ],
       ),
     );
@@ -320,12 +318,13 @@ class DiscountDelvery extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 10, left: 8),
             child: SizedBox(
-              height: 110.h,
+              height: 180.h,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final itemWidth = constraints.maxWidth / 2.2;
 
                   return ListView.builder(
+                    itemExtent: null,
                     scrollDirection: Axis.horizontal,
                     itemCount: items.length,
                     physics: const BouncingScrollPhysics(),

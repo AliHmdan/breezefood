@@ -5,6 +5,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_titl
 import 'package:breezefood/features/orders/model/add_to_cart_request.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/request_order/custom_hot.dart';
+import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -374,7 +375,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           ),
                         ),
 
-                        divider(height: 20),
+                        SizedBox(height: 13),
 
                         CounterSheet(
                           basePrice: widget.price,
@@ -396,7 +397,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           },
                         ),
 
-                        SizedBox(height: 14.h),
+                        SizedBox(height: 8.h),
                       ],
                     ),
                   ),
@@ -409,10 +410,10 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
     );
   }
 
-  Widget divider({double height = 40}) {
+  Widget divider({double height = 30}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Divider(color: AppColor.gry, thickness: 1.2, height: height),
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Divider(color: AppColor.gry, thickness: 0.5, height: height),
     );
   }
 
@@ -563,7 +564,7 @@ class _CounterSheetState extends State<CounterSheet> {
                   child: InkWell(
                     onTap: isLoading ? null : () => setState(() => count++),
                     child: const CircleAvatar(
-                      backgroundColor: Colors.cyan,
+                      backgroundColor: AppColor.primaryColor,
                       radius: 16,
                       child: Icon(Icons.add, color: Colors.white),
                     ),
@@ -572,31 +573,68 @@ class _CounterSheetState extends State<CounterSheet> {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 5),
+
           Expanded(
             child: SizedBox(
-              height: 44.h,
+              height: 50.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.primaryColor,
+
+                  // 🔑 الحل هنا
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14.r),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
                 onPressed: isLoading ? null : () => widget.onAdd(count),
-                child: Text(
-                  isLoading
-                      ? "ADDING..."
-                      : "${"add_to_cart".tr()}  ${context.money(total)}",
-                  style: TextStyle(
-                    color: AppColor.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        "AddToCart".tr(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColor.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 6.w),
+
+                    Container(
+                      width: 1,
+                      height: 16,
+                      color: Colors.white.withOpacity(0.5),
+                    ),
+
+                    SizedBox(width: 6.w),
+
+                    Text(
+                      context.money(total),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: AppColor.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
+
         ],
       ),
     );

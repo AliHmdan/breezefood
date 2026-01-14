@@ -133,8 +133,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
     final isRTL = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
-      backgroundColor: AppColor.Dark,
-      appBar: PreferredSize(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,      appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.h),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -151,467 +151,488 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                 title: title,
                 icon: Icons.arrow_back_ios,
                 ontap: () => Navigator.pop(context),
+             backgroundcolor: Colors.transparent,
               );
             },
           ),
         ),
       ),
-      body: BlocListener<OrderFlowCubit, OrderFlowState>(
-        listener: (context, state) async {
-          await state.maybeWhen(
-            loading: () async {
-              if (!EasyLoading.isShow) {
-                EasyLoading.show(
-                  status: isRTL ? "جارٍ إرسال الطلب..." : "Placing order...",
-                );
-              }
-            },
-            success: (orderId, status, pricing, raw) async {
-              if (EasyLoading.isShow) await EasyLoading.dismiss();
+      body: Stack(children: [
+        /// 🖼️ Background Image
+        Positioned.fill(
+          child: Image.asset(
+            "assets/images/background_auth.png",
+            fit: BoxFit.cover,
+          ),
+        ),
 
-              AppDialog.showSuccessDialog(
-                title: isRTL
-                    ? "تم إرسال الطلب بنجاح"
-                    : "Order placed successfully",
-                message: isRTL
-                    ? "رقم الطلب: #$orderId\nالحالة: $status"
-                    : "Order ID: #$orderId\nStatus: $status",
-              );
-
-              context.read<CartCubit>().loadCart();
-            },
-            error: (msg) async {
-              if (EasyLoading.isShow) await EasyLoading.dismiss();
-              if (!context.mounted) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    isRTL ? "❌ فشل إنشاء الطلب: $msg" : "❌ Failed: $msg",
-                  ),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            orElse: () async {
-              if (EasyLoading.isShow) await EasyLoading.dismiss();
-            },
-          );
-        },
-        child: BlocBuilder<CartCubit, CartState>(
-          builder: (context, state) {
-            return state.maybeWhen(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (msg) => Center(
-                child: Text(msg, style: const TextStyle(color: Colors.red)),
-              ),
-              cartLoaded: (cart, updatingIds, toast) {
-                final isPlacingOrder = context
-                    .watch<OrderFlowCubit>()
-                    .state
-                    .maybeWhen(loading: () => true, orElse: () => false);
-
-                return SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 8.h,
+        /// 🌫️ Overlay (مهم جداً لقراءة النص)
+        Positioned.fill(
+          child: Container(
+            // color: Colors.black.withOpacity(0.55),
+          ),
+        ),
+        SafeArea(
+          child: BlocListener<OrderFlowCubit, OrderFlowState>(
+            listener: (context, state) async {
+              await state.maybeWhen(
+                loading: () async {
+                  if (!EasyLoading.isShow) {
+                    EasyLoading.show(
+                      status: isRTL ? "جارٍ إرسال الطلب..." : "Placing order...",
+                    );
+                  }
+                },
+                success: (orderId, status, pricing, raw) async {
+                  if (EasyLoading.isShow) await EasyLoading.dismiss();
+          
+                  AppDialog.showSuccessDialog(
+                    title: isRTL
+                        ? "تم إرسال الطلب بنجاح"
+                        : "Order placed successfully",
+                    message: isRTL
+                        ? "رقم الطلب: #$orderId\nالحالة: $status"
+                        : "Order ID: #$orderId\nStatus: $status",
+                  );
+          
+                  context.read<CartCubit>().loadCart();
+                },
+                error: (msg) async {
+                  if (EasyLoading.isShow) await EasyLoading.dismiss();
+                  if (!context.mounted) return;
+          
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isRTL ? "❌ فشل إنشاء الطلب: $msg" : "❌ Failed: $msg",
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
                     ),
-                    child: Column(
-                      children: [
-                        if (toast != null && toast.trim().isNotEmpty) ...[
-                          Container(
-                            width: double.infinity,
-                            margin: EdgeInsets.only(bottom: 10.h),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 10.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(12.r),
-                              border: Border.all(
-                                color: Colors.red.withOpacity(0.35),
-                              ),
-                            ),
-                            child: Text(
-                              toast,
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-
-                        _CartHeader(
-                          restaurantName: cart.restaurantName,
-                          restaurantLogoUrl: _fullUrl(cart.restaurantLogo),
-                          orderId: cart.orderId,
-                          orderStatus: cart.orderStatus,
+                  );
+                },
+                orElse: () async {
+                  if (EasyLoading.isShow) await EasyLoading.dismiss();
+                },
+              );
+            },
+            child: BlocBuilder<CartCubit, CartState>(
+              builder: (context, state) {
+                return state.maybeWhen(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (msg) => Center(
+                    child: Text(msg, style: const TextStyle(color: Colors.red)),
+                  ),
+                  cartLoaded: (cart, updatingIds, toast) {
+                    final isPlacingOrder = context
+                        .watch<OrderFlowCubit>()
+                        .state
+                        .maybeWhen(loading: () => true, orElse: () => false);
+          
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 8.h,
                         ),
-                        SizedBox(height: 10.h),
-
-                        if (cart.items.isEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: 30.h, bottom: 10.h),
-                            child: Text(
-                              isRTL ? "السلة فارغة" : "Cart is empty",
-                              style: TextStyle(
-                                color: AppColor.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          )
-                        else
-                          Column(
-                            children: cart.items.map((it) {
-                              final isUpdating = updatingIds.contains(it.id);
-
-                              final title = isRTL
-                                  ? (it.nameAr.trim().isNotEmpty
-                                        ? it.nameAr
-                                        : it.nameEn)
-                                  : (it.nameEn.trim().isNotEmpty
-                                        ? it.nameEn
-                                        : it.nameAr);
-
-                              final extras = it.extras;
-
-                              return Padding(
-                                padding: EdgeInsets.only(bottom: 10.h),
-                                child: Dismissible(
-                                  key: ValueKey("cart_item_${it.id}"),
-                                  direction: DismissDirection.endToStart,
-                                  background: Container(
-                                    alignment: Alignment.centerRight,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.85),
-                                      borderRadius: BorderRadius.circular(12.r),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        const Icon(
-                                          Icons.delete,
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        Text(
-                                          isRTL ? "حذف" : "Delete",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                        child: Column(
+                          children: [
+                            if (toast != null && toast.trim().isNotEmpty) ...[
+                              Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(bottom: 10.h),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.w,
+                                  vertical: 10.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  border: Border.all(
+                                    color: Colors.red.withOpacity(0.35),
                                   ),
-                                  confirmDismiss: (_) async {
-                                    if (isUpdating) return false;
-                                    return _confirmDelete(
-                                      context,
-                                      isRTL: isRTL,
-                                    );
-                                  },
-                                  onDismissed: (_) => context
-                                      .read<CartCubit>()
-                                      .removeItem(it.id),
-                                  child: Container(
+                                ),
+                                child: Text(
+                                  toast,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+          
+                            _CartHeader(
+                              restaurantName: cart.restaurantName,
+                              restaurantLogoUrl: _fullUrl(cart.restaurantLogo),
+                              orderId: cart.orderId,
+                              orderStatus: cart.orderStatus,
+                            ),
+                            SizedBox(height: 10.h),
+          
+                            if (cart.items.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(top: 30.h, bottom: 10.h),
+                                child: Text(
+                                  isRTL ? "السلة فارغة" : "Cart is empty",
+                                  style: TextStyle(
+                                    color: AppColor.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              )
+                            else
+                              Column(
+                                children: cart.items.map((it) {
+                                  final isUpdating = updatingIds.contains(it.id);
+          
+                                  final title = isRTL
+                                      ? (it.nameAr.trim().isNotEmpty
+                                      ? it.nameAr
+                                      : it.nameEn)
+                                      : (it.nameEn.trim().isNotEmpty
+                                      ? it.nameEn
+                                      : it.nameAr);
+          
+                                  final extras = it.extras;
+          
+                                  return Padding(
                                     padding: EdgeInsets.only(bottom: 10.h),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.black,
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      border: Border.all(color: Colors.white10),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        MealCard(
-                                          key: ValueKey(it.id),
-                                          image: it.image,
-                                          name: title,
-                                          price: it.unitPrice,
-                                          counter: CounterRequest(
-                                            value: it.quantity,
-                                            loading: isUpdating,
-                                            onChanged: (newQty) {
-                                              context
-                                                  .read<CartCubit>()
-                                                  .updateQty(
+                                    child: Dismissible(
+                                      key: ValueKey("cart_item_${it.id}"),
+                                      direction: DismissDirection.endToStart,
+                                      background: Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.85),
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            const Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              isRTL ? "حذف" : "Delete",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      confirmDismiss: (_) async {
+                                        if (isUpdating) return false;
+                                        return _confirmDelete(
+                                          context,
+                                          isRTL: isRTL,
+                                        );
+                                      },
+                                      onDismissed: (_) => context
+                                          .read<CartCubit>()
+                                          .removeItem(it.id),
+                                      child: Container(
+                                        padding: EdgeInsets.only(bottom: 10.h),
+                                        decoration: BoxDecoration(
+                                          // color: AppColor.black,
+                                          borderRadius: BorderRadius.circular(12.r),
+                                          // border: Border.all(color: Colors.white10),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            MealCard(
+                                              key: ValueKey(it.id),
+                                              image: it.image,
+                                              name: title,
+                                              price: it.unitPrice,
+                                              counter: CounterRequest(
+                                                value: it.quantity,
+                                                loading: isUpdating,
+                                                onChanged: (newQty) {
+                                                  context
+                                                      .read<CartCubit>()
+                                                      .updateQty(
                                                     cartItemId: it.id,
                                                     quantity: newQty,
                                                   );
-                                            },
-                                          ),
+                                                },
+                                              ),
+                                            ),
+                                            // Padding(
+                                            //   padding: EdgeInsets.symmetric(horizontal: 12.w),
+                                            //   child: Column(
+                                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                                            //     children: [
+                                            //       SizedBox(height: 6.h),
+                                            //       Wrap(
+                                            //         children: [
+                                            //           if (it.isSpicy)
+                                            //             _chip(
+                                            //               "🌶️ ${isRTL ? "حار" : "Hot"}",
+                                            //               bg: Colors.red.withOpacity(0.15),
+                                            //             ),
+                                            //           if (it.deliveryTime > 0)
+                                            //             _chip(
+                                            //               "⏱ ${it.deliveryTime} ${isRTL ? "د" : "min"}",
+                                            //               bg: Colors.white10,
+                                            //             ),
+                                            //           if (it.hasDiscount)
+                                            //             _chip(
+                                            //               it.discountPercent > 0
+                                            //                   ? "-${it.discountPercent}%"
+                                            //                   : (isRTL ? "خصم" : "Discount"),
+                                            //               bg: Colors.green.withOpacity(0.15),
+                                            //             ),
+                                            //         ],
+                                            //       ),
+          
+                                            //       if (it.hasDiscount) ...[
+                                            //         SizedBox(height: 4.h),
+                                            //         Row(
+                                            //           children: [
+                                            //             Text(
+                                            //               context.money(it.priceBefore),
+                                            //               style: const TextStyle(
+                                            //                 color: Colors.redAccent,
+                                            //                 fontSize: 12,
+                                            //                 decoration: TextDecoration.lineThrough,
+                                            //               ),
+                                            //             ),
+                                            //             SizedBox(width: 10.w),
+                                            //             Text(
+                                            //               context.money(it.priceAfter),
+                                            //               style: TextStyle(
+                                            //                 color: AppColor.yellow,
+                                            //                 fontSize: 13,
+                                            //                 fontWeight: FontWeight.bold,
+                                            //               ),
+                                            //             ),
+                                            //           ],
+                                            //         ),
+                                            //       ],
+          
+                                            //       if (extras.isNotEmpty) ...[
+                                            //         SizedBox(height: 8.h),
+                                            //         Text(
+                                            //           isRTL ? "الإضافات" : "Extras",
+                                            //           style: const TextStyle(
+                                            //             color: Colors.white,
+                                            //             fontSize: 13,
+                                            //             fontWeight: FontWeight.w700,
+                                            //           ),
+                                            //         ),
+                                            //         ...extras.map((ex) {
+                                            //           final arName = ex.nameArObj?.name ?? "";
+                                            //           final enName = ex.nameEnObj?.name ?? "";
+                                            //           final exTitle = isRTL
+                                            //               ? (arName.isNotEmpty ? arName : enName)
+                                            //               : (enName.isNotEmpty ? enName : arName);
+          
+                                            //           final priceText = ex.totalPrice > 0
+                                            //               ? "+${context.money(ex.totalPrice)}"
+                                            //               : (ex.unitPrice > 0
+                                            //                   ? "+${context.money(ex.unitPrice)}"
+                                            //                   : "");
+          
+                                            //           return Padding(
+                                            //             padding: EdgeInsets.only(top: 6.h),
+                                            //             child: Row(
+                                            //               children: [
+                                            //                 const Icon(
+                                            //                   Icons.circle,
+                                            //                   size: 6,
+                                            //                   color: Colors.white54,
+                                            //                 ),
+                                            //                 SizedBox(width: 8.w),
+                                            //                 Expanded(
+                                            //                   child: Text(
+                                            //                     "$exTitle  ×${ex.quantity}",
+                                            //                     style: const TextStyle(
+                                            //                       color: Colors.white70,
+                                            //                       fontSize: 12,
+                                            //                     ),
+                                            //                   ),
+                                            //                 ),
+                                            //                 if (priceText.isNotEmpty)
+                                            //                   Text(
+                                            //                     priceText,
+                                            //                     style: TextStyle(
+                                            //                       color: AppColor.yellow,
+                                            //                       fontSize: 12,
+                                            //                       fontWeight: FontWeight.w600,
+                                            //                     ),
+                                            //                   ),
+                                            //               ],
+                                            //             ),
+                                            //           );
+                                            //         }),
+                                            //       ],
+          
+                                            //       SizedBox(height: 10.h),
+                                            //       Row(
+                                            //         children: [
+                                            //           Expanded(
+                                            //             child: Text(
+                                            //               isRTL ? "مجموع العنصر" : "Item total",
+                                            //               style: const TextStyle(
+                                            //                 color: Colors.white60,
+                                            //                 fontSize: 12,
+                                            //               ),
+                                            //             ),
+                                            //           ),
+                                            //           Text(
+                                            //             context.money(it.totalPrice),
+                                            //             style: TextStyle(
+                                            //               color: AppColor.yellow,
+                                            //               fontSize: 13,
+                                            //               fontWeight: FontWeight.bold,
+                                            //             ),
+                                            //           ),
+                                            //         ],
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // ),
+                                          ],
                                         ),
-                                        // Padding(
-                                        //   padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                        //   child: Column(
-                                        //     crossAxisAlignment: CrossAxisAlignment.start,
-                                        //     children: [
-                                        //       SizedBox(height: 6.h),
-                                        //       Wrap(
-                                        //         children: [
-                                        //           if (it.isSpicy)
-                                        //             _chip(
-                                        //               "🌶️ ${isRTL ? "حار" : "Hot"}",
-                                        //               bg: Colors.red.withOpacity(0.15),
-                                        //             ),
-                                        //           if (it.deliveryTime > 0)
-                                        //             _chip(
-                                        //               "⏱ ${it.deliveryTime} ${isRTL ? "د" : "min"}",
-                                        //               bg: Colors.white10,
-                                        //             ),
-                                        //           if (it.hasDiscount)
-                                        //             _chip(
-                                        //               it.discountPercent > 0
-                                        //                   ? "-${it.discountPercent}%"
-                                        //                   : (isRTL ? "خصم" : "Discount"),
-                                        //               bg: Colors.green.withOpacity(0.15),
-                                        //             ),
-                                        //         ],
-                                        //       ),
-
-                                        //       if (it.hasDiscount) ...[
-                                        //         SizedBox(height: 4.h),
-                                        //         Row(
-                                        //           children: [
-                                        //             Text(
-                                        //               context.money(it.priceBefore),
-                                        //               style: const TextStyle(
-                                        //                 color: Colors.redAccent,
-                                        //                 fontSize: 12,
-                                        //                 decoration: TextDecoration.lineThrough,
-                                        //               ),
-                                        //             ),
-                                        //             SizedBox(width: 10.w),
-                                        //             Text(
-                                        //               context.money(it.priceAfter),
-                                        //               style: TextStyle(
-                                        //                 color: AppColor.yellow,
-                                        //                 fontSize: 13,
-                                        //                 fontWeight: FontWeight.bold,
-                                        //               ),
-                                        //             ),
-                                        //           ],
-                                        //         ),
-                                        //       ],
-
-                                        //       if (extras.isNotEmpty) ...[
-                                        //         SizedBox(height: 8.h),
-                                        //         Text(
-                                        //           isRTL ? "الإضافات" : "Extras",
-                                        //           style: const TextStyle(
-                                        //             color: Colors.white,
-                                        //             fontSize: 13,
-                                        //             fontWeight: FontWeight.w700,
-                                        //           ),
-                                        //         ),
-                                        //         ...extras.map((ex) {
-                                        //           final arName = ex.nameArObj?.name ?? "";
-                                        //           final enName = ex.nameEnObj?.name ?? "";
-                                        //           final exTitle = isRTL
-                                        //               ? (arName.isNotEmpty ? arName : enName)
-                                        //               : (enName.isNotEmpty ? enName : arName);
-
-                                        //           final priceText = ex.totalPrice > 0
-                                        //               ? "+${context.money(ex.totalPrice)}"
-                                        //               : (ex.unitPrice > 0
-                                        //                   ? "+${context.money(ex.unitPrice)}"
-                                        //                   : "");
-
-                                        //           return Padding(
-                                        //             padding: EdgeInsets.only(top: 6.h),
-                                        //             child: Row(
-                                        //               children: [
-                                        //                 const Icon(
-                                        //                   Icons.circle,
-                                        //                   size: 6,
-                                        //                   color: Colors.white54,
-                                        //                 ),
-                                        //                 SizedBox(width: 8.w),
-                                        //                 Expanded(
-                                        //                   child: Text(
-                                        //                     "$exTitle  ×${ex.quantity}",
-                                        //                     style: const TextStyle(
-                                        //                       color: Colors.white70,
-                                        //                       fontSize: 12,
-                                        //                     ),
-                                        //                   ),
-                                        //                 ),
-                                        //                 if (priceText.isNotEmpty)
-                                        //                   Text(
-                                        //                     priceText,
-                                        //                     style: TextStyle(
-                                        //                       color: AppColor.yellow,
-                                        //                       fontSize: 12,
-                                        //                       fontWeight: FontWeight.w600,
-                                        //                     ),
-                                        //                   ),
-                                        //               ],
-                                        //             ),
-                                        //           );
-                                        //         }),
-                                        //       ],
-
-                                        //       SizedBox(height: 10.h),
-                                        //       Row(
-                                        //         children: [
-                                        //           Expanded(
-                                        //             child: Text(
-                                        //               isRTL ? "مجموع العنصر" : "Item total",
-                                        //               style: const TextStyle(
-                                        //                 color: Colors.white60,
-                                        //                 fontSize: 12,
-                                        //               ),
-                                        //             ),
-                                        //           ),
-                                        //           Text(
-                                        //             context.money(it.totalPrice),
-                                        //             style: TextStyle(
-                                        //               color: AppColor.yellow,
-                                        //               fontSize: 13,
-                                        //               fontWeight: FontWeight.bold,
-                                        //             ),
-                                        //           ),
-                                        //         ],
-                                        //       ),
-                                        //     ],
-                                        //   ),
-                                        // ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        SizedBox(height: 10.h),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 18.h,
-                            horizontal: 12.w,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.black,
-                            borderRadius: BorderRadius.circular(11.r),
-                            border: Border.all(color: Colors.white10),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _totalLine(
-                                title: isRTL ? "المجموع الفرعي" : "Sub total",
-                                value: cart.itemsTotalAfter,
-                                before: cart.itemsTotalBefore,
-                                money: (n) => context.money(n),
-                              ),
-                              if (cart.itemsDiscount > 0)
-                                Total(
-                                  isRTL ? "خصم العناصر" : "Items discount",
-                                  cart.itemsDiscount,
-                                ),
-                              _totalLine(
-                                title: isRTL ? "التوصيل" : "Delivery",
-                                value: cart.deliveryAfter,
-                                before: cart.deliveryBefore,
-                                money: (n) => context.money(n),
-                              ),
-                              if (cart.deliveryDiscount > 0)
-                                Total(
-                                  isRTL ? "خصم التوصيل" : "Delivery discount",
-                                  cart.deliveryDiscount,
-                                ),
-                              const Divider(color: Colors.white30),
-                              _totalLine(
-                                title: isRTL ? "الإجمالي" : "Total",
-                                value: cart.grandAfter,
-                                before: cart.grandBefore,
-                                isTotal: true,
-                                money: (n) => context.money(n),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        _AddressCard(
-                          isRTL: isRTL,
-                          cart: cart,
-                          selectedSavedId:
-                              _selectedAddressId ?? cart.defaultAddress?.id,
-                          tempAddress: _tempOrderAddress,
-                          onTap: () async {
-                            final action = await _openAddressPickerSheet(
-                              isRTL: isRTL,
-                              addresses: cart.addresses,
-                              selectedId:
-                                  _selectedAddressId ?? cart.defaultAddress?.id,
-                            );
-
-                            if (action == null) return;
-
-                            if (action.type == _PickAddressActionType.saved &&
-                                action.savedId != null) {
-                              setState(() {
-                                _selectedAddressId = action.savedId;
-                                _tempOrderAddress = null;
-                              });
-                            }
-
-                            if (action.type == _PickAddressActionType.temp) {
-                              final temp = await _openTempAddressPicker(
-                                isRTL: isRTL,
-                              );
-                              if (temp != null) {
-                                setState(() {
-                                  _tempOrderAddress = temp;
-                                  _selectedAddressId = null;
-                                });
-                              }
-                            }
-
-                            if (action.type ==
-                                _PickAddressActionType.clearTemp) {
-                              setState(() {
-                                _tempOrderAddress = null;
-                              });
-                            }
-                          },
-                        ),
-                        SizedBox(height: 10.h),
-                        PaymentMethodSection(
-                          amountText: context.money(cart.grandAfter),
-                          methods: methods,
-                          initialSelectedId: _selectedPayment,
-                          onChanged: (id) =>
-                              setState(() => _selectedPayment = id),
-                          onOrder: isPlacingOrder
-                              ? null
-                              : (paymentId) {
-                                  _storeOrder(
-                                    context,
-                                    cart,
-                                    paymentId,
-                                    selectedAddressId: _selectedAddressId,
-                                    temp: _tempOrderAddress,
                                   );
-                                },
+                                }).toList(),
+                              ),
+                            SizedBox(height: 10.h),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 18.h,
+                                horizontal: 12.w,
+                              ),
+                              decoration: BoxDecoration(
+                                // color: AppColor.black,
+                                borderRadius: BorderRadius.circular(11.r),
+                                // border: Border.all(color: Colors.white10),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _totalLine(
+                                    title: isRTL ? "المجموع الفرعي" : "Sub total",
+                                    value: cart.itemsTotalAfter,
+                                    before: cart.itemsTotalBefore,
+                                    money: (n) => context.money(n),
+                                  ),
+                                  if (cart.itemsDiscount > 0)
+                                    Total(
+                                      isRTL ? "خصم العناصر" : "Items discount",
+                                      cart.itemsDiscount,
+                                    ),
+                                  _totalLine(
+                                    title: isRTL ? "التوصيل" : "Delivery",
+                                    value: cart.deliveryAfter,
+                                    before: cart.deliveryBefore,
+                                    money: (n) => context.money(n),
+                                  ),
+                                  if (cart.deliveryDiscount > 0)
+                                    Total(
+                                      isRTL ? "خصم التوصيل" : "Delivery discount",
+                                      cart.deliveryDiscount,
+                                    ),
+                                  const Divider(color: Colors.white30),
+                                  _totalLine(
+                                    title: isRTL ? "الإجمالي" : "Total",
+                                    value: cart.grandAfter,
+                                    before: cart.grandBefore,
+                                    isTotal: true,
+                                    money: (n) => context.money(n),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            _AddressCard(
+                              isRTL: isRTL,
+                              cart: cart,
+                              selectedSavedId:
+                              _selectedAddressId ?? cart.defaultAddress?.id,
+                              tempAddress: _tempOrderAddress,
+                              onTap: () async {
+                                final action = await _openAddressPickerSheet(
+                                  isRTL: isRTL,
+                                  addresses: cart.addresses,
+                                  selectedId:
+                                  _selectedAddressId ?? cart.defaultAddress?.id,
+                                );
+          
+                                if (action == null) return;
+          
+                                if (action.type == _PickAddressActionType.saved &&
+                                    action.savedId != null) {
+                                  setState(() {
+                                    _selectedAddressId = action.savedId;
+                                    _tempOrderAddress = null;
+                                  });
+                                }
+          
+                                if (action.type == _PickAddressActionType.temp) {
+                                  final temp = await _openTempAddressPicker(
+                                    isRTL: isRTL,
+                                  );
+                                  if (temp != null) {
+                                    setState(() {
+                                      _tempOrderAddress = temp;
+                                      _selectedAddressId = null;
+                                    });
+                                  }
+                                }
+          
+                                if (action.type ==
+                                    _PickAddressActionType.clearTemp) {
+                                  setState(() {
+                                    _tempOrderAddress = null;
+                                  });
+                                }
+                              },
+                            ),
+                            SizedBox(height: 10.h),
+                            PaymentMethodSection(
+                              amountText: context.money(cart.grandAfter),
+                              methods: methods,
+                              initialSelectedId: _selectedPayment,
+                              onChanged: (id) =>
+                                  setState(() => _selectedPayment = id),
+                              onOrder: isPlacingOrder
+                                  ? null
+                                  : (paymentId) {
+                                _storeOrder(
+                                  context,
+                                  cart,
+                                  paymentId,
+                                  selectedAddressId: _selectedAddressId,
+                                  temp: _tempOrderAddress,
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
+                  orElse: () => const SizedBox.shrink(),
                 );
               },
-              orElse: () => const SizedBox.shrink(),
-            );
-          },
+            ),
+          ),
         ),
+      ],
+
       ),
     );
   }
@@ -667,9 +688,9 @@ class _AddressCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppColor.black,
+        // color: AppColor.black,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.white10),
+        // border: Border.all(color: Colors.white10),
       ),
       child: InkWell(
         onTap: onTap,
@@ -677,9 +698,9 @@ class _AddressCard extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
-            color: Colors.white10,
+            // color: Colors.white10,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: Colors.white12),
+            // border: Border.all(color: Colors.white12),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -746,7 +767,7 @@ class _AddressCard extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: AppColor.black.withOpacity(0.6),
+                  // color: AppColor.black.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(color: Colors.white10),
                 ),
@@ -869,7 +890,7 @@ class _AddressPickerSheet extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height * 0.62,
       decoration: BoxDecoration(
-        color: AppColor.Dark,
+        // color: AppColor.Dark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
       ),
       child: Column(
@@ -1066,11 +1087,11 @@ class _CartHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: AppColor.black,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.white10),
-      ),
+      // decoration: BoxDecoration(
+      //   // color: AppColor.black,
+      //   borderRadius: BorderRadius.circular(12.r),
+      //   // border: Border.all(color: Colors.white10),
+      // ),
       child: Row(
         children: [
           if (restaurantLogoUrl.trim().isNotEmpty)
@@ -1269,9 +1290,9 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
             child: Container(
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: AppColor.black,
+                // color: AppColor.black,
                 borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: Colors.white10),
+                // border: Border.all(color: Colors.white10),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,

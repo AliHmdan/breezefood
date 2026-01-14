@@ -3,6 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_Page.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart'; // MenuExtra (الموحد)
 import 'package:flutter/material.dart';
@@ -253,7 +254,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
-        color: AppColor.black,
+        // color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -275,9 +276,9 @@ class _PopularItemCardState extends State<PopularItemCard> {
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.25)),
               ),
-              Positioned(
+              PositionedDirectional(
                 top: 6,
-                right: 6,
+                end: 6,
                 child: GestureDetector(
                   onTap: _toggleFavorite,
                   child: AnimatedScale(
@@ -295,17 +296,18 @@ class _PopularItemCardState extends State<PopularItemCard> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: AppColor.white,
-                fontSize: 12.sp,
-                fontFamily: "Manrope",
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: CustomTitle(title: title, color:  AppColor.white,)
+            // Text(
+            //   title,
+            //   maxLines: 1,
+            //   overflow: TextOverflow.ellipsis,
+            //   style: TextStyle(
+            //     color: AppColor.white,
+            //     fontSize: 12.sp,
+            //     fontFamily: "Manrope",
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            // ),
           ),
           Padding(
             padding: EdgeInsets.only(left: 6.w, bottom: 6.h),

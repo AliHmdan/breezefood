@@ -179,7 +179,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: AppColor.Dark,
+                  // color: AppColor.Dark,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.35),
@@ -188,6 +188,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     ),
                   ],
                 ),
+
                 child: CustomButton(
                   title: loading
                       ? "View Cart ..."
@@ -335,28 +336,56 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               orElse: () {},
             );
 
-            return Stack(
+            return  Stack(
               children: [
                 SizedBox(
                   height: 240.h,
                   width: double.infinity,
-                  child: headerImageUrl.isEmpty
-                      ? Image.asset(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      headerImageUrl.isEmpty
+                          ? Image.asset(
+                        "assets/images/shawarma_box.png",
+                        fit: BoxFit.cover,
+                      )
+                          : Image.network(
+                        headerImageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Image.asset(
                           "assets/images/shawarma_box.png",
                           fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          headerImageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            "assets/images/shawarma_box.png",
-                            fit: BoxFit.cover,
+                        ),
+                      ),
+
+                      // ⭐ اسم المطعم في المنتصف (مرة واحدة فقط)
+                      Center(
+                        child: Text(
+                          restaurantName,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26.sp,
+                            fontWeight: FontWeight.bold,
+                            shadows: const [
+                              Shadow(
+                                color: Colors.black,
+                                blurRadius: 12,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
                           ),
                         ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 220.h, bottom: 110.h),
+                  padding: EdgeInsets.only(
+                    top: 220.h,
+                    bottom: MediaQuery.of(context).padding.bottom + 16.h,
+                  ),
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColor.Dark,
@@ -364,13 +393,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                         topLeft: Radius.circular(30.r),
                         topRight: Radius.circular(30.r),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.45),
-                          blurRadius: 15,
-                          offset: const Offset(0, -5),
-                        ),
-                      ],
+
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,12 +424,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                         SizedBox(height: 16.h),
 
-                        Center(
-                          child: CustomTitle(
-                            title: restaurantName,
-                            color: AppColor.white,
-                          ),
-                        ),
+                        // Center(
+                        //   child: CustomTitle(
+                        //     title: restaurantName,
+                        //     color: AppColor.white,
+                        //   ),
+                        // ),
 
                         GestureDetector(
                           onTap: () {
@@ -426,94 +449,95 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                         SizedBox(height: 8.h),
 
                         // ==================== ⭐ UI LOCAL RATING (NO API) ====================
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 5,
-                        ),
-                        child: BlocBuilder<RatingCubit, Map<int, double>>(
-                          builder: (context, ratings) {
-                            // 🔹 جلب التقييم المحلي لهذا المطعم فقط
-                            final rate = ratings[widget.restaurant_id] ?? 0.0;
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 5,
+                          ),
+                          child: BlocBuilder<RatingCubit, Map<int, double>>(
+                            builder: (context, ratings) {
+                              // 🔹 جلب التقييم المحلي لهذا المطعم فقط
+                              final rate = ratings[widget.restaurant_id] ?? 0.0;
 
-                            return GestureDetector(
-                              onTap: () async {
-                                final selectedRate = await showDialog<double>(
-                                  context: context,
-                                  useRootNavigator: true, // ⭐ مهم لمنع Navigator lock
-                                  barrierDismissible: true,
-                                  builder: (_) => const RateDialog(),
-                                );
-
-                                // 🔹 حفظ التقييم محليًا (UI only)
-                                if (selectedRate != null) {
-                                  context.read<RatingCubit>().setRating(
-                                    widget.restaurant_id,
-                                    selectedRate,
+                              return GestureDetector(
+                                onTap: () async {
+                                  final selectedRate = await showDialog<double>(
+                                    context: context,
+                                    useRootNavigator:
+                                        true, // ⭐ مهم لمنع Navigator lock
+                                    barrierDismissible: true,
+                                    builder: (_) => const RateDialog(),
                                   );
-                                }
-                              },
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomSubTitle(
-                                      subtitle: description,
-                                      color: AppColor.gry,
-                                      fontsize: 8.sp,
+
+                                  // 🔹 حفظ التقييم محليًا (UI only)
+                                  if (selectedRate != null) {
+                                    context.read<RatingCubit>().setRating(
+                                      widget.restaurant_id,
+                                      selectedRate,
+                                    );
+                                  }
+                                },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomSubTitle(
+                                        subtitle: description,
+                                        color: AppColor.gry,
+                                        fontsize: 8.sp,
+                                      ),
                                     ),
-                                  ),
-                                  _divider(),
+                                    _divider(),
 
-                                  /// ⭐ Star Icon
-                                  const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 4),
-
-                                  /// ⭐ Rating Value (Local State)
-                                  Text(
-                                    rate == 0.0
-                                        ? ratingText
-                                        : rate.toStringAsFixed(1), // 3.5 / 4.0
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
+                                    /// ⭐ Star Icon
+                                    const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 18,
                                     ),
-                                  ),
+                                    const SizedBox(width: 4),
 
-                                  _divider(),
-
-                                  Text(
-                                    ordersText,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
+                                    /// ⭐ Rating Value (Local State)
+                                    Text(
+                                      rate == 0.0
+                                          ? ratingText
+                                          : rate.toStringAsFixed(
+                                              1,
+                                            ), // 3.5 / 4.0
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+
+                                    _divider(),
+
+                                    Text(
+                                      ordersText,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
 
-// ==================== ⭐ END LOCAL RATING ====================
-
-
+                        // ==================== ⭐ END LOCAL RATING ====================
 
                         // ---------------- Categories ----------------
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(10),
                           child: SizedBox(
-                            height: 50.h,
+                            height: 35.h,
                             child: categories.isEmpty
                                 ? Center(
                                     child: CustomSubTitle(
                                       subtitle: "Empty",
                                       color: AppColor.gry,
-                                      fontsize: 12.sp,
+                                      fontsize: 14.sp,
                                     ),
                                   )
                                 : ListView.builder(
@@ -548,7 +572,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 color: isSelected
                                                     ? AppColor.white
                                                     : AppColor.LightActive,
-                                                fontsize: 12.sp,
+                                                fontsize: 14.sp,
                                               ),
                                             ),
                                           ),
@@ -610,7 +634,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           )
                         else
                           SizedBox(
-                            height: 160.h,
+                            height: 140.h,
                             child: ListView.separated(
                               padding: const EdgeInsets.only(
                                 left: 16,
@@ -758,7 +782,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   ),
                 ),
               ],
-            );
+                  );
           },
         ),
       ),

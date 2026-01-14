@@ -54,9 +54,9 @@ class _CounterRequestState extends State<CounterRequest> {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: AppColor.black,
+            // color: AppColor.black,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Colors.white12),
+            // border: Border.all(color: Colors.white12),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

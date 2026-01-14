@@ -6,55 +6,72 @@ class CustomAppbarProfile extends StatelessWidget {
   final String? title;
   final String? subtitle;
   final IconData? icon;
-  final void Function() ontap;
+  final Color? backgroundcolor;
+  final VoidCallback ontap;
+
   const CustomAppbarProfile({
     super.key,
     this.icon,
     this.subtitle,
-     this.title,
+    this.title,
     required this.ontap,
+    this.backgroundcolor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (icon != null)
-          GestureDetector(
-            onTap: ontap,
-            child: Container(
-              padding: EdgeInsets.all(4), // يحدد حجم الدائرة الداخلية
-              decoration: BoxDecoration(
-                color: AppColor.black, // لون الخلفية
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColor.LightActive, // لون الـ border
-                  width: 2, 
+    return Padding(
+      padding: const EdgeInsets.only(top: 22),
+      child: SizedBox(
+        height: 48.h,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            /// 🔙 زر الرجوع (يسار)
+            if (icon != null)
+              Positioned(
+                left: 0,
+                child: GestureDetector(
+                  onTap: ontap,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColor.black,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColor.LightActive,
+                        width: 2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Icon(
+                        icon,
+                        color: AppColor.white,
+                        size: 16.sp,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Icon(icon, color: AppColor.white, size: 16.sp),
-                ),
-              ),
-            ),
-          ),
-        Spacer(),
 
-         if (title != null)
-        Text(
-          "$title",
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: AppColor.white,
-          ),
+            /// 🏷️ العنوان (في منتصف الشاشة تمامًا)
+            if (title != null)
+              Center(
+                child: Text(
+                  title!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.white,
+                  ),
+                ),
+              ),
+          ],
         ),
-
-        Spacer(),
-      ],
+      ),
     );
   }
 }

@@ -12,6 +12,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../profile/presentation/widget/custom_appbar_profile.dart';
+
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
 
@@ -226,7 +228,8 @@ class FavoritePageState extends State<FavoritePage> {
                 ),
                 child: Column(
                   children: [
-                    const CustomAppbarHome(title: "Favorite"),
+                    SizedBox(height: 16.h),
+                    CustomAppbarProfile(ontap: (){},title:"Favorite" ,),
                     SizedBox(height: 20.h),
                     Expanded(
                       child: isLoading

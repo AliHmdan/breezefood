@@ -16,7 +16,7 @@ class CustomTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: 14.sp,
         fontWeight: FontWeight.bold,
-        fontFamily: 'Manrope',
+        fontFamily: 'Inter',
         color: color,
       ),
     );
