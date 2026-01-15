@@ -39,29 +39,36 @@ Future<void> showAddOrderDialog(
       // ✅ خذ CartCubit من سياق الصفحة (context) مو sheetCtx
       final cartCubit = context.read<CartCubit>();
 
-      return AnimatedPadding(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
-        ),
-        child: Container(
-          height: height,
-          decoration: BoxDecoration(
-            color: AppColor.Dark,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      return MediaQuery.removePadding(
+        context: sheetCtx,
+        removeTop: true,
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 600),
+          // duration: Duration.zero,
+          // curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
           ),
-          child: BlocProvider.value(
-            value: cartCubit, // ✅ نفس instance
-            child: AddOrderBody(
-              restaurantId: restaurantId,
-              menuItemId: menuItemId,
-              title: title,
-              price: price,
-              oldPrice: oldPrice,
-              imagePathOrUrl: imagePathOrUrl,
-              description: description,
-              extras: extraMeals,
+          child: Container(
+            height: height,
+            decoration: BoxDecoration(
+              color: AppColor.Dark,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+            ),
+            child: BlocProvider.value(
+              value: cartCubit, // ✅ نفس instance
+              child: AddOrderBody(
+                restaurantId: restaurantId,
+                menuItemId: menuItemId,
+                title: title,
+                price: price,
+                oldPrice: oldPrice,
+                imagePathOrUrl: imagePathOrUrl,
+                description: description,
+                extras: extraMeals,
+              ),
             ),
           ),
         ),

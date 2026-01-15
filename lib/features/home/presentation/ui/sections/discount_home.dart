@@ -223,19 +223,19 @@ class _DiscountState extends State<Discount>
             ),
 
             SizedBox(height: 6.h),
-            Padding(
-              padding: EdgeInsets.only(left: 2.w),
-              child: Text(
-                widget.price,
-                style: TextStyle(
-                  color: AppColor.white,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(left: 2.w),
+            //   child: Text(
+            //     widget.price,
+            //     style: TextStyle(
+            //       color: AppColor.white,
+            //       fontSize: 12.sp,
+            //       fontWeight: FontWeight.w700,
+            //     ),
+            //     maxLines: 1,
+            //     overflow: TextOverflow.ellipsis,
+            //   ),
+            // ),
           ],
         ),
       ),

@@ -169,7 +169,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         /// 🌫️ Overlay (مهم جداً لقراءة النص)
         Positioned.fill(
           child: Container(
-            // color: Colors.black.withOpacity(0.55),
+            color: Colors.black.withOpacity(0.55),
           ),
         ),
         SafeArea(
@@ -343,9 +343,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                       child: Container(
                                         padding: EdgeInsets.only(bottom: 10.h),
                                         decoration: BoxDecoration(
-                                          // color: AppColor.black,
+                                          color: AppColor.black,
                                           borderRadius: BorderRadius.circular(12.r),
-                                          // border: Border.all(color: Colors.white10),
+                                          border: Border.all(color: Colors.white10),
                                         ),
                                         child: Column(
                                           children: [
@@ -516,9 +516,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 horizontal: 12.w,
                               ),
                               decoration: BoxDecoration(
-                                // color: AppColor.black,
+                                color: AppColor.black,
                                 borderRadius: BorderRadius.circular(11.r),
-                                // border: Border.all(color: Colors.white10),
+                                border: Border.all(color: Colors.white10),
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -688,9 +688,9 @@ class _AddressCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
-        // color: AppColor.black,
+        color: AppColor.black,
         borderRadius: BorderRadius.circular(12.r),
-        // border: Border.all(color: Colors.white10),
+        border: Border.all(color: Colors.white10),
       ),
       child: InkWell(
         onTap: onTap,
@@ -767,7 +767,7 @@ class _AddressCard extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  // color: AppColor.black.withOpacity(0.6),
+                  color: AppColor.black.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(color: Colors.white10),
                 ),
@@ -1087,11 +1087,11 @@ class _CartHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-      // decoration: BoxDecoration(
-      //   // color: AppColor.black,
-      //   borderRadius: BorderRadius.circular(12.r),
-      //   // border: Border.all(color: Colors.white10),
-      // ),
+      decoration: BoxDecoration(
+        color: AppColor.black,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.white10),
+      ),
       child: Row(
         children: [
           if (restaurantLogoUrl.trim().isNotEmpty)
@@ -1290,9 +1290,9 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
             child: Container(
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                // color: AppColor.black,
+                color: AppColor.black,
                 borderRadius: BorderRadius.circular(16.r),
-                // border: Border.all(color: Colors.white10),
+                border: Border.all(color: Colors.white10),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
