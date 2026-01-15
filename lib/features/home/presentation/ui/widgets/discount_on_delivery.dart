@@ -113,12 +113,12 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      child:
-      Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          AspectRatio( aspectRatio: 1.6,
+          AspectRatio(
+            aspectRatio: 1.6,
             child: Stack(
               children: [
                 SizedBox(
@@ -128,7 +128,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                     child: _buildNetworkImage(widget.imageUrl, height: 150.h),
                   ),
                 ),
-            
+
                 // Gradient overlay + title
                 Positioned.fill(
                   child: Container(
@@ -136,11 +136,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [
-                          // Colors.black.withOpacity(0.6),
-                          // Colors.black.withOpacity(0.3),
-                          Colors.transparent,
-                        ],
+                        colors: [Colors.transparent, Colors.transparent],
                       ),
                     ),
                     child: Align(
@@ -162,7 +158,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                     ),
                   ),
                 ),
-            
+
                 // ⭐ Rating (top-right)
                 PositionedDirectional(
                   top: 6.h,
@@ -198,7 +194,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                     ),
                   ),
                 ),
-            
+
                 // ❤️ Favorite (اختياري، نفس الأنيميشن بدون تغيير الشكل)
                 // Positioned(
                 //   top: 6.h,
@@ -215,7 +211,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                 //     ),
                 //   ),
                 // ),
-            
+
                 // prices bottom-left
                 // Positioned(
                 //   bottom: 0,
@@ -226,38 +222,39 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
               ],
             ),
           ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              "assets/icons/motor.svg",
-              color: AppColor.white,
-              width: 15,
-              height: 15,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  "assets/icons/motor.svg",
+                  color: AppColor.white,
+                  width: 15,
+                  height: 15,
+                ),
+                SizedBox(width: 4.w),
+                Text(
+                  "${widget.oldPrice}\$",
+                  style: TextStyle(
+                    color: AppColor.LightActive,
+                    decoration: TextDecoration.lineThrough,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Text(
+                  "${widget.newPrice}\$",
+                  style: TextStyle(
+                    color: AppColor.red,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 4.w),
-            Text(
-              "${widget.oldPrice}\$",
-              style: TextStyle(
-                color: AppColor.LightActive,
-                decoration: TextDecoration.lineThrough,
-                fontSize: 10.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(width: 6.w),
-            Text(
-              "${widget.newPrice}\$",
-              style: TextStyle(
-                color: AppColor.red,
-                fontSize: 10.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),)
+          ),
         ],
       ),
     );

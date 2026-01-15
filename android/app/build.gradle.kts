@@ -27,16 +27,14 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    defaultConfig {
-        applicationId = "com.example.breezefood"
+defaultConfig {
+    applicationId = "com.example.breezefood"
+    minSdk = 23
+    targetSdk = flutter.targetSdkVersion
+    versionCode = flutter.versionCode
+    versionName = flutter.versionName
+}
 
-        // ✅ FIX for firebase_messaging (minSdk 23)
-        minSdk = flutter.minSdkVersion
-
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
 
     buildTypes {
         release {

@@ -3,6 +3,7 @@ import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
+import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:breezefood/features/profile/presentation/ui/map_picker_screen.dart';
 import 'package:breezefood/features/profile/presentation/ui/profile.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
@@ -39,13 +40,18 @@ class AppbarHome extends StatelessWidget {
             image: "assets/icons/location.svg",
             icon: Icons.keyboard_arrow_down,
 
-            onLocationTap: () => _openLocationSheet(context),
+            avatarUrl: home?.avatar, 
 
-            onProfileTap: () {
-              Navigator.push(
+            onLocationTap: () => _openLocationSheet(context),
+            onProfileTap: () async {
+              final changed = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const Profile()),
               );
+
+              if (changed == true && context.mounted) {
+                context.read<ProfileCubit>().load(); 
+              }
             },
           ),
 

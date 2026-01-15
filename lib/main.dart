@@ -5,7 +5,9 @@ import 'package:breezefood/core/router/navigation_key.dart';
 import 'package:breezefood/core/services/app_notification_service.dart';
 import 'package:breezefood/core/services/launch_screen.dart';
 import 'package:breezefood/features/dialog/Cubit/RateCubit.dart';
+import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,6 +53,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
         BlocProvider(create: (_) => RatingCubit()),
+        BlocProvider(create: (_) => getIt<HomeCubit>()),
+        BlocProvider(create: (_) => getIt<ProfileCubit>()), // إذا بدك كمان
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),

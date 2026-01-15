@@ -1,5 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
+import 'package:breezefood/core/services/money.dart';
+import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/closerToYou.dart';
@@ -13,15 +15,19 @@ import 'package:breezefood/features/home/presentation/ui/widgets/appAnimatedBack
 import 'package:breezefood/features/home/presentation/ui/widgets/appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
+import 'package:breezefood/features/orders/current_orders.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
+import 'package:breezefood/features/orders/model/active_orders_response.dart'
+    show OrderInfo;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -52,9 +58,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     _scrollController.dispose();
-
     cubit.close();
-
     super.dispose();
   }
 
@@ -122,10 +126,19 @@ class _HomeState extends State<Home> {
           loading: () => true,
           orElse: () => false,
         );
+
         final homeData = state.maybeWhen(
           loaded: (data) => data,
           orElse: () => null,
         );
+
+        final haveOrder = homeData?.haveOrder;
+        final status = (haveOrder?.status ?? "").toLowerCase().trim();
+
+        // ✅ تحديد الزر السفلي حسب have_order فقط
+        final showBottom = haveOrder != null && status.isNotEmpty;
+        final isCart = status == "cart";
+
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
@@ -175,7 +188,6 @@ class _HomeState extends State<Home> {
                                   ),
                                 );
                               },
-
                               error: (msg) => Padding(
                                 padding: const EdgeInsets.all(10),
                                 child: Text(
@@ -190,7 +202,7 @@ class _HomeState extends State<Home> {
 
                       Container(key: _closerKey),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: CustomTitleSection(
                           title: "home.closer_to_you".tr(),
                         ),
@@ -209,7 +221,7 @@ class _HomeState extends State<Home> {
 
                       Container(key: _storesKey),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: CustomTitleSection(title: "home.stores".tr()),
                       ),
                       const SizedBox(height: 10),
@@ -224,7 +236,6 @@ class _HomeState extends State<Home> {
 
                       const SizedBox(height: 12),
 
-                      // ---------------- Discounts ----------------
                       Container(key: _discountsKey),
                       loading
                           ? _shimmerBox(height: 130.h)
@@ -240,18 +251,16 @@ class _HomeState extends State<Home> {
                       loading
                           ? _shimmerBox(height: 120.h)
                           : state.maybeWhen(
-                              loaded: (data) => DiscountDelvery(
-                                discounts: data.discounts, // ✅ من HomeResponse
-                              ),
+                              loaded: (data) =>
+                                  DiscountDelvery(discounts: data.discounts),
                               orElse: () => const SizedBox.shrink(),
                             ),
 
                       const SizedBox(height: 8),
 
-                      // ---------------- Super Market ----------------
                       Container(key: _supermarketKey),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: CustomTitleSection(
                           title: "home.super_market".tr(),
                         ),
@@ -265,10 +274,9 @@ class _HomeState extends State<Home> {
 
                       const SizedBox(height: 12),
 
-                      // ---------------- Open Now ----------------
                       Container(key: _openNowKey),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: CustomTitleSection(title: "home.open_now".tr()),
                       ),
                       const SizedBox(height: 10),
@@ -281,58 +289,196 @@ class _HomeState extends State<Home> {
                               orElse: () => const SizedBox.shrink(),
                             ),
 
-                      const SizedBox(height: 20),
+                      // ✅ مساحة حتى ما يغطي الزر السفلي المحتوى
+                      SizedBox(height: showBottom ? 140.h : 20.h),
                     ],
                   ),
                 ),
               ),
 
-              // زر الطلب ثابت (يظهر فقط إذا السلة فيها عناصر)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 85,
-                child: BlocBuilder<CartCubit, CartState>(
-                  builder: (context, cartState) {
-                    final hasItems = cartState.maybeWhen(
-                      cartLoaded: (cart, __, ___) => cart.items.isNotEmpty,
-                      orElse: () => false,
-                    );
-
-                    if (!hasItems) return const SizedBox.shrink();
-
-                    return Center(
-                      child: CustomButtonOrder(
-                        title: "home.your_order".tr(),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MultiBlocProvider(
-                                providers: [
-                                  // ✅ مهم: نمرّر نفس CartCubit (حتى ما نعمل نسخة جديدة)
-                                  BlocProvider.value(
-                                    value: context.read<CartCubit>()
-                                      ..loadCart(),
-                                  ),
-                                  BlocProvider(
-                                    create: (_) => getIt<OrderFlowCubit>(),
-                                  ),
-                                ],
-                                child: const RequestOrderScreen(),
-                              ),
-                            ),
-                          );
-                          context.read<CartCubit>().loadCart();
-                        },
-                      ),
-                    );
-                  },
+              // ✅ نفس مكان زر Your Order السابق
+              if (showBottom)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 85,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: isCart
+                        ? _BottomViewCartButton(homeCubit: cubit)
+                        : _BottomYourOrderButton(
+                            order: haveOrder!,
+                            homeCubit: cubit,
+                          ),
+                  ),
                 ),
-              ),
             ],
           ),
         );
+      },
+    );
+  }
+}
+
+// ===============================
+// Bottom: View Cart (when have_order.status == cart)
+// ===============================
+class _BottomViewCartButton extends StatelessWidget {
+  final HomeCubit homeCubit;
+  const _BottomViewCartButton({required this.homeCubit});
+
+  double _extractCartTotal(dynamic cart) {
+    if (cart == null) return 0.0;
+
+    if (cart is Map) {
+      final keys = [
+        "total",
+        "total_price",
+        "totalPrice",
+        "grand_total",
+        "grandTotal",
+        "subtotal",
+        "sub_total",
+        "subTotal",
+        "amount",
+      ];
+      for (final k in keys) {
+        final n = _toNum(cart[k]);
+        if (n != null) return n.toDouble();
+      }
+    }
+
+    try {
+      final n = _toNum((cart as dynamic).total);
+      if (n != null) return n.toDouble();
+    } catch (_) {}
+    try {
+      final n = _toNum((cart as dynamic).totalPrice);
+      if (n != null) return n.toDouble();
+    } catch (_) {}
+    try {
+      final n = _toNum((cart as dynamic).grandTotal);
+      if (n != null) return n.toDouble();
+    } catch (_) {}
+    try {
+      final n = _toNum((cart as dynamic).subTotal);
+      if (n != null) return n.toDouble();
+    } catch (_) {}
+
+    return 0.0;
+  }
+
+  int _extractCartCount(dynamic cart) {
+    if (cart == null) return 0;
+
+    if (cart is Map) {
+      final items = cart["items"] ?? cart["data"] ?? cart["cart_items"];
+      if (items is List) return items.length;
+
+      final count = cart["count"] ?? cart["items_count"] ?? cart["itemsCount"];
+      final n = _toNum(count);
+      if (n != null) return n.toInt();
+    }
+
+    try {
+      final items = (cart as dynamic).items;
+      if (items is List) return items.length;
+    } catch (_) {}
+    try {
+      final n = _toNum((cart as dynamic).count);
+      if (n != null) return n.toInt();
+    } catch (_) {}
+    try {
+      final n = _toNum((cart as dynamic).itemsCount);
+      if (n != null) return n.toInt();
+    } catch (_) {}
+
+    return 0;
+  }
+
+  num? _toNum(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    return num.tryParse(v.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, st) {
+        double total = 0.0;
+        int count = 0;
+        bool loading = false;
+
+        st.maybeWhen(
+          loading: () => loading = true,
+          cartLoaded: (cart, __, ___) {
+            total = _extractCartTotal(cart);
+            count = _extractCartCount(cart);
+          },
+          orElse: () {},
+        );
+
+        if (count <= 0 && !loading) return const SizedBox.shrink();
+
+        return CustomButton(
+          title: loading
+              ? "View Cart ..."
+              : "View Cart • $count • ${context.money(total, decimals: 0)}",
+          onPressed: loading
+              ? null
+              : () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(value: context.read<CartCubit>()),
+                          BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
+                        ],
+                        child: const RequestOrderScreen(),
+                      ),
+                    ),
+                  );
+
+                  if (context.mounted) {
+                    context.read<CartCubit>().loadCart();
+                    homeCubit.load(); // ✅ يحدث have_order بعد الرجعة
+                  }
+                },
+        );
+      },
+    );
+  }
+}
+
+// ===============================
+// Bottom: Your Order (when have_order.status != cart)
+// ===============================
+class _BottomYourOrderButton extends StatelessWidget {
+  final OrderInfo order;
+  final HomeCubit homeCubit;
+  const _BottomYourOrderButton({required this.order, required this.homeCubit});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomButtonOrder(
+      title: "home.your_order".tr(),
+      onPressed: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => BlocProvider(
+              create: (_) => getIt<OrdersCubit>()..loadActive(),
+              child: const CurrentOrders(),
+            ),
+          ),
+        );
+
+        if (context.mounted) {
+          homeCubit.load(); // ✅ يرجع يحدث have_order
+          context.read<CartCubit>().loadCart();
+        }
       },
     );
   }

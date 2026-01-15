@@ -47,6 +47,8 @@ dependencies:
   googleapis_auth:
   firebase_core: ^4.2.1
   firebase_messaging: ^16.0.4
+  cached_network_image: ^3.4.1
+  photo_view:  
 
 dev_dependencies:
   flutter_test:

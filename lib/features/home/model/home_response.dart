@@ -1,14 +1,23 @@
+// ===============================
+// home_response.dart
+// ===============================
+import 'package:breezefood/features/orders/model/active_orders_response.dart'
+    show OrderInfo;
+
 class HomeResponse {
   final List<AdModel> ads;
   final List<RestaurantModel> closerToYou;
   final List<RestaurantModel> nearbyRestaurants;
-  final List<RestaurantModel> supermarkets; // ✅
+  final List<RestaurantModel> supermarkets;
   final List<MenuItemModel> mostPopular;
-  final List<MenuItemModel> discounts; // ✅
+  final List<MenuItemModel> discounts;
   final List<StoryWrapperModel> stories;
 
-  final bool hasCoordinates; // ✅ اختياري
-  final String? provinceDetected; // ✅ اختياري
+  final OrderInfo? haveOrder;
+
+  final bool hasCoordinates;
+  final String? avatar;
+  final String? provinceDetected;
 
   HomeResponse({
     required this.ads,
@@ -19,7 +28,9 @@ class HomeResponse {
     required this.discounts,
     required this.stories,
     required this.hasCoordinates,
+    required this.avatar,
     required this.provinceDetected,
+    required this.haveOrder,
   });
 
   // ========= Helpers =========
@@ -71,28 +82,34 @@ class HomeResponse {
   }
 
   factory HomeResponse.fromJson(Map<String, dynamic> json) {
+    final haveOrderMap = _toMap(json["have_order"]);
+
     return HomeResponse(
       ads: _list(json, "ads", (e) => AdModel.fromJson(e)),
       closerToYou: _list(json, "closer_to_you", (e) => RestaurantModel.fromJson(e)),
-      nearbyRestaurants: _list(json, "nearby_restaurants", (e) => RestaurantModel.fromJson(e)),
-      supermarkets: _list(json, "supermarkets", (e) => RestaurantModel.fromJson(e)), // ✅
+      nearbyRestaurants:
+          _list(json, "nearby_restaurants", (e) => RestaurantModel.fromJson(e)),
+      supermarkets: _list(json, "supermarkets", (e) => RestaurantModel.fromJson(e)),
       mostPopular: _list(json, "most_popular", (e) => MenuItemModel.fromJson(e)),
-      discounts: _list(json, "discounts", (e) => MenuItemModel.fromJson(e)), // ✅
+      discounts: _list(json, "discounts", (e) => MenuItemModel.fromJson(e)),
       stories: _list(json, "stories", (e) => StoryWrapperModel.fromJson(e)),
+
       hasCoordinates: _toBool(json["has_coordinates"]),
+      avatar: (json["avatar"] == null) ? null : _toStringSafe(json["avatar"]),
       provinceDetected: json["province_detected"] as String?,
+
+      haveOrder: haveOrderMap == null ? null : OrderInfo.fromJson(haveOrderMap),
     );
   }
 }
 
 class AdModel {
   final int id;
-  final String type; // image / video ...
+  final String type;
   final String title;
   final String? description;
-  final String? image; // path from api
+  final String? image;
   final String? url;
-
   final String? status;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -136,7 +153,6 @@ class AdModel {
       );
 }
 
-
 class RestaurantModel {
   final int id;
   final String name;
@@ -163,7 +179,9 @@ class RestaurantModel {
         coverImage: json["cover_image"] as String?,
         ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
         ratingCount: HomeResponse._toInt(json["rating_count"]),
-        deliveryTime: json["delivery_time"] == null ? null : HomeResponse._toInt(json["delivery_time"]),
+        deliveryTime: json["delivery_time"] == null
+            ? null
+            : HomeResponse._toInt(json["delivery_time"]),
       );
 }
 
@@ -176,7 +194,7 @@ class MenuItemModel {
   final double priceAfter;
 
   final bool hasDiscount;
-  final String? discountType; // fixed / percent
+  final String? discountType;
   final double? discountValue;
 
   final bool isFavorite;
@@ -199,9 +217,10 @@ class MenuItemModel {
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
     final discountRaw = json["discount_value"];
-    final discountParsed = (discountRaw == null || discountRaw.toString().trim().isEmpty)
-        ? null
-        : HomeResponse._toDouble(discountRaw);
+    final discountParsed =
+        (discountRaw == null || discountRaw.toString().trim().isEmpty)
+            ? null
+            : HomeResponse._toDouble(discountRaw);
 
     final primaryMap = HomeResponse._toMap(json["primary_image"]);
     final restMap = HomeResponse._toMap(json["restaurant"]);
@@ -234,6 +253,7 @@ class MenuItemRestaurant {
   final int id;
   final String name;
   final String? logo;
+
   MenuItemRestaurant({required this.id, required this.name, this.logo});
 
   factory MenuItemRestaurant.fromJson(Map<String, dynamic> json) =>

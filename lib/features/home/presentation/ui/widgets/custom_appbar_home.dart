@@ -1,17 +1,70 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:breezefood/features/notification/notification.dart';
+import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+class CachedAvatar extends StatelessWidget {
+  final String? url; // path من API (uploads/avatars/..)
+  final double size; // قطر الصورة
+  final String fallbackAsset; // صورة افتراضية
+  final VoidCallback? onTap;
+
+  const CachedAvatar({
+    super.key,
+    required this.url,
+    this.size = 40,
+    this.fallbackAsset = 'assets/images/01.jpg',
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final full = UrlHelper.toFullUrl(url); // ✅ استخدم UrlHelper تبعك
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: ClipOval(
+        child: SizedBox(
+          width: size.w,
+          height: size.w,
+          child: (full == null || full.isEmpty)
+              ? Image.asset(fallbackAsset, fit: BoxFit.cover)
+              : CachedNetworkImage(
+                  imageUrl: full,
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(milliseconds: 120),
+                  placeholder: (_, __) => Container(
+                    color: Colors.white10,
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: 16.w,
+                      height: 16.w,
+                      child: const CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                  errorWidget: (_, __, ___) =>
+                      Image.asset(fallbackAsset, fit: BoxFit.cover),
+                ),
+        ),
+      ),
+    );
+  }
+}
 
 class CustomAppbarHome extends StatelessWidget {
   final String title;
   final String? subtitle;
   final String? image;
   final IconData? icon;
-
+  final String? avatarUrl; // ✅
   /// ✅ كبسة صورة البروفايل
   final VoidCallback? onProfileTap;
 
@@ -20,6 +73,7 @@ class CustomAppbarHome extends StatelessWidget {
 
   const CustomAppbarHome({
     super.key,
+    this.avatarUrl,
     required this.title,
     this.subtitle,
     this.image,
@@ -36,16 +90,48 @@ class CustomAppbarHome extends StatelessWidget {
         // ✅ صورة البروفايل: تفتح الإعدادات فقط
         InkWell(
           onTap: onProfileTap,
-          child: CircleAvatar(
-            radius: 20.r,
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/01.jpg',
-                width: 40.w,
-                height: 40.h,
-                fit: BoxFit.cover,
-              ),
-            ),
+          child: BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, st) {
+              final path = st.maybeWhen(
+                loaded: (user, _, __, ___, ____, _____) => user.profileImage,
+                orElse: () => null,
+              );
+
+              final url = UrlHelper.toFullUrl(path);
+
+              return CircleAvatar(
+                radius: 20.r,
+                backgroundColor: AppColor.black,
+                child: ClipOval(
+                  child: SizedBox(
+                    width: 40.w,
+                    height: 40.w,
+                    child: (url == null || url.isEmpty)
+                        ? Image.asset(
+                            'assets/images/person.jpg',
+                            fit: BoxFit.cover,
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: url,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => const Center(
+                              child: SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Image.asset(
+                              'assets/images/person.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
 
@@ -79,11 +165,7 @@ class CustomAppbarHome extends StatelessWidget {
                           fontsize: 12.sp,
                         ),
                       if (icon != null)
-                        Icon(
-                          icon,
-                          color: AppColor.LightActive,
-                          size: 24.sp,
-                        ),
+                        Icon(icon, color: AppColor.LightActive, size: 24.sp),
                     ],
                   ),
                 ],
@@ -117,6 +199,38 @@ class CustomAppbarHome extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AvatarImage extends StatelessWidget {
+  final String? url;
+  const _AvatarImage({this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final full = UrlHelper.toFullUrl(url);
+
+    if (full == null || full.isEmpty) {
+      return Image.asset(
+        'assets/images/01.jpg',
+        width: 40.w,
+        height: 40.h,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return Image.network(
+      full,
+      width: 40.w,
+      height: 40.h,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(
+        'assets/images/01.jpg',
+        width: 40.w,
+        height: 40.h,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }

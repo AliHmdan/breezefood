@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
+import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_Page.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
@@ -243,10 +244,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
   Widget build(BuildContext context) {
     final imageUrl = UrlHelper.toFullUrl(widget.item.primaryImage?.imageUrl);
 
-    final title = widget.item.nameAr.isNotEmpty
-        ? widget.item.nameAr
-        : widget.item.nameEn;
-
+    final title = context.pick(ar: widget.item.nameAr, en: widget.item.nameEn);
     final price = widget.item.priceAfter > 0
         ? widget.item.priceAfter
         : widget.item.priceBefore;
@@ -254,7 +252,6 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
-        // color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -296,18 +293,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-            child: CustomTitle(title: title, color:  AppColor.white,)
-            // Text(
-            //   title,
-            //   maxLines: 1,
-            //   overflow: TextOverflow.ellipsis,
-            //   style: TextStyle(
-            //     color: AppColor.white,
-            //     fontSize: 12.sp,
-            //     fontFamily: "Manrope",
-            //     fontWeight: FontWeight.bold,
-            //   ),
-            // ),
+            child: CustomTitle(title: title, color: AppColor.white),
+     
           ),
           Padding(
             padding: EdgeInsets.only(left: 6.w, bottom: 6.h),

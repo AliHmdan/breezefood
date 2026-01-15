@@ -1,4 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/terms/terms.dart';
 import 'package:breezefood/features/helpCenter/help_center.dart';
 import 'package:breezefood/features/profile/presentation/widget/dialog_logout.dart';
@@ -6,6 +8,7 @@ import 'package:breezefood/features/profile/presentation/ui/info_profile.dart';
 import 'package:breezefood/features/profile/presentation/widget/language.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/profile/presentation/widget/listtile_profile.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -91,8 +94,9 @@ class _ProfileState extends State<Profile> {
                   Center(
                     child: Column(
                       children: [
-                        // ✅ ما عاد نعتمد على asset ممكن يكون غير موجود
-                        _avatar(fullUrl(profileImage)),
+                        _avatar(
+                          profileImage,
+                        ), // ✅ لأن _avatar صار يحول الرابط لحاله
 
                         SizedBox(height: 12.h),
 
@@ -170,11 +174,38 @@ class _ProfileState extends State<Profile> {
                             final res = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    InfoProfile(profileCubit: cubit),
+                                builder: (_) => MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(
+                                      value: context.read<HomeCubit>(),
+                                    ), // ✅ مرّر الهوم
+                                  ],
+                                  child: InfoProfile(
+                                    profileCubit: getIt<ProfileCubit>(),
+                                  ),
+                                ),
                               ),
                             );
-                            if (res == true) cubit.load();
+
+                            if (res == true) {
+                              await cubit.load();
+
+                              final st = cubit.state;
+                              final avatarPath = st.maybeWhen(
+                                loaded: (user, _, __, ___, ____, _____) =>
+                                    user.profileImage,
+                                orElse: () => null,
+                              );
+
+                              final full = UrlHelper.toFullUrl(avatarPath);
+                              if (full != null && full.isNotEmpty) {
+                                await CachedNetworkImage.evictFromCache(full);
+                              }
+
+                              if (context.mounted) {
+                                context.read<HomeCubit>().load();
+                              }
+                            }
                           },
                         ),
 
@@ -251,41 +282,33 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-Widget _avatar(String? url) {
-  final hasUrl = (url ?? '').trim().isNotEmpty;
+Widget _avatar(String? rawPathOrUrl) {
+  final full = UrlHelper.toFullUrl(rawPathOrUrl);
 
   return CircleAvatar(
     radius: 60.r,
     backgroundColor: AppColor.black,
     child: ClipOval(
-      child: hasUrl
-          ? Image.network(
-              url!,
-              width: 120.w,
-              height: 120.w,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) =>
-                  Icon(Icons.person, color: AppColor.white, size: 44.sp),
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return Center(
+      child: SizedBox(
+        width: 120.w,
+        height: 120.w,
+        child: (full == null || full.isEmpty)
+            ? Icon(Icons.person, color: AppColor.white, size: 44.sp)
+            : CachedNetworkImage(
+                imageUrl: full,
+                fit: BoxFit.cover,
+                fadeInDuration: const Duration(milliseconds: 120),
+                placeholder: (_, __) => Center(
                   child: SizedBox(
                     width: 22.w,
                     height: 22.w,
                     child: const CircularProgressIndicator(strokeWidth: 2),
                   ),
-                );
-              },
-            )
-          : Icon(Icons.person, color: AppColor.white, size: 44.sp),
+                ),
+                errorWidget: (_, __, ___) =>
+                    Icon(Icons.person, color: AppColor.white, size: 44.sp),
+              ),
+      ),
     ),
   );
-}
-
-String fullUrl(String? path) {
-  final s = (path ?? '').trim();
-  if (s.isEmpty) return '';
-  if (s.startsWith('http')) return s;
-  final clean = s.replaceFirst(RegExp(r'^/+'), '');
-  return "https://breezefood.cloud/$clean";
 }

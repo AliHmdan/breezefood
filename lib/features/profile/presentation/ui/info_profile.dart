@@ -1,9 +1,12 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
+import 'package:breezefood/features/main_shell.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_textfaild_info.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,6 +25,8 @@ class _InfoProfileState extends State<InfoProfile> {
   final _firstCtrl = TextEditingController();
   final _lastCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  int _avatarVer = 0; // 🔥 لتغيير الرابط وإجبار إعادة التحميل
+  String? _lastServerPath; // لتتبع تغيّر الصورة
 
   bool _didFillOnce = false;
 
@@ -67,30 +72,28 @@ class _InfoProfileState extends State<InfoProfile> {
   }
 
   ImageProvider _avatarImageProvider(ProfileState state) {
-    // ✅ 1) Preview: إذا المستخدم اختار Avatar (حتى لو ما عمل save)
     final selectedPath = state.maybeWhen(
       loaded: (_, __, ___, selectedAvatarPath, ____, _____) =>
           selectedAvatarPath,
       orElse: () => null,
     );
 
-    final selectedFull = UrlHelper.toFullUrl(selectedPath);
-    if (selectedFull != null && selectedFull.isNotEmpty) {
-      return NetworkImage(selectedFull);
-    }
-
-    // ✅ 2) صورة من السيرفر ضمن user.profileImage
     final serverPath = state.maybeWhen(
       loaded: (user, _, __, ___, ____, _____) => user.profileImage,
       orElse: () => null,
     );
 
-    final serverFull = UrlHelper.toFullUrl(serverPath);
-    if (serverFull != null && serverFull.isNotEmpty) {
-      return NetworkImage(serverFull);
+    // ✅ اختر الصورة: preview أولاً ثم السيرفر
+    final raw = (selectedPath != null && selectedPath.trim().isNotEmpty)
+        ? selectedPath
+        : serverPath;
+
+    final full = UrlHelper.toFullUrl(raw);
+    if (full != null && full.isNotEmpty) {
+      final busted = "$full?v=$_avatarVer"; // 🔥 يجبر تحميل جديد
+      return CachedNetworkImageProvider(busted);
     }
 
-    // ✅ 3) fallback
     return const AssetImage('assets/images/person.jpg');
   }
 
@@ -174,12 +177,25 @@ class _InfoProfileState extends State<InfoProfile> {
                             final av = avatars[i];
                             final selected = selectedAvatarPath == av.path;
                             return GestureDetector(
-                              onTap: () {
-                                widget.profileCubit.selectAvatar(
-                                  av,
-                                ); // تخزن path
+                              onTap: () async {
+                                widget.profileCubit.selectAvatar(av);
+
+                                // 🔥 اجبار تحديث الصورة فوراً
+                                final full = UrlHelper.toFullUrl(av.path);
+                                if (full != null && full.isNotEmpty) {
+                                  await CachedNetworkImage.evictFromCache(full);
+                                }
+
+                                if (mounted) {
+                                  setState(() {
+                                    _avatarVer =
+                                        DateTime.now().millisecondsSinceEpoch;
+                                  });
+                                }
+
                                 Navigator.pop(context);
                               },
+
                               child: Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -373,8 +389,28 @@ class _InfoProfileState extends State<InfoProfile> {
                                   lastName: _lastCtrl.text.trim(),
                                 );
 
+                                final st = widget.profileCubit.state;
+                                final serverPath = st.maybeWhen(
+                                  loaded: (user, _, __, ___, ____, _____) =>
+                                      user.profileImage,
+                                  orElse: () => null,
+                                );
+
+                                final full = UrlHelper.toFullUrl(serverPath);
+                                if (full != null && full.isNotEmpty) {
+                                  await CachedNetworkImage.evictFromCache(full);
+                                }
+
                                 if (!mounted) return;
-                                Navigator.pop(context, true);
+
+                                // ✅ Restart app shell
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const MainShell(initialIndex: 0),
+                                  ),
+                                  (route) => false,
+                                );
                               },
                       ),
                     ],

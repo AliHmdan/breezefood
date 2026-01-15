@@ -116,6 +116,31 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     return 0.0;
   }
 
+  String _pickSingleLangFromMixed(String s, BuildContext context) {
+    final v = (s).trim();
+    if (v.isEmpty) return "";
+
+    // أشهر فواصل الدمج بالسيرفرات
+    final separators = ['|', '||', '/', ' / ', '\n', ' - ', ' — ', ' – '];
+
+    for (final sep in separators) {
+      if (v.contains(sep)) {
+        final parts = v
+            .split(sep)
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        if (parts.length >= 2) {
+          // إذا عربي خذ الأول، إذا إنكليزي خذ الثاني (هذا الافتراض الأكثر شيوعاً)
+          return context.isAr ? parts.first : parts[1];
+        }
+      }
+    }
+
+    // إذا ما كان مدموج أصلاً
+    return v;
+  }
+
   int _extractCartCount(dynamic cart) {
     if (cart == null) return 0;
 
@@ -179,7 +204,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                 if (count <= 0) return const SizedBox.shrink();
 
                 return Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 10.h,
+                  ),
                   decoration: BoxDecoration(
                     // color: AppColor.Dark,
                     boxShadow: [
@@ -247,11 +275,11 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   final g = data.general;
 
                   restaurantName = (g.name).trim().isNotEmpty
-                      ? g.name
+                      ? _pickSingleLangFromMixed(g.name, context)
                       : "Restaurant";
 
                   description = (g.description ?? "").trim().isNotEmpty
-                      ? g.description!
+                      ? _pickSingleLangFromMixed(g.description!, context)
                       : " ";
 
                   // cover OR logo
@@ -267,11 +295,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   if (g.totalCompletedOrders > 0)
                     ordersText = "${g.totalCompletedOrders} Order";
 
-                  // ✅ categories + items
                   final sections = data.restaurantMenuItems;
 
                   categories = sections.map((e) {
-                    // اختار الاسم حسب اللغة
                     return context.pick(
                       ar: e.category.nameAr,
                       en: e.category.nameEn,
@@ -338,7 +364,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                 orElse: () {},
               );
 
-              return  Stack(
+              return Stack(
                 children: [
                   SizedBox(
                     height: 240.h,
@@ -348,19 +374,18 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       children: [
                         headerImageUrl.isEmpty
                             ? Image.asset(
-                          "assets/images/shawarma_box.png",
-                          fit: BoxFit.cover,
-                        )
+                                "assets/images/shawarma_box.png",
+                                fit: BoxFit.cover,
+                              )
                             : Image.network(
-                          headerImageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            "assets/images/shawarma_box.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                                headerImageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  "assets/images/shawarma_box.png",
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
 
-                        // ⭐ اسم المطعم في المنتصف (مرة واحدة فقط)
                         Center(
                           child: Text(
                             restaurantName,
@@ -395,7 +420,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           topLeft: Radius.circular(30.r),
                           topRight: Radius.circular(30.r),
                         ),
-
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,14 +456,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           //     color: AppColor.white,
                           //   ),
                           // ),
-
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      Search(restaurantId: widget.restaurant_id),
+                                  builder: (_) => Search(
+                                    restaurantId: widget.restaurant_id,
+                                  ),
                                 ),
                               );
                             },
@@ -459,17 +483,19 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             child: BlocBuilder<RatingCubit, Map<int, double>>(
                               builder: (context, ratings) {
                                 // 🔹 جلب التقييم المحلي لهذا المطعم فقط
-                                final rate = ratings[widget.restaurant_id] ?? 0.0;
+                                final rate =
+                                    ratings[widget.restaurant_id] ?? 0.0;
 
                                 return GestureDetector(
                                   onTap: () async {
-                                    final selectedRate = await showDialog<double>(
-                                      context: context,
-                                      useRootNavigator:
-                                          true, // ⭐ مهم لمنع Navigator lock
-                                      barrierDismissible: true,
-                                      builder: (_) => const RateDialog(),
-                                    );
+                                    final selectedRate =
+                                        await showDialog<double>(
+                                          context: context,
+                                          useRootNavigator:
+                                              true, // ⭐ مهم لمنع Navigator lock
+                                          barrierDismissible: true,
+                                          builder: (_) => const RateDialog(),
+                                        );
 
                                     // 🔹 حفظ التقييم محليًا (UI only)
                                     if (selectedRate != null) {
@@ -527,9 +553,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             ),
                           ),
 
-                          // ==================== ⭐ END LOCAL RATING ====================
-
-                          // ---------------- Categories ----------------
                           Padding(
                             padding: const EdgeInsets.all(10),
                             child: SizedBox(
@@ -554,7 +577,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           padding: EdgeInsets.only(right: 8.w),
                                           child: GestureDetector(
                                             onTap: () => setState(
-                                              () => selectedCategoryIndex = index,
+                                              () =>
+                                                  selectedCategoryIndex = index,
                                             ),
                                             child: Container(
                                               padding: EdgeInsets.symmetric(
@@ -627,7 +651,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                           if (selectedItems.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
                               child: CustomSubTitle(
                                 subtitle: "Empty",
                                 color: AppColor.gry,
@@ -650,7 +676,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 itemBuilder: (context, i) {
                                   final it = selectedItems[i];
 
-                                  final imageUrl = _fullImageUrl(it.image ?? "");
+                                  final imageUrl = _fullImageUrl(
+                                    it.image ?? "",
+                                  );
                                   final title = context.pick(
                                     ar: it.nameAr,
                                     en: it.nameEn,
@@ -683,7 +711,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       final menuItemId = it.id ?? 0;
                                       final restaurantId = widget.restaurant_id;
 
-                                      if (menuItemId == 0 || restaurantId == 0) {
+                                      if (menuItemId == 0 ||
+                                          restaurantId == 0) {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
@@ -718,7 +747,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             : "assets/images/shawarma_box.png",
                                         description: d,
                                         extraMeals:
-                                            it.mealExtras ?? const <MenuExtra>[],
+                                            it.mealExtras ??
+                                            const <MenuExtra>[],
                                       );
 
                                       if (mounted) {
@@ -728,11 +758,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     child: SizedBox(
                                       height: 140.h,
                                       width: 160.w,
-                                      child: _MenuItemCardWrapper(
-                                        item: mapped,
-                                        title: title,
-                                        desc: desc,
-                                      ),
+                                      child: PopularItemCard(item: mapped),
                                     ),
                                   );
                                 },
@@ -784,7 +810,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     ),
                   ),
                 ],
-                    );
+              );
             },
           ),
         ),
@@ -798,54 +824,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       height: 20.h,
       margin: EdgeInsets.symmetric(horizontal: 4.w),
       color: AppColor.light,
-    );
-  }
-}
-
-class _MenuItemCardWrapper extends StatelessWidget {
-  final MenuItemModel item;
-  final String title;
-  final String desc;
-
-  const _MenuItemCardWrapper({
-    required this.item,
-    required this.title,
-    required this.desc,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        PopularItemCard(item: item),
-        Positioned(
-          left: 8,
-          right: 8,
-          bottom: 8,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                desc,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white70, fontSize: 10),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
