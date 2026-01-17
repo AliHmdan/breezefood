@@ -26,13 +26,11 @@ class PopularGridPage extends StatelessWidget {
       backgroundColor: AppColor.Dark,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50.h),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: CustomAppbarProfile(
-            title: "Most popular",
-            icon: Icons.arrow_back_ios,
-            ontap: () => Navigator.of(context).pop(),
-          ),
+        child:
+        CustomAppbarProfile(
+          title: "Most popular",
+          icon: Icons.arrow_back_ios,
+          ontap: () => Navigator.of(context).pop(),
         ),
       ),
       body: SafeArea(
@@ -53,7 +51,7 @@ class PopularGridPage extends StatelessWidget {
 
                     return Container(
                       decoration: BoxDecoration(
-                        color: AppColor.LightActive,
+                        // color: AppColor.LightActive,
                         borderRadius: BorderRadius.circular(15),
                       ),
                       padding: const EdgeInsets.all(8),
@@ -61,9 +59,9 @@ class PopularGridPage extends StatelessWidget {
                         physics: const BouncingScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
-                          mainAxisSpacing: 5.h,
-                          crossAxisSpacing: 12.w,
-                          childAspectRatio: 0.92,
+                          mainAxisSpacing: 8.h,
+                          crossAxisSpacing: 8.w,
+                          childAspectRatio: 1.2,
                         ),
                         itemCount: items.length,
                         itemBuilder: (context, index) {

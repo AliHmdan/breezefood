@@ -162,6 +162,7 @@ class RestaurantModel {
   final int ratingCount;
   final int? deliveryTime;
 
+
   RestaurantModel({
     required this.id,
     required this.name,
@@ -179,6 +180,7 @@ class RestaurantModel {
         coverImage: json["cover_image"] as String?,
         ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
         ratingCount: HomeResponse._toInt(json["rating_count"]),
+
         deliveryTime: json["delivery_time"] == null
             ? null
             : HomeResponse._toInt(json["delivery_time"]),

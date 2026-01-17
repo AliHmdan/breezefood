@@ -91,31 +91,31 @@ class _PaymentMethodSectionState extends State<PaymentMethodSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Padding(
-            padding: EdgeInsets.only(bottom: 8.h, left: 2.w, right: 2.w),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.headerTitle,
-                    style: TextStyle(
-                      color: widget.headerColor,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                ),
-                Text(
-                  widget.amountText,
-                  style: TextStyle(
-                    color: widget.amountColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.only(bottom: 8.h, left: 2.w, right: 2.w),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //         child: Text(
+          //           widget.headerTitle,
+          //           style: TextStyle(
+          //             color: widget.headerColor,
+          //             fontWeight: FontWeight.w700,
+          //             fontSize: 14.sp,
+          //           ),
+          //         ),
+          //       ),
+          //       Text(
+          //         widget.amountText,
+          //         style: TextStyle(
+          //           color: widget.amountColor,
+          //           fontWeight: FontWeight.w800,
+          //           fontSize: 14.sp,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
 
           // قائمة طرق الدفع
           if (widget.methods.isEmpty)

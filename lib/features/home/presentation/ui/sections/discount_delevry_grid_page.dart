@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/discount_delevry.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
@@ -181,6 +182,9 @@ class DiscountDelevryCard extends StatelessWidget {
                         color: Colors.white,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
+                        fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                            ? 'Cairo'
+                            : 'Inter',
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -190,7 +194,14 @@ class DiscountDelevryCard extends StatelessWidget {
                       restaurantName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.white70, fontSize: 11.sp),
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11.sp,
+                        fontFamily:
+                            Localizations.localeOf(context).languageCode == 'ar'
+                            ? 'Cairo'
+                            : 'Inter',
+                      ),
                     ),
 
                     const Spacer(),

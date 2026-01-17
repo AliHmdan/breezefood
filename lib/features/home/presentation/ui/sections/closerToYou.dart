@@ -191,9 +191,9 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                 ),
               ),
 
-              Positioned(
+              PositionedDirectional(
                 top: 6,
-                right: 6,
+                end: 6,
                 child: GestureDetector(
                   onTap: _openRatingDialog,
                   child: Container(
@@ -202,7 +202,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                       vertical: 2.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      // color: Colors.black.withOpacity(0.6),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: Row(
@@ -249,7 +249,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
           SizedBox(height: 6.h),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SvgPicture.asset(
                 "assets/icons/motor.svg",

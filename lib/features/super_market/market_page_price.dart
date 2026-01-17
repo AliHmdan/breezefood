@@ -18,6 +18,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../profile/presentation/widget/custom_appbar_profile.dart';
+
 class MarketPagePrice extends StatelessWidget {
   final int marketId;
   final String title;
@@ -171,19 +173,26 @@ class MarketPagePrice extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: const Color(0xFF121212),
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF121212),
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              title,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-            ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, size: 22.sp),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+          appBar:PreferredSize(  preferredSize: Size.fromHeight(110.h),
+        child: CustomAppbarProfile(
+          title: title,
+          icon: Icons.arrow_back_ios,
+          ontap: () => Navigator.pop(context),
+          backgroundcolor: Colors.transparent,
+        )),
+          // AppBar(
+          //   backgroundColor: const Color(0xFF121212),
+          //   elevation: 0,
+          //   centerTitle: true,
+          //   title: Text(
+          //     title,
+          //     style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          //   ),
+          //   leading: IconButton(
+          //     icon: Icon(Icons.arrow_back, size: 22.sp),
+          //     onPressed: () => Navigator.pop(context),
+          //   ),
+          // ),
           body: Stack(
             children: [
               Padding(

@@ -290,7 +290,7 @@ class _HomeState extends State<Home> {
                             ),
 
                       // ✅ مساحة حتى ما يغطي الزر السفلي المحتوى
-                      SizedBox(height: showBottom ? 140.h : 20.h),
+                      SizedBox(height: showBottom ? 80.h : 20.h),
                     ],
                   ),
                 ),

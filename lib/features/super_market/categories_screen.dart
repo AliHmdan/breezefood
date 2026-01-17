@@ -26,6 +26,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:breezefood/core/component/color.dart';
 
+import '../profile/presentation/widget/custom_appbar_profile.dart';
+
 // أو حط الصفحتين بنفس الملف إذا بتحب
 
 class MarketCategoriesScreen extends StatelessWidget {
@@ -89,19 +91,27 @@ class MarketCategoriesScreen extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: AppColor.Dark,
-          appBar: AppBar(
-            backgroundColor: AppColor.Dark,
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              title,
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-            ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, size: 22.sp),
-              onPressed: () => Navigator.pop(context),
+          appBar:PreferredSize(  preferredSize: Size.fromHeight(110.h),
+            child: CustomAppbarProfile(
+              title: title,
+              icon: Icons.arrow_back_ios,
+              ontap: () => Navigator.pop(context),
+              backgroundcolor: Colors.transparent,
             ),
           ),
+          // appBar: AppBar(
+          //   backgroundColor: AppColor.Dark,
+          //   elevation: 0,
+          //   centerTitle: true,
+          //   title: Text(
+          //     title,
+          //     style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+          //   ),
+          //   leading: IconButton(
+          //     icon: Icon(Icons.arrow_back, size: 22.sp),
+          //     onPressed: () => Navigator.pop(context),
+          //   ),
+          // ),
           body: BlocBuilder<MarketDetailsCubit, MarketDetailsState>(
             builder: (context, state) {
               if (state.loading) {
@@ -326,19 +336,16 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
       },
       child: Scaffold(
         backgroundColor: AppColor.Dark,
-        appBar: AppBar(
-          backgroundColor: AppColor.Dark,
-          elevation: 0,
-          centerTitle: true,
-          title: Text(
-            widget.categoryName,
-            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w800),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, size: 22.sp),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(50.h),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CustomAppbarProfile(
+                title:  widget.categoryName,
+                icon: Icons.arrow_back_ios,
+                ontap: () => Navigator.of(context).pop(),
+              ))),
+
         body: BlocBuilder<MarketDetailsCubit, MarketDetailsState>(
           builder: (context, state) {
             if (state.loadingItems) {

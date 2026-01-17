@@ -18,8 +18,11 @@ class CustomSubTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: fontsize,
         color: color,
-        fontFamily: "Manrope",
-        fontWeight: FontWeight.w400,
+        fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+            ? 'Cairo'
+            : 'Inter',
+
+      fontWeight: FontWeight.w400,
       ),
     );
   }

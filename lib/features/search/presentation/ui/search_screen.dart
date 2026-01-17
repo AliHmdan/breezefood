@@ -106,7 +106,7 @@ class _SearchState extends State<Search> {
 
   Widget _buildTagChip(String tag) {
     return Container(
-      margin: EdgeInsets.only(right: 8.w, bottom: 8.h),
+      margin: EdgeInsetsDirectional.only(end: 8.w, bottom: 8.h),
       decoration: BoxDecoration(
         color: const Color(0xFF3A3A3A),
         borderRadius: BorderRadius.circular(20.r),
@@ -126,13 +126,10 @@ class _SearchState extends State<Search> {
           SizedBox(width: 4.w),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
-            child: Text(
-              tag,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.sp,
-                fontFamily: "Manrope",
-              ),
+            child: CustomSubTitle(
+              subtitle: tag,
+              color: AppColor.white,
+              fontsize: 14.sp,
             ),
           ),
         ],
@@ -173,13 +170,10 @@ class _SearchState extends State<Search> {
             },
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
-              child: Text(
-                h,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.sp,
-                  fontFamily: "Manrope",
-                ),
+              child: CustomSubTitle(
+                subtitle: h,
+                color: AppColor.white,
+                fontsize: 14.sp,
               ),
             ),
           ),
@@ -228,8 +222,8 @@ class _SearchState extends State<Search> {
 
               Container(
                 height: 25.h,
-                width: 1,
-                color: Colors.white24,
+                width: 0.5,
+                color: AppColor.LightActive,
                 margin: EdgeInsets.symmetric(horizontal: 8.w),
               ),
 
@@ -237,83 +231,91 @@ class _SearchState extends State<Search> {
                 children: [
                   Icon(Icons.star, color: AppColor.yellow, size: 16.sp),
                   SizedBox(width: 4.w),
-                  Text(
-                    ratingAvg.toStringAsFixed(1),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  CustomSubTitle(
+                    subtitle: ratingAvg.toStringAsFixed(1),
+                    color: AppColor.white,
+                    fontsize: 14.sp,
                   ),
+
                   SizedBox(width: 6.w),
-                  Text(
-                    "$ratingCount",
-                    style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+                  CustomSubTitle(
+                    subtitle: "$ratingCount",
+                    color: Colors.white70,
+                    fontsize: 12.sp,
                   ),
                 ],
               ),
             ],
           ),
         ),
+        // ========================================Container Meall======================
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 16),
+          child: SizedBox(
+            height: 150.h, // ✅ نفس ارتفاع MostPopular
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final itemWidth = constraints.maxWidth / 2.3;
+                final count = block.items.length;
+                final gap = 10.w;
 
-        Container(
-          padding: const EdgeInsets.only(
-            top: 10,
-            bottom: 10,
-            left: 8,
-            right: 0.2,
-          ),
-          decoration: BoxDecoration(
-            color: AppColor.LightActive,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          height: 200,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final itemWidth = constraints.maxWidth / 2.3;
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: count,
+                  physics: count <= 2
+                      ? const NeverScrollableScrollPhysics()
+                      : const BouncingScrollPhysics(),
 
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: block.items.length,
-                itemBuilder: (context, index) {
-                  final it = block.items[index];
+                  itemBuilder: (context, index) {
+                    final it = block.items[index];
 
-                  final title = context.pick(ar: it.names.ar, en: it.names.en);
+                    final title = context.pick(
+                      ar: it.names.ar,
+                      en: it.names.en,
+                    );
 
-                  final fullImg = _toFullUrl(it.imageUrl ?? "");
+                    final fullImg = _toFullUrl(it.imageUrl ?? "");
 
-                  return Container(
-                    width: itemWidth,
-                    margin: EdgeInsets.only(right: 10.w),
-                    child: GestureDetector(
-                      onTap: () {
-                        // ✅ فتح نفس Dialog تبع Add Order
-                        showAddOrderDialog(
-                          context,
-                          restaurantId: r.id,
-                          menuItemId: it.id,
-                          title: title,
-                          price: double.tryParse(it.basePrice) ?? 0,
-                          oldPrice: double.tryParse(it.basePrice) ?? 0,
-                          imagePathOrUrl: fullImg.isNotEmpty
-                              ? fullImg
-                              : "assets/images/shawarma_box.png",
-                          description: "",
-                          extraMeals: const [], // search api ما بيرجع extras
-                        );
-                      },
-                      child: _SearchApiItemCard(
-                        title: title,
-                        price: it.basePrice,
-                        imageUrl: fullImg,
+                    return Container(
+                      width: itemWidth,
+
+                      /// ✅ نفس منطق MostPopular: لا gap بعد آخر عنصر
+                      margin: EdgeInsetsDirectional.only(
+                        end: index == count - 1 ? 0 : gap,
                       ),
-                    ),
-                  );
-                },
-              );
-            },
+
+                      child: GestureDetector(
+                        onTap: () {
+                          showAddOrderDialog(
+                            context,
+                            restaurantId: r.id,
+                            menuItemId: it.id,
+                            title: title,
+                            price: double.tryParse(it.basePrice) ?? 0,
+                            oldPrice: double.tryParse(it.basePrice) ?? 0,
+                            imagePathOrUrl: fullImg.isNotEmpty
+                                ? fullImg
+                                : "assets/images/shawarma_box.png",
+                            description: "",
+                            extraMeals: const [],
+                          );
+                        },
+
+                        /// ✅ نفس إحساس الكرت
+                        child: _SearchApiItemCard(
+                          title: title,
+                          price: it.basePrice,
+                          imageUrl: fullImg,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
+
       ],
     );
   }
@@ -372,6 +374,19 @@ class _SearchState extends State<Search> {
                                     searchCubit.searchDebounced(v);
                                   },
                                   onSubmitted: (_) => _doSearchNow(),
+                                  style: TextStyle(
+                                    color:
+                                        Colors.black, // ✅ لون النص عند الكتابة
+                                    fontSize: 14.sp,
+                                    fontFamily:
+                                        Localizations.localeOf(
+                                              context,
+                                            ).languageCode ==
+                                            'ar'
+                                        ? 'Cairo'
+                                        : 'Inter',
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(10.w),
                                     filled: true,
@@ -390,7 +405,13 @@ class _SearchState extends State<Search> {
                                     hintStyle: TextStyle(
                                       color: AppColor.gry,
                                       fontSize: 14.sp,
-                                      fontFamily: "Manrope",
+                                      fontFamily:
+                                          Localizations.localeOf(
+                                                context,
+                                              ).languageCode ==
+                                              'ar'
+                                          ? 'Cairo'
+                                          : 'Inter',
                                       fontWeight: FontWeight.w400,
                                     ),
                                     border: OutlineInputBorder(
@@ -456,6 +477,13 @@ class _SearchState extends State<Search> {
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12.sp,
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                               ),
                             ),
                           ),
@@ -470,9 +498,10 @@ class _SearchState extends State<Search> {
                                 )
                               : (s.error != null)
                               ? Center(
-                                  child: Text(
-                                    s.error!,
-                                    style: const TextStyle(color: Colors.red),
+                                  child: CustomSubTitle(
+                                    subtitle: s.error!,
+                                    color: AppColor.red,
+                                    fontsize: 14,
                                   ),
                                 )
                               : (_controller.text.trim().isEmpty)
@@ -482,18 +511,23 @@ class _SearchState extends State<Search> {
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14.sp,
+                                      fontFamily:
+                                          Localizations.localeOf(
+                                                context,
+                                              ).languageCode ==
+                                              'ar'
+                                          ? 'Cairo'
+                                          : 'Inter',
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
                                 )
                               : (s.results.isEmpty)
                               ? Center(
-                                  child: Text(
-                                    "لا توجد نتائج",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14.sp,
-                                    ),
+                                  child: CustomSubTitle(
+                                    subtitle: "لا توجد نتائج",
+                                    color: Colors.white70,
+                                    fontsize: 14.sp,
                                   ),
                                 )
                               : ListView.builder(
@@ -531,10 +565,10 @@ class _SearchState extends State<Search> {
     final computed = filteredSuggestions.length * 48.0.h;
     final maxHeight = computed > 300.0.h ? 300.0.h : computed;
 
-    return Positioned(
+    return PositionedDirectional(
       top: localTopLeft.dy + fieldHeight,
-      left: 24.w,
-      right: 24.w,
+      start: 24.w,
+      end: 24.w,
       child: Material(
         color: Colors.transparent,
         child: Container(
@@ -554,13 +588,16 @@ class _SearchState extends State<Search> {
               ? Center(
                   child: Padding(
                     padding: EdgeInsets.all(10.w),
-                    child: Text(
-                      'No suggestions found',
-                      style: TextStyle(color: AppColor.black, fontSize: 14.sp),
+                    child: CustomSubTitle(
+                      subtitle: 'No suggestions found',
+                      color: AppColor.black,
+                      fontsize: 14.sp,
                     ),
                   ),
                 )
-              : ListView.separated(
+              :
+                // ----------------------------Meal menu-------------------------
+                ListView.separated(
                   padding: EdgeInsets.all(10.w),
                   itemCount: filteredSuggestions.length,
                   separatorBuilder: (_, __) =>
@@ -577,13 +614,10 @@ class _SearchState extends State<Search> {
                           horizontal: 12.w,
                           vertical: 14.h,
                         ),
-                        child: Text(
-                          suggestion,
-                          style: TextStyle(
-                            color: AppColor.black,
-                            fontSize: 15.sp,
-                            fontFamily: "Manrope",
-                          ),
+                        child: CustomSubTitle(
+                          subtitle: suggestion,
+                          color: AppColor.black,
+                          fontsize: 14.sp,
                         ),
                       ),
                     );
@@ -615,7 +649,7 @@ class _SearchState extends State<Search> {
     final url = p.startsWith("http")
         ? p
         : "https://breezefood.cloud/${p.startsWith("/") ? p.substring(1) : p}";
-
+    // -------------------logo Resturant------------------------------
     return Image.network(
       url,
       height: 35.h,
@@ -641,16 +675,17 @@ class _SearchApiItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(11.r),
         color: AppColor.black,
+        borderRadius: BorderRadius.circular(14.r),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// ================= Image (مثل MostPopular) =================
           SizedBox(
             width: double.infinity,
-            height: 85.h,
+            height: 90.h, // 🔹 نفس ارتفاع MostPopular تقريبًا
             child: imageUrl.isEmpty
                 ? _fallback()
                 : Image.network(
@@ -659,29 +694,42 @@ class _SearchApiItemCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) => _fallback(),
                   ),
           ),
+
+          /// ================= Title =================
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+            padding: EdgeInsetsDirectional.only(start: 8.w, end: 8.w, top: 6.h),
             child: Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: AppColor.white,
-                fontSize: 12.sp,
-                fontFamily: "Manrope",
-                fontWeight: FontWeight.bold,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                    ? 'Cairo'
+                    : 'Inter',
               ),
             ),
           ),
+
+          /// ================= Price =================
           Padding(
-            padding: EdgeInsets.only(left: 6.w, bottom: 6.h),
+            padding: EdgeInsetsDirectional.only(
+              start: 8.w,
+              end: 8.w,
+              top: 2.h,
+              bottom: 8.h,
+            ),
             child: Text(
               "$price \$",
               style: TextStyle(
                 color: AppColor.white,
                 fontSize: 12.sp,
-                fontFamily: "Inter",
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
+                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                    ? 'Cairo'
+                    : 'Inter',
               ),
             ),
           ),

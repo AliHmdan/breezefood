@@ -128,7 +128,12 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                     child: _buildNetworkImage(widget.imageUrl, height: 150.h),
                   ),
                 ),
-
+                // ✅ شفافية على كامل الصورة
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.25),
+                  ),
+                ),
                 // Gradient overlay + title
                 Positioned.fill(
                   child: Container(
@@ -174,7 +179,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                         vertical: 3.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Row(
@@ -185,7 +190,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                             _rating.toStringAsFixed(1),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 10.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

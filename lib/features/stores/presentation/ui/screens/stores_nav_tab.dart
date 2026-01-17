@@ -390,212 +390,205 @@ class _StoresNavTabState extends State<StoresNavTab>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.Dark,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            children: [
-              // const CustomAppbarHome(title: "Stores"),
-              CustomAppbarProfile(ontap: (){},title:"Stores" ,),
+      body: Column(
+        children: [
+          // const CustomAppbarHome(title: "Stores"),
+          CustomAppbarProfile(ontap: () {}, title: "Stores"),
 
-              // Tabs
-              Row(
-                children: List.generate(_titles.length, (index) {
-                  final bool isSelected = _tabController.index == index;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () => _tabController.animateTo(
-                        index,
-                        duration: const Duration(milliseconds: 320),
-                        curve: Curves.easeInOutCubic,
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomSubTitle(
-                              subtitle: _titles[index],
-                              color: isSelected
-                                  ? AppColor.primaryColor
-                                  : AppColor.white,
-                              fontsize: 14.sp,
-                            ),
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeInOut,
-                              margin: EdgeInsets.only(top: 4.h),
-                              height: 3,
-                              width: isSelected ? 130.w : 0,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppColor.primaryColor
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(2.r),
-                              ),
-                            ),
-                          ],
+          // Tabs
+          Row(
+            children: List.generate(_titles.length, (index) {
+              final bool isSelected = _tabController.index == index;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => _tabController.animateTo(
+                    index,
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeInOutCubic,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomSubTitle(
+                          subtitle: _titles[index],
+                          color: isSelected
+                              ? AppColor.primaryColor
+                              : AppColor.white,
+                          fontsize: 14.sp,
                         ),
-                      ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeInOut,
+                          margin: EdgeInsets.only(top: 4.h),
+                          height: 3,
+                          width: isSelected ? 130.w : 0,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColor.primaryColor
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }),
-              ),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15.r),
-                  child: TabBarView(
-                    controller: _tabController,
-                    physics: const BouncingScrollPhysics(),
-                    children: [
-                      BlocBuilder<StoresCubit, StoresState>(
-                        bloc: cubit,
-                        builder: (context, state) {
-                          return state.when(
-                            initial: () => const SizedBox.shrink(),
-                            loading: () => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                            error: (msg) => Center(
+                  ),
+                ),
+              );
+            }),
+          ),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15.r),
+              child: TabBarView(
+                controller: _tabController,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  BlocBuilder<StoresCubit, StoresState>(
+                    bloc: cubit,
+                    builder: (context, state) {
+                      return state.when(
+                        initial: () => const SizedBox.shrink(),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (msg) => Center(
+                          child: Text(
+                            msg,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        loaded: (restaurants) {
+                          if (restaurants.isEmpty) {
+                            return const Center(
                               child: Text(
-                                msg,
-                                style: const TextStyle(color: Colors.red),
+                                "لا يوجد مطاعم",
+                                style: TextStyle(color: Colors.white70),
                               ),
-                            ),
-                            loaded: (restaurants) {
-                              if (restaurants.isEmpty) {
-                                return const Center(
-                                  child: Text(
-                                    "لا يوجد مطاعم",
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                );
-                              }
+                            );
+                          }
 
-                              return ListView.separated(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 5,
-                                ),
-                                itemCount: restaurants.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
-                                itemBuilder: (context, i) {
-                                  final r = restaurants[i];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => BlocProvider(
-                                            create: (context) =>
-                                                getIt<FavoritesCubit>(),
-                                            child: ResturantDetails(
-                                              restaurant_id: r.id,
-                                            ),
-                                          ),
+                          return ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 5,
+                            ),
+                            itemCount: restaurants.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, i) {
+                              final r = restaurants[i];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => BlocProvider(
+                                        create: (context) =>
+                                            getIt<FavoritesCubit>(),
+                                        child: ResturantDetails(
+                                          restaurant_id: r.id,
                                         ),
-                                      );
-                                      context.read<CartCubit>().loadCart();
-                                    },
-                                    child: RestaurantCard(
-                                      imageUrl: _restaurantImage(r) ?? "",
-                                      name: r.name,
-                                      rating: r.ratingAvg,
-                                      orders: _ordersText(r),
-                                      time: _timeText(r),
-                                      isClosed: false,
+                                      ),
                                     ),
                                   );
+                                  context.read<CartCubit>().loadCart();
                                 },
+                                child: RestaurantCard(
+                                  imageUrl: _restaurantImage(r) ?? "",
+                                  name: r.name,
+                                  rating: r.ratingAvg,
+                                  orders: _ordersText(r),
+                                  time: _timeText(r),
+                                  isClosed: false,
+                                ),
                               );
                             },
                           );
                         },
-                      ),
-                      BlocBuilder<SuperMarketsListCubit, SuperMarketsListState>(
-                        bloc: superMarketsCubit,
-                        builder: (context, state) {
-                          if (state is SuperMarketsListLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (state is SuperMarketsListError) {
-                            return Center(
-                              child: Text(
-                                state.msg,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            );
-                          }
-                          if (state is SuperMarketsListLoaded) {
-                            if (state.markets.isEmpty) {
-                              return const Center(
-                                child: Text(
-                                  "لا يوجد سوبرماركت",
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                              );
-                            }
+                      );
+                    },
+                  ),
+                  BlocBuilder<SuperMarketsListCubit, SuperMarketsListState>(
+                    bloc: superMarketsCubit,
+                    builder: (context, state) {
+                      if (state is SuperMarketsListLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (state is SuperMarketsListError) {
+                        return Center(
+                          child: Text(
+                            state.msg,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+                      if (state is SuperMarketsListLoaded) {
+                        if (state.markets.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "لا يوجد سوبرماركت",
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          );
+                        }
 
-                            return ScrollConfiguration(
-                              behavior: const _NoGlowBehavior(),
-                              child: ListView.separated(
-                                key: const PageStorageKey('tab_supermarkets'),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 5,
-                                ),
-                                physics: const ClampingScrollPhysics(),
-                                itemCount: state.markets.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final m = state.markets[index];
+                        return ScrollConfiguration(
+                          behavior: const _NoGlowBehavior(),
+                          child: ListView.separated(
+                            key: const PageStorageKey('tab_supermarkets'),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 5,
+                            ),
+                            physics: const ClampingScrollPhysics(),
+                            itemCount: state.markets.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final m = state.markets[index];
 
-                                  final img =
-                                      (m.logo != null &&
-                                          m.logo!.trim().isNotEmpty)
-                                      ? UrlHelper.toFullUrl(m.logo) ?? ""
-                                      : "";
+                              final img =
+                                  (m.logo != null &&
+                                      m.logo!.trim().isNotEmpty)
+                                  ? UrlHelper.toFullUrl(m.logo) ?? ""
+                                  : "";
 
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) =>
-                                              MarketCategoriesScreen(
-                                                marketId: m.id,
-                                                title: m.name,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    child: RestaurantCard(
-                                      imageUrl: img,
-                                      name: m.name,
-                                      rating:
-                                          0.0, // API عندك rating_avg موجود بس أنت ما حطيته بالموديل
-                                      orders: "0 Orders", // نفس الشي
-                                      time:
-                                          "--", // delivery_time موجود إذا بدك نضيفه للموديل
-                                      isClosed: false,
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => MarketCategoriesScreen(
+                                        marketId: m.id,
+                                        title: m.name,
+                                      ),
                                     ),
                                   );
                                 },
-                              ),
-                            );
-                          }
+                                child: RestaurantCard(
+                                  imageUrl: img,
+                                  name: m.name,
+                                  rating:
+                                      0.0, // API عندك rating_avg موجود بس أنت ما حطيته بالموديل
+                                  orders: "0 Orders", // نفس الشي
+                                  time:
+                                      "--", // delivery_time موجود إذا بدك نضيفه للموديل
+                                  isClosed: false,
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }
 
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ],
+                      return const SizedBox.shrink();
+                    },
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

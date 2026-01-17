@@ -95,6 +95,9 @@ class Stores extends StatelessWidget {
                             color: AppColor.white,
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w400,
+                            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'Cairo'
+                                : 'Inter',
                           ),
                         ),
                         SizedBox(height: 3.h),
@@ -107,6 +110,9 @@ class Stores extends StatelessWidget {
                             color: AppColor.white,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w700,
+                            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'Cairo'
+                                : 'Inter',
                           ),
                         ),
 
@@ -160,6 +166,9 @@ class Stores extends StatelessWidget {
                             style: TextStyle(
                               color: AppColor.white,
                               fontSize: 12.sp,
+                              fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                  ? 'Cairo'
+                                  : 'Inter',
                             ),
                           ),
                         ),

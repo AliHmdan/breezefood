@@ -47,151 +47,158 @@ class _RestaurantCardState extends State<RestaurantCard> {
     final ordersText = ratingCount > 0 ? "$ratingCount Ratings" : "New";
 
     final deliveryTime = (r.deliveryTime ?? 0);
+
     final timeText = deliveryTime > 0 ? "$deliveryTime min" : "--";
 
     return GestureDetector(
       onTap: widget.onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(50.r),
-        child: Stack(
-          children: [
-            // Background image
-            _NetImage(url: imageUrl, height: 112.h),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(50.r),
+          child: Stack(
+            children: [
+              // Background image
+              _NetImage(url: imageUrl, height: 112.h),
 
-            // overlay
-            Container(
-              height: 112.h,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.25),
-                    Colors.black.withOpacity(0.25),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+              // overlay
+              Container(
+                height: 112.h,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.25),
+                      Colors.black.withOpacity(0.25),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
-            ),
 
-            // content
-            Positioned.fill(
-              child: Padding(
-                padding: EdgeInsets.all(10.w),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Top Row
-                    Row(
+              // content
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Positioned.fill(
+                  child: Padding(
+                    padding: EdgeInsets.all(10.w),
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // ⭐ Rating
-                        GestureDetector(
-                          onTap: () async {
-                            final result = await showRatingDialog(
-                              context,
-                              _rating,
-                            );
-                            if (result != null) {
-                              setState(() => _rating = result);
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8.w,
-                              vertical: 4.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.45),
-                              borderRadius: BorderRadius.circular(20.r),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 14,
+                        // Top Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // ⭐ Rating
+                            GestureDetector(
+                              onTap: () async {
+                                final result = await showRatingDialog(
+                                  context,
+                                  _rating,
+                                );
+                                if (result != null) {
+                                  setState(() => _rating = result);
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.w,
+                                  vertical: 2.h,
                                 ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  _rating.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.bold,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.25),
+                                  borderRadius: BorderRadius.circular(20.r),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 14,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      _rating.toStringAsFixed(1),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    const Text(
+                                      "|",
+                                      style: TextStyle(color: Colors.white54),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    CustomSubTitle(
+                                      subtitle: ordersText,
+                                      color: AppColor.white,
+                                      fontsize: 12.sp,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // ⏱ delivery time
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 4.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.25),
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    timeText,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 6.w),
-                                const Text(
-                                  "|",
-                                  style: TextStyle(color: Colors.white54),
-                                ),
-                                SizedBox(width: 6.w),
-                                CustomSubTitle(
-                                  subtitle: ordersText,
-                                  color: AppColor.white,
-                                  fontsize: 12.sp,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
 
-                        // ⏱ delivery time
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.45),
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                          child: Row(
+                        // Bottom Text
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 18.h),
+                          child: Column(
                             children: [
-                              SizedBox(width: 4.w),
                               Text(
-                                timeText,
-                                style: const TextStyle(
+                                (r.name ?? "Restaurant").trim(),
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 8,
+                                      color: Colors.black.withOpacity(0.7),
+                                    ),
+                                  ],
                                 ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-
-                    // Bottom Text
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 18.h),
-                      child: Column(
-                        children: [
-                          Text(
-                            (r.name ?? "Restaurant").trim(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 8,
-                                  color: Colors.black.withOpacity(0.7),
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

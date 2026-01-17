@@ -42,23 +42,20 @@ class _RequestOrderState extends State<RequestOrder> {
       backgroundColor: AppColor.Dark,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.h),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: BlocBuilder<CartCubit, CartState>(
-            builder: (context, state) {
-              final title = state.maybeWhen(
-                cartLoaded: (cart, updatingIds, toast) => cart.restaurantName,
+        child: BlocBuilder<CartCubit, CartState>(
+          builder: (context, state) {
+            final title = state.maybeWhen(
+              cartLoaded: (cart, updatingIds, toast) => cart.restaurantName,
 
-                orElse: () => "My Cart",
-              );
+              orElse: () => "My Cart",
+            );
 
-              return CustomAppbarProfile(
-                title: title,
-                icon: Icons.arrow_back_ios,
-                ontap: () => Navigator.pop(context),
-              );
-            },
-          ),
+            return CustomAppbarProfile(
+              title: title,
+              icon: Icons.arrow_back_ios,
+              ontap: () => Navigator.pop(context),
+            );
+          },
         ),
       ),
       body: BlocBuilder<CartCubit, CartState>(
@@ -157,7 +154,7 @@ class _RequestOrderState extends State<RequestOrder> {
                           children: [
                             Total("Sub total", subTotal),
                             Total("Delivery", delivery),
-                            const Divider(color: Colors.white30),
+                             Divider(color: AppColor.LightActive),
                             Total("Total", total, isTotal: true),
                           ],
                         ),

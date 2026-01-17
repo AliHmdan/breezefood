@@ -4,6 +4,7 @@ import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_Page.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart'; // MenuExtra (الموحد)
@@ -80,7 +81,7 @@ class MostPopularSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final gap = 10.w;
+    final gap = 8.w;
     final cardWidth = MediaQuery.of(context).size.width / 2.3;
 
     final count = items.length;
@@ -114,59 +115,65 @@ class MostPopularSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          height: 150,
-          width: containerWidth,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: count,
-            physics: count <= 2
-                ? const NeverScrollableScrollPhysics()
-                : const BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              final item = items[index];
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 16),
+          child: SizedBox(
+            height: 140.h,
+            // width: containerWidth,
+            child:
+            ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: count,
+              physics: count <= 2
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                final item = items[index];
 
-              final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
+                final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
 
-              return Container(
-                width: cardWidth,
-                margin: EdgeInsets.only(right: index == count - 1 ? 0 : gap),
-                child: GestureDetector(
-                  onTap: () {
-                    final menuItemId = item.id;
-                    final resolvedRestaurantId =
-                        restaurantId ?? (item.restaurant?.id ?? 0);
+                return Container(
+                  width: cardWidth,
+                  margin: EdgeInsetsDirectional.only(
+                    end: index == count - 1 ? 0 : gap,
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      final menuItemId = item.id;
+                      final resolvedRestaurantId =
+                          restaurantId ?? (item.restaurant?.id ?? 0);
 
-                    if (resolvedRestaurantId == 0 || menuItemId == 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("لا يمكن تحديد المطعم أو الوجبة"),
-                        ),
+                      if (resolvedRestaurantId == 0 || menuItemId == 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("لا يمكن تحديد المطعم أو الوجبة"),
+                          ),
+                        );
+                        return;
+                      }
+
+                      showAddOrderDialog(
+                        context,
+                        restaurantId: resolvedRestaurantId, // ✅ جديد
+                        menuItemId: menuItemId, // ✅ جديد
+                        title: title,
+                        price: (item.priceAfter > 0
+                            ? item.priceAfter
+                            : item.priceBefore),
+                        oldPrice: item.priceBefore,
+                        imagePathOrUrl:
+                        item.primaryImage?.imageUrl ??
+                            "assets/images/shawarma_box.png",
+                        description: "",
+                        extraMeals: const <MenuExtra>[],
                       );
-                      return;
-                    }
+                    },
 
-                    showAddOrderDialog(
-                      context,
-                      restaurantId: resolvedRestaurantId, // ✅ جديد
-                      menuItemId: menuItemId, // ✅ جديد
-                      title: title,
-                      price: (item.priceAfter > 0
-                          ? item.priceAfter
-                          : item.priceBefore),
-                      oldPrice: item.priceBefore,
-                      imagePathOrUrl:
-                          item.primaryImage?.imageUrl ??
-                          "assets/images/shawarma_box.png",
-                      description: "",
-                      extraMeals: const <MenuExtra>[],
-                    );
-                  },
-
-                  child: PopularItemCard(item: item), // ✅ MenuItemModel
-                ),
-              );
-            },
+                    child: PopularItemCard(item: item), // ✅ MenuItemModel
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -240,11 +247,16 @@ class _PopularItemCardState extends State<PopularItemCard> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final imageUrl = UrlHelper.toFullUrl(widget.item.primaryImage?.imageUrl);
 
-    final title = context.pick(ar: widget.item.nameAr, en: widget.item.nameEn);
+    final title = context.pick(
+      ar: widget.item.nameAr,
+      en: widget.item.nameEn,
+    );
+
     final price = widget.item.priceAfter > 0
         ? widget.item.priceAfter
         : widget.item.priceBefore;
@@ -252,23 +264,25 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
+        color: AppColor.black, // 🔥 نفس Menu
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ================= IMAGE =================
           Stack(
             children: [
               SizedBox(
-                width: double.infinity,
                 height: 85.h,
+                width: double.infinity,
                 child: (imageUrl == null || imageUrl.isEmpty)
                     ? _imageFallback()
                     : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _imageFallback(),
-                      ),
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _imageFallback(),
+                ),
               ),
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.25)),
@@ -291,27 +305,48 @@ class _PopularItemCardState extends State<PopularItemCard> {
               ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-            child: CustomTitle(title: title, color: AppColor.white),
-     
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 6.w, bottom: 6.h),
-            child: Text(
-              context.syp(price),
-              style: TextStyle(
-                color: AppColor.white,
-                fontSize: 12.sp,
-                fontFamily: "Inter",
-                fontWeight: FontWeight.bold,
-              ),
+
+          // ================= TEXT AREA =================
+          Container(
+            height: 55.h, // 🔥 مكمل للـ 140.h
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+            color: AppColor.black,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColor.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  context.syp(price),
+                  style: TextStyle(
+                    color: AppColor.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.bold,
+                    fontFamily:
+                    Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+
 
   Widget _imageFallback() {
     return Container(

@@ -79,9 +79,9 @@ class FavoritePageState extends State<FavoritePage> {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsetsDirectional.only(end: 8),
           child: Container(
-            padding: const EdgeInsets.only(left: 1, right: 10),
+            padding: const EdgeInsetsDirectional.only(start: 1, end: 10),
             decoration: BoxDecoration(
               color: AppColor.black,
               borderRadius: BorderRadius.circular(15),
@@ -89,9 +89,9 @@ class FavoritePageState extends State<FavoritePage> {
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
+                  borderRadius: const BorderRadiusDirectional.only(
+                    topEnd: Radius.circular(40),
+                    bottomEnd: Radius.circular(40),
                   ),
                   child: (imageUrl ?? "").trim().isEmpty
                       ? Container(
@@ -150,7 +150,9 @@ class FavoritePageState extends State<FavoritePage> {
                               text: "Price : ",
                               style: TextStyle(
                                 color: AppColor.white,
-                                fontFamily: "Manrope",
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -158,7 +160,9 @@ class FavoritePageState extends State<FavoritePage> {
                               text: context.syp(item.price),
                               style: TextStyle(
                                 color: AppColor.yellow,
-                                fontFamily: "Manrope",
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.sp,
                               ),
@@ -220,17 +224,12 @@ class FavoritePageState extends State<FavoritePage> {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 8,
-                  right: 8,
-                  top: 30,
-                  bottom: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    SizedBox(height: 16.h),
+
                     CustomAppbarProfile(ontap: (){},title:"Favorite" ,),
-                    SizedBox(height: 20.h),
+
                     Expanded(
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
@@ -245,9 +244,11 @@ class FavoritePageState extends State<FavoritePage> {
                                     size: 50,
                                   ),
                                   SizedBox(height: 10.h),
-                                  const Text(
+                                   Text(
                                     "لا توجد عناصر في المفضلة",
-                                    style: TextStyle(color: Colors.white70),
+                                    style: TextStyle(color: Colors.white70,fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                        ? 'Cairo'
+                                        : 'Inter',),
                                   ),
                                 ],
                               ),

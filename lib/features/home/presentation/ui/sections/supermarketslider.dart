@@ -106,7 +106,12 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
                     },
                   ),
           ),
-
+          // ✅ شفافية على كامل الصورة
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.25),
+            ),
+          ),
           // Gradient
           Positioned.fill(
             child: Container(
@@ -188,7 +193,7 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withOpacity(0.25),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
@@ -196,10 +201,8 @@ class _InfoChip extends StatelessWidget {
         children: [
           icon,
           SizedBox(width: 4.w),
-          Text(
-            text,
-            style: TextStyle(color: Colors.white, fontSize: 12.sp),
-          ),
+          CustomSubTitle(subtitle: text, color: AppColor.white, fontsize: 12.sp)
+
         ],
       ),
     );

@@ -25,32 +25,32 @@ class TiemPrice extends StatelessWidget {
       width: 90.w,
       height: 28.h,
       decoration: BoxDecoration(
-        color: AppColor.white,
+        // color: AppColor.white,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (icon != null)
-            Icon(icon, color: AppColor.Dark, size: 16.sp)
+            Icon(icon, color: AppColor.white, size: 16.sp)
           else if (svgPath != null)
             SvgPicture.asset(
               svgPath!,
               width: 20.w,
               height: 20.h,
-              color: AppColor.Dark,
+              color: AppColor.white,
             ),
 
           Row(
             children: [
               CustomSubTitle(
                 subtitle: title,
-                color: AppColor.Dark,
+                color: AppColor.white,
                 fontsize: 11.sp,
               ),
               CustomSubTitle(
                 subtitle: subtitle,
-                color: AppColor.Dark,
+                color: AppColor.white,
                 fontsize: 12.sp,
               ),
             ],

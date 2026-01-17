@@ -28,27 +28,23 @@ class _OrdersState extends State<Orders> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.Dark,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomAppbarProfile(
-                title: "Orders history",
-                ontap: () {},
-              ),
+      body:  Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomAppbarProfile(
+              title: "Orders history",
+              ontap: () {},
+            ),
 
-              SizedBox(height: 16.h),
+            SizedBox(height: 16.h),
 
-              // ✅ عرض Orders History فقط
-              const Expanded(
-                child: OrdersHistory(),
-              ),
-            ],
-          ),
+            // ✅ عرض Orders History فقط
+            const Expanded(
+              child: OrdersHistory(),
+            ),
+          ],
         ),
-      ),
+
     );
   }
 }

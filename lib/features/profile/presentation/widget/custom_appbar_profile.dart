@@ -21,7 +21,7 @@ class CustomAppbarProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 22),
+      padding: const EdgeInsets.only(left: 8,right: 8,top: 30),
       child: SizedBox(
         height: 48.h,
         child: Stack(
@@ -29,8 +29,8 @@ class CustomAppbarProfile extends StatelessWidget {
           children: [
             /// 🔙 زر الرجوع (يسار)
             if (icon != null)
-              Positioned(
-                left: 0,
+              PositionedDirectional(
+                start: 0,
                 child: GestureDetector(
                   onTap: ontap,
                   child: Container(
@@ -44,7 +44,7 @@ class CustomAppbarProfile extends StatelessWidget {
                       ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 6),
+                      padding: const EdgeInsetsDirectional.only(start: 6),
                       child: Icon(
                         icon,
                         color: AppColor.white,
@@ -66,6 +66,9 @@ class CustomAppbarProfile extends StatelessWidget {
                     fontSize: 22.sp,
                     fontWeight: FontWeight.bold,
                     color: AppColor.white,
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
                   ),
                 ),
               ),

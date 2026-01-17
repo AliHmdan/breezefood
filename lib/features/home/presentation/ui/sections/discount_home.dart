@@ -119,7 +119,12 @@ class _DiscountState extends State<Discount>
                   borderRadius: BorderRadius.circular(5.r),
                   child: buildImage(widget.imagePath, height: 100.h),
                 ),
-
+                // ✅ شفافية على كامل الصورة
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.25),
+                  ),
+                ),
                 PositionedDirectional(
                   top: 6,
                   end: 6,
@@ -132,17 +137,17 @@ class _DiscountState extends State<Discount>
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 6.w,
+                        horizontal: 4.w,
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.45),
+                        color: Colors.black.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
                         children: [
                           Icon(Icons.star, color: Colors.amber, size: 12.sp),
-                          SizedBox(width: 4.w),
+                          SizedBox(width: 2.w),
                           CustomSubTitle(
                             subtitle: _rating.toStringAsFixed(1),
                             color: AppColor.white,
@@ -163,11 +168,12 @@ class _DiscountState extends State<Discount>
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          Colors.black.withOpacity(0.6),
-                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0.75),
+                          Colors.black.withOpacity(0.45),
+                          Colors.black.withOpacity(0.15),
                           Colors.transparent,
                         ],
-                        stops: const [0.0, 0.4, 1.0],
+                        stops: const [0.0, 0.35, 0.65, 1.0],
                       ),
                     ),
                     child: Align(
@@ -223,19 +229,34 @@ class _DiscountState extends State<Discount>
             ),
 
             SizedBox(height: 6.h),
-            // Padding(
-            //   padding: EdgeInsets.only(left: 2.w),
-            //   child: Text(
-            //     widget.price,
-            //     style: TextStyle(
-            //       color: AppColor.white,
-            //       fontSize: 12.sp,
-            //       fontWeight: FontWeight.w700,
-            //     ),
-            //     maxLines: 1,
-            //     overflow: TextOverflow.ellipsis,
-            //   ),
-            // ),
+            Padding(
+              padding: EdgeInsets.only(left: 2.w),
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    "assets/icons/motor.svg",
+                    color: AppColor.white,
+                    width: 15,
+                    height: 15,
+                  ),
+                  SizedBox(width: 4.w),
+
+                  Text(
+                    widget.price,
+                    style: TextStyle(
+                      color: AppColor.red,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                          ? 'Cairo'
+                          : 'Inter',
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

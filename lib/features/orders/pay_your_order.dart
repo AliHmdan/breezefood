@@ -263,12 +263,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                               ),
                             ],
           
-                            _CartHeader(
-                              restaurantName: cart.restaurantName,
-                              restaurantLogoUrl: _fullUrl(cart.restaurantLogo),
-                              orderId: cart.orderId,
-                              orderStatus: cart.orderStatus,
-                            ),
+                            // _CartHeader(
+                            //   restaurantName: cart.restaurantName,
+                            //   restaurantLogoUrl: _fullUrl(cart.restaurantLogo),
+                            //   orderId: cart.orderId,
+                            //   orderStatus: cart.orderStatus,
+                            // ),
                             SizedBox(height: 10.h),
           
                             if (cart.items.isEmpty)
@@ -341,7 +341,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           .read<CartCubit>()
                                           .removeItem(it.id),
                                       child: Container(
-                                        padding: EdgeInsets.only(bottom: 10.h),
+                                        // padding: EdgeInsets.only(bottom: 10.h),
                                         decoration: BoxDecoration(
                                           color: AppColor.black,
                                           borderRadius: BorderRadius.circular(12.r),
