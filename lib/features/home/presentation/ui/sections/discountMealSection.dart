@@ -72,7 +72,7 @@ class _DiscountDummyCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
-        color: Colors.black,
+        color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(

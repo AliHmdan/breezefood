@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/terms/terms.dart';
 import 'package:breezefood/features/helpCenter/help_center.dart';
 import 'package:breezefood/features/profile/presentation/widget/dialog_logout.dart';
@@ -99,25 +100,26 @@ class _ProfileState extends State<Profile> {
                         ), // ✅ لأن _avatar صار يحول الرابط لحاله
 
                         SizedBox(height: 12.h),
-
-                        Text(
-                          name,
-                          style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        CustomSubTitle(
+                          subtitle: name,
+                          color: AppColor.gry,
+                          fontsize: 16.sp,
                         ),
 
+                        // Text(
+                        //   name,
+                        //   style: TextStyle(
+                        //     color: AppColor.white,
+                        //     fontSize: 16.sp,
+                        //     fontWeight: FontWeight.w700,
+                        //   ),
+                        // ),
                         if (phone.isNotEmpty) ...[
                           SizedBox(height: 6.h),
-                          Text(
-                            phone,
-                            style: TextStyle(
-                              color: AppColor.gry,
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          CustomSubTitle(
+                            subtitle: phone,
+                            color: AppColor.gry,
+                            fontsize: 13.sp,
                           ),
                         ],
 
@@ -140,6 +142,13 @@ class _ProfileState extends State<Profile> {
                               color: Colors.red,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
+                              fontFamily:
+                                  Localizations.localeOf(
+                                        context,
+                                      ).languageCode ==
+                                      'ar'
+                                  ? 'Cairo'
+                                  : 'Inter',
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -148,7 +157,16 @@ class _ProfileState extends State<Profile> {
                             onPressed: () => cubit.load(),
                             child: Text(
                               "common.retry".tr(),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
+                              ),
                             ),
                           ),
                         ],

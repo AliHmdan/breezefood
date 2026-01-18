@@ -85,7 +85,7 @@ class _LangButton extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 12.w),
         decoration: BoxDecoration(
-          color: active ? Colors.cyanAccent : Colors.grey[800],
+          color: active ? AppColor.primaryColor : Colors.grey[800],
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Text(

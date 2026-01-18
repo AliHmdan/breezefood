@@ -69,17 +69,14 @@ class BottomNavBreeze extends StatelessWidget {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onChanged(index),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: 50.w,
-                      maxWidth: 150.w,
-                    ),
+                  child: SizedBox(
+                    width: 95.w, // ✅ عرض ثابت = لا رجفة
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 200),
                       curve: Curves.easeOutCubic,
                       height: 40.h,
                       padding: EdgeInsets.symmetric(
-                        horizontal: isSelected ? 12.w : 0,
+                        horizontal: 8.w, // ✅ ثابت
                         vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
@@ -89,8 +86,8 @@ class BottomNavBreeze extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           _icon(
                             _svgIcons[index],
@@ -98,42 +95,43 @@ class BottomNavBreeze extends StatelessWidget {
                             size: 22.sp,
                           ),
 
-                          // ✅ بدون Flexible/Expanded إطلاقاً
-                          AnimatedSwitcher(
+                          // ✅ الأنيميشن صار داخلي فقط
+                          AnimatedSize(
                             duration: const Duration(milliseconds: 300),
-                            switchInCurve: Curves.easeOutCubic,
-                            switchOutCurve: Curves.easeOutCubic,
-                            transitionBuilder: (child, anim) =>
-                                FadeTransition(opacity: anim, child: child),
-                            child: isSelected
-                                ? Padding(
-                                    key: ValueKey(index),
-                                    padding: EdgeInsets.only(left: 4.w),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: maxLabelWidth,
-                                      ),
-                                      child: Text(
-                                        _labels[index],
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: "Manrope",
-                                        ),
-                                      ),
+                            curve: Curves.easeOutCubic,
+                            alignment: Alignment.centerLeft,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: isSelected ? 1 : 0,
+                              child: isSelected
+                                  ? Padding(
+                                padding: EdgeInsets.only(left: 4.w),
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: maxLabelWidth,
+                                  ),
+                                  child: Text(
+                                    _labels[index],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: "Manrope",
                                     ),
-                                  )
-                                : const SizedBox.shrink(),
+                                  ),
+                                ),
+                              )
+                                  : const SizedBox.shrink(),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
                 );
+
               }),
             ),
           ),

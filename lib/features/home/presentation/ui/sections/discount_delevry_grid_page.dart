@@ -74,9 +74,9 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 12.w,
                 mainAxisSpacing: 12.h,
-                childAspectRatio: 0.78, // ✅ شكل كرت أحسن من 1.5
+                crossAxisSpacing: 10.w,
+                childAspectRatio: 1.2, // ✅ شكل كرت أحسن من 1.5
               ),
               itemCount: list.length,
               itemBuilder: (context, index) {

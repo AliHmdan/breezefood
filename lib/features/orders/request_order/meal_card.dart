@@ -24,7 +24,7 @@ class MealCard extends StatelessWidget {
 
     return Container(
 
-      padding: const EdgeInsets.only( right: 10),
+      padding:  EdgeInsetsDirectional.only( end: 10),
       decoration: BoxDecoration(
         // color: AppColor.black,
         borderRadius: BorderRadius.circular(15),
@@ -32,9 +32,9 @@ class MealCard extends StatelessWidget {
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(40),
-              bottomRight: Radius.circular(40),
+            borderRadius: const BorderRadiusDirectional.only(
+              topEnd: Radius.circular(40),
+              bottomEnd: Radius.circular(40),
             ),
             child: _MealImage(image: image),
           ),

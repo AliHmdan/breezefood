@@ -75,8 +75,8 @@ class DiscountGridPage extends StatelessWidget {
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
                   mainAxisSpacing: 12.h,
-                  crossAxisSpacing: 12.w,
-                  childAspectRatio: 0.79,
+                  crossAxisSpacing: 10.w,
+                  childAspectRatio: 1.3,
                 ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {

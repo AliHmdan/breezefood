@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/dialogs.dart';
-import 'package:breezefood/core/services/money.dart';  
+import 'package:breezefood/core/services/money.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/model/cart_response.dart';
 import 'package:breezefood/features/orders/model/store_order_request.dart';
 import 'package:breezefood/features/orders/payment_method.dart';
@@ -1023,6 +1024,7 @@ Widget _totalLine({
               color: isTotal ? Colors.white : Colors.white70,
               fontSize: isTotal ? 14 : 13,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
+
             ),
           ),
         ),
@@ -1043,6 +1045,7 @@ Widget _totalLine({
             color: isTotal ? AppColor.yellow : Colors.white,
             fontSize: isTotal ? 15 : 13,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
+
           ),
         ),
       ],
@@ -1072,7 +1075,9 @@ Future<void> _storeOrder(
       (cart.primaryAddress?.address?.trim().isEmpty ?? true)) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isRTL ? "يرجى اختيار عنوان" : "Please select address"),
+        content: Text(isRTL ? "يرجى اختيار عنوان" : "Please select address",style: TextStyle( fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+            ? 'Cairo'
+            : 'Inter',),),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1224,7 +1229,9 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       backgroundColor: AppColor.Dark,
       appBar: AppBar(
         backgroundColor: AppColor.Dark,
-        title: Text(isRTL ? "اختيار موقع" : "Pick location"),
+        title: Text(isRTL ? "اختيار موقع" : "Pick location",style: TextStyle( fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+            ? 'Cairo'
+            : 'Inter',),),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context, null),
@@ -1291,7 +1298,9 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                   ),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: Colors.white),
+                    style:  TextStyle(color: Colors.white, fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+    ? 'Cairo'
+        : 'Inter',),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -1325,14 +1334,18 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                     : () => Navigator.pop(context, _picked),
                 child: Text(
                   isRTL ? "تأكيد الموقع" : "Confirm location",
-                  style: const TextStyle(
+                  style:  TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
                   ),
                 ),
               ),
             ),
           ),
+
         ],
       ),
     );

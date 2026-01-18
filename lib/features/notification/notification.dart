@@ -66,17 +66,17 @@ class _NotificationPageState extends State<NotificationPage> {
       backgroundColor: AppColor.Dark,
 
       // ✅ AppBar نظيف ومتوافق
-      appBar: AppBar(
-        backgroundColor: AppColor.Dark,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 70.h,
-        title: CustomAppbarProfile(
-          title: "Notification",
-          icon: Icons.arrow_back_ios,
-          ontap: () => Navigator.pop(context),
-        ),
-      ),
+      appBar:  PreferredSize(        preferredSize: Size.fromHeight(60.h),
+          child: CustomAppbarProfile(ontap: (){
+            Navigator.pop(context);
+          },title:"Notification" ,icon: Icons.arrow_back_ios,)),
+      // AppBar(
+      //   backgroundColor: AppColor.Dark,
+      //   elevation: 0,
+      //   automaticallyImplyLeading: false,
+      //   toolbarHeight: 70.h,
+      //   title:
+      // ),
 
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
@@ -86,6 +86,7 @@ class _NotificationPageState extends State<NotificationPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               Icon(Icons.notifications_none,
                   color: AppColor.white, size: 60.sp),
               SizedBox(height: 10.h),
