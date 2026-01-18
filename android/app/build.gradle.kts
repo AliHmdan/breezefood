@@ -12,14 +12,12 @@ android {
     namespace = "com.example.breezefood"
     compileSdk = flutter.compileSdkVersion
 
-    // ✅ FIX NDK (مثل اللي اشتغل معك)
     ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
 
-        // ✅ REQUIRED for flutter_local_notifications وغيره
         isCoreLibraryDesugaringEnabled = true
     }
 
@@ -29,7 +27,7 @@ android {
 
 defaultConfig {
     applicationId = "com.example.breezefood"
-    minSdk = flutter.minSdkVersion
+    minSdk = 23
     targetSdk = flutter.targetSdkVersion
     versionCode = flutter.versionCode
     versionName = flutter.versionName

@@ -20,6 +20,9 @@ import 'package:breezefood/features/profile/data/api/profile_api_service.dart';
 import 'package:breezefood/features/profile/data/repo/profile_repository.dart'
     show ProfileRepository;
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:breezefood/features/reviews/data/api/reviews_api_service.dart';
+import 'package:breezefood/features/reviews/data/repo/reviews_repo.dart';
+import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/search/data/api/search_api_service.dart';
 import 'package:breezefood/features/search/data/repo/search_repo.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_cubit.dart';
@@ -90,9 +93,19 @@ Future<void> setupDi() async {
   getIt.registerLazySingleton<StoresRepository>(
     () => StoresRepository(getIt<StoresApiService>()),
   );
+  getIt.registerLazySingleton<ReviewsRepository>(
+    () => ReviewsRepository(getIt<ReviewsApiService>()),
+  );
+
   getIt.registerLazySingleton<FavoritesApiService>(
     () => FavoritesApiService(getIt<Dio>()),
   );
+  getIt.registerLazySingleton<ReviewsApiService>(
+    () => ReviewsApiService(getIt<Dio>()),
+  );
+
+  getIt.registerFactory(() => RatingSubmitCubit(getIt<ReviewsRepository>()));
+
   getIt.registerFactory(() => SuperMarketsListCubit(getIt<SuperMarketRepo>()));
   getIt.registerLazySingleton<SuperMarketApiService>(
     () => SuperMarketApiService(getIt<Dio>()),

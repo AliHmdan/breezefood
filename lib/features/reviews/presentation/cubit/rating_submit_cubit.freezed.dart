@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'most_popular_cubit.dart';
+part of 'rating_submit_cubit.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -15,29 +15,32 @@ final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
-mixin _$MostPopularState {
+mixin _$RatingSubmitState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
     required TResult Function(String message) error,
-    required TResult Function(List<MenuItemModel> items) loaded,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
     TResult? Function(String message)? error,
-    TResult? Function(List<MenuItemModel> items)? loaded,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
     TResult Function(String message)? error,
-    TResult Function(List<MenuItemModel> items)? loaded,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -45,40 +48,43 @@ mixin _$MostPopularState {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
     required TResult Function(_Error value) error,
-    required TResult Function(_Loaded value) loaded,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
     TResult? Function(_Error value)? error,
-    TResult? Function(_Loaded value)? loaded,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
     TResult Function(_Error value)? error,
-    TResult Function(_Loaded value)? loaded,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $MostPopularStateCopyWith<$Res> {
-  factory $MostPopularStateCopyWith(
-          MostPopularState value, $Res Function(MostPopularState) then) =
-      _$MostPopularStateCopyWithImpl<$Res, MostPopularState>;
+abstract class $RatingSubmitStateCopyWith<$Res> {
+  factory $RatingSubmitStateCopyWith(
+          RatingSubmitState value, $Res Function(RatingSubmitState) then) =
+      _$RatingSubmitStateCopyWithImpl<$Res, RatingSubmitState>;
 }
 
 /// @nodoc
-class _$MostPopularStateCopyWithImpl<$Res, $Val extends MostPopularState>
-    implements $MostPopularStateCopyWith<$Res> {
-  _$MostPopularStateCopyWithImpl(this._value, this._then);
+class _$RatingSubmitStateCopyWithImpl<$Res, $Val extends RatingSubmitState>
+    implements $RatingSubmitStateCopyWith<$Res> {
+  _$RatingSubmitStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -95,7 +101,7 @@ abstract class _$$InitialImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$InitialImplCopyWithImpl<$Res>
-    extends _$MostPopularStateCopyWithImpl<$Res, _$InitialImpl>
+    extends _$RatingSubmitStateCopyWithImpl<$Res, _$InitialImpl>
     implements _$$InitialImplCopyWith<$Res> {
   __$$InitialImplCopyWithImpl(
       _$InitialImpl _value, $Res Function(_$InitialImpl) _then)
@@ -109,7 +115,7 @@ class _$InitialImpl implements _Initial {
 
   @override
   String toString() {
-    return 'MostPopularState.initial()';
+    return 'RatingSubmitState.initial()';
   }
 
   @override
@@ -126,8 +132,9 @@ class _$InitialImpl implements _Initial {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
     required TResult Function(String message) error,
-    required TResult Function(List<MenuItemModel> items) loaded,
   }) {
     return initial();
   }
@@ -137,8 +144,9 @@ class _$InitialImpl implements _Initial {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
     TResult? Function(String message)? error,
-    TResult? Function(List<MenuItemModel> items)? loaded,
   }) {
     return initial?.call();
   }
@@ -148,8 +156,9 @@ class _$InitialImpl implements _Initial {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
     TResult Function(String message)? error,
-    TResult Function(List<MenuItemModel> items)? loaded,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -163,8 +172,9 @@ class _$InitialImpl implements _Initial {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
     required TResult Function(_Error value) error,
-    required TResult Function(_Loaded value) loaded,
   }) {
     return initial(this);
   }
@@ -174,8 +184,9 @@ class _$InitialImpl implements _Initial {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
     TResult? Function(_Error value)? error,
-    TResult? Function(_Loaded value)? loaded,
   }) {
     return initial?.call(this);
   }
@@ -185,8 +196,9 @@ class _$InitialImpl implements _Initial {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
     TResult Function(_Error value)? error,
-    TResult Function(_Loaded value)? loaded,
     required TResult orElse(),
   }) {
     if (initial != null) {
@@ -196,7 +208,7 @@ class _$InitialImpl implements _Initial {
   }
 }
 
-abstract class _Initial implements MostPopularState {
+abstract class _Initial implements RatingSubmitState {
   const factory _Initial() = _$InitialImpl;
 }
 
@@ -209,7 +221,7 @@ abstract class _$$LoadingImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$LoadingImplCopyWithImpl<$Res>
-    extends _$MostPopularStateCopyWithImpl<$Res, _$LoadingImpl>
+    extends _$RatingSubmitStateCopyWithImpl<$Res, _$LoadingImpl>
     implements _$$LoadingImplCopyWith<$Res> {
   __$$LoadingImplCopyWithImpl(
       _$LoadingImpl _value, $Res Function(_$LoadingImpl) _then)
@@ -223,7 +235,7 @@ class _$LoadingImpl implements _Loading {
 
   @override
   String toString() {
-    return 'MostPopularState.loading()';
+    return 'RatingSubmitState.loading()';
   }
 
   @override
@@ -240,8 +252,9 @@ class _$LoadingImpl implements _Loading {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
     required TResult Function(String message) error,
-    required TResult Function(List<MenuItemModel> items) loaded,
   }) {
     return loading();
   }
@@ -251,8 +264,9 @@ class _$LoadingImpl implements _Loading {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
     TResult? Function(String message)? error,
-    TResult? Function(List<MenuItemModel> items)? loaded,
   }) {
     return loading?.call();
   }
@@ -262,8 +276,9 @@ class _$LoadingImpl implements _Loading {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
     TResult Function(String message)? error,
-    TResult Function(List<MenuItemModel> items)? loaded,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -277,8 +292,9 @@ class _$LoadingImpl implements _Loading {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
     required TResult Function(_Error value) error,
-    required TResult Function(_Loaded value) loaded,
   }) {
     return loading(this);
   }
@@ -288,8 +304,9 @@ class _$LoadingImpl implements _Loading {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
     TResult? Function(_Error value)? error,
-    TResult? Function(_Loaded value)? loaded,
   }) {
     return loading?.call(this);
   }
@@ -299,8 +316,9 @@ class _$LoadingImpl implements _Loading {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
     TResult Function(_Error value)? error,
-    TResult Function(_Loaded value)? loaded,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -310,8 +328,248 @@ class _$LoadingImpl implements _Loading {
   }
 }
 
-abstract class _Loading implements MostPopularState {
+abstract class _Loading implements RatingSubmitState {
   const factory _Loading() = _$LoadingImpl;
+}
+
+/// @nodoc
+abstract class _$$SuccessImplCopyWith<$Res> {
+  factory _$$SuccessImplCopyWith(
+          _$SuccessImpl value, $Res Function(_$SuccessImpl) then) =
+      __$$SuccessImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$SuccessImplCopyWithImpl<$Res>
+    extends _$RatingSubmitStateCopyWithImpl<$Res, _$SuccessImpl>
+    implements _$$SuccessImplCopyWith<$Res> {
+  __$$SuccessImplCopyWithImpl(
+      _$SuccessImpl _value, $Res Function(_$SuccessImpl) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$SuccessImpl implements _Success {
+  const _$SuccessImpl();
+
+  @override
+  String toString() {
+    return 'RatingSubmitState.success()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$SuccessImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
+    required TResult Function(String message) error,
+  }) {
+    return success();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
+    TResult? Function(String message)? error,
+  }) {
+    return success?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (success != null) {
+      return success();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
+    required TResult Function(_Error value) error,
+  }) {
+    return success(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
+    TResult? Function(_Error value)? error,
+  }) {
+    return success?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (success != null) {
+      return success(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _Success implements RatingSubmitState {
+  const factory _Success() = _$SuccessImpl;
+}
+
+/// @nodoc
+abstract class _$$DeleteSuccessImplCopyWith<$Res> {
+  factory _$$DeleteSuccessImplCopyWith(
+          _$DeleteSuccessImpl value, $Res Function(_$DeleteSuccessImpl) then) =
+      __$$DeleteSuccessImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$DeleteSuccessImplCopyWithImpl<$Res>
+    extends _$RatingSubmitStateCopyWithImpl<$Res, _$DeleteSuccessImpl>
+    implements _$$DeleteSuccessImplCopyWith<$Res> {
+  __$$DeleteSuccessImplCopyWithImpl(
+      _$DeleteSuccessImpl _value, $Res Function(_$DeleteSuccessImpl) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$DeleteSuccessImpl implements _DeleteSuccess {
+  const _$DeleteSuccessImpl();
+
+  @override
+  String toString() {
+    return 'RatingSubmitState.deleteSuccess()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$DeleteSuccessImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
+    required TResult Function(String message) error,
+  }) {
+    return deleteSuccess();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
+    TResult? Function(String message)? error,
+  }) {
+    return deleteSuccess?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (deleteSuccess != null) {
+      return deleteSuccess();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
+    required TResult Function(_Error value) error,
+  }) {
+    return deleteSuccess(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
+    TResult? Function(_Error value)? error,
+  }) {
+    return deleteSuccess?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (deleteSuccess != null) {
+      return deleteSuccess(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _DeleteSuccess implements RatingSubmitState {
+  const factory _DeleteSuccess() = _$DeleteSuccessImpl;
 }
 
 /// @nodoc
@@ -325,7 +583,7 @@ abstract class _$$ErrorImplCopyWith<$Res> {
 
 /// @nodoc
 class __$$ErrorImplCopyWithImpl<$Res>
-    extends _$MostPopularStateCopyWithImpl<$Res, _$ErrorImpl>
+    extends _$RatingSubmitStateCopyWithImpl<$Res, _$ErrorImpl>
     implements _$$ErrorImplCopyWith<$Res> {
   __$$ErrorImplCopyWithImpl(
       _$ErrorImpl _value, $Res Function(_$ErrorImpl) _then)
@@ -355,7 +613,7 @@ class _$ErrorImpl implements _Error {
 
   @override
   String toString() {
-    return 'MostPopularState.error(message: $message)';
+    return 'RatingSubmitState.error(message: $message)';
   }
 
   @override
@@ -380,8 +638,9 @@ class _$ErrorImpl implements _Error {
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
     required TResult Function() loading,
+    required TResult Function() success,
+    required TResult Function() deleteSuccess,
     required TResult Function(String message) error,
-    required TResult Function(List<MenuItemModel> items) loaded,
   }) {
     return error(message);
   }
@@ -391,8 +650,9 @@ class _$ErrorImpl implements _Error {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
     TResult? Function()? loading,
+    TResult? Function()? success,
+    TResult? Function()? deleteSuccess,
     TResult? Function(String message)? error,
-    TResult? Function(List<MenuItemModel> items)? loaded,
   }) {
     return error?.call(message);
   }
@@ -402,8 +662,9 @@ class _$ErrorImpl implements _Error {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
     TResult Function()? loading,
+    TResult Function()? success,
+    TResult Function()? deleteSuccess,
     TResult Function(String message)? error,
-    TResult Function(List<MenuItemModel> items)? loaded,
     required TResult orElse(),
   }) {
     if (error != null) {
@@ -417,8 +678,9 @@ class _$ErrorImpl implements _Error {
   TResult map<TResult extends Object?>({
     required TResult Function(_Initial value) initial,
     required TResult Function(_Loading value) loading,
+    required TResult Function(_Success value) success,
+    required TResult Function(_DeleteSuccess value) deleteSuccess,
     required TResult Function(_Error value) error,
-    required TResult Function(_Loaded value) loaded,
   }) {
     return error(this);
   }
@@ -428,8 +690,9 @@ class _$ErrorImpl implements _Error {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_Initial value)? initial,
     TResult? Function(_Loading value)? loading,
+    TResult? Function(_Success value)? success,
+    TResult? Function(_DeleteSuccess value)? deleteSuccess,
     TResult? Function(_Error value)? error,
-    TResult? Function(_Loaded value)? loaded,
   }) {
     return error?.call(this);
   }
@@ -439,8 +702,9 @@ class _$ErrorImpl implements _Error {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_Initial value)? initial,
     TResult Function(_Loading value)? loading,
+    TResult Function(_Success value)? success,
+    TResult Function(_DeleteSuccess value)? deleteSuccess,
     TResult Function(_Error value)? error,
-    TResult Function(_Loaded value)? loaded,
     required TResult orElse(),
   }) {
     if (error != null) {
@@ -450,162 +714,11 @@ class _$ErrorImpl implements _Error {
   }
 }
 
-abstract class _Error implements MostPopularState {
+abstract class _Error implements RatingSubmitState {
   const factory _Error(final String message) = _$ErrorImpl;
 
   String get message;
   @JsonKey(ignore: true)
   _$$ErrorImplCopyWith<_$ErrorImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$LoadedImplCopyWith<$Res> {
-  factory _$$LoadedImplCopyWith(
-          _$LoadedImpl value, $Res Function(_$LoadedImpl) then) =
-      __$$LoadedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({List<MenuItemModel> items});
-}
-
-/// @nodoc
-class __$$LoadedImplCopyWithImpl<$Res>
-    extends _$MostPopularStateCopyWithImpl<$Res, _$LoadedImpl>
-    implements _$$LoadedImplCopyWith<$Res> {
-  __$$LoadedImplCopyWithImpl(
-      _$LoadedImpl _value, $Res Function(_$LoadedImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? items = null,
-  }) {
-    return _then(_$LoadedImpl(
-      null == items
-          ? _value._items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<MenuItemModel>,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _$LoadedImpl implements _Loaded {
-  const _$LoadedImpl(final List<MenuItemModel> items) : _items = items;
-
-  final List<MenuItemModel> _items;
-  @override
-  List<MenuItemModel> get items {
-    if (_items is EqualUnmodifiableListView) return _items;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_items);
-  }
-
-  @override
-  String toString() {
-    return 'MostPopularState.loaded(items: $items)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$LoadedImpl &&
-            const DeepCollectionEquality().equals(other._items, _items));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_items));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$LoadedImplCopyWith<_$LoadedImpl> get copyWith =>
-      __$$LoadedImplCopyWithImpl<_$LoadedImpl>(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() initial,
-    required TResult Function() loading,
-    required TResult Function(String message) error,
-    required TResult Function(List<MenuItemModel> items) loaded,
-  }) {
-    return loaded(items);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? initial,
-    TResult? Function()? loading,
-    TResult? Function(String message)? error,
-    TResult? Function(List<MenuItemModel> items)? loaded,
-  }) {
-    return loaded?.call(items);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? initial,
-    TResult Function()? loading,
-    TResult Function(String message)? error,
-    TResult Function(List<MenuItemModel> items)? loaded,
-    required TResult orElse(),
-  }) {
-    if (loaded != null) {
-      return loaded(items);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
-    required TResult Function(_Error value) error,
-    required TResult Function(_Loaded value) loaded,
-  }) {
-    return loaded(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
-    TResult? Function(_Error value)? error,
-    TResult? Function(_Loaded value)? loaded,
-  }) {
-    return loaded?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
-    TResult Function(_Error value)? error,
-    TResult Function(_Loaded value)? loaded,
-    required TResult orElse(),
-  }) {
-    if (loaded != null) {
-      return loaded(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class _Loaded implements MostPopularState {
-  const factory _Loaded(final List<MenuItemModel> items) = _$LoadedImpl;
-
-  List<MenuItemModel> get items;
-  @JsonKey(ignore: true)
-  _$$LoadedImplCopyWith<_$LoadedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

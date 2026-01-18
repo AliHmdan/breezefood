@@ -542,7 +542,6 @@ class _SearchState extends State<Search> {
                 ),
               ),
 
-              if (showSuggestions) _suggestionsOverlay(),
             ],
           ),
         );

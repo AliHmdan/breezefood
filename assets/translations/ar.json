@@ -9,9 +9,26 @@
     "logout": "تسجيل الخروج"
   },
   "common": {
-    "retry": "إعادة المحاولة",
-    "save": "حفظ",
-    "saving": "جارٍ الحفظ..."
+    "sending": "جارٍ الإرسال...",
+    "done": "تم",
+    "empty": "فارغ",
+    "discounts": "الخصومات",
+    "menu": "القائمة",
+    "view_cart_loading": "عرض السلة ...",
+    "view_cart": "عرض السلة • {count} • {total}"
+  },
+  "reviews": {
+    "delete_confirm_title": "حذف التقييم؟",
+    "delete_confirm_body": "سيتم حذف تقييمك لهذا المطعم.",
+    "delete_confirm_yes": "حذف",
+    "delete_confirm_no": "إلغاء",
+    "rate_failed": "فشل إرسال التقييم",
+    "delete_failed": "فشل حذف التقييم",
+    "rate_title": "ما هو تقييمك؟",
+    "rate_hint": "شاركنا تقييمك عن المطعم",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "rate_success": "تم إرسال التقييم"
   },
   "home": {
     "filters": {

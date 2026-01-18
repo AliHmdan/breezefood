@@ -120,8 +120,7 @@ class MostPopularSection extends StatelessWidget {
           child: SizedBox(
             height: 140.h,
             // width: containerWidth,
-            child:
-            ListView.builder(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: count,
               physics: count <= 2
@@ -130,7 +129,9 @@ class MostPopularSection extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = items[index];
 
-                final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
+                final title = item.nameAr.isNotEmpty
+                    ? item.nameAr
+                    : item.nameEn;
 
                 return Container(
                   width: cardWidth,
@@ -162,7 +163,7 @@ class MostPopularSection extends StatelessWidget {
                             : item.priceBefore),
                         oldPrice: item.priceBefore,
                         imagePathOrUrl:
-                        item.primaryImage?.imageUrl ??
+                            item.primaryImage?.imageUrl ??
                             "assets/images/shawarma_box.png",
                         description: "",
                         extraMeals: const <MenuExtra>[],
@@ -223,21 +224,16 @@ class _PopularItemCardState extends State<PopularItemCard> {
     setState(() => _isFavorite = !_isFavorite);
 
     _sending = true;
-    EasyLoading.show(status: 'Saving...');
 
     try {
       final favCubit = context.read<FavoritesCubit>();
       final res = await favCubit.toggle(id);
-
-      EasyLoading.dismiss();
 
       if (!res.ok) {
         setState(() => _isFavorite = previous);
         EasyLoading.showError(res.message ?? "Failed");
         return;
       }
-
-      EasyLoading.showSuccess(_isFavorite ? "Added" : "Removed");
     } catch (_) {
       setState(() => _isFavorite = previous);
       EasyLoading.dismiss();
@@ -247,15 +243,11 @@ class _PopularItemCardState extends State<PopularItemCard> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final imageUrl = UrlHelper.toFullUrl(widget.item.primaryImage?.imageUrl);
 
-    final title = context.pick(
-      ar: widget.item.nameAr,
-      en: widget.item.nameEn,
-    );
+    final title = context.pick(ar: widget.item.nameAr, en: widget.item.nameEn);
 
     final price = widget.item.priceAfter > 0
         ? widget.item.priceAfter
@@ -279,10 +271,10 @@ class _PopularItemCardState extends State<PopularItemCard> {
                 child: (imageUrl == null || imageUrl.isEmpty)
                     ? _imageFallback()
                     : Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _imageFallback(),
-                ),
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _imageFallback(),
+                      ),
               ),
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.25)),
@@ -333,7 +325,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                     fontFamily:
-                    Localizations.localeOf(context).languageCode == 'ar'
+                        Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -345,8 +337,6 @@ class _PopularItemCardState extends State<PopularItemCard> {
       ),
     );
   }
-
-
 
   Widget _imageFallback() {
     return Container(

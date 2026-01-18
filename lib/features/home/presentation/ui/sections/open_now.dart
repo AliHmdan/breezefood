@@ -2,7 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -92,13 +92,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                             // ⭐ Rating
                             GestureDetector(
                               onTap: () async {
-                                final result = await showRatingDialog(
-                                  context,
-                                  _rating,
-                                );
-                                if (result != null) {
-                                  setState(() => _rating = result);
-                                }
+                              
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(

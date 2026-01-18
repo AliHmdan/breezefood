@@ -27,12 +27,8 @@ mixin _$SearchResponse {
   String? get provinceDetected => throw _privateConstructorUsedError;
   List<SearchBlock> get data => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchResponseCopyWith<SearchResponse> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -60,8 +56,6 @@ class _$SearchResponseCopyWithImpl<$Res, $Val extends SearchResponse>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -114,8 +108,6 @@ class __$$SearchResponseImplCopyWithImpl<$Res>
       _$SearchResponseImpl _value, $Res Function(_$SearchResponseImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -193,14 +185,12 @@ class _$SearchResponseImpl implements _SearchResponse {
             const DeepCollectionEquality().equals(other._data, _data));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, success, hasCoordinates,
       provinceDetected, const DeepCollectionEquality().hash(_data));
 
-  /// Create a copy of SearchResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchResponseImplCopyWith<_$SearchResponseImpl> get copyWith =>
@@ -235,11 +225,8 @@ abstract class _SearchResponse implements SearchResponse {
   String? get provinceDetected;
   @override
   List<SearchBlock> get data;
-
-  /// Create a copy of SearchResponse
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchResponseImplCopyWith<_$SearchResponseImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -253,12 +240,8 @@ mixin _$SearchBlock {
   SearchRestaurant get restaurant => throw _privateConstructorUsedError;
   List<SearchItem> get items => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchBlock to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchBlockCopyWith<SearchBlock> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -284,8 +267,6 @@ class _$SearchBlockCopyWithImpl<$Res, $Val extends SearchBlock>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -304,8 +285,6 @@ class _$SearchBlockCopyWithImpl<$Res, $Val extends SearchBlock>
     ) as $Val);
   }
 
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $SearchRestaurantCopyWith<$Res> get restaurant {
@@ -337,8 +316,6 @@ class __$$SearchBlockImplCopyWithImpl<$Res>
       _$SearchBlockImpl _value, $Res Function(_$SearchBlockImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -395,14 +372,12 @@ class _$SearchBlockImpl implements _SearchBlock {
             const DeepCollectionEquality().equals(other._items, _items));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType, restaurant, const DeepCollectionEquality().hash(_items));
 
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchBlockImplCopyWith<_$SearchBlockImpl> get copyWith =>
@@ -428,11 +403,8 @@ abstract class _SearchBlock implements SearchBlock {
   SearchRestaurant get restaurant;
   @override
   List<SearchItem> get items;
-
-  /// Create a copy of SearchBlock
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchBlockImplCopyWith<_$SearchBlockImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -448,12 +420,8 @@ mixin _$SearchRestaurant {
   String? get logo => throw _privateConstructorUsedError;
   SearchRating? get rating => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchRestaurant to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchRestaurantCopyWith<SearchRestaurant> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -479,8 +447,6 @@ class _$SearchRestaurantCopyWithImpl<$Res, $Val extends SearchRestaurant>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -509,8 +475,6 @@ class _$SearchRestaurantCopyWithImpl<$Res, $Val extends SearchRestaurant>
     ) as $Val);
   }
 
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $SearchRatingCopyWith<$Res>? get rating {
@@ -546,8 +510,6 @@ class __$$SearchRestaurantImplCopyWithImpl<$Res>
       $Res Function(_$SearchRestaurantImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -611,13 +573,11 @@ class _$SearchRestaurantImpl implements _SearchRestaurant {
             (identical(other.rating, rating) || other.rating == rating));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, logo, rating);
 
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchRestaurantImplCopyWith<_$SearchRestaurantImpl> get copyWith =>
@@ -650,11 +610,8 @@ abstract class _SearchRestaurant implements SearchRestaurant {
   String? get logo;
   @override
   SearchRating? get rating;
-
-  /// Create a copy of SearchRestaurant
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchRestaurantImplCopyWith<_$SearchRestaurantImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -669,12 +626,8 @@ mixin _$SearchRating {
   @JsonKey(name: 'count')
   int get count => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchRating to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchRating
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchRatingCopyWith<SearchRating> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -698,8 +651,6 @@ class _$SearchRatingCopyWithImpl<$Res, $Val extends SearchRating>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchRating
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -738,8 +689,6 @@ class __$$SearchRatingImplCopyWithImpl<$Res>
       _$SearchRatingImpl _value, $Res Function(_$SearchRatingImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchRating
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -787,13 +736,11 @@ class _$SearchRatingImpl implements _SearchRating {
             (identical(other.count, count) || other.count == count));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, avg, count);
 
-  /// Create a copy of SearchRating
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchRatingImplCopyWith<_$SearchRatingImpl> get copyWith =>
@@ -820,11 +767,8 @@ abstract class _SearchRating implements SearchRating {
   @override
   @JsonKey(name: 'count')
   int get count;
-
-  /// Create a copy of SearchRating
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchRatingImplCopyWith<_$SearchRatingImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -844,12 +788,8 @@ mixin _$SearchItem {
   @JsonKey(name: 'image_url')
   String? get imageUrl => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchItemCopyWith<SearchItem> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -880,8 +820,6 @@ class _$SearchItemCopyWithImpl<$Res, $Val extends SearchItem>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -915,8 +853,6 @@ class _$SearchItemCopyWithImpl<$Res, $Val extends SearchItem>
     ) as $Val);
   }
 
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $SearchItemNamesCopyWith<$Res> get names {
@@ -953,8 +889,6 @@ class __$$SearchItemImplCopyWithImpl<$Res>
       _$SearchItemImpl _value, $Res Function(_$SearchItemImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1036,14 +970,12 @@ class _$SearchItemImpl implements _SearchItem {
                 other.imageUrl == imageUrl));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, basePrice, names, ordersCount, imageUrl);
 
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchItemImplCopyWith<_$SearchItemImpl> get copyWith =>
@@ -1081,11 +1013,8 @@ abstract class _SearchItem implements SearchItem {
   @override
   @JsonKey(name: 'image_url')
   String? get imageUrl;
-
-  /// Create a copy of SearchItem
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchItemImplCopyWith<_$SearchItemImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1099,12 +1028,8 @@ mixin _$SearchItemNames {
   String get ar => throw _privateConstructorUsedError;
   String get en => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchItemNames to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchItemNames
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchItemNamesCopyWith<SearchItemNames> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1128,8 +1053,6 @@ class _$SearchItemNamesCopyWithImpl<$Res, $Val extends SearchItemNames>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchItemNames
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1168,8 +1091,6 @@ class __$$SearchItemNamesImplCopyWithImpl<$Res>
       _$SearchItemNamesImpl _value, $Res Function(_$SearchItemNamesImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchItemNames
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1218,13 +1139,11 @@ class _$SearchItemNamesImpl implements _SearchItemNames {
             (identical(other.en, en) || other.en == en));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, ar, en);
 
-  /// Create a copy of SearchItemNames
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchItemNamesImplCopyWith<_$SearchItemNamesImpl> get copyWith =>
@@ -1250,11 +1169,8 @@ abstract class _SearchItemNames implements SearchItemNames {
   String get ar;
   @override
   String get en;
-
-  /// Create a copy of SearchItemNames
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchItemNamesImplCopyWith<_$SearchItemNamesImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

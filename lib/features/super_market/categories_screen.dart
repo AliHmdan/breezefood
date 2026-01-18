@@ -12,23 +12,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/orders/model/add_to_cart_request.dart';
-import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
-import 'package:breezefood/features/stores/presentation/cubit/market_details_cubit.dart';
 import 'package:breezefood/features/super_market/supermarket_add_order_dialog.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:breezefood/core/component/color.dart';
-
 import '../profile/presentation/widget/custom_appbar_profile.dart';
-
-// أو حط الصفحتين بنفس الملف إذا بتحب
 
 class MarketCategoriesScreen extends StatelessWidget {
   final int marketId;
@@ -61,11 +48,7 @@ class MarketCategoriesScreen extends StatelessWidget {
                 p.error != c.error,
             listener: (context, state) {
               if (state.loading || state.loadingItems) {
-                EasyLoading.show(status: "Loading...".tr());
-              } else {
-                EasyLoading.dismiss();
-              }
-
+              } else {}
               if (state.error != null) {
                 EasyLoading.dismiss();
                 ScaffoldMessenger.of(
@@ -77,9 +60,7 @@ class MarketCategoriesScreen extends StatelessWidget {
           BlocListener<CartCubit, CartState>(
             listener: (context, state) {
               state.maybeWhen(
-                loading: () => EasyLoading.show(status: "Loading...".tr()),
                 error: (msg) {
-                  EasyLoading.dismiss();
                   EasyLoading.showError(
                     msg.isEmpty ? "something_wrong".tr() : msg,
                   );
@@ -91,7 +72,8 @@ class MarketCategoriesScreen extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: AppColor.Dark,
-          appBar:PreferredSize(  preferredSize: Size.fromHeight(110.h),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(110.h),
             child: CustomAppbarProfile(
               title: title,
               icon: Icons.arrow_back_ios,
@@ -336,15 +318,17 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
       },
       child: Scaffold(
         backgroundColor: AppColor.Dark,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(50.h),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: CustomAppbarProfile(
-                title:  widget.categoryName,
-                icon: Icons.arrow_back_ios,
-                ontap: () => Navigator.of(context).pop(),
-              ))),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(50.h),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: CustomAppbarProfile(
+              title: widget.categoryName,
+              icon: Icons.arrow_back_ios,
+              ontap: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ),
 
         body: BlocBuilder<MarketDetailsCubit, MarketDetailsState>(
           builder: (context, state) {

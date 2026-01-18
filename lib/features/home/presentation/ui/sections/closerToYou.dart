@@ -4,7 +4,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
+
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
@@ -147,15 +147,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
     _rating = widget.rating;
   }
 
-  Future<void> _openRatingDialog() async {
-    final result = await showRatingDialog(context, _rating);
-    if (result != null) {
-      setState(() {
-        _rating = result;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final deliveryText =
@@ -195,7 +186,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                 top: 6,
                 end: 6,
                 child: GestureDetector(
-                  onTap: _openRatingDialog,
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 6.w,
@@ -215,7 +205,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                             color: Colors.white,
                             fontSize: 11.sp,
                             fontWeight: FontWeight.bold,
-
                           ),
                         ),
                       ],

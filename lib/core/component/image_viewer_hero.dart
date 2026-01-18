@@ -52,7 +52,7 @@ class ShishaHeroImage extends StatelessWidget {
         ),
       );
     }
- 
+
     return GestureDetector(
       onTap: () => _openViewer(context),
       child: Hero(

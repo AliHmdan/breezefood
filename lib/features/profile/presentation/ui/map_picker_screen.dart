@@ -7,13 +7,25 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/di/di.dart';
+
+// لو عندك MapPickerResult بمكان ثاني احذف هذا
 class MapPickerResult {
   final double latitude;
   final double longitude;
   final String address;
 
-  const MapPickerResult({
+  MapPickerResult({
     required this.latitude,
     required this.longitude,
     required this.address,
@@ -35,13 +47,81 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   late final AuthFlowCubit cubit;
 
   bool _saving = false;
+  bool _locating = true; // ✅ جديد: عم نجيب موقعي
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    _picked = widget.initial;
     cubit = getIt<AuthFlowCubit>();
+
+    // ✅ مبدئياً خليها initial (fallback) لحد ما نجيب الموقع الحالي
+    _picked = widget.initial;
+
+    // ✅ ابدأ من موقعي الحالي
+    _initFromCurrentLocation();
+  }
+
+  Future<void> _initFromCurrentLocation() async {
+    setState(() {
+      _locating = true;
+      _error = null;
+    });
+
+    try {
+      final pos = await _getCurrentPosition();
+
+      if (!mounted) return;
+
+      final current = LatLng(pos.latitude, pos.longitude);
+
+      setState(() {
+        _picked = current;
+        _locating = false;
+      });
+
+      // لو الخريطة اتنشأت حرّك الكاميرا
+      await _ctrl?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: current, zoom: 16),
+        ),
+      );
+    } catch (e, st) {
+      log("location init error: $e\n$st");
+      if (!mounted) return;
+
+      // ✅ إذا فشلنا، نكمل على initial بدون ما نوقف الشاشة
+      setState(() {
+        _locating = false;
+        _error = "تعذر تحديد موقعك الحالي، اختره يدويًا من الخريطة";
+      });
+    }
+  }
+
+  Future<Position> _getCurrentPosition() async {
+    // 1) هل خدمة الموقع شغالة؟
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception("Location services are disabled");
+    }
+
+    // 2) صلاحيات
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied) {
+      throw Exception("Location permission denied");
+    }
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception("Location permission denied forever");
+    }
+
+    // 3) جيب الموقع الحالي
+    return Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+      timeLimit: const Duration(seconds: 10),
+    );
   }
 
   Future<String> _resolveAddress(double lat, double lon) async {
@@ -79,8 +159,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
 
     try {
       final addressText = await _resolveAddress(lat, lon);
-
-      // ✅ نفس UpdateAddressScreen: نحدث عنوان المستخدم عبر /update_address
       cubit.addAddress(address: addressText, lat: lat, lon: lon);
     } catch (e, st) {
       log("confirm error: $e\n$st");
@@ -97,9 +175,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
       bloc: cubit,
       listener: (context, state) {
         state.whenOrNull(
-          loading: () {
-            // ما تعمل setState هون إذا بدك، لأنه نحن أصلاً عاملين _saving=true
-          },
           error: (msg) {
             setState(() {
               _saving = false;
@@ -107,7 +182,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             });
           },
           addressAdded: (data) async {
-            // ✅ رجّع نتيجة (lat/lon/address) لأي شاشة نادت MapPickerScreen
             final addressMsg = (data is Map)
                 ? (data["address"]?.toString() ??
                       data["message"]?.toString() ??
@@ -130,15 +204,34 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         appBar: AppBar(
           backgroundColor: AppColor.Dark,
           title: const Text("Pick location"),
+          actions: [
+            IconButton(
+              tooltip: "My location",
+              onPressed: _initFromCurrentLocation, // ✅ زر يرجعك لموقعك
+              icon: const Icon(Icons.my_location),
+            ),
+          ],
         ),
         body: Stack(
           children: [
             GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: widget.initial,
+                // ✅ لاحظ: حتى لو هون initial، احنا بعدين بنعمل animate للموقع الحالي
+                target: _picked,
                 zoom: 16,
               ),
-              onMapCreated: (c) => _ctrl = c,
+              onMapCreated: (c) async {
+                _ctrl = c;
+
+                // ✅ لو كنا لسه محددين موقع حالي قبل إنشاء الخريطة
+                if (!_locating) {
+                  await _ctrl?.animateCamera(
+                    CameraUpdate.newCameraPosition(
+                      CameraPosition(target: _picked, zoom: 16),
+                    ),
+                  );
+                }
+              },
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               onTap: (pos) => setState(() => _picked = pos),
@@ -151,6 +244,15 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 ),
               },
             ),
+
+            // ✅ Loading overlay لما نجيب الموقع الحالي
+            if (_locating)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(0.25),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
 
             if (_error != null)
               Positioned(
@@ -188,8 +290,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
-                    onPressed: _saving ? null : _confirm,
-                    child: _saving
+                    onPressed: (_saving || _locating) ? null : _confirm,
+                    child: (_saving || _locating)
                         ? const SizedBox(
                             width: 22,
                             height: 22,

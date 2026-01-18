@@ -3,7 +3,6 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discount_delevry_grid_page.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -170,8 +169,7 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                   end: 6.w,
                   child: GestureDetector(
                     onTap: () async {
-                      final result = await showRatingDialog(context, _rating);
-                      if (result != null) setState(() => _rating = result);
+        
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(

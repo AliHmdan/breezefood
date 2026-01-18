@@ -1,20 +1,31 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/features/reviews/presentation/RateDialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/rating.dart';
+
+import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:dio/dio.dart';
+import 'package:breezefood/core/di/di.dart'; // إذا عندك Dio في getIt
 
 class Supermarketslider extends StatelessWidget {
   final List<RestaurantModel> restaurants;
+  final void Function(dynamic r)? onTap;
+
+  // ✅ جديد
+  final VoidCallback? onRateSuccess;
 
   const Supermarketslider({
     super.key,
     required this.restaurants,
+    this.onTap,
+    this.onRateSuccess,
   });
 
   @override
@@ -27,18 +38,18 @@ class Supermarketslider extends StatelessWidget {
         autoPlay: true,
         enlargeCenterPage: true,
         viewportFraction: 0.9,
-        // ⏱️ كل كم ثانية يتغير السلايد
         autoPlayInterval: const Duration(seconds: 4),
-
-        // 🎞️ سرعة الانتقال
         autoPlayAnimationDuration: const Duration(milliseconds: 800),
-
-        // 🧠 نوع الحركة
         autoPlayCurve: Curves.easeInOut,
       ),
       itemCount: restaurants.length,
       itemBuilder: (context, index, _) {
-        return _SliderItemWidget(model: restaurants[index]);
+        final m = restaurants[index];
+        return _SliderItemWidget(
+          model: m,
+          onTap: onTap == null ? null : () => onTap!(m),
+          onRateSuccess: onRateSuccess,
+        );
       },
     );
   }
@@ -46,8 +57,16 @@ class Supermarketslider extends StatelessWidget {
 
 class _SliderItemWidget extends StatefulWidget {
   final RestaurantModel model;
+  final VoidCallback? onTap;
 
-  const _SliderItemWidget({required this.model});
+  // ✅ جديد
+  final VoidCallback? onRateSuccess;
+
+  const _SliderItemWidget({
+    required this.model,
+    this.onTap,
+    this.onRateSuccess,
+  });
 
   @override
   State<_SliderItemWidget> createState() => _SliderItemWidgetState();
@@ -64,7 +83,8 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = UrlHelper.toFullUrl(widget.model.coverImage) ??
+    final imageUrl =
+        UrlHelper.toFullUrl(widget.model.coverImage) ??
         UrlHelper.toFullUrl(widget.model.logo) ??
         "";
 
@@ -73,110 +93,97 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
         ? "${widget.model.deliveryTime} min"
         : "—";
 
-    return ClipRRect(
+    return InkWell(
       borderRadius: BorderRadius.circular(11.r),
-      child: Stack(
-        children: [
-          // ✅ صورة حقيقية Network
-          Positioned.fill(
-            child: imageUrl.isEmpty
-                ? Container(
-                    color: Colors.grey.shade800,
-                    child: const Icon(Icons.store, color: Colors.white70),
-                  )
-                : Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+      onTap: widget.onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(11.r),
+        child: Stack(
+          children: [
+            // ✅ صورة حقيقية Network
+            Positioned.fill(
+              child: imageUrl.isEmpty
+                  ? Container(
                       color: Colors.grey.shade800,
-                      child: const Icon(Icons.image_not_supported,
-                          color: Colors.white70),
-                    ),
-                    loadingBuilder: (c, child, p) {
-                      if (p == null) return child;
-                      return Container(
-                        color: Colors.black.withOpacity(0.15),
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: 22.w,
-                          height: 22.w,
-                          child: const CircularProgressIndicator(strokeWidth: 2),
+                      child: const Icon(Icons.store, color: Colors.white70),
+                    )
+                  : Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.grey.shade800,
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.white70,
                         ),
-                      );
-                    },
+                      ),
+                      loadingBuilder: (c, child, p) {
+                        if (p == null) return child;
+                        return Container(
+                          color: Colors.black.withOpacity(0.15),
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: 22.w,
+                            height: 22.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            // ✅ شفافية على كامل الصورة
+            Positioned.fill(
+              child: Container(color: Colors.black.withOpacity(0.25)),
+            ),
+            // Gradient
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
                   ),
-          ),
-          // ✅ شفافية على كامل الصورة
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.25),
-            ),
-          ),
-          // Gradient
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withOpacity(0.6),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
                 ),
               ),
             ),
-          ),
 
-          // Title (نفس التصميم)
-          Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              child: Text(
-                widget.model.name,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
+            // Title (نفس التصميم)
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Text(
+                  widget.model.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Delivery chip (نفس الشكل)
-          PositionedDirectional(
-            start: 12,
-            top: 12,
-            child: _InfoChip(
-              icon: SvgPicture.asset(
-                "assets/icons/motor.svg",
-                color: AppColor.white,
-                width: 22.w,
-                height: 22.w,
-              ),
-              text: deliveryText,
-            ),
-          ),
+            // Rating chip (يعرض avg_rating دائمًا + عند الضغط يرسل تقييم)
+            PositionedDirectional(
+              end: 12,
+              top: 12,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () async {},
 
-          // Rating chip (قابل للتعديل بنفس الديالوج)
-          PositionedDirectional(
-            end: 12,
-            top: 12,
-            child: GestureDetector(
-              onTap: () async {
-                final result = await showRatingDialog(context, _rating);
-                if (result != null) setState(() => _rating = result);
-              },
-              child: _InfoChip(
-                icon: Icon(Icons.star, color: Colors.amber, size: 16.sp),
-                text: _rating.toStringAsFixed(1),
+                child: _InfoChip(
+                  icon: Icon(Icons.star, color: Colors.amber, size: 16.sp),
+                  text: (widget.model.ratingAvg).toStringAsFixed(1),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -201,10 +208,41 @@ class _InfoChip extends StatelessWidget {
         children: [
           icon,
           SizedBox(width: 4.w),
-          CustomSubTitle(subtitle: text, color: AppColor.white, fontsize: 12.sp)
-
+          CustomSubTitle(
+            subtitle: text,
+            color: AppColor.white,
+            fontsize: 12.sp,
+          ),
         ],
       ),
     );
+  }
+}
+
+Future<bool> submitRestaurantRating({
+  required int restaurantId,
+  required double rating,
+}) async {
+  try {
+    final dio = getIt<Dio>(); // أو استخدم dio اللي عندك بالمشروع
+
+    final res = await dio.post(
+      "https://breezefood.cloud/api/reviews",
+      data: {
+        "reviewee_type": "restaurant",
+        "reviewee_id": restaurantId,
+        "rating": rating,
+      },
+      options: Options(
+        headers: {
+          "Content-Type": "application/json",
+          // لا تكتب Authorization هون إذا interceptor موجود
+        },
+      ),
+    );
+
+    return res.statusCode == 200;
+  } catch (_) {
+    return false;
   }
 }

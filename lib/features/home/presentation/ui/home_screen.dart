@@ -20,6 +20,9 @@ import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
+import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
+import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,6 +41,76 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _scrollController = ScrollController();
+  int _extractId(dynamic x) {
+    if (x == null) return 0;
+
+    // لو جاي كـ Map
+    if (x is Map) {
+      final v = x["id"] ?? x["restaurant_id"] ?? x["market_id"];
+      return int.tryParse(v.toString()) ?? 0;
+    }
+
+    // لو جاي كـ Model فيه id
+    try {
+      final v = (x as dynamic).id;
+      return int.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    try {
+      final v = (x as dynamic).restaurantId;
+      return int.tryParse(v.toString()) ?? 0;
+    } catch (_) {}
+
+    return 0;
+  }
+
+  String _extractTitle(dynamic x) {
+    if (x == null) return "";
+
+    if (x is Map) {
+      return (x["name"] ?? x["title"] ?? "").toString();
+    }
+
+    try {
+      return ((x as dynamic).name ?? "").toString();
+    } catch (_) {}
+
+    return "";
+  }
+
+  void _openRestaurant(dynamic r) {
+    final id = _extractId(r);
+    if (id == 0) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<CartCubit>()),
+            BlocProvider(create: (_) => getIt<RatingSubmitCubit>()), 
+          ],
+          child: ResturantDetails(restaurant_id: id),
+        ),
+      ),
+    );
+  }
+
+  void _openMarket(dynamic m) {
+    final id = _extractId(m);
+    if (id == 0) return;
+
+    final title = _extractTitle(m).trim();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MarketCategoriesScreen(
+          marketId: id,
+          title: title.isEmpty ? "Market" : title,
+        ),
+      ),
+    );
+  }
 
   final _closerKey = GlobalKey();
   final _storesKey = GlobalKey();
@@ -267,8 +340,12 @@ class _HomeState extends State<Home> {
                       ),
                       const SizedBox(height: 10),
                       state.maybeWhen(
-                        loaded: (data) =>
-                            Supermarketslider(restaurants: data.supermarkets),
+                        loaded: (data) => Supermarketslider(
+                          restaurants: data.supermarkets,
+                          onTap: (m) => _openMarket(m),
+                          onRateSuccess: () => cubit.load(), // ✅ refresh
+                        ),
+
                         orElse: () => const SizedBox.shrink(),
                       ),
 
@@ -284,8 +361,11 @@ class _HomeState extends State<Home> {
                       loading
                           ? _shimmerBox(height: 320.h)
                           : state.maybeWhen(
-                              loaded: (data) =>
-                                  OpenNow(restaurants: data.nearbyRestaurants),
+                              loaded: (data) => OpenNow(
+                                restaurants: data.nearbyRestaurants,
+                                onTap: _openRestaurant,
+                              ),
+
                               orElse: () => const SizedBox.shrink(),
                             ),
 

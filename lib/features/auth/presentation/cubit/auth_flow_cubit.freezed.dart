@@ -114,9 +114,6 @@ class _$AuthFlowStateCopyWithImpl<$Res, $Val extends AuthFlowState>
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -133,9 +130,6 @@ class __$$InitialImplCopyWithImpl<$Res>
   __$$InitialImplCopyWithImpl(
       _$InitialImpl _value, $Res Function(_$InitialImpl) _then)
       : super(_value, _then);
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -280,9 +274,6 @@ class __$$LoadingImplCopyWithImpl<$Res>
   __$$LoadingImplCopyWithImpl(
       _$LoadingImpl _value, $Res Function(_$LoadingImpl) _then)
       : super(_value, _then);
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
@@ -430,8 +421,6 @@ class __$$ErrorImplCopyWithImpl<$Res>
       _$ErrorImpl _value, $Res Function(_$ErrorImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -470,9 +459,7 @@ class _$ErrorImpl implements _Error {
   @override
   int get hashCode => Object.hash(runtimeType, message);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ErrorImplCopyWith<_$ErrorImpl> get copyWith =>
@@ -587,10 +574,7 @@ abstract class _Error implements AuthFlowState {
   const factory _Error(final String message) = _$ErrorImpl;
 
   String get message;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ErrorImplCopyWith<_$ErrorImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -612,8 +596,6 @@ class __$$CodeSentImplCopyWithImpl<$Res>
       _$CodeSentImpl _value, $Res Function(_$CodeSentImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -653,9 +635,7 @@ class _$CodeSentImpl implements _CodeSent {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CodeSentImplCopyWith<_$CodeSentImpl> get copyWith =>
@@ -770,10 +750,7 @@ abstract class _CodeSent implements AuthFlowState {
   const factory _CodeSent(final dynamic data) = _$CodeSentImpl;
 
   dynamic get data;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CodeSentImplCopyWith<_$CodeSentImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -795,8 +772,6 @@ class __$$CodeResentImplCopyWithImpl<$Res>
       _$CodeResentImpl _value, $Res Function(_$CodeResentImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -836,9 +811,7 @@ class _$CodeResentImpl implements _CodeResent {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$CodeResentImplCopyWith<_$CodeResentImpl> get copyWith =>
@@ -953,10 +926,7 @@ abstract class _CodeResent implements AuthFlowState {
   const factory _CodeResent(final dynamic data) = _$CodeResentImpl;
 
   dynamic get data;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$CodeResentImplCopyWith<_$CodeResentImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -978,8 +948,6 @@ class __$$VerifiedImplCopyWithImpl<$Res>
       _$VerifiedImpl _value, $Res Function(_$VerifiedImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1019,9 +987,7 @@ class _$VerifiedImpl implements _Verified {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$VerifiedImplCopyWith<_$VerifiedImpl> get copyWith =>
@@ -1136,10 +1102,7 @@ abstract class _Verified implements AuthFlowState {
   const factory _Verified(final dynamic data) = _$VerifiedImpl;
 
   dynamic get data;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$VerifiedImplCopyWith<_$VerifiedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1161,8 +1124,6 @@ class __$$ProfileUpdatedImplCopyWithImpl<$Res>
       _$ProfileUpdatedImpl _value, $Res Function(_$ProfileUpdatedImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1202,9 +1163,7 @@ class _$ProfileUpdatedImpl implements _ProfileUpdated {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$ProfileUpdatedImplCopyWith<_$ProfileUpdatedImpl> get copyWith =>
@@ -1320,10 +1279,7 @@ abstract class _ProfileUpdated implements AuthFlowState {
   const factory _ProfileUpdated(final dynamic data) = _$ProfileUpdatedImpl;
 
   dynamic get data;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$ProfileUpdatedImplCopyWith<_$ProfileUpdatedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1345,8 +1301,6 @@ class __$$AddressAddedImplCopyWithImpl<$Res>
       _$AddressAddedImpl _value, $Res Function(_$AddressAddedImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1386,9 +1340,7 @@ class _$AddressAddedImpl implements _AddressAdded {
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(data));
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AddressAddedImplCopyWith<_$AddressAddedImpl> get copyWith =>
@@ -1503,10 +1455,7 @@ abstract class _AddressAdded implements AuthFlowState {
   const factory _AddressAdded(final dynamic data) = _$AddressAddedImpl;
 
   dynamic get data;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AddressAddedImplCopyWith<_$AddressAddedImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1528,8 +1477,6 @@ class __$$LoggedOutImplCopyWithImpl<$Res>
       _$LoggedOutImpl _value, $Res Function(_$LoggedOutImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1568,9 +1515,7 @@ class _$LoggedOutImpl implements _LoggedOut {
   @override
   int get hashCode => Object.hash(runtimeType, message);
 
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$LoggedOutImplCopyWith<_$LoggedOutImpl> get copyWith =>
@@ -1685,10 +1630,7 @@ abstract class _LoggedOut implements AuthFlowState {
   const factory _LoggedOut(final String message) = _$LoggedOutImpl;
 
   String get message;
-
-  /// Create a copy of AuthFlowState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$LoggedOutImplCopyWith<_$LoggedOutImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

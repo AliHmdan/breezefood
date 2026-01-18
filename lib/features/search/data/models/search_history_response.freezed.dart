@@ -23,12 +23,8 @@ SearchHistoryResponse _$SearchHistoryResponseFromJson(
 mixin _$SearchHistoryResponse {
   List<SearchHistoryItem> get history => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchHistoryResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchHistoryResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchHistoryResponseCopyWith<SearchHistoryResponse> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -53,8 +49,6 @@ class _$SearchHistoryResponseCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchHistoryResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -90,8 +84,6 @@ class __$$SearchHistoryResponseImplCopyWithImpl<$Res>
       $Res Function(_$SearchHistoryResponseImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchHistoryResponse
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -138,14 +130,12 @@ class _$SearchHistoryResponseImpl implements _SearchHistoryResponse {
             const DeepCollectionEquality().equals(other._history, _history));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, const DeepCollectionEquality().hash(_history));
 
-  /// Create a copy of SearchHistoryResponse
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchHistoryResponseImplCopyWith<_$SearchHistoryResponseImpl>
@@ -169,11 +159,8 @@ abstract class _SearchHistoryResponse implements SearchHistoryResponse {
 
   @override
   List<SearchHistoryItem> get history;
-
-  /// Create a copy of SearchHistoryResponse
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchHistoryResponseImplCopyWith<_$SearchHistoryResponseImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -193,12 +180,8 @@ mixin _$SearchHistoryItem {
   @JsonKey(name: 'deleted_at')
   String? get deletedAt => throw _privateConstructorUsedError;
 
-  /// Serializes this SearchHistoryItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of SearchHistoryItem
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $SearchHistoryItemCopyWith<SearchHistoryItem> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -227,8 +210,6 @@ class _$SearchHistoryItemCopyWithImpl<$Res, $Val extends SearchHistoryItem>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SearchHistoryItem
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -287,8 +268,6 @@ class __$$SearchHistoryItemImplCopyWithImpl<$Res>
       $Res Function(_$SearchHistoryItemImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SearchHistoryItem
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -369,14 +348,12 @@ class _$SearchHistoryItemImpl implements _SearchHistoryItem {
                 other.deletedAt == deletedAt));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, userId, query, searchedAt, deletedAt);
 
-  /// Create a copy of SearchHistoryItem
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$SearchHistoryItemImplCopyWith<_$SearchHistoryItemImpl> get copyWith =>
@@ -416,11 +393,8 @@ abstract class _SearchHistoryItem implements SearchHistoryItem {
   @override
   @JsonKey(name: 'deleted_at')
   String? get deletedAt;
-
-  /// Create a copy of SearchHistoryItem
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$SearchHistoryItemImplCopyWith<_$SearchHistoryItemImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

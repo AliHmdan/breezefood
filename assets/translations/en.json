@@ -9,9 +9,25 @@
     "logout": "Logout"
   },
   "common": {
-    "retry": "Retry",
-    "save": "Save",
-    "saving": "Saving..."
+    "sending": "Sending...",
+    "done": "Done",
+    "empty": "Empty",
+    "menu": "Menu",
+    "discounts": "Discounts",
+    "view_cart_loading": "View Cart ...",
+    "view_cart": "View Cart • {count} • {total}"
+  },
+  "reviews": {
+    "rate_title": "What is your rate?",
+    "rate_hint": "Please share your rate about the restaurant",
+    "submit": "Submit",
+    "cancel": "Cancel",
+        "delete_confirm_title": "Delete rating?",
+    "delete_confirm_body": "This will remove your rating for this restaurant.",
+    "delete_failed": "Failed to delete rating",
+    "delete": "Delete rating",
+    "rate_success": "Rating submitted",
+    "rate_failed": "Failed to submit rating"
   },
   "home": {
     "filters": {
