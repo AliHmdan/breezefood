@@ -28,7 +28,7 @@ Future<void> openDiscountItemFlow(
     MaterialPageRoute(
       builder: (_) => ResturantDetails(
         restaurant_id: restaurantId,
-        initialMenuItemId: menuItemId, // ✅ أهم سطر
+        // initialMenuItemId: menuItemId, // ✅ أهم سطر
       ),
     ),
   );

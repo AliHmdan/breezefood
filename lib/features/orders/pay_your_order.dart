@@ -329,121 +329,84 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                     final extras = it.extras;
 
-                                    return Padding(
-                                      padding: EdgeInsets.only(bottom: 10.h),
-                                      child: Dismissible(
-                                        key: ValueKey("cart_item_${it.id}"),
-                                        direction: DismissDirection.endToStart,
-                                        background: Container(
-                                          alignment: Alignment.centerRight,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 16.w,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red.withOpacity(0.85),
-                                            borderRadius: BorderRadius.circular(
-                                              12.r,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              const Icon(
-                                                Icons.delete,
-                                                color: Colors.white,
-                                              ),
-                                              SizedBox(width: 8.w),
-                                              Text(
-                                                isRTL ? "حذف" : "Delete",
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        confirmDismiss: (_) async {
-                                          if (isUpdating) return false;
-                                          return _confirmDelete(
-                                            context,
-                                            isRTL: isRTL,
-                                          );
-                                        },
-                                        onDismissed: (_) => context
-                                            .read<CartCubit>()
-                                            .removeItem(it.id),
-                                        child: Container(
-                                          // padding: EdgeInsets.only(bottom: 10.h),
-                                          decoration: BoxDecoration(
-                                            color: AppColor.black,
-                                            borderRadius: BorderRadius.circular(
-                                              12.r,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.white10,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              MealCard(
-                                                key: ValueKey(it.id),
-                                                image: it.image,
-                                                name: title,
-                                                price: it.unitPrice,
-                                                counter: CounterRequest(
-                                                  value: it.quantity,
-                                                  loading: isUpdating,
-                                                  onChanged: (newQty) {
-                                                    context
-                                                        .read<CartCubit>()
-                                                        .updateQty(
-                                                          cartItemId: it.id,
-                                                          quantity: newQty,
-                                                        );
-                                                  },
-                                                ),
-                                              ),
+                                    return Dismissible(
+                                      key: ValueKey("cart_item_${it.id}"),
+                                      direction: DismissDirection.endToStart,
 
-                                              // (كل الكومنتات اللي عندك ضليت كما هي - ما حذفتها)
-                                              // Padding(
-                                              //   padding: EdgeInsets.symmetric(horizontal: 12.w),
-                                              //   child: Column(
-                                              //     crossAxisAlignment: CrossAxisAlignment.start,
-                                              //     children: [
-                                              //       SizedBox(height: 6.h),
-                                              //       Wrap(
-                                              //         children: [
-                                              //           if (it.isSpicy)
-                                              //             _chip(
-                                              //               "🌶️ ${isRTL ? "حار" : "Hot"}",
-                                              //               bg: Colors.red.withOpacity(0.15),
-                                              //             ),
-                                              //           if (it.deliveryTime > 0)
-                                              //             _chip(
-                                              //               "⏱ ${it.deliveryTime} ${isRTL ? "د" : "min"}",
-                                              //               bg: Colors.white10,
-                                              //             ),
-                                              //           if (it.hasDiscount)
-                                              //             _chip(
-                                              //               it.discountPercent > 0
-                                              //                   ? "-${it.discountPercent}%"
-                                              //                   : (isRTL ? "خصم" : "Discount"),
-                                              //               bg: Colors.green.withOpacity(0.15),
-                                              //             ),
-                                              //         ],
-                                              //       ),
-                                              //       ...
-                                              //     ],
-                                              //   ),
-                                              // ),
-                                            ],
-                                          ),
+                                      // 🔥 تبطيء الإحساس بالسحب
+                                      dismissThresholds: const {
+                                        DismissDirection.endToStart: 0.75,
+                                      },
+
+                                      movementDuration: const Duration(milliseconds: 450),
+                                      resizeDuration: const Duration(milliseconds: 350),
+
+                                      background: Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.85),
+                                          borderRadius: BorderRadius.circular(12.r),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            const Icon(Icons.delete, color: Colors.white),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              isRTL ? "حذف" : "Delete",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      confirmDismiss: (_) async {
+                                        if (isUpdating) return false;
+
+                                        return _confirmDelete(
+                                          context,
+                                          isRTL: isRTL,
+                                        );
+                                      },
+
+                                      onDismissed: (_) {
+                                        context.read<CartCubit>().removeItem(it.id);
+                                      },
+
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColor.black,
+                                          borderRadius: BorderRadius.circular(12.r),
+                                          border: Border.all(color: Colors.white10),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            MealCard(
+                                              key: ValueKey(it.id),
+                                              image: it.image,
+                                              name: title,
+                                              price: it.unitPrice,
+                                              counter: CounterRequest(
+                                                value: it.quantity,
+                                                loading: isUpdating,
+                                                onChanged: (newQty) {
+                                                  context.read<CartCubit>().updateQty(
+                                                    cartItemId: it.id,
+                                                    quantity: newQty,
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     );
+
                                   }).toList(),
                                 ),
 
@@ -749,27 +712,27 @@ class _AddressCard extends StatelessWidget {
 
               SizedBox(height: 10.h),
 
-              if (tempAddress != null) ...[
-                SizedBox(height: 10.h),
-                TextField(
-                  controller: tempDetailsCtrl,
-                  focusNode: tempDetailsFocus,
-                  style: const TextStyle(color: Colors.white),
-                  onChanged: onTempDetailsChanged,
-                  decoration: InputDecoration(
-                    hintText: isRTL
-                        ? "تفاصيل العنوان: بناية، طابق، شقة..."
-                        : "Address details: building, floor, apt...",
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    filled: true,
-                    fillColor: Colors.white10,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-              ],
+              // if (tempAddress != null) ...[
+              //   SizedBox(height: 10.h),
+              //   TextField(
+              //     controller: tempDetailsCtrl,
+              //     focusNode: tempDetailsFocus,
+              //     style: const TextStyle(color: Colors.white),
+              //     onChanged: onTempDetailsChanged,
+              //     decoration: InputDecoration(
+              //       hintText: isRTL
+              //           ? "تفاصيل العنوان: بناية، طابق، شقة..."
+              //           : "Address details: building, floor, apt...",
+              //       hintStyle: const TextStyle(color: Colors.white54),
+              //       filled: true,
+              //       fillColor: Colors.white10,
+              //       border: OutlineInputBorder(
+              //         borderRadius: BorderRadius.circular(12.r),
+              //         borderSide: BorderSide.none,
+              //       ),
+              //     ),
+              //   ),
+              // ],
 
               // Mini map preview
               if (_canShowMapPreview(selectedSaved, tempAddress)) ...[
@@ -789,6 +752,32 @@ class _AddressCard extends StatelessWidget {
                   style: TextStyle(color: Colors.white54, fontSize: 11.sp),
                 ),
               ],
+              SizedBox(height: 10),
+              Container(
+                height: 40,
+                child: TextField(
+                  controller: tempDetailsCtrl,
+                  focusNode: tempDetailsFocus,
+                  style: const TextStyle(color: Colors.white),
+                  onChanged: onTempDetailsChanged,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 2,
+                      horizontal: 2,
+                    ),
+                    hintText: isRTL
+                        ? "تفاصيل العنوان: بناية، طابق، شقة..."
+                        : "Address details: building, floor, apt...",
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: Colors.white10,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -1024,7 +1013,6 @@ Widget _totalLine({
               color: isTotal ? Colors.white : Colors.white70,
               fontSize: isTotal ? 14 : 13,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
-
             ),
           ),
         ),
@@ -1045,7 +1033,6 @@ Widget _totalLine({
             color: isTotal ? AppColor.yellow : Colors.white,
             fontSize: isTotal ? 15 : 13,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
-
           ),
         ),
       ],
@@ -1075,9 +1062,14 @@ Future<void> _storeOrder(
       (cart.primaryAddress?.address?.trim().isEmpty ?? true)) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isRTL ? "يرجى اختيار عنوان" : "Please select address",style: TextStyle( fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-            ? 'Cairo'
-            : 'Inter',),),
+        content: Text(
+          isRTL ? "يرجى اختيار عنوان" : "Please select address",
+          style: TextStyle(
+            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'Cairo'
+                : 'Inter',
+          ),
+        ),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1229,9 +1221,14 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       backgroundColor: AppColor.Dark,
       appBar: AppBar(
         backgroundColor: AppColor.Dark,
-        title: Text(isRTL ? "اختيار موقع" : "Pick location",style: TextStyle( fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-            ? 'Cairo'
-            : 'Inter',),),
+        title: Text(
+          isRTL ? "اختيار موقع" : "Pick location",
+          style: TextStyle(
+            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'Cairo'
+                : 'Inter',
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context, null),
@@ -1298,9 +1295,13 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                   ),
                   child: Text(
                     _error!,
-                    style:  TextStyle(color: Colors.white, fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-    ? 'Cairo'
-        : 'Inter',),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily:
+                          Localizations.localeOf(context).languageCode == 'ar'
+                          ? 'Cairo'
+                          : 'Inter',
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -1334,10 +1335,11 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                     : () => Navigator.pop(context, _picked),
                 child: Text(
                   isRTL ? "تأكيد الموقع" : "Confirm location",
-                  style:  TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
-                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                    fontFamily:
+                        Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -1345,7 +1347,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
               ),
             ),
           ),
-
         ],
       ),
     );

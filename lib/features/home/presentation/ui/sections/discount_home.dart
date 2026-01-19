@@ -206,11 +206,12 @@ class _DiscountState extends State<Discount>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CustomSubTitle(
-                          subtitle: widget.discount,
-                          color: AppColor.white,
-                          fontsize: 14,
-                        ),
+                        // ===================نسبة المئوية====================
+                        // CustomSubTitle(
+                        //   subtitle: widget.discount,
+                        //   color: AppColor.white,
+                        //   fontsize: 14,
+                        // ),
                         SizedBox(width: 4.w),
                         SvgPicture.asset(
                           "assets/icons/nspah.svg",

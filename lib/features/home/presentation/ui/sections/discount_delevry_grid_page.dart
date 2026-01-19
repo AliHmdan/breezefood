@@ -311,7 +311,7 @@ Future<void> openDiscountFlow(BuildContext context, MenuItemModel item) async {
     MaterialPageRoute(
       builder: (_) => ResturantDetails(
         restaurant_id: restaurantId,
-        initialMenuItemId: menuItemId, // ✅ أهم سطر
+        // initialMenuItemId: menuItemId, // ✅ أهم سطر
       ),
     ),
   );

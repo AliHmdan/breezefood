@@ -29,52 +29,58 @@ class MealCard extends StatelessWidget {
         // color: AppColor.black,
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadiusDirectional.only(
-              topEnd: Radius.circular(40),
-              bottomEnd: Radius.circular(40),
+      child: Stack(children: [
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadiusDirectional.only(
+                topEnd: Radius.circular(40),
+                bottomEnd: Radius.circular(40),
+              ),
+              child: _MealImage(image: image),
             ),
-            child: _MealImage(image: image),
-          ),
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomSubTitle(
-                  subtitle: name,
-                  color: AppColor.white,
-                  fontsize: 14.sp,
-                ),
-                const SizedBox(height: 4),
-
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Price : ",
-                        style: TextStyle(color: AppColor.gry, fontSize: 14.sp),
-                      ),
-                      TextSpan(
-                        text: context.syp(price),
-                        style: TextStyle(
-                          color: AppColor.yellow,
-                          fontSize: 14.sp,
-                        ),
-                      ),
-                    ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomSubTitle(
+                    subtitle: name,
+                    color: AppColor.white,
+                    fontsize: 14.sp,
                   ),
-                ),
-              ],
-            ),
-          ),
+                  const SizedBox(height: 4),
 
-          // ✅ العداد من برا
-          if (counter != null) ...[const SizedBox(width: 10), counter!],
-        ],
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Price : ",
+                          style: TextStyle(color: AppColor.gry, fontSize: 14.sp),
+                        ),
+                        TextSpan(
+                          text: context.syp(price),
+                          style: TextStyle(
+                            color: AppColor.yellow,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ✅ العداد من برا
+            if (counter != null) ...[const SizedBox(width: 10), counter!],
+          ],
+        ),
+        PositionedDirectional(bottom: 5,end: 10,child: CustomSubTitle(subtitle: " <<<<<Delete", color: AppColor.red, fontsize: 12.sp))
+
+      ],
+
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
 import 'package:breezefood/features/reviews/presentation/RateDialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
@@ -626,54 +627,52 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           fontsize: 14.sp,
                                         ),
                                       )
-                                    : ListView.separated(
-                                        scrollDirection: Axis.horizontal,
-                                        physics: const BouncingScrollPhysics(),
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 10.w,
-                                        ),
-                                        itemCount: categories.length,
-                                        separatorBuilder: (context, index) {
-                                          return _divider();
-                                        },
-                                        itemBuilder: (context, index) {
-                                          final isSelected =
-                                              selectedCategoryIndex == index;
+                                    :
+                                ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                  itemCount: categories.length,
+                                  itemBuilder: (context, index) {
+                                    final isSelected = selectedCategoryIndex == index;
 
-                                          return GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                selectedCategoryIndex = index;
-                                              });
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 6.w,
-                                                vertical: 6.h,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                color: isSelected
-                                                    ? AppColor.primaryColor
-                                                    : AppColor.black,
-                                              ),
-                                              child: CustomSubTitle(
-                                                subtitle: categories[index],
-                                                color: isSelected
-                                                    ? AppColor.white
-                                                    : AppColor.LightActive,
-                                                fontsize: 14.sp,
-                                              ),
-                                            ),
-                                          );
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 4.w), // مسافة خفيفة اختيارية
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            selectedCategoryIndex = index;
+                                          });
                                         },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 6.w,
+                                            vertical: 6.h,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: isSelected
+                                                ? AppColor.primaryColor
+                                                : AppColor.black,
+                                          ),
+                                          child: CustomSubTitle(
+                                            subtitle: categories[index],
+                                            color: isSelected
+                                                ? AppColor.white
+                                                : AppColor.LightActive,
+                                            fontsize: 14.sp,
+                                          ),
+                                        ),
                                       ),
+                                    );
+                                  },
+                                ),
+
                               ),
                             ),
 
                             // ✅ Discounts Section
-                            DiscountItemsSection(
+                            DiscountMealSection(
                               items: discountedItems,
                               fullImageUrl: _fullImageUrl,
                               onTap: (it) async {
@@ -952,176 +951,136 @@ String _trMsg(String msg, {required String fallbackKey}) {
   return v;
 }
 
-class DiscountItemsSection extends StatelessWidget {
-  final List<MenuItem> items;
-  final String Function(String raw) fullImageUrl;
-  final void Function(MenuItem it) onTap;
+class DiscountItemCard extends StatelessWidget {
+  final MenuItem item;
+  final String imageUrl;
 
-  const DiscountItemsSection({
+  const DiscountItemCard({
     super.key,
-    required this.items,
-    required this.fullImageUrl,
-    required this.onTap,
+    required this.item,
+    required this.imageUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return const SizedBox.shrink();
+    final title = context.pick(ar: item.nameAr, en: item.nameEn);
+    final before = item.priceBefore > 0 ? item.priceBefore : item.price;
+    final after = item.effectivePrice;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(11.r),
+        color: AppColor.black,
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.local_offer, color: Colors.amber, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  "common.discounts".tr(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+          // ================= IMAGE =================
+          Stack(
+            children: [
+              SizedBox(
+                height: 85.h,
+                width: double.infinity,
+                child: imageUrl.isEmpty
+                    ? _fallback()
+                    : Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _fallback(),
+                      ),
+              ),
+
+              // overlay (نفس MostPopular)
+              Positioned.fill(
+                child: Container(color: Colors.black.withOpacity(0.25)),
+              ),
+
+              // discount badge
+              PositionedDirectional(
+                bottom: 0,
+                start: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 6.w,
+                    vertical: 2.h,
                   ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadiusDirectional.only(
+                      topEnd: Radius.circular(20.r),
+                      bottomEnd: Radius.circular(20.r),
+                    ),
+                  ),
+                child: CustomSubTitle(
+                  subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
+                  color: AppColor.white,
+                  fontsize: 11.sp,
+                ),
+              ),
+                            ),
+            ],
+          ),
+
+          // ================= TEXT =================
+          Container(
+            height: 55.h,
+            padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+            color: AppColor.black,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColor.white,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily:
+                        Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      context.money(before, decimals: 0),
+                      style: TextStyle(
+                        color:AppColor.LightActive,
+                        fontSize: 11.sp,
+                        decoration: TextDecoration.lineThrough,
+                        fontFamily:
+                            Localizations.localeOf(context).languageCode == 'ar'
+                            ? 'Cairo'
+                            : 'Inter',
+                      ),
+                    ),
+
+                    const SizedBox(width: 6),
+                    CustomSubTitle(
+                      subtitle: context.money(after, decimals: 0),
+                      color: AppColor.red,
+                      fontsize: 12.sp,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 170,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsetsDirectional.only(start: 16, end: 16),
-              itemBuilder: (context, i) {
-                final it = items[i];
-                final img = fullImageUrl(it.image ?? "");
-
-                final title = context.pick(ar: it.nameAr, en: it.nameEn);
-                final before = it.priceBefore > 0 ? it.priceBefore : it.price;
-                final after = it.effectivePrice;
-
-                return GestureDetector(
-                  onTap: () => onTap(it),
-                  child: Container(
-                    width: 210,
-                    decoration: BoxDecoration(
-                      color: AppColor.black,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.white.withOpacity(0.08)),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: img.isEmpty
-                                ? Image.asset(
-                                    "assets/images/shawarma_box.png",
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.network(
-                                    img,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Image.asset(
-                                      "assets/images/shawarma_box.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                          ),
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
-                                  colors: [
-                                    Colors.black.withOpacity(0.85),
-                                    Colors.black.withOpacity(0.15),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          PositionedDirectional(
-                            top: 10,
-                            start: 10,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.redAccent,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                "-${it.discountPercent.toStringAsFixed(0)}%",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          PositionedDirectional(
-                            bottom: 10,
-                            start: 12,
-                            end: 12,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  title.isEmpty ? "—" : title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Row(
-                                  children: [
-                                    Text(
-                                      context.money(after, decimals: 0),
-                                      style: const TextStyle(
-                                        color: Colors.amber,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      context.money(before, decimals: 0),
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 12,
-                                        decoration: TextDecoration.lineThrough,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemCount: items.length > 10 ? 10 : items.length,
-            ),
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _fallback() {
+    return Container(
+      color: Colors.grey.shade800,
+      alignment: Alignment.center,
+      child: const Icon(Icons.fastfood, color: Colors.white70, size: 26),
     );
   }
 }
