@@ -46,17 +46,59 @@ class ResturantDetails extends StatefulWidget {
 class _ResturantDetailsState extends State<ResturantDetails> {
   int selectedCategoryIndex = 0;
   bool _openedInitial = false;
+  late final ScrollController _scrollController= ScrollController();
 
   late final RestaurantDetailsCubit cubit;
   late final MostPopularCubit mostPopularCubit;
+  final List<GlobalKey> _categoryKeys = [];
+  final List<double> _categoryOffsets = [];
+  void _calculateCategoryOffsets() {
+    _categoryOffsets.clear();
+
+    for (final key in _categoryKeys) {
+      final ctx = key.currentContext;
+      if (ctx == null) continue;
+
+      final box = ctx.findRenderObject() as RenderBox;
+      final offset = box.localToGlobal(Offset.zero).dy;
+
+      _categoryOffsets.add(offset);
+    }
+  }
+
+  int _activeCategoryIndex = 0;
+  void _onScroll() {
+    final scrollOffset = _scrollController.offset;
+
+    for (int i = 0; i < _categoryOffsets.length; i++) {
+      final current = _categoryOffsets[i];
+      final next = i + 1 < _categoryOffsets.length
+          ? _categoryOffsets[i + 1]
+          : double.infinity;
+
+      if (scrollOffset >= current - 100 && scrollOffset < next - 100) {
+        if (_activeCategoryIndex != i) {
+          setState(() {
+            _activeCategoryIndex = i;
+          });
+        }
+        break;
+      }
+    }
+  }
+
 
   @override
   void initState() {
     super.initState();
-
+    _scrollController.addListener(_onScroll);
     cubit = getIt<RestaurantDetailsCubit>();
     mostPopularCubit = getIt<MostPopularCubit>();
-
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _calculateCategoryOffsets();
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cubit.load(widget.restaurant_id);
       mostPopularCubit.load(widget.restaurant_id);
@@ -68,8 +110,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     cubit.close();
     mostPopularCubit.close();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -191,6 +235,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
             context.read<CartCubit>().loadCart();
           },
           child: Scaffold(
+            // backgroundColor: AppColor.Dark,
+            extendBodyBehindAppBar: true,
             bottomNavigationBar: SafeArea(
               child: BlocBuilder<CartCubit, CartState>(
                 builder: (context, st) {
@@ -307,6 +353,13 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                     final sections = data.restaurantMenuItems;
 
+                    // ✅ إنشاء GlobalKey لكل Category (مرة واحدة فقط)
+                    if (_categoryKeys.length != sections.length) {
+                      _categoryKeys.clear();
+                      _categoryKeys.addAll(
+                        List.generate(sections.length, (_) => GlobalKey()),
+                      );
+                    }
                     categories = sections.map((e) {
                       return context.pick(
                         ar: e.category.nameAr,
@@ -393,285 +446,252 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   orElse: () {},
                 );
 
-                return Stack(
-                  children: [
-                    SizedBox(
-                      height: 240.h,
-                      width: double.infinity,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          headerImageUrl.isEmpty
-                              ? Image.asset(
-                                  "assets/images/shawarma_box.png",
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.network(
+                return NestedScrollView(
+                  controller: _scrollController,
+                  headerSliverBuilder: (context, innerBoxIsScrolled) {
+                    return [
+
+                      /// 🔹 صورة المطعم المتحركة
+                      SliverOverlapAbsorber(
+                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+
+                        sliver: SliverAppBar(
+                          expandedHeight: 240.h,
+                          pinned: true,
+
+                          // 🔥 إلغاء كل المساحات الافتراضية
+                          automaticallyImplyLeading: false,
+                          leading: const SizedBox.shrink(),
+                          toolbarHeight: 0,              // يمنع شريط الأدوات من أخذ ارتفاع
+                          collapsedHeight: 0,            // يمنع المساحة عند الانكماش
+                          elevation: 0,
+
+                          backgroundColor: AppColor.Dark,
+                          flexibleSpace: FlexibleSpaceBar(
+                            background: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                headerImageUrl.isEmpty
+                                    ? Image.asset("assets/images/shawarma_box.png", fit: BoxFit.cover)
+                                    : Image.network(
                                   headerImageUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Image.asset(
-                                    "assets/images/shawarma_box.png",
-                                    fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      Image.asset("assets/images/shawarma_box.png", fit: BoxFit.cover),
+                                ),
+
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                      colors: [
+                                        Colors.black.withOpacity(0.6),
+                                        Colors.black.withOpacity(0.2),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [
-                                  Colors.black.withOpacity(0.6),
-                                  Colors.black.withOpacity(0.2),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Center(
-                            child: Text(
-                              restaurantName,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26.sp,
-                                fontWeight: FontWeight.bold,
-                                fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
-                                    ? 'Cairo'
-                                    : 'Inter',
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.black,
-                                    blurRadius: 12,
-                                    offset: Offset(0, 3),
+
+                                Center(
+                                  child: Text(
+                                    restaurantName,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 26.sp,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                      shadows: const [
+                                        Shadow(color: Colors.black, blurRadius: 12, offset: Offset(0, 3)),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
+                                ),
+
+                                /// زر الرجوع
+                                PositionedDirectional(
+                                  start: 16,
+                                  top: MediaQuery.of(context).padding.top + 6,
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(100),
+                                      onTap: () => Navigator.of(context).maybePop(),
+                                      child: Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.35), // خلفية شفافة ناعمة
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            context.isAr
+                                                ? Icons.arrow_forward_ios_rounded // للعربي
+                                                : Icons.arrow_back_ios_rounded,    // للإنكليزي
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      padding: EdgeInsets.only(
-                        top: 220.h,
-                        bottom: MediaQuery.of(context).padding.bottom + 16.h,
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColor.Dark,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30.r),
-                            topRight: Radius.circular(30.r),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 16.h),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 5,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                      ),
+
+                      /// 🔹 هذا هو الجزء الذي سيثبت (time + price + search + rating + categories)
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _StickyHeaderDelegate(
+                          child: ClipRRect(
+
+                            child: Container(
+                              color: AppColor.Dark,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TiemPrice(
-                                    icon: Icons.alarm,
-                                    title: deliveryTime,
-                                    subtitle: "min",
+
+                                  SizedBox(height: 16.h),
+
+                                  /// time + price
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        TiemPrice(icon: Icons.alarm, title: deliveryTime, subtitle: "min"),
+                                        TiemPrice(
+                                          title: deliveryCash,
+                                          subtitle: "",
+                                          svgPath: "assets/icons/motor.svg",
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  TiemPrice(
-                                    title: deliveryCash,
-                                    subtitle: "",
-                                    svgPath: "assets/icons/motor.svg",
+
+                                  /// Search
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => Search(restaurantId: widget.restaurant_id),
+                                          ),
+                                        );
+                                      },
+                                      child: const AbsorbPointer(
+                                        child: CustomSearch(hint: "Search"),
+                                      ),
+                                    ),
+                                  ),
+
+                                  /// Rating + description + orders
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: CustomSubTitle(
+                                            subtitle: description,
+                                            color: AppColor.gry,
+                                            fontsize: 8,
+                                          ),
+                                        ),
+                                        _divider(),
+                                        const Icon(Icons.star, color: Colors.amber, size: 18),
+                                        const SizedBox(width: 4),
+                                        Text(ratingText,
+                                            style: const TextStyle(color: Colors.white, fontSize: 11)),
+                                        _divider(),
+                                        CustomSubTitle(
+                                          subtitle: ordersText,
+                                          color: AppColor.white,
+                                          fontsize: 12,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  /// Categories
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                                    child: SizedBox(
+                                      height: 35.h,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                        itemCount: categories.length,
+                                        itemBuilder: (context, index) {
+                                          final isSelected = selectedCategoryIndex == index;
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                final keyContext =
+                                                    _categoryKeys[index].currentContext;
+                                                if (keyContext != null) {
+                                                  Scrollable.ensureVisible(
+                                                    keyContext,
+                                                    duration: const Duration(milliseconds: 400),
+                                                    curve: Curves.easeInOut,
+                                                  );
+                                                }
+                                                setState(() {
+                                                  selectedCategoryIndex = index;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  color: isSelected
+                                                      ? AppColor.primaryColor
+                                                      : AppColor.black,
+                                                ),
+                                                child: CustomSubTitle(
+                                                  subtitle: categories[index],
+                                                  color: isSelected
+                                                      ? AppColor.white
+                                                      : AppColor.LightActive,
+                                                  fontsize: 14.sp,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 16.h),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => Search(
-                                      restaurantId: widget.restaurant_id,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: const AbsorbPointer(
-                                child: CustomSearch(hint: "Search"),
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 5,
-                              ),
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () async {
-                                  final res = await showRateDialogWithDelete(
-                                    context,
-                                    currentRating: myUserRating > 0
-                                        ? myUserRating
-                                        : (double.tryParse(ratingText) ?? 0.0),
-                                    canDelete:
-                                        (myReviewId != null && myReviewId! > 0),
-                                  );
+                          ),
+                        ),
+                      ),
+                    ];
+                  },
 
-                                  if (res == null) return;
+                  /// 🔹 هنا يبقى فقط محتوى الـ body (Discount + Most popular + items)
+                  body: Builder(
+                    builder: (context) {
+                      return CustomScrollView(
+                        slivers: [
 
-                                  final submitCubit = context
-                                      .read<RatingSubmitCubit>();
+                          /// ✅ هذا هو السطر السحري
+                          SliverOverlapInjector(
+                            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                          ),
 
-                                  EasyLoading.show(
-                                    status: "common.sending".tr(),
-                                  );
-
-                                  if (res.delete) {
-                                    if (myReviewId == null) {
-                                      EasyLoading.showError(
-                                        "reviews.no_review_to_delete".tr(),
-                                      );
-                                      return;
-                                    }
-
-                                    await submitCubit.deleteRestaurantRate(
-                                      reviewId: myReviewId!,
-                                    );
-
-                                    submitCubit.state.maybeWhen(
-                                      deleteSuccess: () {
-                                        EasyLoading.showSuccess(
-                                          "reviews.delete_success".tr(),
-                                        );
-                                        cubit.load(widget.restaurant_id);
-                                      },
-                                      error: (msg) =>
-                                          EasyLoading.showError(msg),
-                                      orElse: () => EasyLoading.dismiss(),
-                                    );
-                                    return;
-                                  }
-
-                                  // Submit
-                                  await submitCubit.submitRestaurantRate(
-                                    restaurantId: widget.restaurant_id,
-                                    rating: res.rating!,
-                                  );
-
-                                  submitCubit.state.maybeWhen(
-                                    success: () {
-                                      EasyLoading.showSuccess(
-                                        "reviews.rate_success".tr(),
-                                      );
-                                      cubit.load(widget.restaurant_id);
-                                    },
-                                    error: (msg) => EasyLoading.showError(msg),
-                                    orElse: () => EasyLoading.dismiss(),
-                                  );
-                                },
-
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomSubTitle(
-                                        subtitle: description,
-                                        color: AppColor.gry,
-                                        fontsize: 8,
-                                      ),
-                                    ),
-                                    _divider(),
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      ratingText,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                    _divider(),
-                                    CustomSubTitle(
-                                      subtitle: ordersText,
-                                      color: AppColor.white,
-                                      fontsize: 12,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // ---------------- Category ----------------
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20.h),
-                              child: SizedBox(
-                                height: 35.h,
-                                child: categories.isEmpty
-                                    ? Center(
-                                        child: CustomSubTitle(
-                                          subtitle: "Empty",
-                                          color: AppColor.gry,
-                                          fontsize: 14.sp,
-                                        ),
-                                      )
-                                    :
-                                ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                  itemCount: categories.length,
-                                  itemBuilder: (context, index) {
-                                    final isSelected = selectedCategoryIndex == index;
-
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 4.w), // مسافة خفيفة اختيارية
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedCategoryIndex = index;
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 6.w,
-                                            vertical: 6.h,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
-                                            color: isSelected
-                                                ? AppColor.primaryColor
-                                                : AppColor.black,
-                                          ),
-                                          child: CustomSubTitle(
-                                            subtitle: categories[index],
-                                            color: isSelected
-                                                ? AppColor.white
-                                                : AppColor.LightActive,
-                                            fontsize: 14.sp,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              ),
-                            ),
-
-                            // ✅ Discounts Section
+                          SliverToBoxAdapter(
+                            child:
                             DiscountMealSection(
                               items: discountedItems,
                               fullImageUrl: _fullImageUrl,
@@ -707,220 +727,252 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 }
                               },
                             ),
+                          ),
 
-                            const SizedBox(height: 10),
-
-                            // ---------------- Most Popular ----------------
-                            BlocBuilder<MostPopularCubit, MostPopularState>(
+                          SliverToBoxAdapter(
+                            child: BlocBuilder<MostPopularCubit, MostPopularState>(
                               bloc: mostPopularCubit,
                               builder: (context, mpState) {
-                                return mpState.maybeWhen(
-                                  loading: () => const Padding(
-                                    padding: EdgeInsets.only(bottom: 12),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  ),
-                                  error: (msg) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 6,
-                                    ),
-                                    child: CustomSubTitle(
-                                      subtitle: msg,
-                                      color: AppColor.red,
-                                      fontsize: 12,
-                                    ),
-                                  ),
-                                  loaded: (items) {
-                                    if (items.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 12,
+                                return
+                                  mpState.maybeWhen(
+                                    loading: () => const Padding(
+                                      padding: EdgeInsets.only(bottom: 12),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
                                       ),
-                                      child: MostPopularSection(items: items),
-                                    );
-                                  },
-                                  orElse: () => const SizedBox.shrink(),
-                                );
+                                    ),
+                                    error: (msg) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 6,
+                                      ),
+                                      child: CustomSubTitle(
+                                        subtitle: msg,
+                                        color: AppColor.red,
+                                        fontsize: 12,
+                                      ),
+                                    ),
+                                    loaded: (items) {
+                                      if (items.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 12,
+                                        ),
+                                        child: MostPopularSection(items: items),
+                                      );
+                                    },
+                                    orElse: () => const SizedBox.shrink(),
+                                  );
                               },
                             ),
+                          ),
 
-                            // =========================================Menu===================================
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: CustomTitleSection(title: "Menu"),
-                            ),
-                            const SizedBox(height: 10),
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: List.generate(categories.length, (index) { return Column(
+                                children: List.generate(categories.length, (
+                                    index,
+                                    ) {
+                                  final category = categories[index];
+                                  final items = itemsByCategory[index];
 
-                            if (selectedItems.isEmpty)
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  start: 16,
-                                ),
-                                child: CustomSubTitle(
-                                  subtitle: "Empty",
-                                  color: AppColor.gry,
-                                  fontsize: 12.sp,
-                                ),
-                              )
-                            else
-                              SizedBox(
-                                height: 140.h,
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                    start: 16,
-                                  ),
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: selectedItems.length,
-                                    itemBuilder: (context, i) {
-                                      final it = selectedItems[i];
+                                  const double horizontalPadding = 16;
+                                  final double gap = 8.w;
+                                  final double cardWidth =
+                                      MediaQuery.of(context).size.width / 2.3;
 
-                                      final imageUrl = _fullImageUrl(
-                                        it.image ?? "",
-                                      );
+                                  return Column(
+                                    key: _categoryKeys[index],
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: horizontalPadding,
+                                        ),
+                                        child: CustomTitleSection(
+                                          title: category,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
 
-                                      // ✅ خلي السعر فعّال (بعد الخصم)
-                                      final price = it.effectivePrice;
+                                      SizedBox(
+                                        height: 140.h,
+                                        child: ListView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          padding:
+                                          const EdgeInsetsDirectional.only(
+                                            start: horizontalPadding,
+                                          ),
+                                          physics: items.length <= 2
+                                              ? const NeverScrollableScrollPhysics()
+                                              : const BouncingScrollPhysics(),
+                                          itemCount: items.length,
+                                          itemBuilder: (context, i) {
+                                            final it = items[i];
+                                            final imageUrl = _fullImageUrl(
+                                              it.image ?? "",
+                                            );
+                                            final price = it.effectivePrice;
 
-                                      final mapped = MenuItemModel(
-                                        id: it.id,
-                                        nameAr: it.nameAr,
-                                        nameEn: it.nameEn,
-                                        priceBefore: (it.priceBefore > 0
-                                            ? it.priceBefore
-                                            : it.price),
-                                        priceAfter: it.effectivePrice,
-                                        hasDiscount: it.hasDiscount,
-                                        discountType: it.discountType,
-                                        discountValue: it.discountPercent,
-                                        isFavorite: it.isFavorite,
-                                        primaryImage: imageUrl.isEmpty
-                                            ? null
-                                            : PrimaryImageModel(
+                                            final mapped = MenuItemModel(
+                                              id: it.id,
+                                              nameAr: it.nameAr,
+                                              nameEn: it.nameEn,
+                                              priceBefore: (it.priceBefore > 0
+                                                  ? it.priceBefore
+                                                  : it.price),
+                                              priceAfter: it.effectivePrice,
+                                              hasDiscount: it.hasDiscount,
+                                              discountType: it.discountType,
+                                              discountValue: it.discountPercent,
+                                              isFavorite: it.isFavorite,
+                                              primaryImage: imageUrl.isEmpty
+                                                  ? null
+                                                  : PrimaryImageModel(
                                                 imageUrl: imageUrl,
                                               ),
-                                        restaurant: null,
-                                      );
+                                              restaurant: null,
+                                            );
 
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          final menuItemId = it.id;
-                                          final restaurantId =
-                                              widget.restaurant_id;
+                                            return Container(
+                                              width: cardWidth,
+                                              margin: EdgeInsetsDirectional.only(
+                                                end: i == items.length - 1
+                                                    ? horizontalPadding.w
+                                                    : gap,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () async {
+                                                  await showAddOrderDialog(
+                                                    context,
+                                                    restaurantId:
+                                                    widget.restaurant_id,
+                                                    menuItemId: it.id,
+                                                    title: context.pick(
+                                                      ar: it.nameAr,
+                                                      en: it.nameEn,
+                                                    ),
+                                                    price: price,
+                                                    oldPrice: (it.priceBefore > 0
+                                                        ? it.priceBefore
+                                                        : it.price),
+                                                    imagePathOrUrl:
+                                                    imageUrl.isNotEmpty
+                                                        ? imageUrl
+                                                        : "assets/images/shawarma_box.png",
+                                                    description: context.pick(
+                                                      ar: it.descriptionAr ?? "",
+                                                      en: it.descriptionEn ?? "",
+                                                    ),
+                                                    extraMeals: it.mealExtras,
+                                                  );
 
-                                          if (menuItemId == 0 ||
-                                              restaurantId == 0) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: CustomSubTitle(
-                                                  subtitle:
-                                                      "لا يمكن تحديد الوجبة أو المطعم",
-                                                  color: AppColor.red,
-                                                  fontsize: 14.sp,
+                                                  if (mounted) {
+                                                    context
+                                                        .read<CartCubit>()
+                                                        .loadCart();
+                                                  }
+                                                },
+                                                child: PopularItemCard(
+                                                  item: mapped,
                                                 ),
                                               ),
                                             );
-                                            return;
-                                          }
-
-                                          await showAddOrderDialog(
-                                            context,
-                                            restaurantId: restaurantId,
-                                            menuItemId: menuItemId,
-                                            title: context.pick(
-                                              ar: it.nameAr,
-                                              en: it.nameEn,
-                                            ),
-                                            price: price,
-                                            oldPrice: (it.priceBefore > 0
-                                                ? it.priceBefore
-                                                : it.price),
-                                            imagePathOrUrl: imageUrl.isNotEmpty
-                                                ? imageUrl
-                                                : "assets/images/shawarma_box.png",
-                                            description: context.pick(
-                                              ar: it.descriptionAr ?? "",
-                                              en: it.descriptionEn ?? "",
-                                            ),
-                                            extraMeals: it.mealExtras,
-                                          );
-
-                                          if (mounted) {
-                                            context
-                                                .read<CartCubit>()
-                                                .loadCart();
-                                          }
-                                        },
-                                        child: Container(
-                                          width: 170.w,
-                                          margin: EdgeInsetsDirectional.only(
-                                            end: i == selectedItems.length - 1
-                                                ? 0
-                                                : 8.w,
-                                          ),
-                                          child: PopularItemCard(item: mapped),
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
+                                      ),
 
-                            const SizedBox(height: 24),
-
-                            state.maybeWhen(
-                              loading: () => const Padding(
-                                padding: EdgeInsets.only(bottom: 16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                              error: (msg) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: Center(
-                                  child: CustomSubTitle(
-                                    subtitle: msg,
-                                    color: AppColor.red,
-                                    fontsize: 14,
-                                  ),
-                                ),
-                              ),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16, top: 10),
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 18,
+                                      const SizedBox(height: 24),
+                                    ],
+                                  );
+                                }),
+                              );
+                              }),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
+
+                          SliverToBoxAdapter(child: SizedBox(height: 24)),
+                        ],
+                      );
+                    },
+                  ),
+
+                  // MediaQuery.removePadding( context: context,
+                  //   removeTop: true,
+                  //   child: ListView(
+                  //     padding: EdgeInsets.zero,
+                  //     children: [
+                  //
+                  //       BlocBuilder<MostPopularCubit, MostPopularState>(
+                  //         bloc: mostPopularCubit,
+                  //         builder: (context, mpState) {
+                  //           return
+                  //             mpState.maybeWhen(
+                  //             loading: () => const Padding(
+                  //               padding: EdgeInsets.only(bottom: 12),
+                  //               child: Center(
+                  //                 child: CircularProgressIndicator(),
+                  //               ),
+                  //             ),
+                  //             error: (msg) => Padding(
+                  //               padding: const EdgeInsets.symmetric(
+                  //                 horizontal: 16,
+                  //                 vertical: 6,
+                  //               ),
+                  //               child: CustomSubTitle(
+                  //                 subtitle: msg,
+                  //                 color: AppColor.red,
+                  //                 fontsize: 12,
+                  //               ),
+                  //             ),
+                  //             loaded: (items) {
+                  //               if (items.isEmpty) {
+                  //                 return const SizedBox.shrink();
+                  //               }
+                  //               return Padding(
+                  //                 padding: const EdgeInsets.only(
+                  //                   bottom: 12,
+                  //                 ),
+                  //                 child: MostPopularSection(items: items),
+                  //               );
+                  //             },
+                  //             orElse: () => const SizedBox.shrink(),
+                  //           );
+                  //         },
+                  //       ),
+                  //
+                  //
+                  //       const SizedBox(height: 24),
+                  //
+                  //       state.maybeWhen(
+                  //         loading: () => const Padding(
+                  //           padding: EdgeInsets.only(bottom: 16),
+                  //           child: Center(
+                  //             child: CircularProgressIndicator(),
+                  //           ),
+                  //         ),
+                  //         error: (msg) => Padding(
+                  //           padding: const EdgeInsets.only(bottom: 16),
+                  //           child: Center(
+                  //             child: CustomSubTitle(
+                  //               subtitle: msg,
+                  //               color: AppColor.red,
+                  //               fontsize: 14,
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         orElse: () => const SizedBox.shrink(),
+                  //       ),
+                  //
+                  //
+                  //       const SizedBox(height: 24),
+                  //     ],
+                  //   ),
+                  // ),
                 );
+
               },
             ),
           ),
@@ -1001,10 +1053,7 @@ class DiscountItemCard extends StatelessWidget {
                 bottom: 0,
                 start: 0,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 6.w,
-                    vertical: 2.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadiusDirectional.only(
@@ -1012,13 +1061,13 @@ class DiscountItemCard extends StatelessWidget {
                       bottomEnd: Radius.circular(20.r),
                     ),
                   ),
-                child: CustomSubTitle(
-                  subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
-                  color: AppColor.white,
-                  fontsize: 11.sp,
+                  child: CustomSubTitle(
+                    subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
+                    color: AppColor.white,
+                    fontsize: 11.sp,
+                  ),
                 ),
               ),
-                            ),
             ],
           ),
 
@@ -1050,7 +1099,7 @@ class DiscountItemCard extends StatelessWidget {
                     Text(
                       context.money(before, decimals: 0),
                       style: TextStyle(
-                        color:AppColor.LightActive,
+                        color: AppColor.LightActive,
                         fontSize: 11.sp,
                         decoration: TextDecoration.lineThrough,
                         fontFamily:
@@ -1084,3 +1133,30 @@ class DiscountItemCard extends StatelessWidget {
     );
   }
 }
+class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _StickyHeaderDelegate({required this.child});
+
+  @override
+  double get minExtent => 180;
+
+  @override
+  double get maxExtent => 180;
+
+  @override
+  Widget build(
+      BuildContext context,
+      double shrinkOffset,
+      bool overlapsContent,
+      ) {
+    return child;
+  }
+
+  /// ✅ الدالة الصحيحة الوحيدة
+  @override
+  bool shouldRebuild(covariant _StickyHeaderDelegate old) {
+    return old.child != child;
+  }
+}
+

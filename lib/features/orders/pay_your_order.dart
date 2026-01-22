@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:developer';
 
@@ -116,12 +118,14 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         false;
   }
 
-  Future<LatLng?> _openTempAddressPicker({required bool isRTL}) async {
+  Future<Map<String, dynamic>?> _openTempAddressPicker({
+    required bool isRTL,
+  }) async {
     final init = _tempOrderAddress == null
         ? null
         : LatLng(_tempOrderAddress!.latitude, _tempOrderAddress!.longitude);
 
-    return Navigator.push<LatLng?>(
+    return Navigator.push<Map<String, dynamic>?>(
       context,
       MaterialPageRoute(
         builder: (_) => TempAddressMapPicker(isRTL: isRTL, initial: init),
@@ -329,65 +333,76 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                     final extras = it.extras;
 
-                                    return Dismissible(
-                                      key: ValueKey("cart_item_${it.id}"),
-                                      direction: DismissDirection.endToStart,
-
-                                      // 🔥 تبطيء الإحساس بالسحب
-                                      dismissThresholds: const {
-                                        DismissDirection.endToStart: 0.75,
-                                      },
-
-                                      movementDuration: const Duration(milliseconds: 450),
-                                      resizeDuration: const Duration(milliseconds: 350),
-
-                                      background: Container(
-                                        alignment: Alignment.centerRight,
-                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.85),
-                                          borderRadius: BorderRadius.circular(12.r),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            const Icon(Icons.delete, color: Colors.white),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              isRTL ? "حذف" : "Delete",
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                    return
+                                      Padding(
+                                          padding: EdgeInsets.only(bottom: 10.h),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFF3B30), // 🔴 نفس لون زر delete
+                                              borderRadius: BorderRadius.circular(14.r),
                                             ),
-                                          ],
-                                        ),
-                                      ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(14.r),
+                                              child: Slidable(
+                                                key: ValueKey("cart_item_${it.id}"),
 
-                                      confirmDismiss: (_) async {
-                                        if (isUpdating) return false;
+                                                endActionPane: ActionPane(
+                                                  motion: const ScrollMotion(),
+                                                  extentRatio: 0.22,
+                                                  // backgroundColor: Colors.transparent,
+                                                  children: [
+                                                    CustomSlidableAction(
+                                                      padding: EdgeInsets.zero,
+                                                      onPressed: (_) async {
+                                                        // context.read<CartCubit>().removeItem(it.id);
+                                                        final isRTL =
+                                                            Directionality.of(context) == TextDirection.rtl;
 
-                                        return _confirmDelete(
-                                          context,
-                                          isRTL: isRTL,
-                                        );
-                                      },
+                                                        // 🔑 حل المشكلة: انتظر إطار واحد
+                                                        await Future.delayed(const Duration(milliseconds: 100));
 
-                                      onDismissed: (_) {
-                                        context.read<CartCubit>().removeItem(it.id);
-                                      },
+                                                        final confirmed = await showDeleteCartDialog(
+                                                          context,
+                                                          isRTL: isRTL,
+                                                        );
 
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: AppColor.black,
-                                          borderRadius: BorderRadius.circular(12.r),
-                                          border: Border.all(color: Colors.white10),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            MealCard(
-                                              key: ValueKey(it.id),
+                                                        if (confirmed) {
+                                                          context.read<CartCubit>().removeItem(it.id);
+                                                        }
+                                                      },
+                                                      child:
+                                                      SizedBox.expand(
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                            gradient: const LinearGradient(
+                                                              colors: [
+                                                                Color(0xFFFF6A5B),
+                                                                Color(0xFFFF3B30),
+                                                              ],
+                                                              begin: Alignment.topCenter,
+                                                              end: Alignment.bottomCenter,
+                                                            ),
+                                                          ),
+                                                          child: const Center(
+                                                            child: Icon(
+                                                              Icons.delete_outline_rounded,
+                                                              color: Colors.white,
+                                                              size: 30,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: AppColor.black, // لون الكارد
+                                                    borderRadius: BorderRadius.circular(14.r),
+                                                    border: Border.all(color: Colors.white10),
+                                                  ),
+                                            child: MealCard(
                                               image: it.image,
                                               name: title,
                                               price: it.unitPrice,
@@ -402,11 +417,110 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                 },
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ),
-                                    );
 
+
+
+                                      // Dismissible(
+                                      //   key: ValueKey("cart_item_${it.id}"),
+                                      //   direction: DismissDirection.endToStart,
+                                      //
+                                      //   // 🔥 تبطيء الإحساس بالسحب
+                                      //   dismissThresholds: const {
+                                      //     DismissDirection.endToStart: 0.95,
+                                      //   },
+                                      //
+                                      //   movementDuration: const Duration(
+                                      //     milliseconds: 450,
+                                      //   ),
+                                      //   resizeDuration: const Duration(
+                                      //     milliseconds: 350,
+                                      //   ),
+                                      //
+                                      //   background: Container(
+                                      //     alignment: Alignment.centerRight,
+                                      //     padding: EdgeInsets.symmetric(
+                                      //       horizontal: 16.w,
+                                      //     ),
+                                      //     decoration: BoxDecoration(
+                                      //       color: Colors.red.withOpacity(0.85),
+                                      //       borderRadius: BorderRadius.circular(
+                                      //         12.r,
+                                      //       ),
+                                      //     ),
+                                      //     child: Row(
+                                      //       mainAxisAlignment:
+                                      //           MainAxisAlignment.end,
+                                      //       children: [
+                                      //         const Icon(
+                                      //           Icons.delete,
+                                      //           color: Colors.white,
+                                      //         ),
+                                      //         SizedBox(width: 8.w),
+                                      //         Text(
+                                      //           isRTL ? "حذف" : "Delete",
+                                      //           style: const TextStyle(
+                                      //             color: Colors.white,
+                                      //             fontSize: 14,
+                                      //             fontWeight: FontWeight.w700,
+                                      //           ),
+                                      //         ),
+                                      //       ],
+                                      //     ),
+                                      //   ),
+                                      //
+                                      //   confirmDismiss: (_) async {
+                                      //     if (isUpdating) return false;
+                                      //
+                                      //     return _confirmDelete(
+                                      //       context,
+                                      //       isRTL: isRTL,
+                                      //     );
+                                      //   },
+                                      //
+                                      //   onDismissed: (_) {
+                                      //     context.read<CartCubit>().removeItem(
+                                      //       it.id,
+                                      //     );
+                                      //   },
+                                      //
+                                      //   child: Container(
+                                      //     decoration: BoxDecoration(
+                                      //       color: AppColor.black,
+                                      //       borderRadius: BorderRadius.circular(
+                                      //         12.r,
+                                      //       ),
+                                      //       border: Border.all(
+                                      //         color: Colors.white10,
+                                      //       ),
+                                      //     ),
+                                      //     child: Column(
+                                      //       children: [
+                                      //         MealCard(
+                                      //           key: ValueKey(it.id),
+                                      //           image: it.image,
+                                      //           name: title,
+                                      //           price: it.unitPrice,
+                                      //           counter: CounterRequest(
+                                      //             value: it.quantity,
+                                      //             loading: isUpdating,
+                                      //             onChanged: (newQty) {
+                                      //               context
+                                      //                   .read<CartCubit>()
+                                      //                   .updateQty(
+                                      //                     cartItemId: it.id,
+                                      //                     quantity: newQty,
+                                      //                   );
+                                      //             },
+                                      //           ),
+                                      //         ),
+                                      //       ],
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                    ));
                                   }).toList(),
                                 ),
 
@@ -453,7 +567,16 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                             : "Delivery discount",
                                         cart.deliveryDiscount,
                                       ),
-                                    const Divider(color: Colors.white30),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 6.h),
+                                      child: Divider(
+                                        height: 1,
+                                        thickness: 0.8,
+                                        color: Colors.white.withOpacity(0.25),
+                                        indent: 4.w,
+                                        endIndent: 4.w,
+                                      ),
+                                    ),
                                     _totalLine(
                                       title: isRTL ? "الإجمالي" : "Total",
                                       value: cart.grandAfter,
@@ -497,20 +620,26 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                   if (action.type ==
                                       _PickAddressActionType.temp) {
-                                    final picked = await _openTempAddressPicker(
+                                    final result = await _openTempAddressPicker(
                                       isRTL: isRTL,
                                     );
-                                    if (picked != null) {
+
+                                    if (result != null) {
                                       setState(() {
                                         _tempOrderAddress = OrderAddress(
-                                          text: _tempDetailsCtrl.text.trim(),
-                                          latitude: picked.latitude,
-                                          longitude: picked.longitude,
+                                          text: result["text"] ?? "",
+                                          latitude: result["lat"],
+                                          longitude: result["lng"],
                                         );
+
+                                        // ✨ نعبي حقل التفاصيل تلقائي باسم المكان
+                                        _tempDetailsCtrl.text =
+                                            result["text"] ?? "";
+
                                         _selectedAddressId = null;
                                       });
 
-                                      // ✅ افتح الكيبورد على الفيلد داخل الكارت
+                                      // ✅ افتح الكيبورد تلقائي
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                             if (!mounted) return;
@@ -738,8 +867,12 @@ class _AddressCard extends StatelessWidget {
               if (_canShowMapPreview(selectedSaved, tempAddress)) ...[
                 SizedBox(height: 10.h),
                 _MiniMapPreview(
+                  key: ValueKey(
+                    "${_pickedLat(selectedSaved, tempAddress)}_${_pickedLng(selectedSaved, tempAddress)}",
+                  ),
                   lat: _pickedLat(selectedSaved, tempAddress),
                   lng: _pickedLng(selectedSaved, tempAddress),
+                  onTap: onTap,
                 ),
               ],
 
@@ -758,7 +891,14 @@ class _AddressCard extends StatelessWidget {
                 child: TextField(
                   controller: tempDetailsCtrl,
                   focusNode: tempDetailsFocus,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(
+                    color: AppColor.Dark,
+                    fontSize: 14.sp,
+                    fontFamily:
+                        Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
+                  ),
                   onChanged: onTempDetailsChanged,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
@@ -770,7 +910,7 @@ class _AddressCard extends StatelessWidget {
                         : "Address details: building, floor, apt...",
                     hintStyle: const TextStyle(color: Colors.white54),
                     filled: true,
-                    fillColor: Colors.white10,
+                    fillColor: AppColor.grye,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide.none,
@@ -786,43 +926,84 @@ class _AddressCard extends StatelessWidget {
   }
 }
 
-class _MiniMapPreview extends StatelessWidget {
+class _MiniMapPreview extends StatefulWidget {
   final double lat;
   final double lng;
+  final VoidCallback onTap;
+  const _MiniMapPreview({
+    Key? key,
+    required this.lat,
+    required this.lng,
+    required this.onTap,
+  }) : super(key: key);
 
-  const _MiniMapPreview({required this.lat, required this.lng});
+  @override
+  State<_MiniMapPreview> createState() => _MiniMapPreviewState();
+}
+
+class _MiniMapPreviewState extends State<_MiniMapPreview> {
+  GoogleMapController? _controller;
+
+  @override
+  void didUpdateWidget(covariant _MiniMapPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // ✅ إذا تغيّر الموقع → حرّك الكاميرا مباشرة
+    if (oldWidget.lat != widget.lat || oldWidget.lng != widget.lng) {
+      final newPos = LatLng(widget.lat, widget.lng);
+
+      _controller?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: newPos, zoom: 16),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pos = LatLng(lat, lng);
+    final pos = LatLng(widget.lat, widget.lng);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14.r),
-      child: Container(
-        height: 120.h,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white10),
-          borderRadius: BorderRadius.circular(14.r),
-        ),
-        child: Stack(
-          children: [
-            GoogleMap(
-              initialCameraPosition: CameraPosition(target: pos, zoom: 15),
-              zoomControlsEnabled: false,
-              myLocationButtonEnabled: false,
-              myLocationEnabled: false,
-              compassEnabled: false,
-              mapToolbarEnabled: false,
-              liteModeEnabled: true, // ✅ Android preview
-            ),
-            Center(
-              child: Icon(
-                Icons.location_pin,
-                size: 34.sp,
-                color: AppColor.primaryColor,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14.r),
+        child: Container(
+          height: 120.h,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white10),
+            borderRadius: BorderRadius.circular(14.r),
+          ),
+          child: Stack(
+            children: [
+              GoogleMap(
+                initialCameraPosition: CameraPosition(target: pos, zoom: 16),
+                onMapCreated: (c) => _controller = c,
+
+                zoomControlsEnabled: false,
+                myLocationButtonEnabled: false,
+                myLocationEnabled: false,
+                compassEnabled: false,
+                mapToolbarEnabled: false,
+                liteModeEnabled: true,
+
+                markers: {
+                  // Marker(
+                  //   // markerId: const MarkerId("picked"),
+                  //   // position: pos,
+                  // ),
+                },
               ),
-            ),
-          ],
+
+              Center(
+                child: Icon(
+                  Icons.location_history,
+                  size: 22.sp,
+                  color: AppColor.primaryColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1146,7 +1327,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
     super.initState();
 
     // fallback لحد ما نجيب current location
-    _picked = widget.initial ?? const LatLng(37.4219983, -122.084);
+    _picked = widget.initial ?? const LatLng(33.5138, 36.2765);
 
     _initFromCurrentLocation();
   }
@@ -1162,6 +1343,15 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       if (!mounted) return;
 
       final current = LatLng(pos.latitude, pos.longitude);
+      // ✅ تحقق أن الموقع داخل سوريا تقريبًا
+
+      bool _isInsideSyria(LatLng p) {
+        // حدود تقريبية لسوريا
+        return p.latitude >= 32.0 &&
+            p.latitude <= 37.5 &&
+            p.longitude >= 35.5 &&
+            p.longitude <= 42.5;
+      }
 
       setState(() {
         _picked = current;
@@ -1202,8 +1392,8 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
     }
 
     return Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 10),
+      desiredAccuracy: LocationAccuracy.bestForNavigation, // أدق شيء ممكن
+      timeLimit: const Duration(seconds: 15),
     );
   }
 
@@ -1247,8 +1437,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
             initialCameraPosition: CameraPosition(target: _picked, zoom: 16),
             onMapCreated: (c) async {
               _map = c;
-
-              // ✅ إذا موقعك انجاب قبل إنشاء الخريطة، حرّك الكاميرا
               if (!_locating) {
                 await _map?.animateCamera(
                   CameraUpdate.newCameraPosition(
@@ -1260,12 +1448,12 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
             myLocationButtonEnabled: true,
             myLocationEnabled: true,
 
-            // ✅ الأفضل: لما المستخدم يحرّك الخريطة، خذ مركز الكاميرا
             onCameraMove: (pos) => _picked = pos.target,
             onCameraIdle: () => setState(() {}),
 
-            // لو بدك tap كمان:
-            // onTap: (p) => setState(() => _picked = p),
+            markers: {
+              Marker(markerId: const MarkerId("picked"), position: _picked),
+            },
           ),
 
           // ✅ pin بالوسط
@@ -1332,7 +1520,34 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                 ),
                 onPressed: _locating
                     ? null
-                    : () => Navigator.pop(context, _picked),
+                    : () async {
+                        String addressText = "";
+
+                        try {
+                          final placemarks = await placemarkFromCoordinates(
+                            _picked.latitude,
+                            _picked.longitude,
+                          );
+
+                          if (placemarks.isNotEmpty) {
+                            final p = placemarks.first;
+
+                            // نص جميل مثل الصورة
+                            addressText =
+                                "${p.subAdministrativeArea ?? ''} ${p.locality ?? ''} ${p.street ?? ''}"
+                                    .trim();
+                          }
+                        } catch (e) {
+                          debugPrint("Geocoding error: $e");
+                        }
+
+                        Navigator.pop(context, {
+                          "lat": _picked.latitude,
+                          "lng": _picked.longitude,
+                          "text": addressText,
+                        });
+                      },
+
                 child: Text(
                   isRTL ? "تأكيد الموقع" : "Confirm location",
                   style: TextStyle(
@@ -1351,4 +1566,53 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       ),
     );
   }
+}
+Future<bool> showDeleteCartDialog(
+    BuildContext context, {
+      required bool isRTL,
+    }) async {
+  return await showDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) {
+      return AlertDialog(
+        backgroundColor: AppColor.Dark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        title: Text(
+          isRTL ? "حذف العنصر" : "Delete item",
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          isRTL
+              ? "هل أنت متأكد من حذف هذا العنصر؟"
+              : "Are you sure you want to delete this item?",
+          style: const TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              isRTL ? "إلغاء" : "Cancel",
+              style: const TextStyle(color: Colors.blue),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              isRTL ? "حذف" : "Delete",
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  ) ??
+      false;
 }

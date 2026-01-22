@@ -115,29 +115,30 @@ class MostPopularSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsetsDirectional.only(start: 16),
-          child: SizedBox(
-            height: 140.h,
-            // width: containerWidth,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: count,
-              physics: count <= 2
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                final item = items[index];
+        SizedBox(
+          height: 140.h,
+          // width: containerWidth,
+          child:
+          ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: count,
+            physics: count <= 2
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              final item = items[index];
 
-                final title = item.nameAr.isNotEmpty
-                    ? item.nameAr
-                    : item.nameEn;
+              final title = item.nameAr.isNotEmpty
+                  ? item.nameAr
+                  : item.nameEn;
 
-                return Container(
+              return Padding(
+                  padding: EdgeInsetsDirectional.only(
+                    start: index == 0 ? 16.w : 0,          // 🔥 أول عنصر فقط
+                    end: index == count - 1 ? 16.w : gap),
+                    child: SizedBox(
                   width: cardWidth,
-                  margin: EdgeInsetsDirectional.only(
-                    end: index == count - 1 ? 0 : gap,
-                  ),
+
                   child: GestureDetector(
                     onTap: () {
                       final menuItemId = item.id;
@@ -172,9 +173,9 @@ class MostPopularSection extends StatelessWidget {
 
                     child: PopularItemCard(item: item), // ✅ MenuItemModel
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ],
