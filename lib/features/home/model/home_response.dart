@@ -86,11 +86,26 @@ class HomeResponse {
 
     return HomeResponse(
       ads: _list(json, "ads", (e) => AdModel.fromJson(e)),
-      closerToYou: _list(json, "closer_to_you", (e) => RestaurantModel.fromJson(e)),
-      nearbyRestaurants:
-          _list(json, "nearby_restaurants", (e) => RestaurantModel.fromJson(e)),
-      supermarkets: _list(json, "supermarkets", (e) => RestaurantModel.fromJson(e)),
-      mostPopular: _list(json, "most_popular", (e) => MenuItemModel.fromJson(e)),
+      closerToYou: _list(
+        json,
+        "closer_to_you",
+        (e) => RestaurantModel.fromJson(e),
+      ),
+      nearbyRestaurants: _list(
+        json,
+        "nearby_restaurants",
+        (e) => RestaurantModel.fromJson(e),
+      ),
+      supermarkets: _list(
+        json,
+        "supermarkets",
+        (e) => RestaurantModel.fromJson(e),
+      ),
+      mostPopular: _list(
+        json,
+        "most_popular",
+        (e) => MenuItemModel.fromJson(e),
+      ),
       discounts: _list(json, "discounts", (e) => MenuItemModel.fromJson(e)),
       stories: _list(json, "stories", (e) => StoryWrapperModel.fromJson(e)),
 
@@ -136,24 +151,25 @@ class AdModel {
   }
 
   factory AdModel.fromJson(Map<String, dynamic> json) => AdModel(
-        id: HomeResponse._toInt(json["id"]),
-        type: HomeResponse._toStringSafe(json["type"]),
-        title: HomeResponse._toStringSafe(json["title"]),
-        description: json["description"] as String?,
-        image: json["image"] as String?,
-        url: json["url"] as String?,
-        status: json["status"] as String?,
-        startDate: json["start_date"] == null
-            ? null
-            : DateTime.tryParse(json["start_date"].toString()),
-        endDate: json["end_date"] == null
-            ? null
-            : DateTime.tryParse(json["end_date"].toString()),
-        priority: HomeResponse._toInt(json["priority"]),
-      );
+    id: HomeResponse._toInt(json["id"]),
+    type: HomeResponse._toStringSafe(json["type"]),
+    title: HomeResponse._toStringSafe(json["title"]),
+    description: json["description"] as String?,
+    image: json["image"] as String?,
+    url: json["url"] as String?,
+    status: json["status"] as String?,
+    startDate: json["start_date"] == null
+        ? null
+        : DateTime.tryParse(json["start_date"].toString()),
+    endDate: json["end_date"] == null
+        ? null
+        : DateTime.tryParse(json["end_date"].toString()),
+    priority: HomeResponse._toInt(json["priority"]),
+  );
 }
 
 class RestaurantModel {
+  final double? deliveryFee; // ✅ جديد
   final int id;
   final String name;
   final String? logo;
@@ -161,9 +177,8 @@ class RestaurantModel {
   final double ratingAvg;
   final int ratingCount;
   final int? deliveryTime;
-
-
   RestaurantModel({
+    this.deliveryFee,
     required this.id,
     required this.name,
     this.logo,
@@ -173,7 +188,8 @@ class RestaurantModel {
     this.deliveryTime,
   });
 
-  factory RestaurantModel.fromJson(Map<String, dynamic> json) => RestaurantModel(
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
+      RestaurantModel(
         id: HomeResponse._toInt(json["id"]),
         name: HomeResponse._toStringSafe(json["name"]),
         logo: json["logo"] as String?,
@@ -184,6 +200,9 @@ class RestaurantModel {
         deliveryTime: json["delivery_time"] == null
             ? null
             : HomeResponse._toInt(json["delivery_time"]),
+        deliveryFee: json["delivery_fee"] == null
+            ? null
+            : HomeResponse._toDouble(json["delivery_fee"]),
       );
 }
 
@@ -221,8 +240,8 @@ class MenuItemModel {
     final discountRaw = json["discount_value"];
     final discountParsed =
         (discountRaw == null || discountRaw.toString().trim().isEmpty)
-            ? null
-            : HomeResponse._toDouble(discountRaw);
+        ? null
+        : HomeResponse._toDouble(discountRaw);
 
     final primaryMap = HomeResponse._toMap(json["primary_image"]);
     final restMap = HomeResponse._toMap(json["restaurant"]);
@@ -237,7 +256,9 @@ class MenuItemModel {
       discountType: json["discount_type"] as String?,
       discountValue: discountParsed,
       isFavorite: HomeResponse._toBool(json["is_favorite"]),
-      primaryImage: primaryMap == null ? null : PrimaryImageModel.fromJson(primaryMap),
+      primaryImage: primaryMap == null
+          ? null
+          : PrimaryImageModel.fromJson(primaryMap),
       restaurant: restMap == null ? null : MenuItemRestaurant.fromJson(restMap),
     );
   }
@@ -248,7 +269,9 @@ class PrimaryImageModel {
   PrimaryImageModel({required this.imageUrl});
 
   factory PrimaryImageModel.fromJson(Map<String, dynamic> json) =>
-      PrimaryImageModel(imageUrl: HomeResponse._toStringSafe(json["image_url"]));
+      PrimaryImageModel(
+        imageUrl: HomeResponse._toStringSafe(json["image_url"]),
+      );
 }
 
 class MenuItemRestaurant {
@@ -273,7 +296,8 @@ class StoryWrapperModel {
   StoryWrapperModel({required this.storyData, required this.rating});
 
   factory StoryWrapperModel.fromJson(Map<String, dynamic> json) {
-    final storyMap = HomeResponse._toMap(json["story_data"]) ?? <String, dynamic>{};
+    final storyMap =
+        HomeResponse._toMap(json["story_data"]) ?? <String, dynamic>{};
     return StoryWrapperModel(
       storyData: StoryModel.fromJson(storyMap),
       rating: HomeResponse._toDouble(json["rating"]),
@@ -295,9 +319,9 @@ class StoryModel {
   });
 
   factory StoryModel.fromJson(Map<String, dynamic> json) => StoryModel(
-        id: HomeResponse._toInt(json["id"]),
-        title: HomeResponse._toStringSafe(json["title"]),
-        image: json["image"] as String?,
-        restaurantId: HomeResponse._toInt(json["restaurant_id"]),
-      );
+    id: HomeResponse._toInt(json["id"]),
+    title: HomeResponse._toStringSafe(json["title"]),
+    image: json["image"] as String?,
+    restaurantId: HomeResponse._toInt(json["restaurant_id"]),
+  );
 }

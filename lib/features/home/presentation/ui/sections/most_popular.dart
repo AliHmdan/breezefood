@@ -196,7 +196,7 @@ class PopularItemCard extends StatefulWidget {
 }
 
 class _PopularItemCardState extends State<PopularItemCard> {
-  late bool _isFavorite;
+  bool _isFavorite = false; // ✅ no late
   bool _sending = false;
 
   @override
@@ -208,6 +208,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
   @override
   void didUpdateWidget(covariant PopularItemCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.item.id != widget.item.id ||
         oldWidget.item.isFavorite != widget.item.isFavorite) {
       _isFavorite = widget.item.isFavorite;
@@ -289,7 +290,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.25)),
               ),
- 
+
               if (hasDiscount)
                 PositionedDirectional(
                   bottom: 0,
@@ -357,7 +358,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
- 
+
                 if (!hasDiscount)
                   Text(
                     context.syp(after),
@@ -419,7 +420,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
     );
   }
 }
- 
+
 class MostPopular extends StatelessWidget {
   const MostPopular({super.key});
 

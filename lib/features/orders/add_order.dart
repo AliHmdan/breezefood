@@ -53,9 +53,7 @@ Future<void> showAddOrderDialog(
             height: height,
             decoration: BoxDecoration(
               color: AppColor.Dark,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: BlocProvider.value(
               value: cartCubit, // ✅ نفس instance
@@ -604,7 +602,7 @@ class _CounterSheetState extends State<CounterSheet> {
                   children: [
                     Flexible(
                       child: Text(
-                        "AddToCart".tr(),
+                        "common.AddToCart".tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -641,7 +639,6 @@ class _CounterSheetState extends State<CounterSheet> {
               ),
             ),
           ),
-
         ],
       ),
     );

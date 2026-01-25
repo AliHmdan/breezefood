@@ -46,6 +46,11 @@ class OrderInfo {
   final String paymentStatus;
   final String? notes;
   final String createdAt;
+
+  // ✅ NEW
+  final int? orderCustomerCode;
+
+  // موجود عندك
   final int itemsCount;
 
   OrderInfo({
@@ -58,6 +63,7 @@ class OrderInfo {
     required this.notes,
     required this.createdAt,
     required this.itemsCount,
+    required this.orderCustomerCode, // ✅
   });
 
   static double _toDouble(dynamic v) {
@@ -83,7 +89,14 @@ class OrderInfo {
       paymentStatus: (json["payment_status"] ?? "").toString(),
       notes: json["notes"]?.toString(),
       createdAt: (json["created_at"] ?? "").toString(),
-      itemsCount: _toInt(json["items_count"]),
+
+      // ✅ NEW
+      orderCustomerCode: (json["order_customer_code"] == null)
+          ? null
+          : _toInt(json["order_customer_code"]),
+
+      // ✅ خليها تتحمل عدم وجود items_count (مثل /my-order-details)
+      itemsCount: (json["items_count"] == null) ? 0 : _toInt(json["items_count"]),
     );
   }
 }

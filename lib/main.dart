@@ -86,9 +86,9 @@ class MyApp extends StatelessWidget {
             builder: (context, widget) {
               // 🔹 تثبيت حجم الخط (كما عندك)
               final wrapped = MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(1.0),
-                ),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: widget ?? const SizedBox.shrink(),
               );
 
@@ -99,14 +99,13 @@ class MyApp extends StatelessWidget {
               // 🔹 تطبيق الخط على كامل التطبيق بدون كسر أي Style
               return Theme(
                 data: Theme.of(context).copyWith(
-                  textTheme: Theme.of(context).textTheme.apply(
-                    fontFamily: isArabic ? 'Cairo' : 'Inter',
-                  ),
+                  textTheme: Theme.of(
+                    context,
+                  ).textTheme.apply(fontFamily: isArabic ? 'Cairo' : 'Inter'),
                 ),
                 child: EasyLoading.init()(context, wrapped),
               );
             },
-
           );
         },
         child: const LaunchScreen(),

@@ -17,11 +17,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class RequestOrderScreen extends StatefulWidget {
   const RequestOrderScreen({super.key});
@@ -338,20 +334,32 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                         DismissDirection.endToStart: 0.75,
                                       },
 
-                                      movementDuration: const Duration(milliseconds: 450),
-                                      resizeDuration: const Duration(milliseconds: 350),
+                                      movementDuration: const Duration(
+                                        milliseconds: 450,
+                                      ),
+                                      resizeDuration: const Duration(
+                                        milliseconds: 350,
+                                      ),
 
                                       background: Container(
                                         alignment: Alignment.centerRight,
-                                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: Colors.red.withOpacity(0.85),
-                                          borderRadius: BorderRadius.circular(12.r),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: [
-                                            const Icon(Icons.delete, color: Colors.white),
+                                            const Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                            ),
                                             SizedBox(width: 8.w),
                                             Text(
                                               isRTL ? "حذف" : "Delete",
@@ -375,14 +383,20 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                       },
 
                                       onDismissed: (_) {
-                                        context.read<CartCubit>().removeItem(it.id);
+                                        context.read<CartCubit>().removeItem(
+                                          it.id,
+                                        );
                                       },
 
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: AppColor.black,
-                                          borderRadius: BorderRadius.circular(12.r),
-                                          border: Border.all(color: Colors.white10),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white10,
+                                          ),
                                         ),
                                         child: Column(
                                           children: [
@@ -395,10 +409,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                                 value: it.quantity,
                                                 loading: isUpdating,
                                                 onChanged: (newQty) {
-                                                  context.read<CartCubit>().updateQty(
-                                                    cartItemId: it.id,
-                                                    quantity: newQty,
-                                                  );
+                                                  context
+                                                      .read<CartCubit>()
+                                                      .updateQty(
+                                                        cartItemId: it.id,
+                                                        quantity: newQty,
+                                                      );
                                                 },
                                               ),
                                             ),
@@ -406,7 +422,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                         ),
                                       ),
                                     );
-
                                   }).toList(),
                                 ),
 

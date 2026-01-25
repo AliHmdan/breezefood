@@ -28,17 +28,16 @@ class _MainShellState extends State<MainShell> {
   late final FavoritesCubit _favoritesCubit;
 
   final _pages = <Widget>[
-   MultiBlocProvider(
-  providers: [
-    BlocProvider(create: (_) => getIt<HomeCubit>()..load()),
-    BlocProvider(create: (_) => getIt<ProfileCubit>()..load()),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<HomeCubit>()..load()),
+        BlocProvider(create: (_) => getIt<ProfileCubit>()..load()),
 
-    BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
-    BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
-  ],
-  child: const Home(),
-),
-
+        BlocProvider(create: (_) => getIt<CartCubit>()..loadCart()),
+        BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
+      ],
+      child: const Home(),
+    ),
 
     StoresNavTab(),
     FavoritePage(),

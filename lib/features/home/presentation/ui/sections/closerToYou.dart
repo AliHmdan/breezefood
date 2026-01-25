@@ -1,25 +1,16 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-
-//////////////////////////////////////////////////////////////
-// ⭐ Dialog Rating
-//////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////
-// 🔧 Helpers
-//////////////////////////////////////////////////////////////
 
 bool _isNetwork(String path) =>
     path.startsWith("http://") || path.startsWith("https://");
@@ -29,17 +20,7 @@ String? _restaurantImage(RestaurantModel r) {
   final logo = r.logo?.toString().trim();
 
   final picked = (cover != null && cover.isNotEmpty) ? cover : logo;
-
-  final full = UrlHelper.toFullUrl(picked);
-
-  // ✅ DEBUG
-  debugPrint("🖼️ [RestaurantImage] id=${r.id} name=${r.name}");
-  debugPrint("   cover   => ${cover ?? 'null'}");
-  debugPrint("   logo    => ${logo ?? 'null'}");
-  debugPrint("   picked  => ${picked ?? 'null'}");
-  debugPrint("   fullUrl => ${full ?? 'null'}");
-
-  return full;
+  return UrlHelper.toFullUrl(picked);
 }
 
 Widget _buildImage(String? urlOrAsset, {required double height}) {
@@ -52,12 +33,10 @@ Widget _buildImage(String? urlOrAsset, {required double height}) {
   );
 
   if (urlOrAsset == null || urlOrAsset.trim().isEmpty) {
-    debugPrint("🖼️ [_buildImage] EMPTY => fallback");
     return fallback;
   }
 
   final p = urlOrAsset.trim();
-  debugPrint("🖼️ [_buildImage] input => $p | isNetwork=${_isNetwork(p)}");
 
   if (_isNetwork(p)) {
     return Image.network(
@@ -65,27 +44,9 @@ Widget _buildImage(String? urlOrAsset, {required double height}) {
       height: height,
       width: double.infinity,
       fit: BoxFit.cover,
-
-      // ✅ DEBUG error
-      errorBuilder: (context, error, stack) {
-        debugPrint("❌ [Image.network] FAILED => $p");
-        debugPrint("   error => $error");
-        return fallback;
-      },
-
-      // ✅ DEBUG loading
+      errorBuilder: (_, __, ___) => fallback,
       loadingBuilder: (context, child, progress) {
-        if (progress == null) {
-          debugPrint("✅ [Image.network] LOADED => $p");
-          return child;
-        }
-
-        final total = progress.expectedTotalBytes;
-        final loaded = progress.cumulativeBytesLoaded;
-        debugPrint(
-          "⏳ [Image.network] LOADING => $p | bytes=$loaded/${total ?? '-'}",
-        );
-
+        if (progress == null) return child;
         return Container(
           height: height,
           width: double.infinity,
@@ -104,25 +65,25 @@ Widget _buildImage(String? urlOrAsset, {required double height}) {
     );
   }
 
-  // ✅ DEBUG asset
-  debugPrint("📦 [Image.asset] try => $p");
   return Image.asset(
     p,
     height: height,
     width: double.infinity,
     fit: BoxFit.cover,
-    errorBuilder: (context, error, stack) {
-      debugPrint("❌ [Image.asset] FAILED => $p | error=$error");
-      return fallback;
-    },
+    errorBuilder: (_, __, ___) => fallback,
   );
 }
 
+//////////////////////////////////////////////////////////////
+// 🧩 Card
+//////////////////////////////////////////////////////////////
+
 class CloserToYouCard extends StatefulWidget {
-  final String? image; // network or asset
+  final String? image;
   final String name;
   final double rating;
-  final int? deliveryTime; // from API
+
+  final double? deliveryFee; // ✅ قيمة التوصيل بدل وقت التوصيل
   final VoidCallback? onTap;
 
   const CloserToYouCard({
@@ -130,7 +91,7 @@ class CloserToYouCard extends StatefulWidget {
     required this.image,
     required this.name,
     required this.rating,
-    required this.deliveryTime,
+    required this.deliveryFee,
     this.onTap,
   });
 
@@ -149,9 +110,8 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
 
   @override
   Widget build(BuildContext context) {
-    final deliveryText =
-        (widget.deliveryTime != null && widget.deliveryTime! > 0)
-        ? "${widget.deliveryTime} min"
+    final feeText = (widget.deliveryFee != null && widget.deliveryFee! > 0)
+        ? context.syp(widget.deliveryFee, decimals: 0) // ✅ هنا
         : "--";
 
     return GestureDetector(
@@ -185,30 +145,24 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               PositionedDirectional(
                 top: 6,
                 end: 6,
-                child: GestureDetector(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.w,
-                      vertical: 2.h,
-                    ),
-                    decoration: BoxDecoration(
-                      // color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 14),
-                        SizedBox(width: 3.w),
-                        Text(
-                          _rating.toStringAsFixed(1),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 14),
+                      SizedBox(width: 3.w),
+                      Text(
+                        _rating.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -238,7 +192,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
           SizedBox(height: 6.h),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SvgPicture.asset(
                 "assets/icons/motor.svg",
@@ -248,7 +201,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               ),
               SizedBox(width: 4.w),
               CustomSubTitle(
-                subtitle: deliveryText,
+                subtitle: feeText,
                 color: AppColor.white,
                 fontsize: 12.sp,
               ),
@@ -261,13 +214,11 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
 }
 
 //////////////////////////////////////////////////////////////
-// 🧩 Closer To You Section (REAL DATA)
+// 🧩 Closer To You Section
 //////////////////////////////////////////////////////////////
 
 class CloserToYou extends StatelessWidget {
   final List<RestaurantModel> restaurants;
-
-  /// إذا القائمة فاضية، منخفي السكشن أو منعرض Placeholder بسيط
   final bool hideWhenEmpty;
 
   const CloserToYou({
@@ -320,8 +271,9 @@ class CloserToYou extends StatelessWidget {
             child: CloserToYouCard(
               image: _restaurantImage(r),
               name: r.name,
-              rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg, // fallback لطيف
-              deliveryTime: r.deliveryTime,
+              rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,
+              deliveryFee: r.deliveryFee,
+
               onTap: () async {
                 await Navigator.push(
                   context,
@@ -329,8 +281,6 @@ class CloserToYou extends StatelessWidget {
                     builder: (_) => MultiBlocProvider(
                       providers: [
                         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
-
-                        // ✅ نفس CartCubit تبع الهوم
                         BlocProvider.value(value: context.read<CartCubit>()),
                       ],
                       child: ResturantDetails(restaurant_id: r.id),

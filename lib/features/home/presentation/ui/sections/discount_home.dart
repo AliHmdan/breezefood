@@ -1,10 +1,11 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discount_grid_Page.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
- 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,20 +13,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 class Discount extends StatefulWidget {
   final String imagePath; // ✅ network full url
   final String subtitle; // restaurant name
-  final String price; // price text
+  final dynamic price; // ✅ رقم/سترينغ من API
+
   final String discount; // discount text
-  final VoidCallback onFavoriteToggle;
   final void Function()? onTap;
-  final bool initialIsFavorite;
 
   const Discount({
     super.key,
     required this.imagePath,
     required this.subtitle,
     required this.price,
+
     required this.discount,
-    required this.onFavoriteToggle,
-    this.initialIsFavorite = false,
     this.onTap,
   });
 
@@ -42,7 +41,6 @@ class _DiscountState extends State<Discount>
   @override
   void initState() {
     super.initState();
-    _isFavorite = widget.initialIsFavorite;
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -98,12 +96,6 @@ class _DiscountState extends State<Discount>
     );
   }
 
-  void _toggleFavorite() {
-    setState(() => _isFavorite = !_isFavorite);
-    widget.onFavoriteToggle();
-    _controller.forward().then((_) => _controller.reverse());
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -121,17 +113,13 @@ class _DiscountState extends State<Discount>
                 ),
                 // ✅ شفافية على كامل الصورة
                 Positioned.fill(
-                  child: Container(
-                    color: Colors.black.withOpacity(0.25),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.25)),
                 ),
                 PositionedDirectional(
                   top: 6,
                   end: 6,
                   child: GestureDetector(
-                    onTap: () async {
-                     
-                    },
+                    onTap: () async {},
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 4.w,
@@ -155,7 +143,6 @@ class _DiscountState extends State<Discount>
                     ),
                   ),
                 ),
-
 
                 // Restaurant name overlay
                 Positioned.fill(
@@ -240,12 +227,13 @@ class _DiscountState extends State<Discount>
                   SizedBox(width: 4.w),
 
                   Text(
-                    widget.price,
+                    context.syp(widget.price, decimals: 0), // ✅
                     style: TextStyle(
                       color: AppColor.red,
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
-                      fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                      fontFamily:
+                          Localizations.localeOf(context).languageCode == 'ar'
                           ? 'Cairo'
                           : 'Inter',
                     ),
@@ -283,10 +271,7 @@ class DiscountHome extends StatelessWidget {
     return v.toStringAsFixed(0);
   }
 
-  String _priceText(MenuItemModel it) {
-    // عندك priceAfter جاهزة
-    return "${it.priceAfter.toStringAsFixed(0)}";
-  }
+  dynamic _priceValue(MenuItemModel it) => it.priceAfter; // ✅
 
   String _restaurantName(MenuItemModel it) {
     return it.restaurant?.name.isNotEmpty == true
@@ -375,12 +360,9 @@ class DiscountHome extends StatelessWidget {
                         child: Discount(
                           imagePath: _imageUrl(it),
                           subtitle: _restaurantName(it),
-                          price: _priceText(it),
+                          price: _priceValue(it), // ✅
+
                           discount: _discountText(it),
-                          initialIsFavorite: it.isFavorite,
-                          onFavoriteToggle: () {
-                            // لاحقاً تربط favorite endpoint
-                          },
                           onTap: () {
                             openDiscountItemFlow(context, it);
                           },

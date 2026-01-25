@@ -8,26 +8,64 @@
     "terms": "Terms & Conditions",
     "logout": "Logout"
   },
+   "search": {
+    "hint": "Search food, stores, restaurants",
+    "province": "Province",
+    "start_hint": "Start searching for a meal or a restaurant",
+    "no_results": "No results found",
+    "suggestion_syrian_food": "Syrian food",
+    "suggestion_desserts": "Desserts",
+    "suggestion_drinks": "Drinks"
+  },
+  "tracking": {
+    "me": "Me",
+    "title": "Tracking Order #{id}",
+    "loading": "Loading driver's location...",
+    "live": "Live tracking",
+    "not_available": "Tracking not available",
+    "driver": "Driver"
+  },
+  "tracking.error_generic": "Something went wrong while tracking",
+  "tracking.error_bad_response": "Invalid tracking response",
+  "tracking.error_missing_locations": "Unable to load tracking data",
+  "orders": {
+    "warning_title": "Warning",
+    "customer_code_fetch_failed": "Couldn't fetch customer code for this order.",
+    "customer_code_title": "Order Code",
+    "customer_code_copied": "Code copied",
+    "price_label": "Price : ",
+    "items_count": "Items: {count}",
+    "tap_to_show_customer_code": "Tap to show customer code",
+    "no_current_orders": "No current orders",
+    "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
+  },
   "common": {
+    "close": "Close",
+    "copy": "Copy",
+    "currency": "SYP",
     "sending": "Sending...",
     "done": "Done",
     "empty": "Empty",
     "menu": "Menu",
     "discounts": "Discounts",
     "view_cart_loading": "View Cart ...",
-    "view_cart": "View Cart • {count} • {total}"
+    "view_cart": "View Cart • {count} • {total}",
+    "min": "min",
+    "search": "Search",
+    "AddToCart": "Add to cart"
   },
   "reviews": {
     "rate_title": "What is your rate?",
     "rate_hint": "Please share your rate about the restaurant",
     "submit": "Submit",
     "cancel": "Cancel",
-        "delete_confirm_title": "Delete rating?",
+    "delete_confirm_title": "Delete rating?",
     "delete_confirm_body": "This will remove your rating for this restaurant.",
     "delete_failed": "Failed to delete rating",
     "delete": "Delete rating",
     "rate_success": "Rating submitted",
-    "rate_failed": "Failed to submit rating"
+    "rate_failed": "Failed to submit rating",
+    "orders_count": "{count} Order"
   },
   "home": {
     "filters": {
@@ -43,6 +81,22 @@
     "super_market": "Super Market",
     "open_now": "Open Now",
     "your_order": "Your order"
+  },
+   "cart": {
+    "view_cart": "View Cart",
+    "view_cart_loading": "View Cart ..."
+  },
+  "nav": {
+    "home": "Home",
+    "stores": "Stores",
+    "favorites": "Favorites",
+    "orders": "Orders"
+  },
+  "restaurant": {
+    "menu": "Menu",
+    "details": {
+      "fallback_name": "Restaurant"
+    }
   },
   "referral": {
     "copy": "Copy",

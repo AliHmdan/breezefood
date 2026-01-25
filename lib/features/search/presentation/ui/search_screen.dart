@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
+import 'package:breezefood/core/services/price_formatter.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/add_order.dart';
@@ -8,6 +9,7 @@ import 'package:breezefood/features/search/data/models/search_response.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_cubit.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_state.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,11 +32,6 @@ class _SearchState extends State<Search> {
   late final SearchCubit searchCubit;
 
   final List<String> searchTags = [];
-  final List<String> allSuggestions = const [
-    "Syrian food",
-    "Desserts",
-    "Drinks",
-  ];
 
   List<String> filteredSuggestions = [];
   bool showSuggestions = false;
@@ -67,7 +64,7 @@ class _SearchState extends State<Search> {
     final q = input.trim().toLowerCase();
     final history = searchCubit.state.history;
 
-    final base = {...history, ...allSuggestions}.toList();
+    final base = {...history}.toList();
 
     setState(() {
       showSuggestions = true;
@@ -195,30 +192,39 @@ class _SearchState extends State<Search> {
           padding: const EdgeInsets.only(bottom: 8, top: 10),
           child: Row(
             children: [
-              ClipOval(child: _buildImage(r.logo ?? "")),
-              SizedBox(width: 8.w),
-
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12.r),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ResturantDetails(restaurant_id: r.id),
-                      ),
-                    );
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 6.h),
-                    child: CustomSubTitle(
-                      subtitle: r.name,
-                      color: AppColor.white,
-                      fontsize: 14.sp,
+              InkWell(
+                borderRadius: BorderRadius.circular(12.r),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ResturantDetails(restaurant_id: r.id),
                     ),
-                  ),
+                  );
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipOval(child: _buildImage(r.logo ?? "")),
+                    SizedBox(width: 8.w),
+
+                    // الاسم كمان صار ضمن نفس المنطقة القابلة للضغط
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 200.w),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6.h),
+                        child: CustomSubTitle(
+                          subtitle: r.name,
+                          color: AppColor.white,
+                          fontsize: 14.sp,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
+              const Spacer(),
 
               Container(
                 height: 25.h,
@@ -236,7 +242,6 @@ class _SearchState extends State<Search> {
                     color: AppColor.white,
                     fontsize: 14.sp,
                   ),
-
                   SizedBox(width: 6.w),
                   CustomSubTitle(
                     subtitle: "$ratingCount",
@@ -315,7 +320,6 @@ class _SearchState extends State<Search> {
             ),
           ),
         ),
-
       ],
     );
   }
@@ -400,8 +404,8 @@ class _SearchState extends State<Search> {
                                         height: 20.h,
                                       ),
                                     ),
-                                    hintText:
-                                        "Search food, stores, restaurants",
+                                    hintText: "search.hint".tr(),
+
                                     hintStyle: TextStyle(
                                       color: AppColor.gry,
                                       fontSize: 14.sp,
@@ -473,7 +477,8 @@ class _SearchState extends State<Search> {
                           Padding(
                             padding: EdgeInsets.only(bottom: 8.h),
                             child: Text(
-                              "Province: ${s.provinceDetected!}",
+                              "${'search.province'.tr()}: ${s.provinceDetected!}"
+,
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12.sp,
@@ -507,7 +512,8 @@ class _SearchState extends State<Search> {
                               : (_controller.text.trim().isEmpty)
                               ? Center(
                                   child: Text(
-                                    "ابدأ بالبحث عن وجبة أو مطعم",
+                                    "search.start_hint".tr(),
+
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14.sp,
@@ -525,7 +531,8 @@ class _SearchState extends State<Search> {
                               : (s.results.isEmpty)
                               ? Center(
                                   child: CustomSubTitle(
-                                    subtitle: "لا توجد نتائج",
+                                    subtitle: "search.no_results".tr(),
+
                                     color: Colors.white70,
                                     fontsize: 14.sp,
                                   ),
@@ -541,7 +548,6 @@ class _SearchState extends State<Search> {
                   ),
                 ),
               ),
-
             ],
           ),
         );
@@ -549,85 +555,6 @@ class _SearchState extends State<Search> {
     );
   }
 
-  Widget _suggestionsOverlay() {
-    final fieldBox =
-        _searchFieldKey.currentContext?.findRenderObject() as RenderBox?;
-    final stackBox = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-
-    if (fieldBox == null || stackBox == null) return const SizedBox.shrink();
-
-    final fieldGlobal = fieldBox.localToGlobal(Offset.zero);
-    final stackGlobal = stackBox.localToGlobal(Offset.zero);
-    final localTopLeft = fieldGlobal - stackGlobal;
-    final fieldHeight = fieldBox.size.height;
-
-    final computed = filteredSuggestions.length * 48.0.h;
-    final maxHeight = computed > 300.0.h ? 300.0.h : computed;
-
-    return PositionedDirectional(
-      top: localTopLeft.dy + fieldHeight,
-      start: 24.w,
-      end: 24.w,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: filteredSuggestions.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(10.w),
-                    child: CustomSubTitle(
-                      subtitle: 'No suggestions found',
-                      color: AppColor.black,
-                      fontsize: 14.sp,
-                    ),
-                  ),
-                )
-              :
-                // ----------------------------Meal menu-------------------------
-                ListView.separated(
-                  padding: EdgeInsets.all(10.w),
-                  itemCount: filteredSuggestions.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: AppColor.black, height: 1.h),
-                  itemBuilder: (context, index) {
-                    final suggestion = filteredSuggestions[index];
-                    return InkWell(
-                      onTap: () {
-                        _applySuggestionToField(suggestion);
-                        _doSearchNow();
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 14.h,
-                        ),
-                        child: CustomSubTitle(
-                          subtitle: suggestion,
-                          color: AppColor.black,
-                          fontsize: 14.sp,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ),
-    );
-  }
-
-  /// ✅ صورة: تقبل URL أو path
   Widget _buildImage(String path) {
     final p = path.trim();
 
@@ -721,7 +648,7 @@ class _SearchApiItemCard extends StatelessWidget {
               bottom: 8.h,
             ),
             child: Text(
-              "$price \$",
+              price.priceWithSuffix,
               style: TextStyle(
                 color: AppColor.white,
                 fontSize: 12.sp,

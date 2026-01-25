@@ -21,7 +21,9 @@ class OrdersRepository {
     } catch (_) {
       return AppResponse.fail(message: "فشل إنشاء الطلب");
     }
-  } Future<AppResponse> getActiveOrders() async {
+  }
+
+  Future<AppResponse> getActiveOrders() async {
     try {
       final res = await api.activeOrders();
       return AppResponse.ok(data: res.data);
@@ -40,6 +42,28 @@ class OrdersRepository {
       return AppResponseHandler.handleError(e);
     } catch (_) {
       return AppResponse.fail(message: "فشل تحميل سجل الطلبات");
+    }
+  }
+Future<AppResponse> getDriverLocation(int orderId) async {
+  try {
+    final res = await api.driverLocation(orderId);
+    return AppResponse.ok(data: res.data);
+  } on DioException catch (e) {
+    return AppResponseHandler.handleError(e);
+  } catch (_) {
+    return AppResponse.fail(message: "فشل جلب موقع السائق");
+  }
+}
+
+  // ✅ NEW
+  Future<AppResponse> getMyOrderDetails(int orderId) async {
+    try {
+      final res = await api.myOrderDetails({"id": orderId});
+      return AppResponse.ok(data: res.data);
+    } on DioException catch (e) {
+      return AppResponseHandler.handleError(e);
+    } catch (_) {
+      return AppResponse.fail(message: "فشل تحميل تفاصيل الطلب");
     }
   }
 }

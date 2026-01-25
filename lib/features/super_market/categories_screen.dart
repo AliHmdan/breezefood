@@ -5,6 +5,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_o
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/data/repo/super_market_repo.dart';
 import 'package:breezefood/features/stores/presentation/cubit/market_details_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/widget/cart_action_button.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -228,32 +229,14 @@ class MarketCategoriesScreen extends StatelessWidget {
             },
           ),
 
-          // ✅ زر الطلب: يختفي لو السلة فاضية
-          bottomNavigationBar: SafeArea(
-            top: false,
-            child: BlocBuilder<CartCubit, CartState>(
-              builder: (context, st) {
-                final hasCart = st.maybeWhen(
-                  cartLoaded: (cart, _, __) => cart.items.isNotEmpty,
-                  orElse: () => false,
-                );
+         bottomNavigationBar: SafeArea(
+  top: false,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    child: SupermarketBottomButton(),
+  ),
+),
 
-                if (!hasCart) return const SizedBox.shrink();
-
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 14.h),
-                  child: CustomButtonOrder(
-                    title: "home.your_order".tr(),
-                    onPressed: () {
-                      // افتح صفحة الطلب مثل ما عندك (RequestOrderScreen)
-                      // أنا ما حطيتها هون لأنك عندك جاهزة
-                      // فقط تأكد تمرر نفس cartCubit (BlocProvider.value)
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
         ),
       ),
     );
@@ -317,6 +300,15 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
         );
       },
       child: Scaffold(
+       bottomNavigationBar: SafeArea(
+  top: false,
+  child: Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 12),
+    child: SupermarketBottomButton(),
+  ),
+),
+
+
         backgroundColor: AppColor.Dark,
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(50.h),
@@ -420,32 +412,6 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
               },
             );
           },
-        ),
-
-        // ✅ زر الطلب: يختفي لو السلة فاضية
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: BlocBuilder<CartCubit, CartState>(
-            builder: (context, st) {
-              final hasCart = st.maybeWhen(
-                cartLoaded: (cart, _, __) => cart.items.isNotEmpty,
-                orElse: () => false,
-              );
-
-              if (!hasCart) return const SizedBox.shrink();
-
-              return Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 14.h),
-                child: CustomButtonOrder(
-                  title: "home.your_order".tr(),
-                  onPressed: () {
-                    // افتح RequestOrderScreen مثل ما عندك
-                    // وتأكد تمرر نفس CartCubit.value
-                  },
-                ),
-              );
-            },
-          ),
         ),
       ),
     );

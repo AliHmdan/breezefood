@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:breezefood/core/component/color.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,7 +24,12 @@ class BottomNavBreeze extends StatelessWidget {
     'assets/icons/ordernav.svg',
   ];
 
-  static const List<String> _labels = ["Home", "Stores", "Favorites", "Orders"];
+  static const List<String> _labelKeys = [
+    "nav.home",
+    "nav.stores",
+    "nav.favorites",
+    "nav.orders",
+  ];
 
   Widget _icon(String path, {required bool selected, double size = 22}) {
     return SvgPicture.asset(
@@ -105,24 +111,24 @@ class BottomNavBreeze extends StatelessWidget {
                               opacity: isSelected ? 1 : 0,
                               child: isSelected
                                   ? Padding(
-                                padding: EdgeInsets.only(left: 4.w),
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    maxWidth: maxLabelWidth,
-                                  ),
-                                  child: Text(
-                                    _labels[index],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                      fontFamily: "Manrope",
-                                    ),
-                                  ),
-                                ),
-                              )
+                                      padding: EdgeInsets.only(left: 4.w),
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          maxWidth: maxLabelWidth,
+                                        ),
+                                        child: Text(
+                                          _labelKeys[index].tr(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: "Manrope",
+                                          ),
+                                        ),
+                                      ),
+                                    )
                                   : const SizedBox.shrink(),
                             ),
                           ),
@@ -131,7 +137,6 @@ class BottomNavBreeze extends StatelessWidget {
                     ),
                   ),
                 );
-
               }),
             ),
           ),

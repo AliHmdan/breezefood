@@ -11,6 +11,7 @@ import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_
 import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/stores/data/repo/super_market_repo.dart';
 import 'package:breezefood/features/stores/presentation/cubit/market_details_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/widget/cart_action_button.dart';
 import 'package:breezefood/features/super_market/supermarket_add_order_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -173,13 +174,15 @@ class MarketPagePrice extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: const Color(0xFF121212),
-          appBar:PreferredSize(  preferredSize: Size.fromHeight(110.h),
-        child: CustomAppbarProfile(
-          title: title,
-          icon: Icons.arrow_back_ios,
-          ontap: () => Navigator.pop(context),
-          backgroundcolor: Colors.transparent,
-        )),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(110.h),
+            child: CustomAppbarProfile(
+              title: title,
+              icon: Icons.arrow_back_ios,
+              ontap: () => Navigator.pop(context),
+              backgroundcolor: Colors.transparent,
+            ),
+          ),
           // AppBar(
           //   backgroundColor: const Color(0xFF121212),
           //   elevation: 0,
@@ -375,52 +378,9 @@ class MarketPagePrice extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: 16.h,
-                child: SafeArea(
-                  top: false,
-                  child: BlocBuilder<CartCubit, CartState>(
-                    builder: (context, st) {
-                      int count = 0;
-                      num total = 0;
-
-                      st.maybeWhen(
-                        cartLoaded: (cart, _, __) {
-                          count = _cartCount(cart);
-                          total = _cartTotal(cart);
-                        },
-                        orElse: () {},
-                      );
-
-                      if (count <= 0) return const SizedBox.shrink();
-
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: CustomButtonOrder(
-                          title: "home.your_order".tr(),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => MultiBlocProvider(
-                                  providers: [
-                                    BlocProvider.value(
-                                      value: context.read<CartCubit>(),
-                                    ),
-                                    BlocProvider(
-                                      create: (_) => getIt<OrderFlowCubit>(),
-                                    ),
-                                  ],
-                                  child: const RequestOrderScreen(),
-                                ),
-                              ),
-                            );
-
-                            if (context.mounted)
-                              context.read<CartCubit>().loadCart();
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  child: SupermarketBottomButton(),
                 ),
               ),
             ],

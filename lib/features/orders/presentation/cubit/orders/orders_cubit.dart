@@ -7,11 +7,11 @@ import 'package:breezefood/features/orders/model/orders_history_response.dart';
 
 part 'orders_state.dart';
 part 'orders_cubit.freezed.dart';
+
 class OrdersCubit extends Cubit<OrdersState> {
   final OrdersRepository repo;
   OrdersCubit(this.repo) : super(const OrdersState.initial());
 
-  // ✅ caches حتى ما تفضى الشاشة لما تتغير حالة التبويب الآخر
   List<OrderBundle> _activeCache = const [];
   List<OrderBundle> _historyCache = const [];
 
@@ -30,7 +30,7 @@ class OrdersCubit extends Cubit<OrdersState> {
     final map = (res.data as Map?)?.cast<String, dynamic>() ?? {};
     final parsed = ActiveOrdersResponse.fromJson(map);
 
-    _activeCache = parsed.orders; // ✅ خزّن
+    _activeCache = parsed.orders;
     emit(OrdersState.activeLoaded(_activeCache));
   }
 
@@ -44,10 +44,19 @@ class OrdersCubit extends Cubit<OrdersState> {
     }
 
     final map = (res.data as Map?)?.cast<String, dynamic>() ?? {};
-    // ✅ ملاحظة: إذا history نفس شكل active (orders[]) استخدم ActiveOrdersResponse
     final parsed = ActiveOrdersResponse.fromJson(map);
 
-    _historyCache = parsed.orders; // ✅ خزّن
+    _historyCache = parsed.orders;
     emit(OrdersState.historyLoaded(_historyCache));
+  }
+
+  Future<int?> fetchOrderCustomerCode(int orderId) async {
+    final res = await repo.getMyOrderDetails(orderId);
+    if (!res.ok) return null;
+
+    final map = (res.data as Map?)?.cast<String, dynamic>() ?? {};
+
+    final bundle = OrderBundle.fromJson(map);
+    return bundle.order.orderCustomerCode;
   }
 }

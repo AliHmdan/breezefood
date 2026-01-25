@@ -267,12 +267,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               bloc: cubit,
               builder: (context, state) {
                 String headerImageUrl = "";
-                String restaurantName = "Empty";
-                String description = "Empty";
+                String restaurantName = "common.empty".tr();
+                String description = "common.empty".tr();
                 String deliveryTime = "--";
                 String deliveryCash = "--";
                 String ratingText = "0.0";
-                String ordersText = "0 Order";
+                String ordersText = "reviews.orders_count".tr(
+                  namedArgs: {"count": "0"},
+                );
 
                 List<String> categories = const [];
                 List<List<MenuItem>> itemsByCategory = const [];
@@ -285,7 +287,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                     restaurantName = (g.name).trim().isNotEmpty
                         ? _pickSingleLangFromMixed(g.name, context)
-                        : "Restaurant";
+                        : "restaurant.details.fallback_name".tr();
 
                     description = (g.description ?? "").trim().isNotEmpty
                         ? _pickSingleLangFromMixed(g.description!, context)
@@ -302,7 +304,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       ratingText = g.avgRating.toStringAsFixed(1);
                     }
                     if (g.totalCompletedOrders > 0) {
-                      ordersText = "${g.totalCompletedOrders} Order";
+                      ordersText = "reviews.orders_count".tr(
+                        namedArgs: {"count": "${g.totalCompletedOrders}"},
+                      );
                     }
 
                     final sections = data.restaurantMenuItems;
@@ -483,7 +487,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   TiemPrice(
                                     icon: Icons.alarm,
                                     title: deliveryTime,
-                                    subtitle: "min",
+                                    subtitle: "common.min".tr(),
                                   ),
                                   TiemPrice(
                                     title: deliveryCash,
@@ -505,8 +509,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   ),
                                 );
                               },
-                              child: const AbsorbPointer(
-                                child: CustomSearch(hint: "Search"),
+                              child: AbsorbPointer(
+                                child: CustomSearch(hint: "common.search".tr()),
                               ),
                             ),
                             SizedBox(height: 8.h),
@@ -622,52 +626,56 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 child: categories.isEmpty
                                     ? Center(
                                         child: CustomSubTitle(
-                                          subtitle: "Empty",
+                                          subtitle: "common.empty".tr(),
                                           color: AppColor.gry,
                                           fontsize: 14.sp,
                                         ),
                                       )
-                                    :
-                                ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  physics: const BouncingScrollPhysics(),
-                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                  itemCount: categories.length,
-                                  itemBuilder: (context, index) {
-                                    final isSelected = selectedCategoryIndex == index;
-
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 4.w), // مسافة خفيفة اختيارية
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedCategoryIndex = index;
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 6.w,
-                                            vertical: 6.h,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
-                                            color: isSelected
-                                                ? AppColor.primaryColor
-                                                : AppColor.black,
-                                          ),
-                                          child: CustomSubTitle(
-                                            subtitle: categories[index],
-                                            color: isSelected
-                                                ? AppColor.white
-                                                : AppColor.LightActive,
-                                            fontsize: 14.sp,
-                                          ),
+                                    : ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 10.w,
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
+                                        itemCount: categories.length,
+                                        itemBuilder: (context, index) {
+                                          final isSelected =
+                                              selectedCategoryIndex == index;
 
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 4.w,
+                                            ), // مسافة خفيفة اختيارية
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedCategoryIndex = index;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 6.w,
+                                                  vertical: 6.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  color: isSelected
+                                                      ? AppColor.primaryColor
+                                                      : AppColor.black,
+                                                ),
+                                                child: CustomSubTitle(
+                                                  subtitle: categories[index],
+                                                  color: isSelected
+                                                      ? AppColor.white
+                                                      : AppColor.LightActive,
+                                                  fontsize: 14.sp,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
                               ),
                             ),
 
@@ -749,9 +757,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             ),
 
                             // =========================================Menu===================================
-                            const Padding(
+                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: CustomTitleSection(title: "Menu"),
+                             child: CustomTitleSection(title: "restaurant.menu".tr()),
+
                             ),
                             const SizedBox(height: 10),
 
@@ -761,7 +770,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   start: 16,
                                 ),
                                 child: CustomSubTitle(
-                                  subtitle: "Empty",
+                                  subtitle: "common.empty".tr(),
                                   color: AppColor.gry,
                                   fontsize: 12.sp,
                                 ),
@@ -821,7 +830,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               SnackBar(
                                                 content: CustomSubTitle(
                                                   subtitle:
-                                                      "لا يمكن تحديد الوجبة أو المطعم",
+                                                      "orders.cannot_identify_meal_or_restaurant"
+                                                          .tr(),
+
                                                   color: AppColor.red,
                                                   fontsize: 14.sp,
                                                 ),
@@ -1001,10 +1012,7 @@ class DiscountItemCard extends StatelessWidget {
                 bottom: 0,
                 start: 0,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 6.w,
-                    vertical: 2.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadiusDirectional.only(
@@ -1012,13 +1020,13 @@ class DiscountItemCard extends StatelessWidget {
                       bottomEnd: Radius.circular(20.r),
                     ),
                   ),
-                child: CustomSubTitle(
-                  subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
-                  color: AppColor.white,
-                  fontsize: 11.sp,
+                  child: CustomSubTitle(
+                    subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
+                    color: AppColor.white,
+                    fontsize: 11.sp,
+                  ),
                 ),
               ),
-                            ),
             ],
           ),
 
@@ -1050,7 +1058,7 @@ class DiscountItemCard extends StatelessWidget {
                     Text(
                       context.money(before, decimals: 0),
                       style: TextStyle(
-                        color:AppColor.LightActive,
+                        color: AppColor.LightActive,
                         fontSize: 11.sp,
                         decoration: TextDecoration.lineThrough,
                         fontFamily:

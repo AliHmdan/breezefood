@@ -8,16 +8,72 @@
     "terms": "الشروط والأحكام",
     "logout": "تسجيل الخروج"
   },
+  "tracking": {
+    "me": "موقعي",
+    "title": "تتبع الطلب رقم {id}",
+    "loading": "جارِ تحميل موقع السائق...",
+    "live": "التتبع يعمل",
+    "not_available": "التتبع غير متاح",
+    "driver": "السائق"
+  },
+  "search": {
+    "hint": "ابحث عن وجبة أو متجر أو مطعم",
+    "province": "المحافظة",
+    "start_hint": "ابدأ بالبحث عن وجبة أو مطعم",
+    "no_results": "لا توجد نتائج",
+    "suggestion_syrian_food": "أكل سوري",
+    "suggestion_desserts": "حلويات",
+    "suggestion_drinks": "مشروبات"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "stores": "المتاجر",
+    "favorites": "المفضلة",
+    "orders": "الطلبات"
+  },
+  "cart": {
+    "view_cart": "عرض السلة",
+    "view_cart_loading": "عرض السلة ..."
+  },
+  "tracking.error_generic": "صار خطأ بالتتبع",
+  "tracking.error_bad_response": "استجابة غير صحيحة",
+  "tracking.error_missing_locations": "لا يمكن تحميل بيانات التتبع",
+  "orders": {
+    "cannot_identify_meal_or_restaurant": "لا يمكن تحديد الوجبة أو المطعم",
+    "warning_title": "تنبيه",
+    "customer_code_fetch_failed": "فشل جلب كود الاوردر.",
+    "customer_code_title": "كود الطلب",
+    "customer_code_copied": "تم نسخ الكود",
+    "price_label": "السعر : ",
+    "items_count": "العناصر: {count}",
+    "tap_to_show_customer_code": "اضغط لعرض كود الطلب",
+    "no_current_orders": "لا توجد طلبات حالية"
+  },
+  "restaurant": {
+    "menu": "المنيو",
+    "details": {
+      "fallback_name": "مطعم"
+    }
+  },
   "common": {
+    "AddToCart": "إضافة إلى السلة",
+    "empty": "فارغ",
+    "min": "دقيقة",
+    "search": "بحث",
+    "close": "إغلاق",
+    "copy": "نسخ",
+    "currency": "ل.س",
     "sending": "جارٍ الإرسال...",
     "done": "تم",
-    "empty": "فارغ",
     "discounts": "الخصومات",
     "menu": "القائمة",
     "view_cart_loading": "عرض السلة ...",
     "view_cart": "عرض السلة • {count} • {total}"
   },
   "reviews": {
+    "orders_count": "{count} طلب",
+    "no_review_to_delete": "لا يوجد تقييم لحذفه",
+    "delete_success": "تم حذف التقييم بنجاح",
     "delete_confirm_title": "حذف التقييم؟",
     "delete_confirm_body": "سيتم حذف تقييمك لهذا المطعم.",
     "delete_confirm_yes": "حذف",

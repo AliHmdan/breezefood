@@ -15,6 +15,7 @@ import 'package:breezefood/features/orders/data/repo/orders_repository.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders/orders_tracking_state.dart';
 import 'package:breezefood/features/profile/data/api/address_api_service.dart';
 import 'package:breezefood/features/profile/data/api/profile_api_service.dart';
 import 'package:breezefood/features/profile/data/repo/profile_repository.dart'
@@ -202,6 +203,9 @@ Future<void> setupDi() async {
   );
   getIt.registerLazySingleton(() => SearchRepo(getIt<SearchApiService>()));
   getIt.registerFactory(() => SearchCubit(getIt<SearchRepo>()));
+  getIt.registerFactory<OrdersTrackingCubit>(
+    () => OrdersTrackingCubit(getIt<OrdersRepository>()),
+  );
 
   // cubit
   getIt.registerFactory<OrdersCubit>(

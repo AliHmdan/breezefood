@@ -1,7 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
-import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/closerToYou.dart';
@@ -44,13 +43,11 @@ class _HomeState extends State<Home> {
   int _extractId(dynamic x) {
     if (x == null) return 0;
 
-    // لو جاي كـ Map
     if (x is Map) {
       final v = x["id"] ?? x["restaurant_id"] ?? x["market_id"];
       return int.tryParse(v.toString()) ?? 0;
     }
 
-    // لو جاي كـ Model فيه id
     try {
       final v = (x as dynamic).id;
       return int.tryParse(v.toString()) ?? 0;
@@ -88,7 +85,7 @@ class _HomeState extends State<Home> {
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider.value(value: context.read<CartCubit>()),
-            BlocProvider(create: (_) => getIt<RatingSubmitCubit>()), 
+            BlocProvider(create: (_) => getIt<RatingSubmitCubit>()),
           ],
           child: ResturantDetails(restaurant_id: id),
         ),
@@ -125,7 +122,11 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     cubit = getIt<HomeCubit>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => cubit.load());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await cubit.sendMyLocationOnce();
+      await cubit.load();
+    });
   }
 
   @override
@@ -208,7 +209,6 @@ class _HomeState extends State<Home> {
         final haveOrder = homeData?.haveOrder;
         final status = (haveOrder?.status ?? "").toLowerCase().trim();
 
-        // ✅ تحديد الزر السفلي حسب have_order فقط
         final showBottom = haveOrder != null && status.isNotEmpty;
         final isCart = status == "cart";
 
@@ -222,9 +222,7 @@ class _HomeState extends State<Home> {
                   child: Column(
                     children: [
                       AppbarHome(home: homeData, homeCubit: cubit),
-
                       HomeFilters(onFilterTap: _onFilterTap),
-
                       loading
                           ? _shimmerBox(
                               height: 100.h,
@@ -503,8 +501,9 @@ class _BottomViewCartButton extends StatelessWidget {
 
         return CustomButton(
           title: loading
-              ? "View Cart ..."
-              : "View Cart • $count • ${context.money(total, decimals: 0)}",
+              ? "cart.view_cart_loading".tr()
+              : "${'cart.view_cart'.tr()} • $count • ${context.money(total, decimals: 0)}",
+
           onPressed: loading
               ? null
               : () async {
@@ -523,7 +522,7 @@ class _BottomViewCartButton extends StatelessWidget {
 
                   if (context.mounted) {
                     context.read<CartCubit>().loadCart();
-                    homeCubit.load(); // ✅ يحدث have_order بعد الرجعة
+                    homeCubit.load();
                   }
                 },
         );
@@ -532,9 +531,6 @@ class _BottomViewCartButton extends StatelessWidget {
   }
 }
 
-// ===============================
-// Bottom: Your Order (when have_order.status != cart)
-// ===============================
 class _BottomYourOrderButton extends StatelessWidget {
   final OrderInfo order;
   final HomeCubit homeCubit;

@@ -86,8 +86,6 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
                   title: _title(item),
                   oldPrice: item.priceBefore.toStringAsFixed(0),
                   newPrice: item.priceAfter.toStringAsFixed(0),
-                  initialIsFavorite: item.isFavorite,
-                  onFavoriteToggle: () {},
                   onTap: () => openDiscountFlow(context, item),
                 );
               },
@@ -182,7 +180,8 @@ class DiscountDelevryCard extends StatelessWidget {
                         color: Colors.white,
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
-                        fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                        fontFamily:
+                            Localizations.localeOf(context).languageCode == 'ar'
                             ? 'Cairo'
                             : 'Inter',
                       ),
