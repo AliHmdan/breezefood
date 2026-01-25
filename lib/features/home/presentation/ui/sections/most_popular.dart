@@ -249,14 +249,24 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
     final title = context.pick(ar: widget.item.nameAr, en: widget.item.nameEn);
 
-    final price = widget.item.priceAfter > 0
+    // ✅ منطق الخصم الموحد
+    final hasDiscount =
+        widget.item.hasDiscount == true && (widget.item.discountValue ?? 0) > 0;
+
+    final before = (widget.item.priceBefore > 0)
+        ? widget.item.priceBefore
+        : widget.item.priceAfter;
+
+    final after = (widget.item.priceAfter > 0)
         ? widget.item.priceAfter
         : widget.item.priceBefore;
+
+    final percent = (widget.item.discountValue ?? 0).toDouble();
 
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
-        color: AppColor.black, // 🔥 نفس Menu
+        color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -279,6 +289,35 @@ class _PopularItemCardState extends State<PopularItemCard> {
               Positioned.fill(
                 child: Container(color: Colors.black.withOpacity(0.25)),
               ),
+ 
+              if (hasDiscount)
+                PositionedDirectional(
+                  bottom: 0,
+                  start: 0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadiusDirectional.only(
+                        topEnd: Radius.circular(20.r),
+                        bottomEnd: Radius.circular(20.r),
+                      ),
+                    ),
+                    child: Text(
+                      "-${percent.toStringAsFixed(0)}%",
+                      style: TextStyle(
+                        color: AppColor.white,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Favorite
               PositionedDirectional(
                 top: 6,
                 end: 6,
@@ -300,7 +339,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
           // ================= TEXT AREA =================
           Container(
-            height: 55.h, // 🔥 مكمل للـ 140.h
+            height: 55.h,
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
             color: AppColor.black,
@@ -318,18 +357,52 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text(
-                  context.syp(price),
-                  style: TextStyle(
-                    color: AppColor.white,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
+ 
+                if (!hasDiscount)
+                  Text(
+                    context.syp(after),
+                    style: TextStyle(
+                      color: AppColor.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                      fontFamily:
+                          Localizations.localeOf(context).languageCode == 'ar'
+                          ? 'Cairo'
+                          : 'Inter',
+                    ),
+                  )
+                else
+                  Row(
+                    children: [
+                      Text(
+                        context.syp(before),
+                        style: TextStyle(
+                          color: AppColor.LightActive,
+                          fontSize: 11.sp,
+                          decoration: TextDecoration.lineThrough,
+                          fontFamily:
+                              Localizations.localeOf(context).languageCode ==
+                                  'ar'
+                              ? 'Cairo'
+                              : 'Inter',
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        context.syp(after),
+                        style: TextStyle(
+                          color: AppColor.red,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w800,
+                          fontFamily:
+                              Localizations.localeOf(context).languageCode ==
+                                  'ar'
+                              ? 'Cairo'
+                              : 'Inter',
+                        ),
+                      ),
+                    ],
                   ),
-                ),
               ],
             ),
           ),
@@ -342,14 +415,11 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       color: Colors.grey.shade800,
       alignment: Alignment.center,
-      child: const Icon(Icons.fastfood, color: Colors.white70, size: 28),
+      child: const Icon(Icons.fastfood, color: Colors.white70, size: 26),
     );
   }
 }
-
-/// --------------------------------------------------------------
-/// Placeholder widget
-/// --------------------------------------------------------------
+ 
 class MostPopular extends StatelessWidget {
   const MostPopular({super.key});
 
