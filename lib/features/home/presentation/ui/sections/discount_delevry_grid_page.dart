@@ -262,7 +262,7 @@ class DiscountDelevryCard extends StatelessWidget {
             // Discount badge top-left (اختياري)
             Positioned.fill(
               child: Align(
-                alignment: Alignment.topLeft,
+                 alignment: AlignmentDirectional.topStart,
                 child: Padding(
                   padding: EdgeInsets.all(10.w),
                   child: Container(

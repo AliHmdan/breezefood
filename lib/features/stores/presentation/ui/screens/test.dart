@@ -5,7 +5,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
-import 'package:breezefood/features/reviews/presentation/RateDialog.dart';
+import 'package:breezefood/features/reviews/presentation/rate_dialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';

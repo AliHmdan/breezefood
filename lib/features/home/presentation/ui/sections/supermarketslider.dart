@@ -1,6 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/features/reviews/presentation/RateDialog.dart';
+import 'package:breezefood/features/reviews/presentation/rate_dialog.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 

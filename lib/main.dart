@@ -5,6 +5,7 @@ import 'package:breezefood/core/router/navigation_key.dart';
 import 'package:breezefood/core/services/app_notification_service.dart';
 import 'package:breezefood/core/services/launch_screen.dart';
 import 'package:breezefood/features/dialog/Cubit/RateCubit.dart';
+import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
+        BlocProvider(create: (_) => getIt<FavoritesCubit>()),
         BlocProvider(create: (_) => RatingCubit()),
         BlocProvider(create: (_) => getIt<HomeCubit>()),
         BlocProvider(create: (_) => getIt<ProfileCubit>()), // إذا بدك كمان

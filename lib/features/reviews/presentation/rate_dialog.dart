@@ -45,7 +45,7 @@ class _RateDialogState extends State<RateDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Align(
-              alignment: Alignment.topLeft,
+                alignment: AlignmentDirectional.topStart,
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: const Icon(Icons.close, color: Colors.white),

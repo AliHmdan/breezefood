@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-
 class LocationChip extends StatelessWidget {
   final String text;
   final String iconPath;
@@ -20,15 +19,15 @@ class LocationChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.topLeft, // <-- يضعه في البداية
+      alignment: AlignmentDirectional.topStart,
       child: InkWell(
-        borderRadius: BorderRadius.circular(30.r), 
+        borderRadius: BorderRadius.circular(30.r),
         onTap: onTap, // عند الضغط
         child: Container(
-          margin: EdgeInsets.only( top: 12.h), // مسافة من الأعلى واليسار
+          margin: EdgeInsets.only(top: 12.h), // مسافة من الأعلى واليسار
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
           decoration: BoxDecoration(
-            color: AppColor.black, 
+            color: AppColor.black,
             borderRadius: BorderRadius.circular(30.r),
           ),
           child: Row(
@@ -52,9 +51,13 @@ class LocationChip extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 3.w),
-              // النص
 
-              CustomSubTitle(subtitle: text, color: AppColor.white, fontsize: 12.sp)
+              // النص
+              CustomSubTitle(
+                subtitle: text,
+                color: AppColor.white,
+                fontsize: 12.sp,
+              ),
             ],
           ),
         ),

@@ -25,6 +25,16 @@
     "suggestion_desserts": "حلويات",
     "suggestion_drinks": "مشروبات"
   },
+  "discount": {
+    "title": "الخصومات",
+    "fallback": {
+      "restaurant": "مطعم"
+    },
+    "price_syp": "{price} ل.س",
+    "errors": {
+      "cannot_identify": "لا يمكن تحديد الوجبة أو المطعم."
+    }
+  },
   "nav": {
     "home": "الرئيسية",
     "stores": "المتاجر",
@@ -71,6 +81,7 @@
     "view_cart": "عرض السلة • {count} • {total}"
   },
   "reviews": {
+    "delete": "حذف التقييم",
     "orders_count": "{count} طلب",
     "no_review_to_delete": "لا يوجد تقييم لحذفه",
     "delete_success": "تم حذف التقييم بنجاح",

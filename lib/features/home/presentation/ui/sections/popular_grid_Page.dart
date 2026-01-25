@@ -1,5 +1,4 @@
 import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart'; // MenuItemModel
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart'; // PopularItemCard (MenuItemModel)
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog

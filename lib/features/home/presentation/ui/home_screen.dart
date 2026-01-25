@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
+import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/closerToYou.dart';
@@ -86,6 +87,7 @@ class _HomeState extends State<Home> {
           providers: [
             BlocProvider.value(value: context.read<CartCubit>()),
             BlocProvider(create: (_) => getIt<RatingSubmitCubit>()),
+            BlocProvider(create: (_) => getIt<FavoritesCubit>()),
           ],
           child: ResturantDetails(restaurant_id: id),
         ),

@@ -8,7 +8,7 @@
     "terms": "Terms & Conditions",
     "logout": "Logout"
   },
-   "search": {
+  "search": {
     "hint": "Search food, stores, restaurants",
     "province": "Province",
     "start_hint": "Start searching for a meal or a restaurant",
@@ -59,13 +59,25 @@
     "rate_hint": "Please share your rate about the restaurant",
     "submit": "Submit",
     "cancel": "Cancel",
+    "delete": "Delete rating",
     "delete_confirm_title": "Delete rating?",
     "delete_confirm_body": "This will remove your rating for this restaurant.",
+    "delete_confirm_yes": "Yes, delete",
+    "delete_confirm_no": "Cancel",
     "delete_failed": "Failed to delete rating",
-    "delete": "Delete rating",
     "rate_success": "Rating submitted",
     "rate_failed": "Failed to submit rating",
     "orders_count": "{count} Order"
+  },
+  "discount": {
+    "title": "Discount",
+    "fallback": {
+      "restaurant": "Restaurant"
+    },
+    "price_syp": "{price} SYP",
+    "errors": {
+      "cannot_identify": "Couldn't identify the meal or the restaurant."
+    }
   },
   "home": {
     "filters": {
@@ -82,7 +94,7 @@
     "open_now": "Open Now",
     "your_order": "Your order"
   },
-   "cart": {
+  "cart": {
     "view_cart": "View Cart",
     "view_cart_loading": "View Cart ..."
   },

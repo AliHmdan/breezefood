@@ -216,34 +216,38 @@ class _PopularItemCardState extends State<PopularItemCard> {
     }
   }
 
-  Future<void> _toggleFavorite() async {
-    if (_sending) return;
+Future<void> _toggleFavorite() async {
+  if (_sending) return;
 
-    final id = widget.item.id;
-    if (id <= 0) return;
+  final id = widget.item.id;
+  if (id <= 0) return;
 
-    final previous = _isFavorite;
-    setState(() => _isFavorite = !_isFavorite);
+  final previous = _isFavorite;
+  setState(() => _isFavorite = !_isFavorite);
 
-    _sending = true;
+  _sending = true;
 
-    try {
-      final favCubit = context.read<FavoritesCubit>();
-      final res = await favCubit.toggle(id);
+  try {
+    debugPrint("❤️ toggle fav id=$id  prev=$previous -> now=$_isFavorite");
 
-      if (!res.ok) {
-        setState(() => _isFavorite = previous);
-        EasyLoading.showError(res.message ?? "Failed");
-        return;
-      }
-    } catch (_) {
+    final favCubit = context.read<FavoritesCubit>();
+    final res = await favCubit.toggle(id);
+
+    debugPrint("✅ toggle result ok=${res.ok} msg=${res.message}");
+
+    if (!res.ok) {
       setState(() => _isFavorite = previous);
-      EasyLoading.dismiss();
-      EasyLoading.showError("Failed");
-    } finally {
-      _sending = false;
+      EasyLoading.showError(res.message ?? "Failed");
     }
+  } catch (e, st) {
+    debugPrint("❌ toggle fav crashed: $e\n$st");
+    setState(() => _isFavorite = previous);
+    EasyLoading.showError("Failed: $e");
+  } finally {
+    _sending = false;
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -324,6 +328,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                 top: 6,
                 end: 6,
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: _toggleFavorite,
                   child: AnimatedScale(
                     duration: const Duration(milliseconds: 200),
