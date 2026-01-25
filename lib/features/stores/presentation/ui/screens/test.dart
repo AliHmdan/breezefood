@@ -46,59 +46,19 @@ class ResturantDetails extends StatefulWidget {
 class _ResturantDetailsState extends State<ResturantDetails> {
   int selectedCategoryIndex = 0;
   bool _openedInitial = false;
-  late final ScrollController _scrollController= ScrollController();
+  late final ScrollController _scrollController;
 
   late final RestaurantDetailsCubit cubit;
   late final MostPopularCubit mostPopularCubit;
   final List<GlobalKey> _categoryKeys = [];
-  final List<double> _categoryOffsets = [];
-  void _calculateCategoryOffsets() {
-    _categoryOffsets.clear();
-
-    for (final key in _categoryKeys) {
-      final ctx = key.currentContext;
-      if (ctx == null) continue;
-
-      final box = ctx.findRenderObject() as RenderBox;
-      final offset = box.localToGlobal(Offset.zero).dy;
-
-      _categoryOffsets.add(offset);
-    }
-  }
-
-  int _activeCategoryIndex = 0;
-  void _onScroll() {
-    final scrollOffset = _scrollController.offset;
-
-    for (int i = 0; i < _categoryOffsets.length; i++) {
-      final current = _categoryOffsets[i];
-      final next = i + 1 < _categoryOffsets.length
-          ? _categoryOffsets[i + 1]
-          : double.infinity;
-
-      if (scrollOffset >= current - 100 && scrollOffset < next - 100) {
-        if (_activeCategoryIndex != i) {
-          setState(() {
-            _activeCategoryIndex = i;
-          });
-        }
-        break;
-      }
-    }
-  }
-
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _scrollController = ScrollController();
     cubit = getIt<RestaurantDetailsCubit>();
     mostPopularCubit = getIt<MostPopularCubit>();
-    _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _calculateCategoryOffsets();
-    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cubit.load(widget.restaurant_id);
       mostPopularCubit.load(widget.restaurant_id);
@@ -110,7 +70,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
     cubit.close();
     mostPopularCubit.close();
     _scrollController.dispose();
@@ -235,8 +194,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
             context.read<CartCubit>().loadCart();
           },
           child: Scaffold(
-            // backgroundColor: AppColor.Dark,
-            extendBodyBehindAppBar: true,
             bottomNavigationBar: SafeArea(
               child: BlocBuilder<CartCubit, CartState>(
                 builder: (context, st) {
@@ -274,36 +231,36 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       title: loading
                           ? "common.view_cart_loading".tr()
                           : "common.view_cart".tr(
-                              namedArgs: {
-                                "count": "$count",
-                                "total": context.money(total, decimals: 0),
-                              },
-                            ),
+                        namedArgs: {
+                          "count": "$count",
+                          "total": context.money(total, decimals: 0),
+                        },
+                      ),
                       onPressed: loading
                           ? null
                           : () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => MultiBlocProvider(
-                                    providers: [
-                                      // ✅ نفس CartCubit الحالي
-                                      BlocProvider.value(
-                                        value: context.read<CartCubit>(),
-                                      ),
-                                      BlocProvider(
-                                        create: (_) => getIt<OrderFlowCubit>(),
-                                      ),
-                                    ],
-                                    child: const RequestOrderScreen(),
-                                  ),
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MultiBlocProvider(
+                              providers: [
+                                // ✅ نفس CartCubit الحالي
+                                BlocProvider.value(
+                                  value: context.read<CartCubit>(),
                                 ),
-                              );
+                                BlocProvider(
+                                  create: (_) => getIt<OrderFlowCubit>(),
+                                ),
+                              ],
+                              child: const RequestOrderScreen(),
+                            ),
+                          ),
+                        );
 
-                              if (context.mounted) {
-                                context.read<CartCubit>().loadCart();
-                              }
-                            },
+                        if (context.mounted) {
+                          context.read<CartCubit>().loadCart();
+                        }
+                      },
                     ),
                   );
                 },
@@ -313,14 +270,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               bloc: cubit,
               builder: (context, state) {
                 String headerImageUrl = "";
-                String restaurantName = "common.empty".tr();
-                String description = "common.empty".tr();
+                String restaurantName = "Empty";
+                String description = "Empty";
                 String deliveryTime = "--";
                 String deliveryCash = "--";
                 String ratingText = "0.0";
-                String ordersText = "reviews.orders_count".tr(
-                  namedArgs: {"count": "0"},
-                );
+                String ordersText = "0 Order";
 
                 List<String> categories = const [];
                 List<List<MenuItem>> itemsByCategory = const [];
@@ -333,7 +288,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                     restaurantName = (g.name).trim().isNotEmpty
                         ? _pickSingleLangFromMixed(g.name, context)
-                        : "restaurant.details.fallback_name".tr();
+                        : "Restaurant";
 
                     description = (g.description ?? "").trim().isNotEmpty
                         ? _pickSingleLangFromMixed(g.description!, context)
@@ -350,9 +305,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       ratingText = g.avgRating.toStringAsFixed(1);
                     }
                     if (g.totalCompletedOrders > 0) {
-                      ordersText = "reviews.orders_count".tr(
-                        namedArgs: {"count": "${g.totalCompletedOrders}"},
-                      );
+                      ordersText = "${g.totalCompletedOrders} Order";
                     }
 
                     final sections = data.restaurantMenuItems;
@@ -384,10 +337,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                     final allItems = sections.expand((s) => s.items).toList();
                     discountedItems =
-                        allItems.where((x) => x.hasDiscount).toList()..sort(
+                    allItems.where((x) => x.hasDiscount).toList()..sort(
                           (a, b) =>
-                              b.discountPercent.compareTo(a.discountPercent),
-                        );
+                          b.discountPercent.compareTo(a.discountPercent),
+                    );
 
                     // ✅ open initial item once
                     if (!_openedInitial && widget.initialMenuItemId != null) {
@@ -399,7 +352,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                         MenuItem? it;
                         try {
                           it = allItems.firstWhere(
-                            (x) => x.id == widget.initialMenuItemId,
+                                (x) => x.id == widget.initialMenuItemId,
                           );
                         } catch (_) {
                           it = null;
@@ -450,41 +403,27 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   orElse: () {},
                 );
 
-                return NestedScrollView(
-                  controller: _scrollController,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-
-                      /// 🔹 صورة المطعم المتحركة
-                      SliverOverlapAbsorber(
-                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-
-                        sliver: SliverAppBar(
-                          expandedHeight: 240.h,
-                          pinned: true,
-
-                          // 🔥 إلغاء كل المساحات الافتراضية
-                          automaticallyImplyLeading: false,
-                          leading: const SizedBox.shrink(),
-                          toolbarHeight: 0,              // يمنع شريط الأدوات من أخذ ارتفاع
-                          collapsedHeight: 0,            // يمنع المساحة عند الانكماش
-                          elevation: 0,
-
-                          backgroundColor: AppColor.Dark,
-                          flexibleSpace: FlexibleSpaceBar(
-                            background: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                headerImageUrl.isEmpty
-                                    ? Image.asset("assets/images/shawarma_box.png", fit: BoxFit.cover)
-                                    : Image.network(
-                                  headerImageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Image.asset(
-                                    "assets/images/shawarma_box.png",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                return Stack(
+                  children: [
+                    SizedBox(
+                      height: 240.h,
+                      width: double.infinity,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          headerImageUrl.isEmpty
+                              ? Image.asset(
+                            "assets/images/shawarma_box.png",
+                            fit: BoxFit.cover,
+                          )
+                              : Image.network(
+                            headerImageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Image.asset(
+                              "assets/images/shawarma_box.png",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -506,10 +445,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 fontSize: 26.sp,
                                 fontWeight: FontWeight.bold,
                                 fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
+                                Localizations.localeOf(
+                                  context,
+                                ).languageCode ==
+                                    'ar'
                                     ? 'Cairo'
                                     : 'Inter',
                                 shadows: const [
@@ -522,10 +461,32 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                               ),
                             ),
                           ),
+                          PositionedDirectional(start: 5,top: 20,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16, top: 10),
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => Navigator.of(context).maybePop(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_back_ios_new,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     SingleChildScrollView(
+                      controller: _scrollController,
                       padding: EdgeInsets.only(
                         top: 220.h,
                         bottom: MediaQuery.of(context).padding.bottom + 16.h,
@@ -549,7 +510,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                               ),
                               child: Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   TiemPrice(
                                     icon: Icons.alarm,
@@ -595,7 +556,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                         ? myUserRating
                                         : (double.tryParse(ratingText) ?? 0.0),
                                     canDelete:
-                                        (myReviewId != null && myReviewId! > 0),
+                                    (myReviewId != null && myReviewId! > 0),
                                   );
 
                                   if (res == null) return;
@@ -692,25 +653,43 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 height: 35.h,
                                 child: categories.isEmpty
                                     ? Center(
-                                        child: CustomSubTitle(
-                                          subtitle: "Empty",
-                                          color: AppColor.gry,
-                                          fontsize: 14.sp,
-                                        ),
-                                      )
-                                    :
-                                ListView.builder(
+                                  child: CustomSubTitle(
+                                    subtitle: "Empty",
+                                    color: AppColor.gry,
+                                    fontsize: 14.sp,
+                                  ),
+                                )
+                                    : ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   physics: const BouncingScrollPhysics(),
-                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                  ),
                                   itemCount: categories.length,
                                   itemBuilder: (context, index) {
-                                    final isSelected = selectedCategoryIndex == index;
+                                    final isSelected =
+                                        selectedCategoryIndex == index;
 
                                     return Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 4.w), // مسافة خفيفة اختيارية
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 4.w,
+                                      ), // مسافة خفيفة اختيارية
                                       child: GestureDetector(
                                         onTap: () {
+                                          final keyContext =
+                                              _categoryKeys[index]
+                                                  .currentContext;
+
+                                          if (keyContext != null) {
+                                            Scrollable.ensureVisible(
+                                              keyContext,
+                                              duration: const Duration(
+                                                milliseconds: 400,
+                                              ),
+                                              curve: Curves.easeInOut,
+                                            );
+                                          }
+
                                           setState(() {
                                             selectedCategoryIndex = index;
                                           });
@@ -721,7 +700,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             vertical: 6.h,
                                           ),
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                            BorderRadius.circular(20),
                                             color: isSelected
                                                 ? AppColor.primaryColor
                                                 : AppColor.black,
@@ -738,7 +718,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     );
                                   },
                                 ),
-
                               ),
                             ),
 
@@ -778,255 +757,198 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 }
                               },
                             ),
-                          ),
 
-                          SliverToBoxAdapter(
-                            child: BlocBuilder<MostPopularCubit, MostPopularState>(
+                            const SizedBox(height: 10),
+
+                            // ---------------- Most Popular ----------------
+                            BlocBuilder<MostPopularCubit, MostPopularState>(
                               bloc: mostPopularCubit,
                               builder: (context, mpState) {
-                                return
-                                  mpState.maybeWhen(
-                                    loading: () => const Padding(
-                                      padding: EdgeInsets.only(bottom: 12),
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
+                                return mpState.maybeWhen(
+                                  loading: () => const Padding(
+                                    padding: EdgeInsets.only(bottom: 12),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
                                     ),
-                                    error: (msg) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 6,
-                                      ),
-                                      child: CustomSubTitle(
-                                        subtitle: msg,
-                                        color: AppColor.red,
-                                        fontsize: 12,
-                                      ),
+                                  ),
+                                  error: (msg) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 6,
                                     ),
-                                    loaded: (items) {
-                                      if (items.isEmpty) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      return Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 12,
-                                        ),
-                                        child: MostPopularSection(items: items),
-                                      );
-                                    },
-                                    orElse: () => const SizedBox.shrink(),
-                                  );
+                                    child: CustomSubTitle(
+                                      subtitle: msg,
+                                      color: AppColor.red,
+                                      fontsize: 12,
+                                    ),
+                                  ),
+                                  loaded: (items) {
+                                    if (items.isEmpty) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child: MostPopularSection(items: items),
+                                    );
+                                  },
+                                  orElse: () => const SizedBox.shrink(),
+                                );
                               },
                             ),
 
-                            // =========================================Menu===================================
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: CustomTitleSection(title: "Menu"),
-                            ),
-                            const SizedBox(height: 10),
 
-                            if (selectedItems.isEmpty)
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  start: 16,
-                                ),
-                                child: CustomSubTitle(
-                                  subtitle: "Empty",
-                                  color: AppColor.gry,
-                                  fontsize: 12.sp,
-                                ),
-                              )
-                            else
-                              SizedBox(
-                                height: 140.h,
-                                child: Padding(
-                                  padding: const EdgeInsetsDirectional.only(
-                                    start: 16,
-                                  ),
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: selectedItems.length,
-                                    itemBuilder: (context, i) {
-                                      final it = selectedItems[i];
+                            Column(
+                              children: List.generate(categories.length, (
+                                  index,
+                                  ) {
+                                final category = categories[index];
+                                final items = itemsByCategory[index];
 
-                                      final imageUrl = _fullImageUrl(
-                                        it.image ?? "",
-                                      );
+                                const double horizontalPadding = 16;
+                                final double gap = 8.w;
+                                final double cardWidth =
+                                    MediaQuery.of(context).size.width / 2.3;
 
-                                      // ✅ خلي السعر فعّال (بعد الخصم)
-                                      final price = it.effectivePrice;
+                                return Column(
+                                  key: _categoryKeys[index],
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: horizontalPadding,
+                                      ),
+                                      child: CustomTitleSection(
+                                        title: category,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
 
-                                            final mapped = MenuItemModel(
-                                              id: it.id,
-                                              nameAr: it.nameAr,
-                                              nameEn: it.nameEn,
-                                              priceBefore: (it.priceBefore > 0
-                                                  ? it.priceBefore
-                                                  : it.price),
-                                              priceAfter: it.effectivePrice,
-                                              hasDiscount: it.hasDiscount,
-                                              discountType: it.discountType,
-                                              discountValue: it.discountPercent,
-                                              isFavorite: it.isFavorite,
-                                              primaryImage: imageUrl.isEmpty
-                                                  ? null
-                                                  : PrimaryImageModel(
-                                                imageUrl: imageUrl,
-                                              ),
-                                              restaurant: null,
-                                            );
+                                    SizedBox(
+                                      height: 140.h,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        padding:
+                                        const EdgeInsetsDirectional.only(
+                                          start: horizontalPadding,
+                                        ),
+                                        physics: items.length <= 2
+                                            ? const NeverScrollableScrollPhysics()
+                                            : const BouncingScrollPhysics(),
+                                        itemCount: items.length,
+                                        itemBuilder: (context, i) {
+                                          final it = items[i];
+                                          final imageUrl = _fullImageUrl(
+                                            it.image ?? "",
+                                          );
+                                          final price = it.effectivePrice;
 
-                                      return GestureDetector(
-                                        onTap: () async {
-                                          final menuItemId = it.id;
-                                          final restaurantId =
-                                              widget.restaurant_id;
-
-                                          if (menuItemId == 0 ||
-                                              restaurantId == 0) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: CustomSubTitle(
-                                                  subtitle:
-                                                      "لا يمكن تحديد الوجبة أو المطعم",
-                                                  color: AppColor.red,
-                                                  fontsize: 14.sp,
-                                                ),
-                                              ),
-                                            );
-                                            return;
-                                          }
-
-                                          await showAddOrderDialog(
-                                            context,
-                                            restaurantId: restaurantId,
-                                            menuItemId: menuItemId,
-                                            title: context.pick(
-                                              ar: it.nameAr,
-                                              en: it.nameEn,
-                                            ),
-                                            price: price,
-                                            oldPrice: (it.priceBefore > 0
+                                          final mapped = MenuItemModel(
+                                            id: it.id,
+                                            nameAr: it.nameAr,
+                                            nameEn: it.nameEn,
+                                            priceBefore: (it.priceBefore > 0
                                                 ? it.priceBefore
                                                 : it.price),
-                                            imagePathOrUrl: imageUrl.isNotEmpty
-                                                ? imageUrl
-                                                : "assets/images/shawarma_box.png",
-                                            description: context.pick(
-                                              ar: it.descriptionAr ?? "",
-                                              en: it.descriptionEn ?? "",
+                                            priceAfter: it.effectivePrice,
+                                            hasDiscount: it.hasDiscount,
+                                            discountType: it.discountType,
+                                            discountValue: it.discountPercent,
+                                            isFavorite: it.isFavorite,
+                                            primaryImage: imageUrl.isEmpty
+                                                ? null
+                                                : PrimaryImageModel(
+                                              imageUrl: imageUrl,
                                             ),
-                                            extraMeals: it.mealExtras,
+                                            restaurant: null,
                                           );
 
-                                                  if (mounted) {
-                                                    context
-                                                        .read<CartCubit>()
-                                                        .loadCart();
-                                                  }
-                                                },
-                                                child: PopularItemCard(
-                                                  item: mapped,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
+                                          return Container(
+                                            width: cardWidth,
+                                            margin: EdgeInsetsDirectional.only(
+                                              end: i == items.length - 1
+                                                  ? horizontalPadding.w
+                                                  : gap,
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                await showAddOrderDialog(
+                                                  context,
+                                                  restaurantId:
+                                                  widget.restaurant_id,
+                                                  menuItemId: it.id,
+                                                  title: context.pick(
+                                                    ar: it.nameAr,
+                                                    en: it.nameEn,
+                                                  ),
+                                                  price: price,
+                                                  oldPrice: (it.priceBefore > 0
+                                                      ? it.priceBefore
+                                                      : it.price),
+                                                  imagePathOrUrl:
+                                                  imageUrl.isNotEmpty
+                                                      ? imageUrl
+                                                      : "assets/images/shawarma_box.png",
+                                                  description: context.pick(
+                                                    ar: it.descriptionAr ?? "",
+                                                    en: it.descriptionEn ?? "",
+                                                  ),
+                                                  extraMeals: it.mealExtras,
+                                                );
 
-                                      const SizedBox(height: 24),
-                                    ],
-                                  );
-                                }),
-                              );
+                                                if (mounted) {
+                                                  context
+                                                      .read<CartCubit>()
+                                                      .loadCart();
+                                                }
+                                              },
+                                              child: PopularItemCard(
+                                                item: mapped,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 24),
+                                  ],
+                                );
                               }),
                             ),
-                          ),
 
-                          SliverToBoxAdapter(child: SizedBox(height: 24)),
-                        ],
-                      );
-                    },
-                  ),
+                            const SizedBox(height: 24),
 
-                  // MediaQuery.removePadding( context: context,
-                  //   removeTop: true,
-                  //   child: ListView(
-                  //     padding: EdgeInsets.zero,
-                  //     children: [
-                  //
-                  //       BlocBuilder<MostPopularCubit, MostPopularState>(
-                  //         bloc: mostPopularCubit,
-                  //         builder: (context, mpState) {
-                  //           return
-                  //             mpState.maybeWhen(
-                  //             loading: () => const Padding(
-                  //               padding: EdgeInsets.only(bottom: 12),
-                  //               child: Center(
-                  //                 child: CircularProgressIndicator(),
-                  //               ),
-                  //             ),
-                  //             error: (msg) => Padding(
-                  //               padding: const EdgeInsets.symmetric(
-                  //                 horizontal: 16,
-                  //                 vertical: 6,
-                  //               ),
-                  //               child: CustomSubTitle(
-                  //                 subtitle: msg,
-                  //                 color: AppColor.red,
-                  //                 fontsize: 12,
-                  //               ),
-                  //             ),
-                  //             loaded: (items) {
-                  //               if (items.isEmpty) {
-                  //                 return const SizedBox.shrink();
-                  //               }
-                  //               return Padding(
-                  //                 padding: const EdgeInsets.only(
-                  //                   bottom: 12,
-                  //                 ),
-                  //                 child: MostPopularSection(items: items),
-                  //               );
-                  //             },
-                  //             orElse: () => const SizedBox.shrink(),
-                  //           );
-                  //         },
-                  //       ),
-                  //
-                  //
-                  //       const SizedBox(height: 24),
-                  //
-                  //       state.maybeWhen(
-                  //         loading: () => const Padding(
-                  //           padding: EdgeInsets.only(bottom: 16),
-                  //           child: Center(
-                  //             child: CircularProgressIndicator(),
-                  //           ),
-                  //         ),
-                  //         error: (msg) => Padding(
-                  //           padding: const EdgeInsets.only(bottom: 16),
-                  //           child: Center(
-                  //             child: CustomSubTitle(
-                  //               subtitle: msg,
-                  //               color: AppColor.red,
-                  //               fontsize: 14,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //         orElse: () => const SizedBox.shrink(),
-                  //       ),
-                  //
-                  //
-                  //       const SizedBox(height: 24),
-                  //     ],
-                  //   ),
-                  // ),
+                            state.maybeWhen(
+                              loading: () => const Padding(
+                                padding: EdgeInsets.only(bottom: 16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              error: (msg) => Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: Center(
+                                  child: CustomSubTitle(
+                                    subtitle: msg,
+                                    color: AppColor.red,
+                                    fontsize: 14,
+                                  ),
+                                ),
+                              ),
+                              orElse: () => const SizedBox.shrink(),
+                            ),
+
+
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  ],
                 );
-
               },
             ),
           ),
@@ -1091,10 +1013,10 @@ class DiscountItemCard extends StatelessWidget {
                 child: imageUrl.isEmpty
                     ? _fallback()
                     : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _fallback(),
-                      ),
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _fallback(),
+                ),
               ),
 
               // overlay (نفس MostPopular)
@@ -1143,7 +1065,7 @@ class DiscountItemCard extends StatelessWidget {
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
+                    Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -1157,7 +1079,7 @@ class DiscountItemCard extends StatelessWidget {
                         fontSize: 11.sp,
                         decoration: TextDecoration.lineThrough,
                         fontFamily:
-                            Localizations.localeOf(context).languageCode == 'ar'
+                        Localizations.localeOf(context).languageCode == 'ar'
                             ? 'Cairo'
                             : 'Inter',
                       ),
@@ -1187,30 +1109,3 @@ class DiscountItemCard extends StatelessWidget {
     );
   }
 }
-class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-
-  _StickyHeaderDelegate({required this.child});
-
-  @override
-  double get minExtent => 180;
-
-  @override
-  double get maxExtent => 180;
-
-  @override
-  Widget build(
-      BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,
-      ) {
-    return child;
-  }
-
-  /// ✅ الدالة الصحيحة الوحيدة
-  @override
-  bool shouldRebuild(covariant _StickyHeaderDelegate old) {
-    return old.child != child;
-  }
-}
-

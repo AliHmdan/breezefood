@@ -32,48 +32,59 @@ class DiscountMealSection extends StatelessWidget {
         // ===== TITLE (مطابق MostPopular) =====
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: CustomTitleSection(
-            title: "Discount",
+          child: Row(
+            children: [   Icon(
+              Icons.local_offer,
+              color: AppColor.yellow,
+              size: 18.sp,
+            ),
+              SizedBox(width: 2,),
+              CustomTitleSection(
+                title: "Discount",
 
-            ontap: () {
+                ontap: () {
 
-            },
+                },
+              ),
+            ],
           ),
         ),
 
         const SizedBox(height: 10),
 
         // ===== LIST =====
-        Padding(
-          padding: const EdgeInsetsDirectional.only(start: 16),
-          child: SizedBox(
-            height: 140.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: count > 10 ? 10 : count,
-              physics: count <= 2
-                  ? const NeverScrollableScrollPhysics()
-                  : const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                final it = items[index];
+        SizedBox(
+          height: 140.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: count > 10 ? 10 : count,
+            physics: count <= 2
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              final it = items[index];
 
-                return Container(
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                    start: index == 0 ? 16.w : 0,          // 🔥 أول عنصر فقط
+                    end: index == count - 1 ? 16.w : gap),
+                child: SizedBox(
                   width: cardWidth,
-                  margin: EdgeInsetsDirectional.only(
-                    end: index == count - 1 ? 0 : gap,
-                  ),
+
                   child: GestureDetector(
                     onTap: () => onTap(it),
-                    child: DiscountItemCard(
+                    child:
+                    DiscountItemCard(
                       item: it,
                       imageUrl: fullImageUrl(it.image ?? ""),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
+        const SizedBox(height: 12),
       ],
     );
   }
