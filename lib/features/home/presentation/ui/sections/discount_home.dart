@@ -112,9 +112,9 @@ class _DiscountState extends State<Discount>
                   child: buildImage(widget.imagePath, height: 100.h),
                 ),
                 // ✅ شفافية على كامل الصورة
-                Positioned.fill(
-                  child: Container(color: Colors.black.withOpacity(0.25)),
-                ),
+                // Positioned.fill(
+                //   child: Container(color: Colors.black.withOpacity(0.25)),
+                // ),
                 PositionedDirectional(
                   top: 6,
                   end: 6,
@@ -194,11 +194,11 @@ class _DiscountState extends State<Discount>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         // ===================نسبة المئوية====================
-                        // CustomSubTitle(
-                        //   subtitle: widget.discount,
-                        //   color: AppColor.white,
-                        //   fontsize: 14,
-                        // ),
+                        CustomSubTitle(
+                          subtitle: widget.discount,
+                          color: AppColor.white,
+                          fontsize: 14,
+                        ),
                         SizedBox(width: 4.w),
                         SvgPicture.asset(
                           "assets/icons/nspah.svg",

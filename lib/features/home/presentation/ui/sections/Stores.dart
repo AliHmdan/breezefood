@@ -61,21 +61,21 @@ class Stores extends StatelessWidget {
                 ),
 
                 // طبقة شفافة + gradient
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.r),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.65),
-                          Colors.black.withOpacity(0.25),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned.fill(
+                //   child: Container(
+                //     decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.circular(12.r),
+                //       gradient: LinearGradient(
+                //         begin: Alignment.bottomCenter,
+                //         end: Alignment.topCenter,
+                //         colors: [
+                //           Colors.black.withOpacity(0.65),
+                //           Colors.black.withOpacity(0.25),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
 
                 Positioned(
                   left: 0,

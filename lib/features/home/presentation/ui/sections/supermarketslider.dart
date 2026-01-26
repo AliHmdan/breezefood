@@ -134,9 +134,9 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
                     ),
             ),
             // ✅ شفافية على كامل الصورة
-            Positioned.fill(
-              child: Container(color: Colors.black.withOpacity(0.25)),
-            ),
+            // Positioned.fill(
+            //   child: Container(color: Colors.black.withOpacity(0.25)),
+            // ),
             // Gradient
             Positioned.fill(
               child: Container(

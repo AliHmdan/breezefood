@@ -290,7 +290,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 ),
                               ],
 
-
+                              // _CartHeader(
+                              //   restaurantName: cart.restaurantName,
+                              //   restaurantLogoUrl: _fullUrl(cart.restaurantLogo),
+                              //   orderId: cart.orderId,
+                              //   orderStatus: cart.orderStatus,
+                              // ),
                               SizedBox(height: 10.h),
 
                               if (cart.items.isEmpty)
@@ -324,66 +329,104 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                     final extras = it.extras;
 
-                                    return Padding(
-                                      padding: EdgeInsets.only(bottom: 8.h),
-                                      child: Slidable(
-                                        key: ValueKey("cart_item_${it.id}"),
-                                        endActionPane: ActionPane(
-                                          motion: const StretchMotion(), // 🔥 أنعم Motion
-                                          extentRatio: 0.22, // حجم زر الحذف
+                                    return
+                                      Dismissible(
+                                      key: ValueKey("cart_item_${it.id}"),
+                                      direction: DismissDirection.endToStart,
+
+                                      // 🔥 تبطيء الإحساس بالسحب
+                                      dismissThresholds: const {
+                                        DismissDirection.endToStart: 0.75,
+                                      },
+
+                                      movementDuration: const Duration(
+                                        milliseconds: 450,
+                                      ),
+                                      resizeDuration: const Duration(
+                                        milliseconds: 350,
+                                      ),
+
+                                      background: Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.85),
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
                                           children: [
-                                            SlidableAction(
-                                              onPressed: isUpdating
-                                                  ? null
-                                                  : (_) async {
-                                                final ok = await _confirmDelete(
-                                                  context,
-                                                  isRTL: isRTL,
-                                                );
-                                                if (ok) {
-                                                  context.read<CartCubit>().removeItem(it.id);
-                                                }
-                                              },
-                                              backgroundColor: Colors.red.withOpacity(0.9),
-                                              foregroundColor: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(isRTL ? 14.r : 0),
-                                                bottomLeft: Radius.circular(isRTL ? 14.r : 0),
-                                                topRight: Radius.circular(isRTL ? 0 : 14.r),
-                                                bottomRight: Radius.circular(isRTL ? 0 : 14.r),
-                                              ),                                              icon: Icons.delete_outline,
-                                              label: isRTL ? "حذف" : "Delete",
+                                            const Icon(
+                                              Icons.delete,
+                                              color: Colors.white,
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              isRTL ? "حذف" : "Delete",
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
                                           ],
                                         ),
+                                      ),
 
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColor.black,
-                                            // borderRadius: BorderRadius.circular(14.r),
-                                            border: Border.all(color: Colors.white10),
+                                      confirmDismiss: (_) async {
+                                        if (isUpdating) return false;
+
+                                        return _confirmDelete(
+                                          context,
+                                          isRTL: isRTL,
+                                        );
+                                      },
+
+                                      onDismissed: (_) {
+                                        context.read<CartCubit>().removeItem(
+                                          it.id,
+                                        );
+                                      },
+
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColor.black,
+                                          borderRadius: BorderRadius.circular(
+                                            12.r,
                                           ),
-                                          child: MealCard(
-                                            key: ValueKey(it.id),
-                                            image: it.image,
-                                            name: title,
-                                            price: it.unitPrice,
-                                            counter: CounterRequest(
-                                              value: it.quantity,
-                                              loading: isUpdating,
-                                              onChanged: (newQty) {
-                                                context.read<CartCubit>().updateQty(
-                                                  cartItemId: it.id,
-                                                  quantity: newQty,
-                                                );
-                                              },
+                                          border: Border.all(
+                                            color: Colors.white10,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            MealCard(
+                                              key: ValueKey(it.id),
+                                              image: it.image,
+                                              name: title,
+                                              price: it.unitPrice,
+                                              counter: CounterRequest(
+                                                value: it.quantity,
+                                                loading: isUpdating,
+                                                onChanged: (newQty) {
+                                                  context
+                                                      .read<CartCubit>()
+                                                      .updateQty(
+                                                        cartItemId: it.id,
+                                                        quantity: newQty,
+                                                      );
+                                                },
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ),
                                     );
-
-
                                   }).toList(),
                                 ),
 
@@ -431,7 +474,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                         cart.deliveryDiscount,
                                       ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 6.h),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 6.h,
+                                      ),
                                       child: Divider(
                                         height: 1,
                                         thickness: 0.8,
@@ -1430,52 +1475,51 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
     );
   }
 }
+
 Future<bool> showDeleteCartDialog(
-    BuildContext context, {
-      required bool isRTL,
-    }) async {
+  BuildContext context, {
+  required bool isRTL,
+}) async {
   return await showDialog<bool>(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return AlertDialog(
-        backgroundColor: AppColor.Dark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-        title: Text(
-          isRTL ? "حذف العنصر" : "Delete item",
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Text(
-          isRTL
-              ? "هل أنت متأكد من حذف هذا العنصر؟"
-              : "Are you sure you want to delete this item?",
-          style: const TextStyle(fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              isRTL ? "إلغاء" : "Cancel",
-              style: const TextStyle(color: Colors.blue),
+        context: context,
+        barrierDismissible: true,
+        builder: (_) {
+          return AlertDialog(
+            backgroundColor: AppColor.Dark,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
             ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              isRTL ? "حذف" : "Delete",
-              style: const TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
+            title: Text(
+              isRTL ? "حذف العنصر" : "Delete item",
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            content: Text(
+              isRTL
+                  ? "هل أنت متأكد من حذف هذا العنصر؟"
+                  : "Are you sure you want to delete this item?",
+              style: const TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(
+                  isRTL ? "إلغاء" : "Cancel",
+                  style: const TextStyle(color: Colors.blue),
+                ),
               ),
-            ),
-          ),
-        ],
-      );
-    },
-  ) ??
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(
+                  isRTL ? "حذف" : "Delete",
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ) ??
       false;
 }

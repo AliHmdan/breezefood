@@ -127,20 +127,20 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               ),
 
               // Gradient overlay
-              Container(
-                height: 100.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.r),
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.65),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
+              // Container(
+              //   height: 100.h,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(12.r),
+              //     gradient: LinearGradient(
+              //       begin: Alignment.bottomCenter,
+              //       end: Alignment.topCenter,
+              //       colors: [
+              //         Colors.black.withOpacity(0.65),
+              //         Colors.transparent,
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
               PositionedDirectional(
                 top: 6,

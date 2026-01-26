@@ -120,11 +120,11 @@ class _DiscountPriceCardState extends State<DiscountPriceCard>
                       child: Stack(
                         children: [
                           _buildNetworkImage(widget.imageUrl, height: 150.h),
-                          Positioned.fill(
-                            child: Container(
-                              color: Colors.black.withOpacity(0.25),
-                            ),
-                          ),
+                          // Positioned.fill(
+                          //   child: Container(
+                          //     color: Colors.black.withOpacity(0.25),
+                          //   ),
+                          // ),
                           Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 8.w),

@@ -256,31 +256,19 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       fit: BoxFit.cover,
                                     ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      Colors.black.withOpacity(0.6),
-                                      Colors.black.withOpacity(0.2),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // Center(
-                              //   child: Text(
-                              //     restaurantName,
-                              //     textAlign: TextAlign.center,
-                              //     style: TextStyle(
-                              //       color: Colors.white,
-                              //       fontSize: 26.sp,
-                              //       fontWeight: FontWeight.bold,
-                              //       fontFamily:
-                              //       context.isAr ? 'Cairo' : 'Inter',
+                              // Container(
+                              //   decoration: BoxDecoration(
+                              //     gradient: LinearGradient(
+                              //       begin: Alignment.bottomCenter,
+                              //       end: Alignment.topCenter,
+                              //       colors: [
+                              //         Colors.black.withOpacity(0.6),
+                              //         Colors.black.withOpacity(0.2),
+                              //       ],
                               //     ),
                               //   ),
                               // ),
+
                               /// 🔥 CUSTOM ARROW (يختفي مع الصورة)
                               PositionedDirectional(
                                 top: MediaQuery.of(context).padding.top + 12,
@@ -981,9 +969,9 @@ class DiscountItemCard extends StatelessWidget {
               ),
 
               // overlay (نفس MostPopular)
-              Positioned.fill(
-                child: Container(color: Colors.black.withOpacity(0.25)),
-              ),
+              // Positioned.fill(
+              //   child: Container(color: Colors.black.withOpacity(0.25)),
+              // ),
 
               // discount badge
               PositionedDirectional(

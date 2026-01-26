@@ -62,19 +62,19 @@ class _RestaurantCardState extends State<RestaurantCard> {
               _NetImage(url: imageUrl, height: 112.h),
 
               // overlay
-              Container(
-                height: 112.h,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0.25),
-                      Colors.black.withOpacity(0.25),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
+              // Container(
+              //   height: 112.h,
+              //   decoration: BoxDecoration(
+              //     gradient: LinearGradient(
+              //       colors: [
+              //         Colors.black.withOpacity(0.25),
+              //         Colors.black.withOpacity(0.25),
+              //       ],
+              //       begin: Alignment.topCenter,
+              //       end: Alignment.bottomCenter,
+              //     ),
+              //   ),
+              // ),
 
               // content
               Padding(

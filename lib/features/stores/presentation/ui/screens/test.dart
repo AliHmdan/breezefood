@@ -7,6 +7,7 @@ import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/add_order.dart';
@@ -255,18 +256,29 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       fit: BoxFit.cover,
                                     ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      Colors.black.withOpacity(0.6),
-                                      Colors.black.withOpacity(0.2),
-                                    ],
-                                  ),
+                              // Container(
+                              //   decoration: BoxDecoration(
+                              //     gradient: LinearGradient(
+                              //       begin: Alignment.bottomCenter,
+                              //       end: Alignment.topCenter,
+                              //       colors: [\ggt6fbb
+                              //         Colors.black.withOpacity(0.6),
+                              //         Colors.black.withOpacity(0.2),
+                              //       ],
+                              //     ),
+                              //   ),
+                              // ),
+
+                              /// 🔥 CUSTOM ARROW (يختفي مع الصورة)
+                              PositionedDirectional(
+                                top: MediaQuery.of(context).padding.top + 12,
+                                start: 12,
+                                child: CustomArrow(color: AppColor.white,background: AppColor.black,colorborder: AppColor.grye,
+                                  onTap: () => Navigator.pop(context),
                                 ),
                               ),
+
+                              /// TITLE
                               Center(
                                 child: Text(
                                   restaurantName,
@@ -275,8 +287,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     color: Colors.white,
                                     fontSize: 26.sp,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily:
-                                    context.isAr ? 'Cairo' : 'Inter',
+                                    fontFamily: context.isAr ? 'Cairo' : 'Inter',
                                   ),
                                 ),
                               ),
@@ -958,9 +969,9 @@ class DiscountItemCard extends StatelessWidget {
               ),
 
               // overlay (نفس MostPopular)
-              Positioned.fill(
-                child: Container(color: Colors.black.withOpacity(0.25)),
-              ),
+              // Positioned.fill(
+              //   child: Container(color: Colors.black.withOpacity(0.25)),
+              // ),
 
               // discount badge
               PositionedDirectional(
