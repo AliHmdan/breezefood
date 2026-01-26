@@ -30,7 +30,7 @@ class CustomArrow extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(left: 5),
+          padding:  REdgeInsetsDirectional.only(start: 5),
           child: Icon(Icons.arrow_back_ios, color: color, size: 16.sp),
         ),
       ),

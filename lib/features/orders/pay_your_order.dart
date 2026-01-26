@@ -341,7 +341,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                       movementDuration: const Duration(milliseconds: 450),
                                       resizeDuration: const Duration(milliseconds: 350),
 
-                                      background: Container(
+                                      background:
+                                      Container(
                                         alignment: Alignment.centerRight,
                                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                                         decoration: BoxDecoration(
