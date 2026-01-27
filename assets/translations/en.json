@@ -17,7 +17,35 @@
     "suggestion_desserts": "Desserts",
     "suggestion_drinks": "Drinks"
   },
+  
+  "order_status": {
+    "pending": "Pending",
+    "preparing": "Preparing",
+    "inway": "Inway",
+    "delivered": "Delivered"
+  },
   "tracking": {
+    "customer_code_title": "Customer Code",
+    "show_code_hint": "Show this code to the driver when you receive the order",
+    "delivering_to": "Delivering to",
+    "step_received": "Order received",
+    "step_preparing": "Preparing",
+    "step_picked": "On the way",
+    "step_delivered": "Delivered",
+    "order_id": "Order #{0}",
+    "payment": "Payment: {0}",
+    "order_details": "Order details",
+    "status": "Status",
+    "payment_status": "Payment status",
+    "items_total": "Items total",
+    "delivery_fee": "Delivery fee",
+    "total": "Total",
+    "timeline": "Timeline",
+    "items": "Items",
+    "qty": "Qty: {0}",
+    "item_price": "Price: {0}",
+    "delivery_time": "Delivery time: {0} min",
+    "spicy": "Spicy",
     "me": "Me",
     "title": "Tracking Order #{id}",
     "loading": "Loading driver's location...",
@@ -29,6 +57,11 @@
   "tracking.error_bad_response": "Invalid tracking response",
   "tracking.error_missing_locations": "Unable to load tracking data",
   "orders": {
+    "status_pending": "Pending",
+    "status_preparing": "Preparing",
+    "status_delivered": "Delivered",
+    "status_cancelled": "Cancelled",
+    "status_unknown": "inway",
     "warning_title": "Warning",
     "customer_code_fetch_failed": "Couldn't fetch customer code for this order.",
     "customer_code_title": "Order Code",
@@ -53,6 +86,17 @@
     "min": "min",
     "search": "Search",
     "AddToCart": "Add to cart"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all read",
+    "empty": "No notifications yet",
+    "count": "Notifications ({0})",
+    "time": {
+      "now": "Now",
+      "minutes": "{0}m",
+      "hours": "{0}h"
+    }
   },
   "reviews": {
     "rate_title": "What is your rate?",

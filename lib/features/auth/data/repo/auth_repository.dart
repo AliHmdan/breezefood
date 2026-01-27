@@ -52,57 +52,59 @@ class AuthRepository {
     }
   }
 
-  /// 2) verify-phone -> يرجع token + user
-  /// ✅ هنا بنبعت token (Firebase device token) باسم "token"
-  Future<AppResponse> verifyPhone({
-    required String phone,
-    required String code,
-    String? firebaseToken, // ✅ هذا هو FCM token
-  }) async {
-    try {
-      final body = <String, dynamic>{"phone": phone, "code": code};
+Future<AppResponse> verifyPhone({
+  required String phone,
+  required String code,
+  String? firebaseToken,
+}) async {
+  try {
+    final body = <String, dynamic>{
+      "phone": phone,
+      "code": code,
+    };
 
-      // ✅ ينرسل بالفيرفاي وباسم token
-      if (firebaseToken != null && firebaseToken.trim().isNotEmpty) {
-        body["token"] = firebaseToken.trim();
-      }
-
-      final res = await api.verifyPhone(body);
-
-      final token = res.data["token"]?.toString();
-      if (token == null || token.isEmpty) {
-        return AppResponse.fail(message: "لم يتم استلام رمز الدخول");
-      }
-
-      // ✅ save token + set token
-      await AuthStorageHelper.saveToken(token);
-      DioFactory.setToken(token);
-
-      final user = (res.data["user"] as Map?)?.cast<String, dynamic>();
-
-      // ✅ خزّن الموقع إذا موجود
-      final lat = user?["latitude"]?.toString();
-      final lon = user?["longitude"]?.toString();
-      if (lat != null && lat.isNotEmpty && lon != null && lon.isNotEmpty) {
-        await AuthStorageHelper.saveUserLocation(lat: lat, lon: lon);
-      }
-
-      // ✅ role/type
-      final role = user?["type"]?.toString();
-      if (role != null && role.isNotEmpty) {
-        await AuthStorageHelper.saveUserRole(role);
-      }
-
-      return AppResponse.ok(
-        message: res.data["message"] ?? "تم تسجيل الدخول",
-        data: res.data,
-      );
-    } on DioException catch (e) {
-      return AppResponseHandler.handleError(e);
-    } catch (_) {
-      return AppResponse.fail(message: "رمز التحقق غير صحيح");
+    if (firebaseToken != null && firebaseToken.trim().isNotEmpty) {
+      body["token"] = firebaseToken.trim();
     }
+
+    // ✅ لوج
+    // ignore: avoid_print
+    print("🛰️ verify-phone body: $body");
+
+    final res = await api.verifyPhone(body);
+
+    final token = res.data["token"]?.toString();
+    if (token == null || token.isEmpty) {
+      return AppResponse.fail(message: "لم يتم استلام رمز الدخول");
+    }
+
+    await AuthStorageHelper.saveToken(token);
+    DioFactory.setToken(token);
+
+    final user = (res.data["user"] as Map?)?.cast<String, dynamic>();
+
+    final lat = user?["latitude"]?.toString();
+    final lon = user?["longitude"]?.toString();
+    if (lat != null && lat.isNotEmpty && lon != null && lon.isNotEmpty) {
+      await AuthStorageHelper.saveUserLocation(lat: lat, lon: lon);
+    }
+
+    final role = user?["type"]?.toString();
+    if (role != null && role.isNotEmpty) {
+      await AuthStorageHelper.saveUserRole(role);
+    }
+
+    return AppResponse.ok(
+      message: res.data["message"] ?? "تم تسجيل الدخول",
+      data: res.data,
+    );
+  } on DioException catch (e) {
+    return AppResponseHandler.handleError(e);
+  } catch (_) {
+    return AppResponse.fail(message: "رمز التحقق غير صحيح");
   }
+}
+
 
   Future<AppResponse> resendCode({required String phone}) async {
     try {

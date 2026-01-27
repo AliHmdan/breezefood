@@ -8,6 +8,9 @@ import 'package:breezefood/features/helpCenter/presentation/cubit/help_center_cu
 import 'package:breezefood/features/home/data/api/home_api_service.dart';
 import 'package:breezefood/features/home/data/repo/home_repository.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
+import 'package:breezefood/features/notifications/data/api/notification_api_service.dart';
+import 'package:breezefood/features/notifications/data/repo/notifications_repo.dart';
+import 'package:breezefood/features/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:breezefood/features/orders/data/api/cart_api_service.dart';
 import 'package:breezefood/features/orders/data/api/orders_api_service.dart';
 import 'package:breezefood/features/orders/data/repo/cart_repository.dart';
@@ -210,5 +213,16 @@ Future<void> setupDi() async {
   // cubit
   getIt.registerFactory<OrdersCubit>(
     () => OrdersCubit(getIt<OrdersRepository>()),
+  );
+  getIt.registerLazySingleton<NotificationApiService>(
+    () => NotificationApiService(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepository(getIt<NotificationApiService>()),
+  );
+
+  getIt.registerFactory<NotificationCubit>(
+    () => NotificationCubit(getIt<NotificationRepository>()),
   );
 }

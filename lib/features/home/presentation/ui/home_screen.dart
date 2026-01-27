@@ -554,7 +554,7 @@ class _BottomYourOrderButton extends StatelessWidget {
         );
 
         if (context.mounted) {
-          homeCubit.load(); // ✅ يرجع يحدث have_order
+          homeCubit.load();
           context.read<CartCubit>().loadCart();
         }
       },

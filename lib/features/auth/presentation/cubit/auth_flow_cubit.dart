@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:breezefood/features/auth/data/repo/auth_repository.dart';
@@ -46,10 +47,20 @@ class AuthFlowCubit extends Cubit<AuthFlowState> {
   }) async {
     emit(const AuthFlowState.loading());
 
+    String? fcm = deviceToken;
+
+    try {
+      if (fcm == null || fcm.trim().isEmpty) {
+        fcm = await FirebaseMessaging.instance.getToken();
+      }
+    } catch (_) {}
+
+    print("📲 FCM token to send: ${fcm?.substring(0, 25)}...");
+
     final res = await repo.verifyPhone(
       phone: phone,
       code: code,
-      firebaseToken: deviceToken, // ✅ هذا اللي كنت تسميه deviceToken
+      firebaseToken: fcm,
     );
 
     if (!res.ok) {

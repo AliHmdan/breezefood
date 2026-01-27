@@ -36,6 +36,83 @@ class OrderBundle {
     );
   }
 }
+class OrderDetailsResponse {
+  final OrderInfo order;
+  final OrderDriver driver;
+  final OrderRestaurant restaurant;
+  final List<OrderTimelineStep> timeline;
+  final List<OrderItem> items;
+
+  OrderDetailsResponse({
+    required this.order,
+    required this.driver,
+    required this.restaurant,
+    required this.timeline,
+    required this.items,
+  });
+
+  factory OrderDetailsResponse.fromJson(Map<String, dynamic> json) {
+    return OrderDetailsResponse(
+      order: OrderInfo.fromJson((json["order"] as Map?)?.cast<String, dynamic>() ?? {}),
+      driver: OrderDriver.fromJson((json["driver"] as Map?)?.cast<String, dynamic>() ?? {}),
+      restaurant: OrderRestaurant.fromJson((json["restaurant"] as Map?)?.cast<String, dynamic>() ?? {}),
+      timeline: ((json["timeline"] as List?) ?? const [])
+          .where((e) => e is Map)
+          .map((e) => OrderTimelineStep.fromJson((e as Map).cast<String, dynamic>()))
+          .toList(),
+      items: ((json["items"] as List?) ?? const [])
+          .where((e) => e is Map)
+          .map((e) => OrderItem.fromJson((e as Map).cast<String, dynamic>()))
+          .toList(),
+    );
+  }
+}
+
+class OrderDriver {
+  final int id;
+  final String name;
+  final String phone;
+  final String profileImage; // مثل: uploads/avatars/...
+
+  OrderDriver({
+    required this.id,
+    required this.name,
+    required this.phone,
+    required this.profileImage,
+  });
+
+  static int _toInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? 0;
+  }
+
+  factory OrderDriver.fromJson(Map<String, dynamic> json) {
+    return OrderDriver(
+      id: _toInt(json["id"]),
+      name: (json["name"] ?? "").toString(),
+      phone: (json["phone"] ?? "").toString(),
+      profileImage: (json["profile_image"] ?? "").toString(),
+    );
+  }
+}
+
+class OrderTimelineStep {
+  final String key;   // pending/preparing/inway/delivered
+  final String? time; // "12:25 pm" أو null
+
+  OrderTimelineStep({required this.key, required this.time});
+
+  factory OrderTimelineStep.fromJson(Map<String, dynamic> json) {
+    return OrderTimelineStep(
+      key: (json["key"] ?? "").toString(),
+      time: json["time"]?.toString(),
+    );
+  }
+}
+
+// ====== نفس OrderInfo عندك لكن خلّينا نزبطه شوية ======
 
 class OrderInfo {
   final int id;
@@ -47,10 +124,10 @@ class OrderInfo {
   final String? notes;
   final String createdAt;
 
-  // ✅ NEW
   final int? orderCustomerCode;
+  final double itemsTotal;
 
-  // موجود عندك
+  // بعض الاندبوينت ممكن يبعث items_count وبعضها لا
   final int itemsCount;
 
   OrderInfo({
@@ -62,8 +139,9 @@ class OrderInfo {
     required this.paymentStatus,
     required this.notes,
     required this.createdAt,
+    required this.orderCustomerCode,
+    required this.itemsTotal,
     required this.itemsCount,
-    required this.orderCustomerCode, // ✅
   });
 
   static double _toDouble(dynamic v) {
@@ -89,13 +167,8 @@ class OrderInfo {
       paymentStatus: (json["payment_status"] ?? "").toString(),
       notes: json["notes"]?.toString(),
       createdAt: (json["created_at"] ?? "").toString(),
-
-      // ✅ NEW
-      orderCustomerCode: (json["order_customer_code"] == null)
-          ? null
-          : _toInt(json["order_customer_code"]),
-
-      // ✅ خليها تتحمل عدم وجود items_count (مثل /my-order-details)
+      orderCustomerCode: (json["order_customer_code"] == null) ? null : _toInt(json["order_customer_code"]),
+      itemsTotal: _toDouble(json["items_total"]),
       itemsCount: (json["items_count"] == null) ? 0 : _toInt(json["items_count"]),
     );
   }
@@ -106,11 +179,7 @@ class OrderRestaurant {
   final String name;
   final String logo;
 
-  OrderRestaurant({
-    required this.id,
-    required this.name,
-    required this.logo,
-  });
+  OrderRestaurant({required this.id, required this.name, required this.logo});
 
   static int _toInt(dynamic v) {
     if (v == null) return 0;
@@ -137,6 +206,7 @@ class OrderItem {
   final double totalPrice;
   final String image;
   final int deliveryTime;
+  final bool withSpicy; // ✅ لأنه موجود بالريسبونس
 
   OrderItem({
     required this.id,
@@ -147,6 +217,7 @@ class OrderItem {
     required this.totalPrice,
     required this.image,
     required this.deliveryTime,
+    required this.withSpicy,
   });
 
   static double _toDouble(dynamic v) {
@@ -162,6 +233,14 @@ class OrderItem {
     return int.tryParse(v.toString()) ?? 0;
   }
 
+  static bool _toBool(dynamic v) {
+    if (v == null) return false;
+    if (v is bool) return v;
+    if (v is num) return v.toInt() == 1;
+    final s = v.toString().toLowerCase();
+    return s == "1" || s == "true" || s == "yes";
+  }
+
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     return OrderItem(
       id: _toInt(json["id"]),
@@ -172,6 +251,7 @@ class OrderItem {
       totalPrice: _toDouble(json["total_price"]),
       image: (json["image"] ?? "").toString(),
       deliveryTime: _toInt(json["delivery_time"]),
+      withSpicy: _toBool(json["with_spicy"]),
     );
   }
 

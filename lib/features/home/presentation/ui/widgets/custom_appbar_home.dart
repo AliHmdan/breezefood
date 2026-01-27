@@ -1,8 +1,10 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
-import 'package:breezefood/features/notification/notification.dart';
+import 'package:breezefood/features/notifications/presentation/cubit/notification_cubit.dart';
+import 'package:breezefood/features/notifications/presentation/ui/notifications_screen.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,11 +66,9 @@ class CustomAppbarHome extends StatelessWidget {
   final String? subtitle;
   final String? image;
   final IconData? icon;
-  final String? avatarUrl; // ✅
-  /// ✅ كبسة صورة البروفايل
+  final String? avatarUrl;
   final VoidCallback? onProfileTap;
 
-  /// ✅ كبسة قسم الموقع (العنوان + السطر التاني)
   final VoidCallback? onLocationTap;
 
   const CustomAppbarHome({
@@ -87,7 +87,6 @@ class CustomAppbarHome extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // ✅ صورة البروفايل: تفتح الإعدادات فقط
         InkWell(
           onTap: onProfileTap,
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -174,12 +173,16 @@ class CustomAppbarHome extends StatelessWidget {
           ),
         ),
 
-        // ✅ الإشعارات: تبقى مثل ما هي
         GestureDetector(
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NotificationPage()),
+              MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                  create: (context) => getIt<NotificationCubit>(),
+                  child: NotificationPage(),
+                ),
+              ),
             );
           },
           child: Container(

@@ -10,6 +10,7 @@ import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -41,6 +42,8 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+  final fcm = await FirebaseMessaging.instance.getToken();
+  print(fcm);
 }
 
 class MyApp extends StatelessWidget {

@@ -8,7 +8,34 @@
     "terms": "الشروط والأحكام",
     "logout": "تسجيل الخروج"
   },
+  "order_status": {
+    "pending": "تم استلام الطلب",
+    "preparing": "قيد التحضير",
+    "inway": "بالطريق إليك",
+    "delivered": "تم التسليم"
+  },
   "tracking": {
+    "customer_code_title": "كود الاستلام",
+    "show_code_hint": "اعرض هذا الكود للسائق عند استلام الطلب",
+    "delivering_to": "التوصيل إلى",
+    "step_received": "تم استلام الطلب",
+    "step_preparing": "قيد التحضير",
+    "step_picked": "بالطريق إليك",
+    "step_delivered": "تم التسليم",
+    "order_id": "طلب رقم #{0}",
+    "payment": "طريقة الدفع: {0}",
+    "order_details": "تفاصيل الطلب",
+    "status": "الحالة",
+    "payment_status": "حالة الدفع",
+    "items_total": "إجمالي العناصر",
+    "delivery_fee": "رسوم التوصيل",
+    "total": "الإجمالي",
+    "timeline": "مراحل الطلب",
+    "items": "العناصر",
+    "qty": "الكمية: {0}",
+    "item_price": "السعر: {0}",
+    "delivery_time": "وقت التوصيل: {0} دقيقة",
+    "spicy": "حار",
     "me": "موقعي",
     "title": "تتبع الطلب رقم {id}",
     "loading": "جارِ تحميل موقع السائق...",
@@ -49,6 +76,11 @@
   "tracking.error_bad_response": "استجابة غير صحيحة",
   "tracking.error_missing_locations": "لا يمكن تحميل بيانات التتبع",
   "orders": {
+    "status_pending": "قيد الانتظار",
+    "status_preparing": "قيد التحضير",
+    "status_delivered": "تم التسليم",
+    "status_cancelled": "ملغي",
+    "status_unknown": "في الطريق إليك",
     "cannot_identify_meal_or_restaurant": "لا يمكن تحديد الوجبة أو المطعم",
     "warning_title": "تنبيه",
     "customer_code_fetch_failed": "فشل جلب كود الاوردر.",
@@ -79,6 +111,17 @@
     "menu": "القائمة",
     "view_cart_loading": "عرض السلة ...",
     "view_cart": "عرض السلة • {count} • {total}"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "empty": "لا يوجد إشعارات بعد",
+    "count": "الإشعارات ({0})",
+    "time": {
+      "now": "الآن",
+      "minutes": "{0}د",
+      "hours": "{0}س"
+    }
   },
   "reviews": {
     "delete": "حذف التقييم",

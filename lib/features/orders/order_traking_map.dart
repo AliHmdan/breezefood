@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/services/map_marker_icon.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_tracking_state.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders_details_cubit.dart';
+import 'package:breezefood/features/orders/tracking_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,14 +38,18 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
 
   // UI states
   bool _movedCameraOnce = false;
-  bool _sheetShown = false;
 
   @override
   void initState() {
     super.initState();
+
     _loadIcons();
     _startMyLocation();
     _startTracking();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<OrdersDetailsCubit>().load(widget.orderId);
+    });
   }
 
   void _startTracking() {
@@ -55,7 +61,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
 
   Future<void> _loadIcons() async {
     try {
-      const driverW = 72; // جرّب 64 إذا بدك أصغر
+      const driverW = 64; // جرّب 64 إذا بدك أصغر
       const meW = 64;
 
       final driver = await MapMarkerIcon.fromAsset(
@@ -153,8 +159,6 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       _movedCameraOnce = true;
       _mapController?.animateCamera(CameraUpdate.newLatLngZoom(p, 16));
     }
-
-    _openSheetOnce();
   }
 
   void _setMyMarker(LatLng p) {
@@ -175,21 +179,6 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       );
 
     setState(() {});
-  }
-
-  void _openSheetOnce() {
-    if (_sheetShown) return;
-    _sheetShown = true;
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => _TrackingSheet(orderId: widget.orderId),
-      );
-    });
   }
 
   Future<void> _recenter() async {
@@ -338,6 +327,25 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
               bottom: 120.h,
               child: _RoundFab(icon: Icons.my_location, onTap: _recenter),
             ),
+            // ✅ الشيت ثابت فوق الخريطة
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: DraggableScrollableSheet(
+                  initialChildSize: 0.30,
+                  minChildSize: 0.16,
+                  maxChildSize: 0.92,
+                  snap: true,
+                  snapSizes: const [0.16, 0.30, 0.60, 0.92],
+                  builder: (context, scrollController) {
+                    return TrackingSheet(
+                      orderId: widget.orderId,
+                      scrollController: scrollController,
+                    );
+                  },
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -394,7 +402,7 @@ class _DriverMiniCard extends StatelessWidget {
         children: [
           const CircleAvatar(
             radius: 20,
-            backgroundImage: AssetImage('assets/images/driver_map_point.jpg'),
+            backgroundImage: AssetImage('assets/b_driver/driver_map_point.png'),
             backgroundColor: AppColor.primaryColor,
           ),
           SizedBox(width: 8.w),
@@ -488,69 +496,6 @@ class _RoundFab extends StatelessWidget {
           height: 46.w,
           child: Icon(icon, color: Colors.black),
         ),
-      ),
-    );
-  }
-}
-
-// ======================= Bottom Sheet (UI فقط) =======================
-
-class _TrackingSheet extends StatelessWidget {
-  final int orderId;
-
-  const _TrackingSheet({required this.orderId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-      decoration: BoxDecoration(
-        color: AppColor.Dark,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25.r),
-          topRight: Radius.circular(25.r),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage(
-                  'assets/images/driver_map_point.jpg',
-                ),
-                backgroundColor: AppColor.primaryColor,
-              ),
-              SizedBox(width: 15.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "tracking.driver".tr(),
-                    style: TextStyle(
-                      color: AppColor.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                  Text(
-                    "tracking.title".tr(namedArgs: {"id": orderId.toString()}),
-                    style: TextStyle(color: AppColor.gry, fontSize: 13.sp),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 14.h),
-          Text(
-            "tracking.loading".tr(),
-            style: TextStyle(color: AppColor.gry, fontSize: 13.sp),
-          ),
-          SizedBox(height: 8.h),
-        ],
       ),
     );
   }
