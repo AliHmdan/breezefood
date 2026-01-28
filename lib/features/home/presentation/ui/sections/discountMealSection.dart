@@ -1,9 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

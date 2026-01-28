@@ -1,17 +1,17 @@
+import 'package:breezefood/core/component/have_order.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
+import 'package:breezefood/features/orders/model/active_orders_response.dart';
 import 'package:breezefood/features/orders/model/add_to_cart_request.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/stores/data/repo/super_market_repo.dart';
 import 'package:breezefood/features/stores/presentation/cubit/market_details_cubit.dart';
-import 'package:breezefood/features/stores/presentation/ui/widget/cart_action_button.dart';
 import 'package:breezefood/features/super_market/supermarket_add_order_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +20,13 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../profile/presentation/widget/custom_appbar_profile.dart';
-import '../profile/presentation/widget/custom_button.dart';
 
 class MarketPagePrice extends StatelessWidget {
   final int marketId;
   final String title;
-
+  final OrderInfo? haveOrder; // ✅ جديد
   const MarketPagePrice({
+    this.haveOrder,
     super.key,
     required this.marketId,
     required this.title,
@@ -121,8 +121,7 @@ class MarketPagePrice extends StatelessWidget {
           BlocListener<CartCubit, CartState>(
             listener: (context, state) {
               state.whenOrNull(
-                loading: () =>
-                    EasyLoading.show(status: "Adding...".tr()),
+                loading: () => EasyLoading.show(status: "Adding...".tr()),
                 addedSuccess: (msg) {
                   EasyLoading.dismiss();
                   EasyLoading.showSuccess(
@@ -142,13 +141,15 @@ class MarketPagePrice extends StatelessWidget {
         ],
         child: Scaffold(
           backgroundColor: const Color(0xFF121212),
-          appBar:PreferredSize(  preferredSize: Size.fromHeight(110.h),
-        child: CustomAppbarProfile(
-          title: title,
-          icon: Icons.arrow_back_ios,
-          ontap: () => Navigator.pop(context),
-          backgroundcolor: Colors.transparent,
-        )),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(110.h),
+            child: CustomAppbarProfile(
+              title: title,
+              icon: Icons.arrow_back_ios,
+              ontap: () => Navigator.pop(context),
+              backgroundcolor: Colors.transparent,
+            ),
+          ),
           // AppBar(
           //   backgroundColor: const Color(0xFF121212),
           //   elevation: 0,
@@ -169,9 +170,7 @@ class MarketPagePrice extends StatelessWidget {
                 child: BlocBuilder<MarketDetailsCubit, MarketDetailsState>(
                   builder: (context, state) {
                     if (state.loading) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return const Center(child: CircularProgressIndicator());
                     }
 
                     if (state.error != null) {
@@ -192,12 +191,10 @@ class MarketPagePrice extends StatelessWidget {
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: state.categories.length,
-                            separatorBuilder: (_, __) =>
-                                SizedBox(width: 10.w),
+                            separatorBuilder: (_, __) => SizedBox(width: 10.w),
                             itemBuilder: (context, i) {
                               final c = state.categories[i];
-                              final selected =
-                                  c.id == state.selectedCategoryId;
+                              final selected = c.id == state.selectedCategoryId;
 
                               return InkWell(
                                 onTap: () => context
@@ -212,8 +209,7 @@ class MarketPagePrice extends StatelessWidget {
                                     color: selected
                                         ? const Color(0xFF4CAF50)
                                         : const Color(0xFF1C1C1C),
-                                    borderRadius:
-                                    BorderRadius.circular(16.r),
+                                    borderRadius: BorderRadius.circular(16.r),
                                   ),
                                   child: Text(
                                     c.name,
@@ -234,89 +230,82 @@ class MarketPagePrice extends StatelessWidget {
                         /// Items Grid
                         Expanded(
                           child: state.loadingItems
-                              ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
+                              ? const Center(child: CircularProgressIndicator())
                               : GridView.builder(
-                            padding: EdgeInsets.fromLTRB(
-                              12.w,
-                              12.h,
-                              12.w,
-                              100.h,
-                            ),
-                            physics:
-                            const BouncingScrollPhysics(),
-                            itemCount: state.items.length,
-                            gridDelegate:
-                            SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 190.w,
-                              crossAxisSpacing: 10.w,
-                              mainAxisSpacing: 10.h,
-                              childAspectRatio: 0.80,
-                            ),
-                            itemBuilder: (context, index) {
-                              final it = state.items[index];
-
-                              final titleTxt = context.pick(
-                                ar: it.nameAr,
-                                en: it.nameEn,
-                              );
-
-                              final descTxt = context.pick(
-                                ar: it.descriptionAr,
-                                en: it.descriptionEn,
-                              );
-
-                              final imgUrl =
-                                  UrlHelper.toFullUrl(it.image) ??
-                                      "";
-
-                              return InkWell(
-                                onTap: !it.isAvailable
-                                    ? () => EasyLoading.showInfo(
-                                  "Not available".tr(),
-                                )
-                                    : () async {
-                                  final res =
-                                  await showSupermarketAddOrderDialog(
-                                    context,
-                                    title: titleTxt,
-                                    price: it.basePrice,
-                                    imagePath: imgUrl.isNotEmpty
-                                        ? imgUrl
-                                        : "assets/images/bread.png",
-                                  );
-
-                                  if (res == null) return;
-
-                                  context.read<CartCubit>().add(
-                                    AddToCartRequest(
-                                      restaurantId:
-                                      marketId,
-                                      menuItemId: it.id,
-                                      quantity:
-                                      res.quantity,
-                                      specialNotes:
-                                      res.notes,
-                                    ),
-                                  );
-                                },
-                                child: ProductCard(
-                                  product: Product(
-                                    title: titleTxt,
-                                    desc: descTxt,
-                                    price: context.syp(
-                                      it.basePrice,
-                                      decimals: 0,
-                                    ),
-                                    image: imgUrl.isNotEmpty
-                                        ? imgUrl
-                                        : "assets/images/bread.png",
+                                  padding: EdgeInsets.fromLTRB(
+                                    12.w,
+                                    12.h,
+                                    12.w,
+                                    100.h,
                                   ),
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: state.items.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 190.w,
+                                        crossAxisSpacing: 10.w,
+                                        mainAxisSpacing: 10.h,
+                                        childAspectRatio: 0.80,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    final it = state.items[index];
+
+                                    final titleTxt = context.pick(
+                                      ar: it.nameAr,
+                                      en: it.nameEn,
+                                    );
+
+                                    final descTxt = context.pick(
+                                      ar: it.descriptionAr,
+                                      en: it.descriptionEn,
+                                    );
+
+                                    final imgUrl =
+                                        UrlHelper.toFullUrl(it.image) ?? "";
+
+                                    return InkWell(
+                                      onTap: !it.isAvailable
+                                          ? () => EasyLoading.showInfo(
+                                              "Not available".tr(),
+                                            )
+                                          : () async {
+                                              final res =
+                                                  await showSupermarketAddOrderDialog(
+                                                    context,
+                                                    title: titleTxt,
+                                                    price: it.basePrice,
+                                                    imagePath: imgUrl.isNotEmpty
+                                                        ? imgUrl
+                                                        : "assets/images/bread.png",
+                                                  );
+
+                                              if (res == null) return;
+
+                                              context.read<CartCubit>().add(
+                                                AddToCartRequest(
+                                                  restaurantId: marketId,
+                                                  menuItemId: it.id,
+                                                  quantity: res.quantity,
+                                                  specialNotes: res.notes,
+                                                ),
+                                              );
+                                            },
+                                      child: ProductCard(
+                                        product: Product(
+                                          title: titleTxt,
+                                          desc: descTxt,
+                                          price: context.syp(
+                                            it.basePrice,
+                                            decimals: 0,
+                                          ),
+                                          image: imgUrl.isNotEmpty
+                                              ? imgUrl
+                                              : "assets/images/bread.png",
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
                         ),
                       ],
                     );
@@ -324,7 +313,6 @@ class MarketPagePrice extends StatelessWidget {
                 ),
               ),
 
-              /// View Cart Button
               Positioned(
                 left: 0,
                 right: 0,
@@ -344,35 +332,53 @@ class MarketPagePrice extends StatelessWidget {
                         orElse: () {},
                       );
 
-                      if (count <= 0) return const SizedBox.shrink();
-
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: CustomButtonOrder(
-                          title: "home.your_order".tr(),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => MultiBlocProvider(
-                                  providers: [
-                                    BlocProvider.value(
-                                      value: context.read<CartCubit>(),
-                                    ),
-                                    BlocProvider(
-                                      create: (_) => getIt<OrderFlowCubit>(),
-                                    ),
-                                  ],
-                                  child: const RequestOrderScreen(),
+                      // ✅ 1) إذا في سلة: View Cart
+                      if (count > 0) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: CustomButtonOrder(
+                            title:
+                                "${'cart.view_cart'.tr()} • $count • ${context.money(total, decimals: 0)}",
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MultiBlocProvider(
+                                    providers: [
+                                      BlocProvider.value(
+                                        value: context.read<CartCubit>(),
+                                      ),
+                                      BlocProvider(
+                                        create: (_) => getIt<OrderFlowCubit>(),
+                                      ),
+                                    ],
+                                    child: const RequestOrderScreen(),
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
 
-                            if (context.mounted)
-                              context.read<CartCubit>().loadCart();
-                          },
-                        ),
-                      );
+                              if (context.mounted)
+                                context.read<CartCubit>().loadCart();
+                            },
+                          ),
+                        );
+                      }
+
+                      // ✅ 2) إذا ما في سلة وفي haveOrder: Track Order
+                      if (haveOrder != null) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: CustomButtonOrder(
+                            title: "home.your_order"
+                                .tr(), // أو "home.track_order".tr()
+                            onPressed: () =>
+                                openHaveOrderTracking(context, haveOrder!.id),
+                          ),
+                        );
+                      }
+
+                      // ✅ 3) لا سلة ولا haveOrder: لا تعرض شي
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
@@ -392,10 +398,7 @@ class MarketPagePrice extends StatelessWidget {
 class ProductCard extends StatelessWidget {
   final Product product;
 
-  const ProductCard({
-    super.key,
-    required this.product,
-  });
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -415,24 +418,23 @@ class ProductCard extends StatelessWidget {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius:
-              BorderRadius.vertical(top: Radius.circular(18.r)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
               child: product.isNetworkImage
                   ? Image.network(
-                product.image,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (_, __, ___) => Image.asset(
-                  "assets/images/bread.png",
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              )
+                      product.image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (_, __, ___) => Image.asset(
+                        "assets/images/bread.png",
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
+                    )
                   : Image.asset(
-                product.image,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
+                      product.image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
             ),
           ),
           SizedBox(height: 6.h),

@@ -1,88 +1,68 @@
+import 'package:breezefood/core/component/have_order.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary.dart';
+import 'package:breezefood/features/orders/model/active_orders_response.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
-
-import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/orders/request_order.dart';
 import 'package:breezefood/features/orders/current_orders.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
-import 'package:easy_localization/easy_localization.dart';
 
-class CartActionButton extends StatefulWidget {
-  final VoidCallback onViewCart; // لما السلة فيها عناصر
-  final VoidCallback onEmptyCart; // لما السلة فاضية
-
-  /// مفاتيح الترجمة (غيرها حسب مفاتيحك)
-  final String viewCartTitleKey;
-  final String emptyTitleKey;
+class CartActionButton extends StatelessWidget {
+  final VoidCallback onViewCart;
+  final OrderInfo? haveOrder;
 
   const CartActionButton({
     super.key,
     required this.onViewCart,
-    required this.onEmptyCart,
-    this.viewCartTitleKey = "home.view_cart",
-    this.emptyTitleKey = "home.your_order",
+    required this.haveOrder,
   });
 
   @override
-  State<CartActionButton> createState() => _CartActionButtonState();
-}
-
-class _CartActionButtonState extends State<CartActionButton> {
-  int _lastCount = 0;
-
-  @override
   Widget build(BuildContext context) {
-    return BlocListener<CartCubit, CartState>(
-      listenWhen: (p, c) => c.maybeWhen(
-        cartLoaded: (_, __, ___) => true,
-        orElse: () => false,
-      ),
-      listener: (context, state) {
-        state.maybeWhen(
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, st) {
+        bool loading = false;
+        CartSummary summary = CartSummary.empty;
+
+        st.maybeWhen(
+          loading: () => loading = true,
           cartLoaded: (cart, _, __) {
-            setState(() => _lastCount = cart.items.length);
+            summary = CartSummary.from(cart);
           },
           orElse: () {},
         );
+
+        // لو عم يحمل، فيك تخليها زر Disabled أو تخفيها
+        if (loading) {
+          return CustomButtonOrder(
+            title: "cart.view_cart_loading".tr(),
+            onPressed: null,
+          );
+        }
+
+        if (summary.hasCart) {
+          return CustomButtonOrder(
+            title: "cart.view_cart".tr(),
+            onPressed: onViewCart,
+          );
+        }
+
+        if (haveOrder != null) {
+          return CustomButtonOrder(
+            title: "home.your_order".tr(),
+            onPressed: () => openHaveOrderTracking(context, haveOrder!.id),
+          );
+        }
+
+        return const SizedBox.shrink();
       },
-      child: BlocBuilder<CartCubit, CartState>(
-        builder: (context, st) {
-          // إذا في cartLoaded استخدمه، غير هيك استخدم آخر قيمة محفوظة
-          final countNow = st.maybeWhen(
-            cartLoaded: (cart, _, __) => cart.items.length,
-            orElse: () => _lastCount,
-          );
-
-          final hasCart = countNow > 0;
-
-          return SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 14.h),
-              child: CustomButtonOrder(
-                title: (hasCart
-                        ? widget.viewCartTitleKey
-                        : widget.emptyTitleKey)
-                    .tr(),
-                onPressed: hasCart ? widget.onViewCart : widget.onEmptyCart,
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }
@@ -97,26 +77,21 @@ class SupermarketBottomButton extends StatelessWidget {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, st) {
         bool loading = false;
-        int count = 0;
-        double total = 0;
+        CartSummary summary = CartSummary.empty;
 
         st.maybeWhen(
           loading: () => loading = true,
           cartLoaded: (cart, _, __) {
-            count = cart.items.length;
-            total = cart.grandAfter; // أو itemsTotalAfter حسب شو بتحب تعرض
+            summary = CartSummary.from(cart);
           },
           orElse: () {},
         );
 
-        final hasCart = count > 0;
-
-        // ✅ نفس المطاعم: إذا سلة -> View Cart، إذا فاضي -> Your Order
-        if (hasCart) {
+        if (summary.hasCart) {
           return CustomButton(
             title: loading
-                ? "View Cart ..."
-                : "View Cart • $count • ${context.money(total, decimals: 0)}",
+                ? "cart.view_cart_loading".tr()
+                : "${'cart.view_cart'.tr()} • ${summary.count} • ${context.money(summary.total, decimals: 0)}",
             onPressed: loading
                 ? null
                 : () async {
@@ -141,7 +116,7 @@ class SupermarketBottomButton extends StatelessWidget {
           );
         }
 
-        // ✅ سلة فاضية -> Your Order (نفس زر المطاعم)
+        // ✅ سلة فاضية -> Your Order (مثل المطاعم)
         return CustomButtonOrder(
           title: "home.your_order".tr(),
           onPressed: () async {

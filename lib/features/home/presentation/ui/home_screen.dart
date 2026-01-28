@@ -1,4 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/have_order.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
@@ -13,22 +14,21 @@ import 'package:breezefood/features/home/presentation/ui/sections/page_ads.dart'
 import 'package:breezefood/features/home/presentation/ui/sections/supermarketslider.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/appAnimatedBackground.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/appbar_home.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
-import 'package:breezefood/features/orders/current_orders.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
-import 'package:breezefood/features/super_market/categories_screen.dart';
+import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
 
@@ -100,12 +100,18 @@ class _HomeState extends State<Home> {
     if (id == 0) return;
 
     final title = _extractTitle(m).trim();
+    final homeData = (cubit.state).maybeWhen(
+      loaded: (d) => d,
+      orElse: () => null,
+    );
+
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MarketCategoriesScreen(
+        builder: (_) => MarketPagePrice(
           marketId: id,
           title: title.isEmpty ? "Market" : title,
+          haveOrder: homeData?.haveOrder, // ✅ مرّرها
         ),
       ),
     );
@@ -128,6 +134,7 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await cubit.sendMyLocationOnce();
       await cubit.load();
+      context.read<CartCubit>().loadCart(); // ✅
     });
   }
 
@@ -209,9 +216,8 @@ class _HomeState extends State<Home> {
         );
 
         final haveOrder = homeData?.haveOrder;
+        final showBottom = haveOrder != null;
         final status = (haveOrder?.status ?? "").toLowerCase().trim();
-
-        final showBottom = haveOrder != null && status.isNotEmpty;
         final isCart = status == "cart";
 
         return Scaffold(
@@ -376,7 +382,6 @@ class _HomeState extends State<Home> {
                 ),
               ),
 
-              // ✅ نفس مكان زر Your Order السابق
               if (showBottom)
                 Positioned(
                   left: 0,
@@ -384,12 +389,10 @@ class _HomeState extends State<Home> {
                   bottom: 85,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: isCart
-                        ? _BottomViewCartButton(homeCubit: cubit)
-                        : _BottomYourOrderButton(
-                            order: haveOrder!,
-                            homeCubit: cubit,
-                          ),
+                    child: _HomeBottomAction(
+                      homeCubit: cubit,
+                      haveOrder: haveOrder!,
+                    ),
                   ),
                 ),
             ],
@@ -400,163 +403,75 @@ class _HomeState extends State<Home> {
   }
 }
 
-// ===============================
-// Bottom: View Cart (when have_order.status == cart)
-// ===============================
-class _BottomViewCartButton extends StatelessWidget {
+class _HomeBottomAction extends StatelessWidget {
   final HomeCubit homeCubit;
-  const _BottomViewCartButton({required this.homeCubit});
+  final OrderInfo haveOrder;
 
-  double _extractCartTotal(dynamic cart) {
-    if (cart == null) return 0.0;
-
-    if (cart is Map) {
-      final keys = [
-        "total",
-        "total_price",
-        "totalPrice",
-        "grand_total",
-        "grandTotal",
-        "subtotal",
-        "sub_total",
-        "subTotal",
-        "amount",
-      ];
-      for (final k in keys) {
-        final n = _toNum(cart[k]);
-        if (n != null) return n.toDouble();
-      }
-    }
-
-    try {
-      final n = _toNum((cart as dynamic).total);
-      if (n != null) return n.toDouble();
-    } catch (_) {}
-    try {
-      final n = _toNum((cart as dynamic).totalPrice);
-      if (n != null) return n.toDouble();
-    } catch (_) {}
-    try {
-      final n = _toNum((cart as dynamic).grandTotal);
-      if (n != null) return n.toDouble();
-    } catch (_) {}
-    try {
-      final n = _toNum((cart as dynamic).subTotal);
-      if (n != null) return n.toDouble();
-    } catch (_) {}
-
-    return 0.0;
-  }
-
-  int _extractCartCount(dynamic cart) {
-    if (cart == null) return 0;
-
-    if (cart is Map) {
-      final items = cart["items"] ?? cart["data"] ?? cart["cart_items"];
-      if (items is List) return items.length;
-
-      final count = cart["count"] ?? cart["items_count"] ?? cart["itemsCount"];
-      final n = _toNum(count);
-      if (n != null) return n.toInt();
-    }
-
-    try {
-      final items = (cart as dynamic).items;
-      if (items is List) return items.length;
-    } catch (_) {}
-    try {
-      final n = _toNum((cart as dynamic).count);
-      if (n != null) return n.toInt();
-    } catch (_) {}
-    try {
-      final n = _toNum((cart as dynamic).itemsCount);
-      if (n != null) return n.toInt();
-    } catch (_) {}
-
-    return 0;
-  }
-
-  num? _toNum(dynamic v) {
-    if (v == null) return null;
-    if (v is num) return v;
-    return num.tryParse(v.toString());
-  }
+  const _HomeBottomAction({required this.homeCubit, required this.haveOrder});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, st) {
-        double total = 0.0;
-        int count = 0;
         bool loading = false;
+        CartSummary summary = CartSummary.empty;
 
         st.maybeWhen(
           loading: () => loading = true,
           cartLoaded: (cart, __, ___) {
-            total = _extractCartTotal(cart);
-            count = _extractCartCount(cart);
+            summary = CartSummary.from(cart);
           },
           orElse: () {},
         );
 
-        if (count <= 0 && !loading) return const SizedBox.shrink();
-
-        return CustomButton(
-          title: loading
+        // ✅ إذا في سلة -> View Cart
+        if (summary.hasCart || loading) {
+          // إذا loading وما في summary بعد، خلّي الزر موجود بس disabled
+          final title = loading
               ? "cart.view_cart_loading".tr()
-              : "${'cart.view_cart'.tr()} • $count • ${context.money(total, decimals: 0)}",
+              : "${'cart.view_cart'.tr()} • ${summary.count} • ${context.money(summary.total, decimals: 0)}";
 
-          onPressed: loading
-              ? null
-              : () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MultiBlocProvider(
-                        providers: [
-                          BlocProvider.value(value: context.read<CartCubit>()),
-                          BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
-                        ],
-                        child: const RequestOrderScreen(),
+          return CustomButton(
+            title: title,
+            onPressed: loading
+                ? null
+                : () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider.value(
+                              value: context.read<CartCubit>(),
+                            ),
+                            BlocProvider(
+                              create: (_) => getIt<OrderFlowCubit>(),
+                            ),
+                          ],
+                          child: const RequestOrderScreen(),
+                        ),
                       ),
-                    ),
-                  );
+                    );
 
-                  if (context.mounted) {
-                    context.read<CartCubit>().loadCart();
-                    homeCubit.load();
-                  }
-                },
-        );
-      },
-    );
-  }
-}
-
-class _BottomYourOrderButton extends StatelessWidget {
-  final OrderInfo order;
-  final HomeCubit homeCubit;
-  const _BottomYourOrderButton({required this.order, required this.homeCubit});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomButtonOrder(
-      title: "home.your_order".tr(),
-      onPressed: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => BlocProvider(
-              create: (_) => getIt<OrdersCubit>()..loadActive(),
-              child: const CurrentOrders(),
-            ),
-          ),
-        );
-
-        if (context.mounted) {
-          homeCubit.load();
-          context.read<CartCubit>().loadCart();
+                    if (context.mounted) {
+                      context.read<CartCubit>().loadCart();
+                      homeCubit.load();
+                    }
+                  },
+          );
         }
+
+        // ✅ ما في سلة -> Your Order
+        return CustomButtonOrder(
+          title: "home.your_order".tr(),
+          onPressed: () {
+            openHaveOrderTracking(context, haveOrder.id);
+            if (context.mounted) {
+              homeCubit.load();
+              context.read<CartCubit>().loadCart();
+            }
+          },
+        );
       },
     );
   }

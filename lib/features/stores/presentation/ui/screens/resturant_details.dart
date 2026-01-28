@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:breezefood/android_swipe_back.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
@@ -7,6 +9,7 @@ import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -113,6 +116,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
   String _fullImageUrl(String raw) {
     final v = raw.trim();
     if (v.isEmpty) return "";
+
+    // 🚫 ignore local server temp paths
+    if (v.startsWith("C:/") ||
+        v.startsWith("C:\\") ||
+        v.contains("xampp/tmp")) {
+      return "";
+    }
+
     return UrlHelper.toFullUrl(v) ?? "";
   }
 
@@ -139,9 +150,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => getIt<RatingSubmitCubit>()),
-      ],
+      providers: [BlocProvider(create: (_) => getIt<RatingSubmitCubit>())],
       child: AndroidSwipeBack(
         child: Scaffold(
           extendBodyBehindAppBar: true,
@@ -161,18 +170,29 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               List<List<MenuItem>> itemsByCategory = [];
               List<MenuItem> discountedItems = [];
 
-              int? myReviewId;
-              double myUserRating = 0.0;
+              String avgRatingText = "0.0"; // ✅ هذا للعرض برا
+              double avgRatingValue = 0.0; // ✅ رقمياً
+              int? myReviewId; // ✅ إذا موجود => عندي تقييم
+              double myUserRating = 0.0; // ✅ تقييمي أنا
 
               state.maybeWhen(
                 loaded: (data) {
                   final g = data.general;
 
-                  restaurantName = _pickSingleLangFromMixed(g.name, context);
-                  description = _pickSingleLangFromMixed(g.description ?? "", context);
+                  avgRatingValue = (g.avgRating > 0) ? g.avgRating : 0.0;
+                  avgRatingText = avgRatingValue > 0
+                      ? avgRatingValue.toStringAsFixed(1)
+                      : "0.0";
 
-                  headerImageUrl =
-                      _fullImageUrl((g.cover ?? g.logo ?? "").toString());
+                  restaurantName = _pickSingleLangFromMixed(g.name, context);
+                  description = _pickSingleLangFromMixed(
+                    g.description ?? "",
+                    context,
+                  );
+
+                  headerImageUrl = _fullImageUrl(
+                    (g.cover ?? g.logo ?? "").toString(),
+                  );
 
                   if (g.deliveryTime > 0) {
                     deliveryTime = "${g.deliveryTime}";
@@ -207,16 +227,15 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     );
                   }).toList();
 
-                  itemsByCategory =
-                      sections.map((e) => e.items).toList();
+                  itemsByCategory = sections.map((e) => e.items).toList();
 
-                  final allItems =
-                  sections.expand((s) => s.items).toList();
+                  final allItems = sections.expand((s) => s.items).toList();
 
                   discountedItems =
-                  allItems.where((x) => x.hasDiscount).toList()
-                    ..sort((a, b) =>
-                        b.discountPercent.compareTo(a.discountPercent));
+                      allItems.where((x) => x.hasDiscount).toList()..sort(
+                        (a, b) =>
+                            b.discountPercent.compareTo(a.discountPercent),
+                      );
 
                   myReviewId = data.myRating?.id;
                   myUserRating = data.myRating?.rating ?? 0.0;
@@ -229,8 +248,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverOverlapAbsorber(
-                      handle: NestedScrollView
-                          .sliverOverlapAbsorberHandleFor(context),
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context,
+                      ),
                       sliver: SliverAppBar(
                         expandedHeight: 240.h,
                         pinned: true,
@@ -244,41 +264,29 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             children: [
                               headerImageUrl.isEmpty
                                   ? Image.asset(
-                                "assets/images/shawarma_box.png",
-                                fit: BoxFit.cover,
-                              )
-                                  : Image.network(
-                                headerImageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    Image.asset(
                                       "assets/images/shawarma_box.png",
                                       fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      headerImageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Image.asset(
+                                        "assets/images/shawarma_box.png",
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                              ),
-                              // Container(
-                              //   decoration: BoxDecoration(
-                              //     gradient: LinearGradient(
-                              //       begin: Alignment.bottomCenter,
-                              //       end: Alignment.topCenter,
-                              //       colors: [
-                              //         Colors.black.withOpacity(0.6),
-                              //         Colors.black.withOpacity(0.2),
-                              //       ],
-                              //     ),
-                              //   ),
-                              // ),
-
-                              /// 🔥 CUSTOM ARROW (يختفي مع الصورة)
+      
                               PositionedDirectional(
                                 top: MediaQuery.of(context).padding.top + 12,
                                 start: 12,
-                                child: CustomArrow(color: AppColor.white,background: AppColor.black,colorborder: AppColor.grye,
+                                child: CustomArrow(
+                                  color: AppColor.white,
+                                  background: AppColor.black,
+                                  colorborder: AppColor.grye,
                                   onTap: () => Navigator.pop(context),
                                 ),
                               ),
 
-                              /// TITLE
                               Center(
                                 child: Text(
                                   restaurantName,
@@ -287,7 +295,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     color: Colors.white,
                                     fontSize: 26.sp,
                                     fontWeight: FontWeight.bold,
-                                    fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                    fontFamily: context.isAr
+                                        ? 'Cairo'
+                                        : 'Inter',
                                   ),
                                 ),
                               ),
@@ -297,7 +307,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       ),
                     ),
 
-                    /// Sticky Header (time + price + search + rating + categories)
                     SliverPersistentHeader(
                       pinned: true,
                       delegate: _StickyHeaderDelegate(
@@ -309,10 +318,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 5),
+                                  horizontal: 16,
+                                  vertical: 5,
+                                ),
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     TiemPrice(
                                       icon: Icons.alarm,
@@ -329,91 +340,88 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                               ),
                               const SizedBox(height: 8),
                               Padding(
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: GestureDetector(
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => Search(
-                                          restaurantId:
-                                          widget.restaurant_id,
+                                          restaurantId: widget.restaurant_id,
                                         ),
                                       ),
                                     );
                                   },
                                   child: const AbsorbPointer(
-                                    child: CustomSearch(
-                                      hint: "Search",
-                                    ),
+                                    child: CustomSearch(hint: "Search"),
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Padding(
-                                padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () async {
-                                    final res =
-                                    await showRateDialogWithDelete(
+                                    final hasMyRating =
+                                        (myReviewId ?? 0) > 0 &&
+                                        myUserRating > 0;
+
+                                    final res = await showRateDialogWithDelete(
                                       context,
-                                      currentRating: myUserRating > 0
+                                      currentRating: hasMyRating
                                           ? myUserRating
-                                          : (double.tryParse(ratingText) ??
-                                          0.0),
-                                      canDelete: myReviewId != null &&
-                                          myReviewId! > 0,
+                                          : (avgRatingValue > 0
+                                                ? avgRatingValue
+                                                : 3.0),
+                                      canDelete: hasMyRating,
                                     );
 
                                     if (res == null) return;
 
-                                    final submitCubit =
-                                    context.read<RatingSubmitCubit>();
-
+                                    final submitCubit = context
+                                        .read<RatingSubmitCubit>();
                                     EasyLoading.show(
                                       status: "common.sending".tr(),
                                     );
 
                                     if (res.delete) {
-                                      if (myReviewId == null) {
+                                      // ✅ أمان إضافي
+                                      if ((myReviewId ?? 0) == 0) {
                                         EasyLoading.showError(
-                                          "reviews.no_review_to_delete"
-                                              .tr(),
+                                          "reviews.no_review_to_delete".tr(),
                                         );
                                         return;
                                       }
 
-                                      await submitCubit
-                                          .deleteRestaurantRate(
+                                      await submitCubit.deleteRestaurantRate(
                                         reviewId: myReviewId!,
                                       );
 
                                       submitCubit.state.maybeWhen(
                                         deleteSuccess: () {
                                           EasyLoading.showSuccess(
-                                            "reviews.delete_success"
-                                                .tr(),
+                                            "reviews.delete_success".tr(),
                                           );
                                           cubit.load(
-                                              widget.restaurant_id);
+                                            widget.restaurant_id,
+                                          ); // ✅ ريـفريش
                                         },
                                         error: (msg) =>
-                                            EasyLoading.showError(
-                                                msg),
-                                        orElse: () =>
-                                            EasyLoading.dismiss(),
+                                            EasyLoading.showError(msg),
+                                        orElse: () => EasyLoading.dismiss(),
                                       );
 
                                       return;
                                     }
 
-                                    await submitCubit
-                                        .submitRestaurantRate(
-                                      restaurantId:
-                                      widget.restaurant_id,
+                                    // ✅ submit
+                                    await submitCubit.submitRestaurantRate(
+                                      restaurantId: widget.restaurant_id,
                                       rating: res.rating!,
                                     );
 
@@ -423,15 +431,15 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           "reviews.rate_success".tr(),
                                         );
                                         cubit.load(
-                                            widget.restaurant_id);
+                                          widget.restaurant_id,
+                                        ); // ✅ ريـفريش
                                       },
                                       error: (msg) =>
-                                          EasyLoading.showError(
-                                              msg),
-                                      orElse: () =>
-                                          EasyLoading.dismiss(),
+                                          EasyLoading.showError(msg),
+                                      orElse: () => EasyLoading.dismiss(),
                                     );
                                   },
+
                                   child: Row(
                                     children: [
                                       Expanded(
@@ -442,17 +450,20 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                         ),
                                       ),
                                       _divider(),
-                                      const Icon(Icons.star,
-                                          color: Colors.amber,
-                                          size: 18),
+                                      const Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                        size: 18,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        ratingText,
+                                        avgRatingText, // ✅ AVG فقط
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 11,
                                         ),
                                       ),
+
                                       _divider(),
                                       CustomSubTitle(
                                         subtitle: ordersText,
@@ -469,15 +480,16 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 10.w),
+                                    horizontal: 10.w,
+                                  ),
                                   itemCount: categories.length,
                                   itemBuilder: (context, index) {
                                     final isSelected =
-                                        selectedCategoryIndex ==
-                                            index;
+                                        selectedCategoryIndex == index;
                                     return Padding(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: 4.w),
+                                        horizontal: 4.w,
+                                      ),
                                       child: GestureDetector(
                                         onTap: () {
                                           final keyContext =
@@ -487,36 +499,33 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             Scrollable.ensureVisible(
                                               keyContext,
                                               duration: const Duration(
-                                                  milliseconds: 400),
-                                              curve:
-                                              Curves.easeInOut,
+                                                milliseconds: 400,
+                                              ),
+                                              curve: Curves.easeInOut,
                                             );
                                           }
                                           setState(() {
-                                            selectedCategoryIndex =
-                                                index;
+                                            selectedCategoryIndex = index;
                                           });
                                         },
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
-                                              horizontal: 12.w,
-                                              vertical: 6.h),
+                                            horizontal: 12.w,
+                                            vertical: 6.h,
+                                          ),
                                           decoration: BoxDecoration(
-                                            borderRadius:
-                                            BorderRadius.circular(
-                                                20),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                             color: isSelected
-                                                ? AppColor
-                                                .primaryColor
+                                                ? AppColor.primaryColor
                                                 : AppColor.black,
                                           ),
                                           child: CustomSubTitle(
-                                            subtitle:
-                                            categories[index],
+                                            subtitle: categories[index],
                                             color: isSelected
                                                 ? AppColor.white
-                                                : AppColor
-                                                .LightActive,
+                                                : AppColor.LightActive,
                                             fontsize: 14.sp,
                                           ),
                                         ),
@@ -538,12 +547,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     return CustomScrollView(
                       slivers: [
                         SliverOverlapInjector(
-                          handle: NestedScrollView
-                              .sliverOverlapAbsorberHandleFor(
-                              context),
+                          handle:
+                              NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                context,
+                              ),
                         ),
 
-                        /// Discounts
                         if (discountedItems.isNotEmpty)
                           SliverToBoxAdapter(
                             child: DiscountMealSection(
@@ -558,13 +567,11 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   ar: it.descriptionAr ?? "",
                                   en: it.descriptionEn ?? "",
                                 );
-                                final img =
-                                _fullImageUrl(it.image ?? "");
+                                final img = _fullImageUrl(it.image ?? "");
 
                                 await showAddOrderDialog(
                                   context,
-                                  restaurantId:
-                                  widget.restaurant_id,
+                                  restaurantId: widget.restaurant_id,
                                   menuItemId: it.id,
                                   title: title,
                                   price: it.effectivePrice,
@@ -579,9 +586,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 );
 
                                 if (context.mounted) {
-                                  context
-                                      .read<CartCubit>()
-                                      .loadCart();
+                                  context.read<CartCubit>().loadCart();
                                 }
                               },
                             ),
@@ -589,164 +594,122 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                         /// Most Popular
                         SliverToBoxAdapter(
-                          child: BlocBuilder<MostPopularCubit,
-                              MostPopularState>(
-                            bloc: mostPopularCubit,
-                            builder: (context, mpState) {
-                              return mpState.maybeWhen(
-                                loading: () => const Padding(
-                                  padding: EdgeInsets.only(
-                                      bottom: 12),
-                                  child: Center(
-                                    child:
-                                    CircularProgressIndicator(),
-                                  ),
-                                ),
-                                error: (msg) => Padding(
-                                  padding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 6),
-                                  child: CustomSubTitle(
-                                    subtitle: msg,
-                                    color: AppColor.red,
-                                    fontsize: 12,
-                                  ),
-                                ),
-                                loaded: (items) {
-                                  if (items.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 12),
-                                    child: MostPopularSection(
-                                        items: items),
+                          child:
+                              BlocBuilder<MostPopularCubit, MostPopularState>(
+                                bloc: mostPopularCubit,
+                                builder: (context, mpState) {
+                                  return mpState.maybeWhen(
+                                    loading: () => const Padding(
+                                      padding: EdgeInsets.only(bottom: 12),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                    error: (msg) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 6,
+                                      ),
+                                      child: CustomSubTitle(
+                                        subtitle: msg,
+                                        color: AppColor.red,
+                                        fontsize: 12,
+                                      ),
+                                    ),
+                                    loaded: (items) {
+                                      if (items.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 12,
+                                        ),
+                                        child: MostPopularSection(items: items),
+                                      );
+                                    },
+                                    orElse: () => const SizedBox.shrink(),
                                   );
                                 },
-                                orElse: () =>
-                                const SizedBox.shrink(),
-                              );
-                            },
-                          ),
+                              ),
                         ),
 
                         /// Menu Sections
                         SliverToBoxAdapter(
                           child: Column(
-                            children: List.generate(
-                                categories.length, (index) {
-                              final category =
-                              categories[index];
-                              final items =
-                              itemsByCategory[index];
+                            children: List.generate(categories.length, (index) {
+                              final category = categories[index];
+                              final items = itemsByCategory[index];
 
                               return Column(
                                 key: _categoryKeys[index],
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding:
-                                    const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    child: CustomTitleSection(
-                                      title: category,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
                                     ),
+                                    child: CustomTitleSection(title: category),
                                   ),
                                   const SizedBox(height: 10),
                                   SizedBox(
                                     height: 140.h,
                                     child: ListView.builder(
-                                      scrollDirection:
-                                      Axis.horizontal,
-                                      padding:
-                                      const EdgeInsetsDirectional
-                                          .only(start: 16),
+                                      scrollDirection: Axis.horizontal,
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: 16,
+                                      ),
                                       itemCount: items.length,
-                                      itemBuilder:
-                                          (context, i) {
-                                        final it =
-                                        items[i];
-                                        final imageUrl =
-                                        _fullImageUrl(
-                                            it.image ??
-                                                "");
-                                        final price =
-                                            it.effectivePrice;
+                                      itemBuilder: (context, i) {
+                                        final it = items[i];
+                                        final imageUrl = _fullImageUrl(
+                                          it.image ?? "",
+                                        );
+                                        final price = it.effectivePrice;
 
-                                        final mapped =
-                                        MenuItemModel(
+                                        final mapped = MenuItemModel(
                                           id: it.id,
-                                          nameAr:
-                                          it.nameAr,
-                                          nameEn:
-                                          it.nameEn,
-                                          priceBefore:
-                                          (it.priceBefore >
-                                              0
-                                              ? it
-                                              .priceBefore
+                                          nameAr: it.nameAr,
+                                          nameEn: it.nameEn,
+                                          priceBefore: (it.priceBefore > 0
+                                              ? it.priceBefore
                                               : it.price),
-                                          priceAfter:
-                                          it.effectivePrice,
-                                          hasDiscount:
-                                          it.hasDiscount,
-                                          discountType:
-                                          it.discountType,
-                                          discountValue: it
-                                              .discountPercent,
-                                          isFavorite:
-                                          it.isFavorite,
-                                          primaryImage:
-                                          imageUrl
-                                              .isEmpty
+                                          priceAfter: it.effectivePrice,
+                                          hasDiscount: it.hasDiscount,
+                                          discountType: it.discountType,
+                                          discountValue: it.discountPercent,
+                                          isFavorite: it.isFavorite,
+                                          primaryImage: imageUrl.isEmpty
                                               ? null
                                               : PrimaryImageModel(
-                                            imageUrl:
-                                            imageUrl,
-                                          ),
-                                          restaurant:
-                                          null,
+                                                  imageUrl: imageUrl,
+                                                ),
+                                          restaurant: null,
                                         );
 
                                         return GestureDetector(
-                                          onTap:
-                                              () async {
+                                          onTap: () async {
                                             await showAddOrderDialog(
                                               context,
                                               restaurantId:
-                                              widget.restaurant_id,
-                                              menuItemId:
-                                              it.id,
-                                              title:
-                                              context.pick(
-                                                ar: it
-                                                    .nameAr,
-                                                en: it
-                                                    .nameEn,
+                                                  widget.restaurant_id,
+                                              menuItemId: it.id,
+                                              title: context.pick(
+                                                ar: it.nameAr,
+                                                en: it.nameEn,
                                               ),
-                                              price:
-                                              price,
-                                              oldPrice: (it.priceBefore >
-                                                  0
-                                                  ? it
-                                                  .priceBefore
+                                              price: price,
+                                              oldPrice: (it.priceBefore > 0
+                                                  ? it.priceBefore
                                                   : it.price),
                                               imagePathOrUrl:
-                                              imageUrl
-                                                  .isNotEmpty
+                                                  imageUrl.isNotEmpty
                                                   ? imageUrl
                                                   : "assets/images/shawarma_box.png",
-                                              description:
-                                              context.pick(
-                                                ar: it.descriptionAr ??
-                                                    "",
-                                                en: it.descriptionEn ??
-                                                    "",
+                                              description: context.pick(
+                                                ar: it.descriptionAr ?? "",
+                                                en: it.descriptionEn ?? "",
                                               ),
-                                              extraMeals:
-                                              it.mealExtras,
+                                              extraMeals: it.mealExtras,
                                             );
 
                                             if (mounted) {
@@ -756,18 +719,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             }
                                           },
                                           child: Container(
-                                            width:
-                                            170.w,
+                                            width: 170.w,
                                             margin: EdgeInsetsDirectional.only(
-                                                end: i ==
-                                                    items.length -
-                                                        1
-                                                    ? 0
-                                                    : 8.w),
-                                            child:
-                                            PopularItemCard(
-                                              item:
-                                              mapped,
+                                              end: i == items.length - 1
+                                                  ? 0
+                                                  : 8.w,
+                                            ),
+                                            child: PopularItemCard(
+                                              item: mapped,
                                             ),
                                           ),
                                         );
@@ -781,9 +740,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           ),
                         ),
 
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: 24.h),
-                        ),
+                        SliverToBoxAdapter(child: SizedBox(height: 24.h)),
                       ],
                     );
                   },
@@ -800,24 +757,23 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     return SafeArea(
       child: BlocBuilder<CartCubit, CartState>(
         builder: (context, st) {
-          double total = 0.0;
-          int count = 0;
           bool loading = false;
+          CartSummary summary = CartSummary.empty;
 
           st.maybeWhen(
             loading: () => loading = true,
-            cartLoaded: (cart, updatingIds, toast) {
-              total = _extractCartTotal(cart);
-              count = _extractCartCount(cart);
+            cartLoaded: (cart, __, ___) {
+              summary = CartSummary.from(cart);
             },
             orElse: () {},
           );
 
-          if (count <= 0) return const SizedBox.shrink();
+          if (!loading && !summary.hasCart) {
+            return const SizedBox.shrink();
+          }
 
           return Container(
-            padding:
-            EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: AppColor.Dark,
               boxShadow: [
@@ -832,64 +788,40 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               title: loading
                   ? "common.view_cart_loading".tr()
                   : "common.view_cart".tr(
-                namedArgs: {
-                  "count": "$count",
-                  "total":
-                  context.money(total, decimals: 0),
-                },
-              ),
+                      namedArgs: {
+                        "count": "${summary.count}",
+                        "total": context.money(summary.total, decimals: 0),
+                      },
+                    ),
               onPressed: loading
                   ? null
                   : () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MultiBlocProvider(
-                      providers: [
-                        BlocProvider.value(
-                          value:
-                          context.read<CartCubit>(),
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MultiBlocProvider(
+                            providers: [
+                              BlocProvider.value(
+                                value: context.read<CartCubit>(),
+                              ),
+                              BlocProvider(
+                                create: (_) => getIt<OrderFlowCubit>(),
+                              ),
+                            ],
+                            child: const RequestOrderScreen(),
+                          ),
                         ),
-                        BlocProvider(
-                          create: (_) =>
-                              getIt<OrderFlowCubit>(),
-                        ),
-                      ],
-                      child: const RequestOrderScreen(),
-                    ),
-                  ),
-                );
+                      );
 
-                if (context.mounted) {
-                  context
-                      .read<CartCubit>()
-                      .loadCart();
-                }
-              },
+                      if (context.mounted) {
+                        context.read<CartCubit>().loadCart();
+                      }
+                    },
             ),
           );
         },
       ),
     );
-  }
-
-  double _extractCartTotal(dynamic cart) {
-    if (cart == null) return 0.0;
-    try {
-      final n = num.tryParse(
-          (cart as dynamic).total.toString());
-      return n?.toDouble() ?? 0.0;
-    } catch (_) {}
-    return 0.0;
-  }
-
-  int _extractCartCount(dynamic cart) {
-    if (cart == null) return 0;
-    try {
-      final items = (cart as dynamic).items;
-      if (items is List) return items.length;
-    } catch (_) {}
-    return 0;
   }
 
   Widget _divider() {
@@ -908,26 +840,26 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   _StickyHeaderDelegate({required this.child});
 
   @override
-  double get minExtent => 180;
+  double get minExtent => 190.h;
 
   @override
-  double get maxExtent => 180;
+  double get maxExtent => 190.h;
 
   @override
   Widget build(
-      BuildContext context,
-      double shrinkOffset,
-      bool overlapsContent,
-      ) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return child;
   }
 
   @override
-  bool shouldRebuild(
-      covariant _StickyHeaderDelegate old) {
+  bool shouldRebuild(covariant _StickyHeaderDelegate old) {
     return old.child != child;
   }
 }
+
 class DiscountItemCard extends StatelessWidget {
   final MenuItem item;
   final String imageUrl;
@@ -962,10 +894,10 @@ class DiscountItemCard extends StatelessWidget {
                 child: imageUrl.isEmpty
                     ? _fallback()
                     : Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _fallback(),
-                ),
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _fallback(),
+                      ),
               ),
 
               // overlay (نفس MostPopular)
@@ -1014,7 +946,7 @@ class DiscountItemCard extends StatelessWidget {
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     fontFamily:
-                    Localizations.localeOf(context).languageCode == 'ar'
+                        Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -1028,7 +960,7 @@ class DiscountItemCard extends StatelessWidget {
                         fontSize: 11.sp,
                         decoration: TextDecoration.lineThrough,
                         fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
+                            Localizations.localeOf(context).languageCode == 'ar'
                             ? 'Cairo'
                             : 'Inter',
                       ),
