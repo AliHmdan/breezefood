@@ -1,10 +1,13 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/dialogs.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders_details_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TrackingSheet extends StatelessWidget {
@@ -28,7 +31,6 @@ class TrackingSheet extends StatelessWidget {
   }
 
   String _cleanPhone(String s) {
-    // خلي + وأرقام فقط
     final cleaned = s.replaceAll(RegExp(r"[^0-9+]"), "");
     return cleaned;
   }
@@ -42,7 +44,6 @@ class TrackingSheet extends StatelessWidget {
     final ok = await canLaunchUrl(uri);
     if (!ok) return;
 
-    // يفتح تطبيق الهاتف / dialer
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
@@ -72,9 +73,9 @@ class TrackingSheet extends StatelessWidget {
   String _stepTitle(String key) => "order_status.$key".tr();
 
   Widget _divider() => Padding(
-        padding: EdgeInsets.symmetric(vertical: 14.h),
-        child: Container(height: 1, color: Colors.white12),
-      );
+    padding: EdgeInsets.symmetric(vertical: 14.h),
+    child: Container(height: 1, color: Colors.white12),
+  );
 
   Widget _sectionTitle(String title) {
     return Padding(
@@ -92,13 +93,8 @@ class TrackingSheet extends StatelessWidget {
 
   String _v(String? s) => (s == null || s.trim().isEmpty) ? "—" : s.trim();
 
-  String _num(num? n) {
-    if (n == null) return "—";
-    // إذا بدك 0 يظهر، خليه، وإذا بدك يعتبره فاضي شيل الشرط
-    return n.toString();
-  }
-
   Widget _kv(String k, String v) {
+    final vv = v.trim().isEmpty ? "—" : v.trim();
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
@@ -111,7 +107,7 @@ class TrackingSheet extends StatelessWidget {
           ),
           SizedBox(width: 10.w),
           Text(
-            v.isEmpty ? "—" : v,
+            vv,
             style: TextStyle(
               color: AppColor.white,
               fontSize: 12.sp,
@@ -210,6 +206,30 @@ class TrackingSheet extends StatelessWidget {
     );
   }
 
+  Future<void> _confirmAndCancel(BuildContext context) async {
+    final ok = await AppDialog.showConfirmDialog(
+      title: "orders.cancel_confirm_title".tr(),
+      message: "orders.cancel_confirm_body".tr(),
+      yesText: "orders.cancel".tr(),
+      noText: "common.close".tr(),
+      icon: Iconsax.warning_2,
+      iconColor: AppColor.red,
+    );
+
+    if (ok != true) return;
+
+    final success = await context.read<OrdersDetailsCubit>().cancel(orderId);
+    if (!context.mounted) return;
+
+    if (success) {
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("orders.cancel_failed".tr())));
+    }
+  }
+
   // ================= UI =================
 
   @override
@@ -230,7 +250,8 @@ class TrackingSheet extends StatelessWidget {
 
         final order = details?.order;
         final status = (order?.status ?? "").toString();
-        final createdAt = (order?.createdAt ?? "").toString();
+        final st = status.toLowerCase().trim();
+        final canCancel = st == "no_driver";
 
         final itemsTotal = order?.itemsTotal;
         final deliveryFee = order?.deliveryFee;
@@ -238,8 +259,9 @@ class TrackingSheet extends StatelessWidget {
 
         final codeInt = order?.orderCustomerCode;
         final code = (codeInt == null) ? "" : codeInt.toString();
-        final codeDigits =
-            code.isEmpty ? ["-", "-", "-", "-"] : code.padLeft(4, "0").split("");
+        final codeDigits = code.isEmpty
+            ? ["-", "-", "-", "-"]
+            : code.padLeft(4, "0").split("");
 
         final timeline = details?.timeline ?? const [];
         final items = details?.items ?? const [];
@@ -289,7 +311,6 @@ class TrackingSheet extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 20.w),
                       child: Row(
                         children: [
-                          // driver avatar
                           Container(
                             width: 56.w,
                             height: 56.w,
@@ -303,7 +324,10 @@ class TrackingSheet extends StatelessWidget {
                               ),
                             ),
                             child: driverImg.isEmpty
-                                ? const Icon(Icons.person, color: AppColor.white)
+                                ? const Icon(
+                                    Icons.person,
+                                    color: AppColor.white,
+                                  )
                                 : Image.network(
                                     driverImg,
                                     fit: BoxFit.cover,
@@ -314,7 +338,6 @@ class TrackingSheet extends StatelessWidget {
                                   ),
                           ),
                           SizedBox(width: 12.w),
-
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +353,6 @@ class TrackingSheet extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 6.h),
-
                                 Row(
                                   children: [
                                     if (restLogo.isNotEmpty)
@@ -341,7 +363,9 @@ class TrackingSheet extends StatelessWidget {
                                         clipBehavior: Clip.antiAlias,
                                         decoration: BoxDecoration(
                                           color: AppColor.LightActive,
-                                          borderRadius: BorderRadius.circular(6.r),
+                                          borderRadius: BorderRadius.circular(
+                                            6.r,
+                                          ),
                                         ),
                                         child: Image.network(
                                           restLogo,
@@ -363,7 +387,6 @@ class TrackingSheet extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-
                                 if (driverPhone.isNotEmpty) ...[
                                   SizedBox(height: 6.h),
                                   Text(
@@ -377,10 +400,11 @@ class TrackingSheet extends StatelessWidget {
                               ],
                             ),
                           ),
-
                           _actionCircle(
                             icon: Icons.call,
-                            onTap: driverPhone.isEmpty ? null : () => _callPhone(driverPhone),
+                            onTap: driverPhone.isEmpty
+                                ? null
+                                : () => _callPhone(driverPhone),
                           ),
                         ],
                       ),
@@ -399,10 +423,15 @@ class TrackingSheet extends StatelessWidget {
                         error: (message) => Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(message.tr(), style: TextStyle(color: AppColor.gry)),
+                            Text(
+                              message.tr(),
+                              style: TextStyle(color: AppColor.gry),
+                            ),
                             SizedBox(height: 8.h),
                             GestureDetector(
-                              onTap: () => context.read<OrdersDetailsCubit>().load(orderId),
+                              onTap: () => context
+                                  .read<OrdersDetailsCubit>()
+                                  .load(orderId),
                               child: Text(
                                 "common.retry".tr(),
                                 style: TextStyle(
@@ -425,15 +454,20 @@ class TrackingSheet extends StatelessWidget {
                       delegate: SliverChildListDelegate([
                         _divider(),
 
-                        // Customer code
                         _sectionTitle("tracking.customer_code_title".tr()),
                         Text(
                           "tracking.show_code_hint".tr(),
-                          style: TextStyle(color: AppColor.gry, fontSize: 13.sp),
+                          style: TextStyle(
+                            color: AppColor.gry,
+                            fontSize: 13.sp,
+                          ),
                         ),
                         SizedBox(height: 10.h),
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 12.h,
+                            horizontal: 14.w,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColor.LightActive,
                             borderRadius: BorderRadius.circular(12.r),
@@ -456,17 +490,41 @@ class TrackingSheet extends StatelessWidget {
 
                         _divider(),
 
-                        // Order details
                         _sectionTitle("tracking.order_details".tr()),
                         _kv("tracking.status".tr(), _v(status)),
-                        _kv("tracking.created_at".tr(), _v(createdAt)),
-                        _kv("tracking.items_total".tr(), _num(itemsTotal)),
-                        _kv("tracking.delivery_fee".tr(), _num(deliveryFee)),
-                        _kv("tracking.total".tr(), _num(total)),
+                        _kv(
+                          "tracking.items_total".tr(),
+                          context.syp(itemsTotal),
+                        ),
+                        _kv(
+                          "tracking.delivery_fee".tr(),
+                          context.syp(deliveryFee),
+                        ),
+                        _kv("tracking.total".tr(), context.syp(total)),
+
+                        // ✅ Cancel button (ONLY pending)
+                        if (canCancel) ...[
+                          SizedBox(height: 12.h),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.close),
+                              label: Text("orders.cancel_order".tr()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14.r),
+                                ),
+                              ),
+                              onPressed: () => _confirmAndCancel(context),
+                            ),
+                          ),
+                        ],
 
                         _divider(),
 
-                        // Timeline
                         _sectionTitle("tracking.timeline".tr()),
                         ...List.generate(stepKeys.length, (i) {
                           final k = stepKeys[i];
@@ -474,20 +532,21 @@ class TrackingSheet extends StatelessWidget {
                           return _buildStep(
                             _stepTitle(k),
                             t,
-                            _isStepCompleted(k, status),
+                            _isStepCompleted(k, st),
                             i == stepKeys.length - 1,
                           );
                         }),
 
                         _divider(),
 
-                        // Items
                         _sectionTitle("tracking.items".tr()),
                         if (items.isEmpty)
                           Padding(
                             padding: EdgeInsets.only(top: 4.h),
-                            child: Text("common.empty".tr(),
-                                style: TextStyle(color: AppColor.gry)),
+                            child: Text(
+                              "common.empty".tr(),
+                              style: TextStyle(color: AppColor.gry),
+                            ),
                           )
                         else
                           ...items.map((it) {
@@ -510,18 +569,25 @@ class TrackingSheet extends StatelessWidget {
                                       color: AppColor.Dark,
                                     ),
                                     child: img.isEmpty
-                                        ? const Icon(Icons.fastfood, color: AppColor.white)
+                                        ? const Icon(
+                                            Icons.fastfood,
+                                            color: AppColor.white,
+                                          )
                                         : Image.network(
                                             img,
                                             fit: BoxFit.cover,
                                             errorBuilder: (_, __, ___) =>
-                                                const Icon(Icons.fastfood, color: AppColor.white),
+                                                const Icon(
+                                                  Icons.fastfood,
+                                                  color: AppColor.white,
+                                                ),
                                           ),
                                   ),
                                   SizedBox(width: 12.w),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           it.title,
@@ -534,37 +600,56 @@ class TrackingSheet extends StatelessWidget {
                                           ),
                                         ),
                                         SizedBox(height: 6.h),
-                                        Text(
-                                          "${"tracking.qty".tr(args: ["${it.quantity}"])} • "
-                                          "${"tracking.item_price".tr(args: ["${it.totalPrice}"])} • "
-                                          "${"tracking.delivery_time".tr(args: ["${it.deliveryTime}"])}",
-                                          style: TextStyle(
-                                            color: AppColor.gry,
-                                            fontSize: 12.sp,
-                                          ),
+                                        Wrap(
+                                          spacing: 8.w,
+                                          runSpacing: 6.h,
+                                          children: [
+                                            _chipKV(
+                                              "tracking.qty".tr(),
+                                              "${it.quantity}",
+                                            ),
+                                            _chipKV(
+                                              "tracking.item_price".tr(),
+                                              context.syp(it.totalPrice),
+                                            ),
+                                            _chipKV(
+                                              "tracking.delivery_time".tr(),
+                                              "${it.deliveryTime}",
+                                            ),
+                                          ],
                                         ),
                                         if (it.withSpicy)
                                           Padding(
                                             padding: EdgeInsets.only(top: 8.h),
                                             child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 10.w,
+                                                vertical: 6.h,
+                                              ),
                                               decoration: BoxDecoration(
                                                 color: AppColor.Dark,
-                                                borderRadius: BorderRadius.circular(999),
-                                                border: Border.all(color: Colors.white12),
+                                                borderRadius:
+                                                    BorderRadius.circular(999),
+                                                border: Border.all(
+                                                  color: Colors.white12,
+                                                ),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Icon(Icons.local_fire_department,
-                                                      color: AppColor.white, size: 16.sp),
+                                                  Icon(
+                                                    Icons.local_fire_department,
+                                                    color: AppColor.white,
+                                                    size: 16.sp,
+                                                  ),
                                                   SizedBox(width: 6.w),
                                                   Text(
                                                     "tracking.spicy".tr(),
                                                     style: TextStyle(
                                                       color: AppColor.white,
                                                       fontSize: 12.sp,
-                                                      fontWeight: FontWeight.w800,
+                                                      fontWeight:
+                                                          FontWeight.w800,
                                                     ),
                                                   ),
                                                 ],
@@ -589,4 +674,39 @@ class TrackingSheet extends StatelessWidget {
       },
     );
   }
+}
+
+Widget _chipKV(String label, String value) {
+  final v = value.trim().isEmpty ? "—" : value.trim();
+
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+    decoration: BoxDecoration(
+      color: AppColor.Dark,
+      borderRadius: BorderRadius.circular(999),
+      border: Border.all(color: Colors.white12),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          "$label:",
+          style: TextStyle(
+            color: AppColor.gry,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(width: 6.w),
+        Text(
+          v,
+          style: TextStyle(
+            color: AppColor.white,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    ),
+  );
 }

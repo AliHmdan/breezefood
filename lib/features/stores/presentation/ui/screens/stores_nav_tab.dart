@@ -1,7 +1,7 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';

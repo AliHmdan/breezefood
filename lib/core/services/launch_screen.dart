@@ -1,7 +1,7 @@
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/shared_perfrences_key.dart';
 import 'package:breezefood/features/auth/presentation/login_page.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

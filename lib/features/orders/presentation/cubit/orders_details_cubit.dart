@@ -18,6 +18,22 @@ class OrdersDetailsState with _$OrdersDetailsState {
 class OrdersDetailsCubit extends Cubit<OrdersDetailsState> {
   final OrdersRepository repo;
   OrdersDetailsCubit(this.repo) : super(const OrdersDetailsState.idle());
+  // داخل OrdersDetailsCubit
+  Future<bool> cancel(int orderId) async {
+    emit(const OrdersDetailsState.loading());
+
+    final res = await repo.cancelOrder(orderId);
+
+    if (!res.ok) {
+      emit(OrdersDetailsState.error(res.message ?? "orders.cancel_failed"));
+      return false;
+    }
+
+    // ✅ أعد تحميل التفاصيل (اختياري بس الأفضل)
+    await load(orderId);
+
+    return true;
+  }
 
   Future<void> load(int orderId) async {
     emit(const OrdersDetailsState.loading());

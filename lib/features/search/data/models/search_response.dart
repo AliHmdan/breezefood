@@ -55,7 +55,16 @@ class SearchRating with _$SearchRating {
 class SearchItem with _$SearchItem {
   const factory SearchItem({
     required int id,
+
     @JsonKey(name: 'base_price') required String basePrice,
+
+    /// ✅ Discount fields
+    @JsonKey(name: 'price_before') double? priceBefore,
+    @JsonKey(name: 'price_after') double? priceAfter,
+    @JsonKey(name: 'has_discount') bool? hasDiscount,
+    @JsonKey(name: 'discount_type') String? discountType,
+    @JsonKey(name: 'discount_value') String? discountValue,
+
     required SearchItemNames names,
     @JsonKey(name: 'orders_count') @Default(0) int ordersCount,
     @JsonKey(name: 'image_url') String? imageUrl,

@@ -54,6 +54,19 @@ Future<AppResponse> getDriverLocation(int orderId) async {
     return AppResponse.fail(message: "فشل جلب موقع السائق");
   }
 }
+Future<AppResponse> cancelOrder(int orderId) async {
+  try {
+    final res = await api.cancelOrder(orderId);
+    return AppResponse.ok(
+      message: (res.data is Map) ? (res.data["message"]?.toString()) : null,
+      data: res.data,
+    );
+  } on DioException catch (e) {
+    return AppResponseHandler.handleError(e);
+  } catch (_) {
+    return AppResponse.fail(message: "فشل إلغاء الطلب");
+  }
+}
 
   // ✅ NEW
   Future<AppResponse> getMyOrderDetails(int orderId) async {

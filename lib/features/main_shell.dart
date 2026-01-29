@@ -1,10 +1,10 @@
 import 'package:breezefood/core/component/CustomBottomNav.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/home_screen.dart';
-import 'package:breezefood/features/favoritePage/favorite_page.dart';
+import 'package:breezefood/features/favorite_page/favorite_page.dart';
 import 'package:breezefood/features/orders/orders.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';

@@ -21,7 +21,7 @@ class OrderTrackingScreen extends StatefulWidget {
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
 }
 
-class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
+class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBindingObserver{
   GoogleMapController? _mapController;
 
   BitmapDescriptor? _driverIcon;
@@ -39,9 +39,10 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
   // UI states
   bool _movedCameraOnce = false;
 
-  @override
+@override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _loadIcons();
     _startMyLocation();
@@ -51,13 +52,39 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       context.read<OrdersDetailsCubit>().load(widget.orderId);
     });
   }
-
-  void _startTracking() {
+ void _startTracking() {
     context.read<OrdersTrackingCubit>().start(
       widget.orderId,
       interval: const Duration(seconds: 15),
     );
   }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    context.read<OrdersTrackingCubit>().stop(); // ✅ لازم
+    _posSub?.cancel();
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      context.read<OrdersTrackingCubit>().stop(); // ✅ وقف لما يطلع من الشاشة/يخفت التطبيق
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      context.read<OrdersTrackingCubit>().start(
+        widget.orderId,
+        interval: const Duration(seconds: 15),
+      );
+    }
+  }
+
+ 
 
   Future<void> _loadIcons() async {
     try {
@@ -126,13 +153,6 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
     return true;
   }
 
-  @override
-  void dispose() {
-    context.read<OrdersTrackingCubit>().stop();
-    _posSub?.cancel();
-    _mapController?.dispose();
-    super.dispose();
-  }
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;

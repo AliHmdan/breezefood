@@ -17,14 +17,18 @@
     "suggestion_desserts": "Desserts",
     "suggestion_drinks": "Drinks"
   },
-  
   "order_status": {
     "pending": "Pending",
     "preparing": "Preparing",
     "inway": "Inway",
     "delivered": "Delivered"
   },
+  "your_rate_title": "Your rating",
+  "already_rated_hint": "You already rated this restaurant. You can delete your rating if you want.",
   "tracking": {
+    "qty": "Qty",
+    "item_price": "Price",
+    "delivery_time": "Delivery time",
     "customer_code_title": "Customer Code",
     "show_code_hint": "Show this code to the driver when you receive the order",
     "delivering_to": "Delivering to",
@@ -32,8 +36,8 @@
     "step_preparing": "Preparing",
     "step_picked": "On the way",
     "step_delivered": "Delivered",
-    "order_id": "Order #{0}",
-    "payment": "Payment: {0}",
+    "order_id": "Order #",
+    "payment": "Payment",
     "order_details": "Order details",
     "status": "Status",
     "payment_status": "Payment status",
@@ -42,9 +46,6 @@
     "total": "Total",
     "timeline": "Timeline",
     "items": "Items",
-    "qty": "Qty: {0}",
-    "item_price": "Price: {0}",
-    "delivery_time": "Delivery time: {0} min",
     "spicy": "Spicy",
     "me": "Me",
     "title": "Tracking Order #{id}",
@@ -57,6 +58,11 @@
   "tracking.error_bad_response": "Invalid tracking response",
   "tracking.error_missing_locations": "Unable to load tracking data",
   "orders": {
+    "cancel_order": "Cancel order",
+    "cancel_confirm_title": "Cancel order?",
+    "cancel_confirm_body": "This will cancel your order. Are you sure?",
+    "cancel": "Cancel",
+    "cancel_success": "Order cancelled",
     "status_pending": "Pending",
     "status_preparing": "Preparing",
     "status_delivered": "Delivered",

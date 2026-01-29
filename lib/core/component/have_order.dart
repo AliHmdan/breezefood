@@ -7,21 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void openHaveOrderTracking(BuildContext context, int orderId) {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) =>
-                OrdersTrackingCubit(getIt<OrdersRepository>())..start(orderId),
-          ),
-          BlocProvider(
-            create: (_) =>
-                OrdersDetailsCubit(getIt<OrdersRepository>())..load(orderId),
-          ),
-        ],
-        child: OrderTrackingScreen(orderId: orderId),
-      ),
+  Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<OrdersDetailsCubit>()),
+        BlocProvider(create: (_) => getIt<OrdersTrackingCubit>()), // ✅ جديد
+      ],
+      child: OrderTrackingScreen(orderId: orderId),
     ),
-  );
+  ),
+);
+
 }

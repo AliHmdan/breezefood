@@ -4,8 +4,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/router/navigation_key.dart';
 import 'package:breezefood/core/services/app_notification_service.dart';
 import 'package:breezefood/core/services/launch_screen.dart';
-import 'package:breezefood/features/dialog/Cubit/RateCubit.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
@@ -17,6 +16,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -57,7 +58,6 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
-        BlocProvider(create: (_) => RatingCubit()),
         BlocProvider(create: (_) => getIt<HomeCubit>()),
         BlocProvider(create: (_) => getIt<ProfileCubit>()), // إذا بدك كمان
       ],
@@ -67,6 +67,7 @@ class MyApp extends StatelessWidget {
         splitScreenMode: true,
         builder: (_, child) {
           return MaterialApp(
+            navigatorObservers: [routeObserver],
             navigatorKey: NavigationKey.navigatorKey,
             debugShowCheckedModeBanner: false,
             title: 'breeze food UI',
@@ -89,7 +90,6 @@ class MyApp extends StatelessWidget {
             ),
 
             builder: (context, widget) {
-              // 🔹 تثبيت حجم الخط (كما عندك)
               final wrapped = MediaQuery(
                 data: MediaQuery.of(
                   context,
@@ -97,11 +97,9 @@ class MyApp extends StatelessWidget {
                 child: widget ?? const SizedBox.shrink(),
               );
 
-              // 🔹 تحديد اللغة الحالية
               final isArabic =
                   Localizations.localeOf(context).languageCode == 'ar';
 
-              // 🔹 تطبيق الخط على كامل التطبيق بدون كسر أي Style
               return Theme(
                 data: Theme.of(context).copyWith(
                   textTheme: Theme.of(

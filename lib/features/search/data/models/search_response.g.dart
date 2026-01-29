@@ -78,6 +78,11 @@ _$SearchItemImpl _$$SearchItemImplFromJson(Map<String, dynamic> json) =>
     _$SearchItemImpl(
       id: (json['id'] as num).toInt(),
       basePrice: json['base_price'] as String,
+      priceBefore: (json['price_before'] as num?)?.toDouble(),
+      priceAfter: (json['price_after'] as num?)?.toDouble(),
+      hasDiscount: json['has_discount'] as bool?,
+      discountType: json['discount_type'] as String?,
+      discountValue: json['discount_value'] as String?,
       names: SearchItemNames.fromJson(json['names'] as Map<String, dynamic>),
       ordersCount: (json['orders_count'] as num?)?.toInt() ?? 0,
       imageUrl: json['image_url'] as String?,
@@ -87,6 +92,11 @@ Map<String, dynamic> _$$SearchItemImplToJson(_$SearchItemImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'base_price': instance.basePrice,
+      'price_before': instance.priceBefore,
+      'price_after': instance.priceAfter,
+      'has_discount': instance.hasDiscount,
+      'discount_type': instance.discountType,
+      'discount_value': instance.discountValue,
       'names': instance.names,
       'orders_count': instance.ordersCount,
       'image_url': instance.imageUrl,

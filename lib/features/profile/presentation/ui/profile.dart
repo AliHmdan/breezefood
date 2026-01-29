@@ -3,7 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/terms/terms.dart';
-import 'package:breezefood/features/helpCenter/help_center.dart';
+import 'package:breezefood/features/help_center/help_center.dart';
 import 'package:breezefood/features/profile/presentation/widget/dialog_logout.dart';
 import 'package:breezefood/features/profile/presentation/ui/info_profile.dart';
 import 'package:breezefood/features/profile/presentation/widget/language.dart';

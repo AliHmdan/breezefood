@@ -9,7 +9,7 @@ import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary_model.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -19,8 +19,8 @@ import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/request_order/tiem_price.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
-import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
-import 'package:breezefood/features/reviews/presentation/rate_dialog.dart';
+import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cubit.dart';
+import 'package:breezefood/features/ratings/presentation/ui/rate_dialog.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/cubit/most_popular_cubit.dart';
@@ -275,7 +275,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-      
+
                               PositionedDirectional(
                                 top: MediaQuery.of(context).padding.top + 12,
                                 start: 12,
@@ -367,18 +367,18 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 child: GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () async {
+                                    final reviewId = myReviewId;
                                     final hasMyRating =
-                                        (myReviewId ?? 0) > 0 &&
-                                        myUserRating > 0;
+                                        (reviewId ?? 0) > 0 && myUserRating > 0;
 
-                                    final res = await showRateDialogWithDelete(
+                                    // ✅ إذا عنده تقييم: اعرض تقييمه (readonly) + حذف فقط
+                                    // ✅ إذا ما عنده: اعرض RatingBar editable + submit فقط
+                                    final res = await showRateDialog(
                                       context,
                                       currentRating: hasMyRating
                                           ? myUserRating
-                                          : (avgRatingValue > 0
-                                                ? avgRatingValue
-                                                : 3.0),
-                                      canDelete: hasMyRating,
+                                          : 3.0,
+                                      reviewId: hasMyRating ? reviewId : null,
                                     );
 
                                     if (res == null) return;
@@ -390,8 +390,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     );
 
                                     if (res.delete) {
-                                      // ✅ أمان إضافي
-                                      if ((myReviewId ?? 0) == 0) {
+                                      if ((reviewId ?? 0) == 0) {
                                         EasyLoading.showError(
                                           "reviews.no_review_to_delete".tr(),
                                         );
@@ -399,43 +398,53 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       }
 
                                       await submitCubit.deleteRestaurantRate(
-                                        reviewId: myReviewId!,
+                                        reviewId: reviewId!,
                                       );
 
+                                      // ✅ انتظر state النهائي بشكل صحيح
+                                      if (!mounted) return;
+
                                       submitCubit.state.maybeWhen(
-                                        deleteSuccess: () {
+                                        deleteSuccess: () async {
                                           EasyLoading.showSuccess(
                                             "reviews.delete_success".tr(),
                                           );
-                                          cubit.load(
+                                          await cubit.load(
                                             widget.restaurant_id,
-                                          ); // ✅ ريـفريش
+                                          ); // ✅ refresh details
                                         },
                                         error: (msg) =>
-                                            EasyLoading.showError(msg),
+                                            EasyLoading.showError(msg.tr()),
                                         orElse: () => EasyLoading.dismiss(),
                                       );
 
                                       return;
                                     }
 
-                                    // ✅ submit
+                                    // ✅ submit (فقط إذا ما عنده تقييم سابق)
+                                    if (res.rating == null) {
+                                      EasyLoading.dismiss();
+                                      return;
+                                    }
+
                                     await submitCubit.submitRestaurantRate(
                                       restaurantId: widget.restaurant_id,
                                       rating: res.rating!,
                                     );
 
+                                    if (!mounted) return;
+
                                     submitCubit.state.maybeWhen(
-                                      success: () {
+                                      success: () async {
                                         EasyLoading.showSuccess(
                                           "reviews.rate_success".tr(),
                                         );
-                                        cubit.load(
+                                        await cubit.load(
                                           widget.restaurant_id,
-                                        ); // ✅ ريـفريش
+                                        ); // ✅ refresh details
                                       },
                                       error: (msg) =>
-                                          EasyLoading.showError(msg),
+                                          EasyLoading.showError(msg.tr()),
                                       orElse: () => EasyLoading.dismiss(),
                                     );
                                   },

@@ -80,8 +80,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/lottie/
-    - assets/characters/
-    - assets/avatars/
     - assets/video/splachscreen.mp4
     - assets/translations/
     - assets/b_driver/customer_map_point.png

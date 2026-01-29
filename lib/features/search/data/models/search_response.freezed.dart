@@ -782,6 +782,18 @@ mixin _$SearchItem {
   int get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'base_price')
   String get basePrice => throw _privateConstructorUsedError;
+
+  /// ✅ Discount fields
+  @JsonKey(name: 'price_before')
+  double? get priceBefore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'price_after')
+  double? get priceAfter => throw _privateConstructorUsedError;
+  @JsonKey(name: 'has_discount')
+  bool? get hasDiscount => throw _privateConstructorUsedError;
+  @JsonKey(name: 'discount_type')
+  String? get discountType => throw _privateConstructorUsedError;
+  @JsonKey(name: 'discount_value')
+  String? get discountValue => throw _privateConstructorUsedError;
   SearchItemNames get names => throw _privateConstructorUsedError;
   @JsonKey(name: 'orders_count')
   int get ordersCount => throw _privateConstructorUsedError;
@@ -803,6 +815,11 @@ abstract class $SearchItemCopyWith<$Res> {
   $Res call(
       {int id,
       @JsonKey(name: 'base_price') String basePrice,
+      @JsonKey(name: 'price_before') double? priceBefore,
+      @JsonKey(name: 'price_after') double? priceAfter,
+      @JsonKey(name: 'has_discount') bool? hasDiscount,
+      @JsonKey(name: 'discount_type') String? discountType,
+      @JsonKey(name: 'discount_value') String? discountValue,
       SearchItemNames names,
       @JsonKey(name: 'orders_count') int ordersCount,
       @JsonKey(name: 'image_url') String? imageUrl});
@@ -825,6 +842,11 @@ class _$SearchItemCopyWithImpl<$Res, $Val extends SearchItem>
   $Res call({
     Object? id = null,
     Object? basePrice = null,
+    Object? priceBefore = freezed,
+    Object? priceAfter = freezed,
+    Object? hasDiscount = freezed,
+    Object? discountType = freezed,
+    Object? discountValue = freezed,
     Object? names = null,
     Object? ordersCount = null,
     Object? imageUrl = freezed,
@@ -838,6 +860,26 @@ class _$SearchItemCopyWithImpl<$Res, $Val extends SearchItem>
           ? _value.basePrice
           : basePrice // ignore: cast_nullable_to_non_nullable
               as String,
+      priceBefore: freezed == priceBefore
+          ? _value.priceBefore
+          : priceBefore // ignore: cast_nullable_to_non_nullable
+              as double?,
+      priceAfter: freezed == priceAfter
+          ? _value.priceAfter
+          : priceAfter // ignore: cast_nullable_to_non_nullable
+              as double?,
+      hasDiscount: freezed == hasDiscount
+          ? _value.hasDiscount
+          : hasDiscount // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      discountType: freezed == discountType
+          ? _value.discountType
+          : discountType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      discountValue: freezed == discountValue
+          ? _value.discountValue
+          : discountValue // ignore: cast_nullable_to_non_nullable
+              as String?,
       names: null == names
           ? _value.names
           : names // ignore: cast_nullable_to_non_nullable
@@ -873,6 +915,11 @@ abstract class _$$SearchItemImplCopyWith<$Res>
   $Res call(
       {int id,
       @JsonKey(name: 'base_price') String basePrice,
+      @JsonKey(name: 'price_before') double? priceBefore,
+      @JsonKey(name: 'price_after') double? priceAfter,
+      @JsonKey(name: 'has_discount') bool? hasDiscount,
+      @JsonKey(name: 'discount_type') String? discountType,
+      @JsonKey(name: 'discount_value') String? discountValue,
       SearchItemNames names,
       @JsonKey(name: 'orders_count') int ordersCount,
       @JsonKey(name: 'image_url') String? imageUrl});
@@ -894,6 +941,11 @@ class __$$SearchItemImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? basePrice = null,
+    Object? priceBefore = freezed,
+    Object? priceAfter = freezed,
+    Object? hasDiscount = freezed,
+    Object? discountType = freezed,
+    Object? discountValue = freezed,
     Object? names = null,
     Object? ordersCount = null,
     Object? imageUrl = freezed,
@@ -907,6 +959,26 @@ class __$$SearchItemImplCopyWithImpl<$Res>
           ? _value.basePrice
           : basePrice // ignore: cast_nullable_to_non_nullable
               as String,
+      priceBefore: freezed == priceBefore
+          ? _value.priceBefore
+          : priceBefore // ignore: cast_nullable_to_non_nullable
+              as double?,
+      priceAfter: freezed == priceAfter
+          ? _value.priceAfter
+          : priceAfter // ignore: cast_nullable_to_non_nullable
+              as double?,
+      hasDiscount: freezed == hasDiscount
+          ? _value.hasDiscount
+          : hasDiscount // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      discountType: freezed == discountType
+          ? _value.discountType
+          : discountType // ignore: cast_nullable_to_non_nullable
+              as String?,
+      discountValue: freezed == discountValue
+          ? _value.discountValue
+          : discountValue // ignore: cast_nullable_to_non_nullable
+              as String?,
       names: null == names
           ? _value.names
           : names // ignore: cast_nullable_to_non_nullable
@@ -929,6 +1001,11 @@ class _$SearchItemImpl implements _SearchItem {
   const _$SearchItemImpl(
       {required this.id,
       @JsonKey(name: 'base_price') required this.basePrice,
+      @JsonKey(name: 'price_before') this.priceBefore,
+      @JsonKey(name: 'price_after') this.priceAfter,
+      @JsonKey(name: 'has_discount') this.hasDiscount,
+      @JsonKey(name: 'discount_type') this.discountType,
+      @JsonKey(name: 'discount_value') this.discountValue,
       required this.names,
       @JsonKey(name: 'orders_count') this.ordersCount = 0,
       @JsonKey(name: 'image_url') this.imageUrl});
@@ -941,6 +1018,23 @@ class _$SearchItemImpl implements _SearchItem {
   @override
   @JsonKey(name: 'base_price')
   final String basePrice;
+
+  /// ✅ Discount fields
+  @override
+  @JsonKey(name: 'price_before')
+  final double? priceBefore;
+  @override
+  @JsonKey(name: 'price_after')
+  final double? priceAfter;
+  @override
+  @JsonKey(name: 'has_discount')
+  final bool? hasDiscount;
+  @override
+  @JsonKey(name: 'discount_type')
+  final String? discountType;
+  @override
+  @JsonKey(name: 'discount_value')
+  final String? discountValue;
   @override
   final SearchItemNames names;
   @override
@@ -952,7 +1046,7 @@ class _$SearchItemImpl implements _SearchItem {
 
   @override
   String toString() {
-    return 'SearchItem(id: $id, basePrice: $basePrice, names: $names, ordersCount: $ordersCount, imageUrl: $imageUrl)';
+    return 'SearchItem(id: $id, basePrice: $basePrice, priceBefore: $priceBefore, priceAfter: $priceAfter, hasDiscount: $hasDiscount, discountType: $discountType, discountValue: $discountValue, names: $names, ordersCount: $ordersCount, imageUrl: $imageUrl)';
   }
 
   @override
@@ -963,6 +1057,16 @@ class _$SearchItemImpl implements _SearchItem {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.basePrice, basePrice) ||
                 other.basePrice == basePrice) &&
+            (identical(other.priceBefore, priceBefore) ||
+                other.priceBefore == priceBefore) &&
+            (identical(other.priceAfter, priceAfter) ||
+                other.priceAfter == priceAfter) &&
+            (identical(other.hasDiscount, hasDiscount) ||
+                other.hasDiscount == hasDiscount) &&
+            (identical(other.discountType, discountType) ||
+                other.discountType == discountType) &&
+            (identical(other.discountValue, discountValue) ||
+                other.discountValue == discountValue) &&
             (identical(other.names, names) || other.names == names) &&
             (identical(other.ordersCount, ordersCount) ||
                 other.ordersCount == ordersCount) &&
@@ -972,8 +1076,18 @@ class _$SearchItemImpl implements _SearchItem {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, basePrice, names, ordersCount, imageUrl);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      basePrice,
+      priceBefore,
+      priceAfter,
+      hasDiscount,
+      discountType,
+      discountValue,
+      names,
+      ordersCount,
+      imageUrl);
 
   @JsonKey(ignore: true)
   @override
@@ -993,6 +1107,11 @@ abstract class _SearchItem implements SearchItem {
   const factory _SearchItem(
       {required final int id,
       @JsonKey(name: 'base_price') required final String basePrice,
+      @JsonKey(name: 'price_before') final double? priceBefore,
+      @JsonKey(name: 'price_after') final double? priceAfter,
+      @JsonKey(name: 'has_discount') final bool? hasDiscount,
+      @JsonKey(name: 'discount_type') final String? discountType,
+      @JsonKey(name: 'discount_value') final String? discountValue,
       required final SearchItemNames names,
       @JsonKey(name: 'orders_count') final int ordersCount,
       @JsonKey(name: 'image_url') final String? imageUrl}) = _$SearchItemImpl;
@@ -1005,6 +1124,23 @@ abstract class _SearchItem implements SearchItem {
   @override
   @JsonKey(name: 'base_price')
   String get basePrice;
+  @override
+
+  /// ✅ Discount fields
+  @JsonKey(name: 'price_before')
+  double? get priceBefore;
+  @override
+  @JsonKey(name: 'price_after')
+  double? get priceAfter;
+  @override
+  @JsonKey(name: 'has_discount')
+  bool? get hasDiscount;
+  @override
+  @JsonKey(name: 'discount_type')
+  String? get discountType;
+  @override
+  @JsonKey(name: 'discount_value')
+  String? get discountValue;
   @override
   SearchItemNames get names;
   @override

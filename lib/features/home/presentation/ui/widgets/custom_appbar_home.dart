@@ -106,9 +106,15 @@ class CustomAppbarHome extends StatelessWidget {
                     width: 40.w,
                     height: 40.w,
                     child: (url == null || url.isEmpty)
-                        ? Image.asset(
-                            'assets/images/person.jpg',
-                            fit: BoxFit.cover,
+                        ? Container(
+                            color: Colors.grey.shade200, // خلفية للأيقونة
+                            child: Center(
+                              child: Icon(
+                                Icons.person_outline,
+                                size: 20,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
                           )
                         : CachedNetworkImage(
                             imageUrl: url,
@@ -122,9 +128,15 @@ class CustomAppbarHome extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Image.asset(
-                              'assets/images/person.jpg',
-                              fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) => Container(
+                              color: Colors.grey.shade200,
+                              child: Center(
+                                child: Icon(
+                                  Icons.person_outline,
+                                  size: 20,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
                             ),
                           ),
                   ),

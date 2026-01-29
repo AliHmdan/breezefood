@@ -2,28 +2,29 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/have_order.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/closerToYou.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/closer_to_you.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/discount_home.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/home_filters.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/open_now.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/page_ads.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/supermarketslider.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/appAnimatedBackground.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/app_animated_background.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/appbar_home.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary_model.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
 import 'package:breezefood/features/orders/pay_your_order.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
-import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
+import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
+import 'package:breezefood/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,7 +40,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with RouteAware {
   final _scrollController = ScrollController();
   int _extractId(dynamic x) {
     if (x == null) return 0;
@@ -76,11 +77,41 @@ class _HomeState extends State<Home> {
     return "";
   }
 
-  void _openRestaurant(dynamic r) {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) routeObserver.subscribe(this, route);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    _scrollController.dispose();
+    _scrollController.dispose();
+    cubit.close();
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _refreshHomeAndCart();
+  }
+
+  Future<void> _refreshHomeAndCart() async {
+    if (!mounted) return;
+
+    await Future.wait([
+      this.cubit.load(),
+      context.read<CartCubit>().loadCart(),
+    ]);
+  }
+
+  Future<void> _openRestaurant(dynamic r) async {
     final id = _extractId(r);
     if (id == 0) return;
 
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => MultiBlocProvider(
@@ -93,9 +124,11 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+
+    await _refreshHomeAndCart(); // ✅ لما ترجع
   }
 
-  void _openMarket(dynamic m) {
+  Future<void> _openMarket(dynamic m) async {
     final id = _extractId(m);
     if (id == 0) return;
 
@@ -105,16 +138,18 @@ class _HomeState extends State<Home> {
       orElse: () => null,
     );
 
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => MarketPagePrice(
           marketId: id,
           title: title.isEmpty ? "Market" : title,
-          haveOrder: homeData?.haveOrder, // ✅ مرّرها
+          haveOrder: homeData?.haveOrder,
         ),
       ),
     );
+
+    await _refreshHomeAndCart(); // ✅ لما ترجع
   }
 
   final _closerKey = GlobalKey();
@@ -136,13 +171,6 @@ class _HomeState extends State<Home> {
       await cubit.load();
       context.read<CartCubit>().loadCart(); // ✅
     });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    cubit.close();
-    super.dispose();
   }
 
   Future<void> _scrollTo(GlobalKey key) async {
@@ -217,167 +245,171 @@ class _HomeState extends State<Home> {
 
         final haveOrder = homeData?.haveOrder;
         final showBottom = haveOrder != null;
-        final status = (haveOrder?.status ?? "").toLowerCase().trim();
-        final isCart = status == "cart";
 
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
             children: [
               SafeArea(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      AppbarHome(home: homeData, homeCubit: cubit),
-                      HomeFilters(onFilterTap: _onFilterTap),
-                      loading
-                          ? _shimmerBox(
-                              height: 100.h,
-                              padding: const EdgeInsets.all(10),
-                            )
-                          : state.maybeWhen(
-                              loaded: (data) {
-                                final ads = data.ads;
-                                if (ads.isEmpty) return const SizedBox.shrink();
-
-                                return SizedBox(
-                                  height: 100.h,
-                                  child: PageView.builder(
-                                    itemCount: ads.length,
-                                    controller: PageController(
-                                      viewportFraction: 0.92,
-                                    ),
-                                    itemBuilder: (context, index) {
-                                      final ad = ads[index];
-
-                                      return GestureDetector(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  ReferralAdPage(ad: ad),
-                                            ),
-                                          );
-                                        },
-                                        child: AdBanner(ad: ad),
-                                      );
-                                    },
-                                  ),
-                                );
-                              },
-                              error: (msg) => Padding(
+                child: RefreshIndicator(
+                  onRefresh: _refreshHomeAndCart,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Column(
+                      children: [
+                        AppbarHome(home: homeData, homeCubit: cubit),
+                        HomeFilters(onFilterTap: _onFilterTap),
+                        loading
+                            ? _shimmerBox(
+                                height: 100.h,
                                 padding: const EdgeInsets.all(10),
-                                child: Text(
-                                  msg,
-                                  style: const TextStyle(color: Colors.red),
+                              )
+                            : state.maybeWhen(
+                                loaded: (data) {
+                                  final ads = data.ads;
+                                  if (ads.isEmpty)
+                                    return const SizedBox.shrink();
+
+                                  return SizedBox(
+                                    height: 100.h,
+                                    child: PageView.builder(
+                                      itemCount: ads.length,
+                                      controller: PageController(
+                                        viewportFraction: 0.92,
+                                      ),
+                                      itemBuilder: (context, index) {
+                                        final ad = ads[index];
+
+                                        return GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    ReferralAdPage(ad: ad),
+                                              ),
+                                            );
+                                          },
+                                          child: AdBanner(ad: ad),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                error: (msg) => Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Text(
+                                    msg,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
                                 ),
-                              ),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-
-                      const SizedBox(height: 10),
-
-                      Container(key: _closerKey),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: CustomTitleSection(
-                          title: "home.closer_to_you".tr(),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      loading
-                          ? _shimmerBox(height: 178.h)
-                          : state.maybeWhen(
-                              loaded: (data) =>
-                                  CloserToYou(restaurants: data.closerToYou),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-
-                      const SizedBox(height: 12),
-
-                      Container(key: _storesKey),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: CustomTitleSection(title: "home.stores".tr()),
-                      ),
-                      const SizedBox(height: 10),
-
-                      loading
-                          ? _shimmerBox(height: 178.h)
-                          : state.maybeWhen(
-                              loaded: (data) =>
-                                  Stores(restaurants: data.nearbyRestaurants),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-
-                      const SizedBox(height: 12),
-
-                      Container(key: _discountsKey),
-                      loading
-                          ? _shimmerBox(height: 130.h)
-                          : state.maybeWhen(
-                              loaded: (data) =>
-                                  DiscountHome(mostPopular: data.discounts),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-
-                      const SizedBox(height: 12),
-
-                      Container(key: _deliveryKey),
-                      loading
-                          ? _shimmerBox(height: 120.h)
-                          : state.maybeWhen(
-                              loaded: (data) =>
-                                  DiscountDelvery(discounts: data.discounts),
-                              orElse: () => const SizedBox.shrink(),
-                            ),
-
-                      const SizedBox(height: 8),
-
-                      Container(key: _supermarketKey),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: CustomTitleSection(
-                          title: "home.super_market".tr(),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      state.maybeWhen(
-                        loaded: (data) => Supermarketslider(
-                          restaurants: data.supermarkets,
-                          onTap: (m) => _openMarket(m),
-                          onRateSuccess: () => cubit.load(), // ✅ refresh
-                        ),
-
-                        orElse: () => const SizedBox.shrink(),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Container(key: _openNowKey),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: CustomTitleSection(title: "home.open_now".tr()),
-                      ),
-                      const SizedBox(height: 10),
-
-                      loading
-                          ? _shimmerBox(height: 320.h)
-                          : state.maybeWhen(
-                              loaded: (data) => OpenNow(
-                                restaurants: data.nearbyRestaurants,
-                                onTap: _openRestaurant,
+                                orElse: () => const SizedBox.shrink(),
                               ),
 
-                              orElse: () => const SizedBox.shrink(),
-                            ),
+                        const SizedBox(height: 10),
 
-                      // ✅ مساحة حتى ما يغطي الزر السفلي المحتوى
-                      SizedBox(height: showBottom ? 80.h : 20.h),
-                    ],
+                        Container(key: _closerKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: CustomTitleSection(
+                            title: "home.closer_to_you".tr(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        loading
+                            ? _shimmerBox(height: 178.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    CloserToYou(restaurants: data.closerToYou),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+
+                        const SizedBox(height: 12),
+
+                        Container(key: _storesKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: CustomTitleSection(title: "home.stores".tr()),
+                        ),
+                        const SizedBox(height: 10),
+
+                        loading
+                            ? _shimmerBox(height: 178.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    Stores(restaurants: data.nearbyRestaurants),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+
+                        const SizedBox(height: 12),
+
+                        Container(key: _discountsKey),
+                        loading
+                            ? _shimmerBox(height: 130.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    DiscountHome(mostPopular: data.discounts),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+
+                        const SizedBox(height: 12),
+
+                        Container(key: _deliveryKey),
+                        loading
+                            ? _shimmerBox(height: 120.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    DiscountDelvery(discounts: data.discounts),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+
+                        const SizedBox(height: 8),
+
+                        Container(key: _supermarketKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: CustomTitleSection(
+                            title: "home.super_market".tr(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        state.maybeWhen(
+                          loaded: (data) => Supermarketslider(
+                            restaurants: data.supermarkets,
+                            onTap: (m) => _openMarket(m),
+                            onRateSuccess: () => cubit.load(), // ✅ refresh
+                          ),
+
+                          orElse: () => const SizedBox.shrink(),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Container(key: _openNowKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: CustomTitleSection(
+                            title: "home.open_now".tr(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        loading
+                            ? _shimmerBox(height: 320.h)
+                            : state.maybeWhen(
+                                loaded: (data) => OpenNow(
+                                  restaurants: data.nearbyRestaurants,
+                                  onTap: _openRestaurant,
+                                ),
+
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+
+                        // ✅ مساحة حتى ما يغطي الزر السفلي المحتوى
+                        SizedBox(height: showBottom ? 80.h : 20.h),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -387,12 +419,23 @@ class _HomeState extends State<Home> {
                   left: 0,
                   right: 0,
                   bottom: 85,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: _HomeBottomAction(
-                      homeCubit: cubit,
-                      haveOrder: haveOrder!,
-                    ),
+                  child: BlocBuilder<HomeCubit, HomeState>(
+                    bloc: cubit,
+                    builder: (context, st) {
+                      final haveOrder = st.maybeWhen(
+                        loaded: (d) => d.haveOrder,
+                        orElse: () => null,
+                      );
+                      if (haveOrder == null) return const SizedBox.shrink();
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: _HomeBottomAction(
+                          homeCubit: cubit,
+                          haveOrder: haveOrder,
+                        ),
+                      );
+                    },
                   ),
                 ),
             ],

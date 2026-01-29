@@ -27,5 +27,9 @@ abstract class OrdersApiService {
 Future<HttpResponse<dynamic>> driverLocation(
   @Path("id") int orderId,
 );
+@DELETE("/orders/{id}")
+Future<HttpResponse<dynamic>> cancelOrder(
+  @Path("id") int orderId,
+);
 
 }

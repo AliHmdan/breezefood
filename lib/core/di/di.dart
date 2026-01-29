@@ -1,10 +1,10 @@
 import 'package:breezefood/core/network/dio_factory.dart';
-import 'package:breezefood/features/favoritePage/data/api/favorites_api_service.dart';
-import 'package:breezefood/features/favoritePage/data/repo/favorites_repository.dart';
-import 'package:breezefood/features/favoritePage/presentation/cubit/favorites_cubit.dart';
-import 'package:breezefood/features/helpCenter/data/api/help_center_api_service.dart';
-import 'package:breezefood/features/helpCenter/data/repo/help_center_repo.dart';
-import 'package:breezefood/features/helpCenter/presentation/cubit/help_center_cubit.dart';
+import 'package:breezefood/features/favorite_page/data/api/favorites_api_service.dart';
+import 'package:breezefood/features/favorite_page/data/repo/favorites_repository.dart';
+import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
+import 'package:breezefood/features/help_center/data/api/help_center_api_service.dart';
+import 'package:breezefood/features/help_center/data/repo/help_center_repo.dart';
+import 'package:breezefood/features/help_center/presentation/cubit/help_center_cubit.dart';
 import 'package:breezefood/features/home/data/api/home_api_service.dart';
 import 'package:breezefood/features/home/data/repo/home_repository.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
@@ -19,14 +19,15 @@ import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_tracking_state.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders_details_cubit.dart';
 import 'package:breezefood/features/profile/data/api/address_api_service.dart';
 import 'package:breezefood/features/profile/data/api/profile_api_service.dart';
 import 'package:breezefood/features/profile/data/repo/profile_repository.dart'
     show ProfileRepository;
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:breezefood/features/reviews/data/api/reviews_api_service.dart';
-import 'package:breezefood/features/reviews/data/repo/reviews_repo.dart';
-import 'package:breezefood/features/reviews/presentation/cubit/rating_submit_cubit.dart';
+import 'package:breezefood/features/ratings/data/api/reviews_api_service.dart';
+import 'package:breezefood/features/ratings/data/repo/reviews_repo.dart';
+import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/search/data/api/search_api_service.dart';
 import 'package:breezefood/features/search/data/repo/search_repo.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_cubit.dart';
@@ -216,6 +217,10 @@ Future<void> setupDi() async {
   );
   getIt.registerLazySingleton<NotificationApiService>(
     () => NotificationApiService(getIt<Dio>()),
+  );
+
+  getIt.registerFactory<OrdersDetailsCubit>(
+    () => OrdersDetailsCubit(getIt<OrdersRepository>()),
   );
 
   getIt.registerLazySingleton<NotificationRepository>(

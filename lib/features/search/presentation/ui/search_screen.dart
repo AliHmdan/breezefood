@@ -1,5 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
+import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/core/services/price_formatter.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
@@ -41,6 +42,7 @@ class _SearchState extends State<Search> {
     super.initState();
     searchCubit = getIt<SearchCubit>();
     searchCubit.setRestaurantId(widget.restaurantId); // ✅ مهم
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       searchCubit.loadHistory();
     });
@@ -145,7 +147,7 @@ class _SearchState extends State<Search> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // حذف من الـ UI فقط (إذا بدك delete API خبرني)
+          /// حذف من الـ UI فقط
           InkWell(
             borderRadius: BorderRadius.circular(20.r),
             onTap: () {
@@ -207,8 +209,6 @@ class _SearchState extends State<Search> {
                   children: [
                     ClipOval(child: _buildImage(r.logo ?? "")),
                     SizedBox(width: 8.w),
-
-                    // الاسم كمان صار ضمن نفس المنطقة القابلة للضغط
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 200.w),
                       child: Padding(
@@ -223,16 +223,13 @@ class _SearchState extends State<Search> {
                   ],
                 ),
               ),
-
               const Spacer(),
-
               Container(
                 height: 25.h,
                 width: 0.5,
                 color: AppColor.LightActive,
                 margin: EdgeInsets.symmetric(horizontal: 8.w),
               ),
-
               Row(
                 children: [
                   Icon(Icons.star, color: AppColor.yellow, size: 16.sp),
@@ -253,11 +250,12 @@ class _SearchState extends State<Search> {
             ],
           ),
         ),
-        // ========================================Container Meall======================
+
+        /// ================= Items =================
         Padding(
           padding: const EdgeInsetsDirectional.only(start: 16),
           child: SizedBox(
-            height: 150.h, // ✅ نفس ارتفاع MostPopular
+            height: 150.h,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final itemWidth = constraints.maxWidth / 2.3;
@@ -270,7 +268,6 @@ class _SearchState extends State<Search> {
                   physics: count <= 2
                       ? const NeverScrollableScrollPhysics()
                       : const BouncingScrollPhysics(),
-
                   itemBuilder: (context, index) {
                     final it = block.items[index];
 
@@ -281,14 +278,20 @@ class _SearchState extends State<Search> {
 
                     final fullImg = _toFullUrl(it.imageUrl ?? "");
 
+                    /// ✅ Discount extraction (Safe)
+                    final hasDiscount = (it.hasDiscount ?? false) == true;
+                    final before =
+                        (it.priceBefore ?? double.tryParse(it.basePrice) ?? 0)
+                            .toDouble();
+                    final after = (it.priceAfter ?? before).toDouble();
+                    final percent =
+                        double.tryParse(it.discountValue ?? "0") ?? 0;
+
                     return Container(
                       width: itemWidth,
-
-                      /// ✅ نفس منطق MostPopular: لا gap بعد آخر عنصر
                       margin: EdgeInsetsDirectional.only(
                         end: index == count - 1 ? 0 : gap,
                       ),
-
                       child: GestureDetector(
                         onTap: () {
                           showAddOrderDialog(
@@ -296,8 +299,8 @@ class _SearchState extends State<Search> {
                             restaurantId: r.id,
                             menuItemId: it.id,
                             title: title,
-                            price: double.tryParse(it.basePrice) ?? 0,
-                            oldPrice: double.tryParse(it.basePrice) ?? 0,
+                            price: hasDiscount ? after : before,
+                            oldPrice: before,
                             imagePathOrUrl: fullImg.isNotEmpty
                                 ? fullImg
                                 : "assets/images/shawarma_box.png",
@@ -305,12 +308,13 @@ class _SearchState extends State<Search> {
                             extraMeals: const [],
                           );
                         },
-
-                        /// ✅ نفس إحساس الكرت
                         child: _SearchApiItemCard(
                           title: title,
-                          price: it.basePrice,
                           imageUrl: fullImg,
+                          hasDiscount: hasDiscount,
+                          priceBefore: before,
+                          priceAfter: after,
+                          discountPercent: percent,
                         ),
                       ),
                     );
@@ -379,14 +383,9 @@ class _SearchState extends State<Search> {
                                   },
                                   onSubmitted: (_) => _doSearchNow(),
                                   style: TextStyle(
-                                    color:
-                                        Colors.black, // ✅ لون النص عند الكتابة
+                                    color: Colors.black,
                                     fontSize: 14.sp,
-                                    fontFamily:
-                                        Localizations.localeOf(
-                                              context,
-                                            ).languageCode ==
-                                            'ar'
+                                    fontFamily: context.isAr
                                         ? 'Cairo'
                                         : 'Inter',
                                     fontWeight: FontWeight.bold,
@@ -405,23 +404,16 @@ class _SearchState extends State<Search> {
                                       ),
                                     ),
                                     hintText: "search.hint".tr(),
-
                                     hintStyle: TextStyle(
                                       color: AppColor.gry,
                                       fontSize: 14.sp,
-                                      fontFamily:
-                                          Localizations.localeOf(
-                                                context,
-                                              ).languageCode ==
-                                              'ar'
+                                      fontFamily: context.isAr
                                           ? 'Cairo'
                                           : 'Inter',
                                       fontWeight: FontWeight.w400,
                                     ),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        30.0.r,
-                                      ),
+                                      borderRadius: BorderRadius.circular(30.r),
                                       borderSide: BorderSide.none,
                                     ),
                                   ),
@@ -477,18 +469,11 @@ class _SearchState extends State<Search> {
                           Padding(
                             padding: EdgeInsets.only(bottom: 8.h),
                             child: Text(
-                              "${'search.province'.tr()}: ${s.provinceDetected!}"
-,
+                              "${'search.province'.tr()}: ${s.provinceDetected!}",
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: 12.sp,
-                                fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
-                                    ? 'Cairo'
-                                    : 'Inter',
+                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
                               ),
                             ),
                           ),
@@ -513,15 +498,10 @@ class _SearchState extends State<Search> {
                               ? Center(
                                   child: Text(
                                     "search.start_hint".tr(),
-
                                     style: TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14.sp,
-                                      fontFamily:
-                                          Localizations.localeOf(
-                                                context,
-                                              ).languageCode ==
-                                              'ar'
+                                      fontFamily: context.isAr
                                           ? 'Cairo'
                                           : 'Inter',
                                     ),
@@ -532,7 +512,6 @@ class _SearchState extends State<Search> {
                               ? Center(
                                   child: CustomSubTitle(
                                     subtitle: "search.no_results".tr(),
-
                                     color: Colors.white70,
                                     fontsize: 14.sp,
                                   ),
@@ -575,7 +554,7 @@ class _SearchState extends State<Search> {
     final url = p.startsWith("http")
         ? p
         : "https://breezefood.cloud/${p.startsWith("/") ? p.substring(1) : p}";
-    // -------------------logo Resturant------------------------------
+
     return Image.network(
       url,
       height: 35.h,
@@ -588,17 +567,30 @@ class _SearchState extends State<Search> {
 
 class _SearchApiItemCard extends StatelessWidget {
   final String title;
-  final String price;
   final String imageUrl;
+
+  final bool hasDiscount;
+  final double priceBefore;
+  final double priceAfter;
+  final double discountPercent;
 
   const _SearchApiItemCard({
     required this.title,
-    required this.price,
     required this.imageUrl,
+    required this.hasDiscount,
+    required this.priceBefore,
+    required this.priceAfter,
+    required this.discountPercent,
   });
 
   @override
   Widget build(BuildContext context) {
+    final beforeTxt = context.money(priceBefore, decimals: 0);
+    final afterTxt = context.money(priceAfter, decimals: 0);
+
+    final showDiscount =
+        hasDiscount && discountPercent > 0 && priceAfter < priceBefore;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColor.black,
@@ -608,17 +600,47 @@ class _SearchApiItemCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ================= Image (مثل MostPopular) =================
-          SizedBox(
-            width: double.infinity,
-            height: 90.h, // 🔹 نفس ارتفاع MostPopular تقريبًا
-            child: imageUrl.isEmpty
-                ? _fallback()
-                : Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _fallback(),
+          /// ================= Image =================
+          Stack(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 90.h,
+                child: imageUrl.isEmpty
+                    ? _fallback()
+                    : Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _fallback(),
+                      ),
+              ),
+
+              /// ✅ Discount Badge (مباشرة داخل Stack بدون Padding خارجي)
+              if (showDiscount)
+                PositionedDirectional(
+                  top: 8,
+                  start: 8,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Text(
+                      "-${discountPercent.toStringAsFixed(0)}%",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                      ),
+                    ),
                   ),
+                ),
+            ],
           ),
 
           /// ================= Title =================
@@ -632,9 +654,7 @@ class _SearchApiItemCard extends StatelessWidget {
                 color: AppColor.white,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
-                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                    ? 'Cairo'
-                    : 'Inter',
+                fontFamily: context.isAr ? 'Cairo' : 'Inter',
               ),
             ),
           ),
@@ -647,17 +667,58 @@ class _SearchApiItemCard extends StatelessWidget {
               top: 2.h,
               bottom: 8.h,
             ),
-            child: Text(
-              price.priceWithSuffix,
-              style: TextStyle(
-                color: AppColor.white,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                    ? 'Cairo'
-                    : 'Inter',
-              ),
-            ),
+            child: showDiscount
+                ? Row(
+                    children: [
+                      /// قبل (مشطوب) — Flexible حتى ما يعمل overflow
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            beforeTxt,
+                            style: TextStyle(
+                              color: AppColor.LightActive,
+                              fontSize: 11.sp,
+                              decoration: TextDecoration.lineThrough,
+                              fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 6.w),
+
+                      /// بعد (أحمر)
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            afterTxt,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      beforeTxt,
+                      style: TextStyle(
+                        color: AppColor.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
