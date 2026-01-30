@@ -54,6 +54,14 @@
     "not_available": "Tracking not available",
     "driver": "Driver"
   },
+  "map_picker": {
+    "title": "Pick location",
+    "my_location": "My location",
+    "confirm": "Confirm location",
+    "error_cannot_locate": "Couldn't determine your current location. Pick it manually from the map.",
+    "error_failed_update": "Failed to update address",
+    "success_updated": "Address updated"
+  },
   "tracking.error_generic": "Something went wrong while tracking",
   "tracking.error_bad_response": "Invalid tracking response",
   "tracking.error_missing_locations": "Unable to load tracking data",
@@ -79,7 +87,9 @@
     "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
   },
   "common": {
+    "save": "Save",
     "close": "Close",
+    "retry": "Retry",
     "copy": "Copy",
     "currency": "SYP",
     "sending": "Sending...",

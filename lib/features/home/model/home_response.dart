@@ -237,11 +237,27 @@ class MenuItemModel {
   });
 
   factory MenuItemModel.fromJson(Map<String, dynamic> json) {
+    final base = HomeResponse._toDouble(json["base_price"]);
+    final beforeRaw = json["price_before"];
+    final afterRaw = json["price_after"];
+
+    final priceBefore = (beforeRaw == null)
+        ? base
+        : HomeResponse._toDouble(beforeRaw);
+    final priceAfter = (afterRaw == null)
+        ? base
+        : HomeResponse._toDouble(afterRaw);
+
     final discountRaw = json["discount_value"];
-    final discountParsed =
+    final discountValue =
         (discountRaw == null || discountRaw.toString().trim().isEmpty)
         ? null
         : HomeResponse._toDouble(discountRaw);
+
+    final hasDiscount = (json.containsKey("has_discount"))
+        ? HomeResponse._toBool(json["has_discount"])
+        : (discountValue != null && discountValue > 0) ||
+              (priceAfter < priceBefore);
 
     final primaryMap = HomeResponse._toMap(json["primary_image"]);
     final restMap = HomeResponse._toMap(json["restaurant"]);
@@ -250,11 +266,11 @@ class MenuItemModel {
       id: HomeResponse._toInt(json["id"]),
       nameAr: HomeResponse._toStringSafe(json["name_ar"]),
       nameEn: HomeResponse._toStringSafe(json["name_en"]),
-      priceBefore: HomeResponse._toDouble(json["price_before"]),
-      priceAfter: HomeResponse._toDouble(json["price_after"]),
-      hasDiscount: HomeResponse._toBool(json["has_discount"]),
+      priceBefore: priceBefore,
+      priceAfter: priceAfter,
+      hasDiscount: hasDiscount,
       discountType: json["discount_type"] as String?,
-      discountValue: discountParsed,
+      discountValue: discountValue,
       isFavorite: HomeResponse._toBool(json["is_favorite"]),
       primaryImage: primaryMap == null
           ? null
@@ -268,10 +284,16 @@ class PrimaryImageModel {
   final String imageUrl;
   PrimaryImageModel({required this.imageUrl});
 
+  static String absUrl(String? path) {
+    final p = (path ?? "").trim();
+    if (p.isEmpty) return "";
+    if (p.startsWith("http")) return p;
+    if (p.startsWith("/")) return "https://breezefood.cloud$p";
+    return "https://breezefood.cloud/$p";
+  }
+
   factory PrimaryImageModel.fromJson(Map<String, dynamic> json) =>
-      PrimaryImageModel(
-        imageUrl: HomeResponse._toStringSafe(json["image_url"]),
-      );
+      PrimaryImageModel(imageUrl: absUrl(json["image_url"]?.toString()));
 }
 
 class MenuItemRestaurant {

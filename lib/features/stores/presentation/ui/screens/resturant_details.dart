@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:breezefood/android_swipe_back.dart';
+import 'package:breezefood/core/component/bottom_cart_action.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
@@ -154,7 +155,29 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       child: AndroidSwipeBack(
         child: Scaffold(
           extendBodyBehindAppBar: true,
-          bottomNavigationBar: _buildCartBar(context),
+          bottomNavigationBar: SafeArea(
+            child: BottomCartAction(
+              haveOrder: null, // أو إذا عندك haveOrder مرّره
+              usePrimaryButton: true,
+              showCountAndTotal: true,
+              onViewCart: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider.value(value: context.read<CartCubit>()),
+                        BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
+                      ],
+                      child: const RequestOrderScreen(),
+                    ),
+                  ),
+                );
+                if (context.mounted) context.read<CartCubit>().loadCart();
+              },
+            ),
+          ),
+
           body: BlocBuilder<RestaurantDetailsCubit, RestaurantDetailsState>(
             bloc: cubit,
             builder: (context, state) {
@@ -762,76 +785,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     );
   }
 
-  Widget _buildCartBar(BuildContext context) {
-    return SafeArea(
-      child: BlocBuilder<CartCubit, CartState>(
-        builder: (context, st) {
-          bool loading = false;
-          CartSummary summary = CartSummary.empty;
-
-          st.maybeWhen(
-            loading: () => loading = true,
-            cartLoaded: (cart, __, ___) {
-              summary = CartSummary.from(cart);
-            },
-            orElse: () {},
-          );
-
-          if (!loading && !summary.hasCart) {
-            return const SizedBox.shrink();
-          }
-
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            decoration: BoxDecoration(
-              color: AppColor.Dark,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
-                  blurRadius: 10,
-                  offset: const Offset(0, -3),
-                ),
-              ],
-            ),
-            child: CustomButton(
-              title: loading
-                  ? "common.view_cart_loading".tr()
-                  : "common.view_cart".tr(
-                      namedArgs: {
-                        "count": "${summary.count}",
-                        "total": context.money(summary.total, decimals: 0),
-                      },
-                    ),
-              onPressed: loading
-                  ? null
-                  : () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MultiBlocProvider(
-                            providers: [
-                              BlocProvider.value(
-                                value: context.read<CartCubit>(),
-                              ),
-                              BlocProvider(
-                                create: (_) => getIt<OrderFlowCubit>(),
-                              ),
-                            ],
-                            child: const RequestOrderScreen(),
-                          ),
-                        ),
-                      );
-
-                      if (context.mounted) {
-                        context.read<CartCubit>().loadCart();
-                      }
-                    },
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Widget _divider() {
     return Container(

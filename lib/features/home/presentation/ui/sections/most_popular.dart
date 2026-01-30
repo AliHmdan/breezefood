@@ -7,6 +7,7 @@ import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_P
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart'; // MenuExtra (الموحد)
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -118,8 +119,7 @@ class MostPopularSection extends StatelessWidget {
         SizedBox(
           height: 140.h,
           // width: containerWidth,
-          child:
-          ListView.builder(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count,
             physics: count <= 2
@@ -128,19 +128,18 @@ class MostPopularSection extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = items[index];
 
-              final title = item.nameAr.isNotEmpty
-                  ? item.nameAr
-                  : item.nameEn;
+              final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
 
               return Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: index == 0 ? 16.w : 0,          // 🔥 أول عنصر فقط
-                    end: index == count - 1 ? 16.w : gap),
-                    child: SizedBox(
+                padding: EdgeInsetsDirectional.only(
+                  start: index == 0 ? 16.w : 0, // 🔥 أول عنصر فقط
+                  end: index == count - 1 ? 16.w : gap,
+                ),
+                child: SizedBox(
                   width: cardWidth,
 
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       final menuItemId = item.id;
                       final resolvedRestaurantId =
                           restaurantId ?? (item.restaurant?.id ?? 0);
@@ -154,10 +153,10 @@ class MostPopularSection extends StatelessWidget {
                         return;
                       }
 
-                      showAddOrderDialog(
+                      await showAddOrderDialog(
                         context,
-                        restaurantId: resolvedRestaurantId, // ✅ جديد
-                        menuItemId: menuItemId, // ✅ جديد
+                        restaurantId: resolvedRestaurantId,
+                        menuItemId: menuItemId,
                         title: title,
                         price: (item.priceAfter > 0
                             ? item.priceAfter
@@ -169,6 +168,10 @@ class MostPopularSection extends StatelessWidget {
                         description: "",
                         extraMeals: const <MenuExtra>[],
                       );
+
+                      if (context.mounted) {
+                        context.read<CartCubit>().loadCart();
+                      }
                     },
 
                     child: PopularItemCard(item: item), // ✅ MenuItemModel
@@ -216,38 +219,37 @@ class _PopularItemCardState extends State<PopularItemCard> {
     }
   }
 
-Future<void> _toggleFavorite() async {
-  if (_sending) return;
+  Future<void> _toggleFavorite() async {
+    if (_sending) return;
 
-  final id = widget.item.id;
-  if (id <= 0) return;
+    final id = widget.item.id;
+    if (id <= 0) return;
 
-  final previous = _isFavorite;
-  setState(() => _isFavorite = !_isFavorite);
+    final previous = _isFavorite;
+    setState(() => _isFavorite = !_isFavorite);
 
-  _sending = true;
+    _sending = true;
 
-  try {
-    debugPrint("❤️ toggle fav id=$id  prev=$previous -> now=$_isFavorite");
+    try {
+      debugPrint("❤️ toggle fav id=$id  prev=$previous -> now=$_isFavorite");
 
-    final favCubit = context.read<FavoritesCubit>();
-    final res = await favCubit.toggle(id);
+      final favCubit = context.read<FavoritesCubit>();
+      final res = await favCubit.toggle(id);
 
-    debugPrint("✅ toggle result ok=${res.ok} msg=${res.message}");
+      debugPrint("✅ toggle result ok=${res.ok} msg=${res.message}");
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setState(() => _isFavorite = previous);
+        EasyLoading.showError(res.message ?? "Failed");
+      }
+    } catch (e, st) {
+      debugPrint("❌ toggle fav crashed: $e\n$st");
       setState(() => _isFavorite = previous);
-      EasyLoading.showError(res.message ?? "Failed");
+      EasyLoading.showError("Failed: $e");
+    } finally {
+      _sending = false;
     }
-  } catch (e, st) {
-    debugPrint("❌ toggle fav crashed: $e\n$st");
-    setState(() => _isFavorite = previous);
-    EasyLoading.showError("Failed: $e");
-  } finally {
-    _sending = false;
   }
-}
-
 
   @override
   Widget build(BuildContext context) {

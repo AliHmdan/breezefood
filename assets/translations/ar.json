@@ -72,6 +72,14 @@
     "view_cart": "عرض السلة",
     "view_cart_loading": "عرض السلة ..."
   },
+  "map_picker": {
+    "title": "اختر الموقع",
+    "my_location": "موقعي",
+    "confirm": "تأكيد الموقع",
+    "error_cannot_locate": "تعذر تحديد موقعك الحالي، اختره يدويًا من الخريطة",
+    "error_failed_update": "فشل تحديث العنوان",
+    "success_updated": "تم تحديث العنوان"
+  },
   "tracking.error_generic": "صار خطأ بالتتبع",
   "tracking.error_bad_response": "استجابة غير صحيحة",
   "tracking.error_missing_locations": "لا يمكن تحميل بيانات التتبع",
@@ -103,8 +111,10 @@
     }
   },
   "common": {
+    "retry": "إعادة المحاولة",
     "AddToCart": "إضافة إلى السلة",
     "empty": "فارغ",
+    "save": "حفظ",
     "min": "دقيقة",
     "search": "بحث",
     "close": "إغلاق",

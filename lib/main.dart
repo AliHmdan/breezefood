@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
         BlocProvider(create: (_) => getIt<HomeCubit>()),
-        BlocProvider(create: (_) => getIt<ProfileCubit>()), // إذا بدك كمان
+        BlocProvider(create: (_) => getIt<ProfileCubit>()),  
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),

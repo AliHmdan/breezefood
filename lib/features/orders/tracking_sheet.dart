@@ -251,7 +251,8 @@ class TrackingSheet extends StatelessWidget {
         final order = details?.order;
         final status = (order?.status ?? "").toString();
         final st = status.toLowerCase().trim();
-        final canCancel = st == "no_driver";
+     final canCancel = st == "no_driver" || st == "pending";
+
 
         final itemsTotal = order?.itemsTotal;
         final deliveryFee = order?.deliveryFee;

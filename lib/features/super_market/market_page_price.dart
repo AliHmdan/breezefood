@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/bottom_cart_action.dart';
 import 'package:breezefood/core/component/have_order.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
@@ -332,37 +333,45 @@ class MarketPagePrice extends StatelessWidget {
                         orElse: () {},
                       );
 
-                      // ✅ 1) إذا في سلة: View Cart
-                      if (count > 0) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: CustomButtonOrder(
-                            title:
-                                "${'cart.view_cart'.tr()} • $count • ${context.money(total, decimals: 0)}",
-                            onPressed: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => MultiBlocProvider(
-                                    providers: [
-                                      BlocProvider.value(
-                                        value: context.read<CartCubit>(),
-                                      ),
-                                      BlocProvider(
-                                        create: (_) => getIt<OrderFlowCubit>(),
-                                      ),
-                                    ],
-                                    child: const RequestOrderScreen(),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 16.h,
+                        child: SafeArea(
+                          top: false,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: BottomCartAction(
+                              haveOrder: haveOrder,
+                              usePrimaryButton:
+                                  false, // لأنه هون كنت تستعمل CustomButtonOrder
+                              showCountAndTotal: true,
+                              onViewCart: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => MultiBlocProvider(
+                                      providers: [
+                                        BlocProvider.value(
+                                          value: context.read<CartCubit>(),
+                                        ),
+                                        BlocProvider(
+                                          create: (_) =>
+                                              getIt<OrderFlowCubit>(),
+                                        ),
+                                      ],
+                                      child: const RequestOrderScreen(),
+                                    ),
                                   ),
-                                ),
-                              );
+                                );
 
-                              if (context.mounted)
-                                context.read<CartCubit>().loadCart();
-                            },
+                                if (context.mounted)
+                                  context.read<CartCubit>().loadCart();
+                              },
+                            ),
                           ),
-                        );
-                      }
+                        ),
+                      );
 
                       // ✅ 2) إذا ما في سلة وفي haveOrder: Track Order
                       if (haveOrder != null) {

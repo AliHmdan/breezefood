@@ -329,8 +329,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                                     final extras = it.extras;
 
-                                    return
-                                      Dismissible(
+                                    return Dismissible(
                                       key: ValueKey("cart_item_${it.id}"),
                                       direction: DismissDirection.endToStart,
 
@@ -540,14 +539,11 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           longitude: result["lng"],
                                         );
 
-                                        // ✨ نعبي حقل التفاصيل تلقائي باسم المكان
-                                        _tempDetailsCtrl.text =
-                                            result["text"] ?? "";
-
+                                        _tempDetailsCtrl
+                                            .clear(); // ✅ التفاصيل فاضي للمستخدم
                                         _selectedAddressId = null;
                                       });
 
-                                      // ✅ افتح الكيبورد تلقائي
                                       WidgetsBinding.instance
                                           .addPostFrameCallback((_) {
                                             if (!mounted) return;
@@ -596,6 +592,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                           paymentId,
                                           selectedAddressId: _selectedAddressId,
                                           temp: _tempOrderAddress,
+                                          details: _tempDetailsCtrl.text
+                                              .trim(), // ✅ تفاصيل العنوان
                                         );
                                       },
                               ),
@@ -1135,14 +1133,11 @@ Future<void> _storeOrder(
   String paymentId, {
   required int? selectedAddressId,
   required OrderAddress? temp,
+  required String details, // ✅ جديد
 }) async {
   final isRTL = Directionality.of(context) == TextDirection.rtl;
 
-  final hasTemp =
-      temp != null &&
-      temp.latitude != 0 &&
-      temp.longitude != 0 &&
-      temp.text.trim().isNotEmpty;
+  final hasTemp = temp != null && temp.latitude != 0 && temp.longitude != 0;
 
   final hasAnySaved = cart.addresses.isNotEmpty;
 
@@ -1196,7 +1191,7 @@ Future<void> _storeOrder(
     restaurantId: cart.restaurantId,
     deliveryType: "delivery",
     paymentMethod: paymentId,
-    notes: "",
+    notes: details, // ✅
     deliveryFee: cart.deliveryAfter,
     address: addressToSend,
     items: cart.items.map((it) {
@@ -1447,6 +1442,11 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                           }
                         } catch (e) {
                           debugPrint("Geocoding error: $e");
+                        }
+
+                        if (addressText.trim().isEmpty) {
+                          addressText =
+                              "Pinned location (${_picked.latitude.toStringAsFixed(5)}, ${_picked.longitude.toStringAsFixed(5)})";
                         }
 
                         Navigator.pop(context, {
