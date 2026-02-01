@@ -43,12 +43,10 @@ class BottomCartAction extends StatelessWidget {
           orElse: () {},
         );
 
-        // ✅ NEW: وقت اللودينغ اخفي الزر بالكامل
         if (loading) {
           return const SizedBox.shrink();
         }
 
-        // ✅ إذا في سلة -> View Cart
         if (summary.hasCart) {
           final title = showCountAndTotal
               ? "${'cart.view_cart'.tr()} • ${summary.count} • ${context.money(summary.total, decimals: 0)}"

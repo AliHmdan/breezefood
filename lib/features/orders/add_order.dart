@@ -342,45 +342,6 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           value: _withSpicy,
                           onChanged: (v) => setState(() => _withSpicy = v),
                         ),
-                        CustomSubTitle(
-                          subtitle: "Notes",
-                          color: AppColor.white,
-                          fontsize: 16.sp,
-                        ),
-                        SizedBox(height: 8.h),
-
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.black,
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(color: Colors.white12),
-                          ),
-                          child: TextField(
-                            controller: _noteCtrl,
-                            maxLines: 3,
-                            minLines: 2,
-                            style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 13.sp,
-                            ),
-                            textInputAction: TextInputAction.done,
-                            decoration: InputDecoration(
-                              hintText:
-                                  "اكتب ملاحظتك (مثلاً: بدون بصل، زيادة ثوم...)",
-                              hintStyle: TextStyle(
-                                color: Colors.white54,
-                                fontSize: 12,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 13),
 
                         CounterSheet(
                           basePrice: widget.price,

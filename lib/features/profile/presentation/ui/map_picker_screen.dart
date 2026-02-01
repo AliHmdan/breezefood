@@ -586,7 +586,6 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               ),
             ),
 
-            // ✅ locating overlay
             if (_locating)
               Positioned.fill(
                 child: Container(

@@ -445,13 +445,10 @@ class _HomeState extends State<Home> with RouteAware {
     );
   }
 }
-
 class _HomeBottomAction extends StatelessWidget {
   final HomeCubit homeCubit;
   final OrderInfo haveOrder;
-
   const _HomeBottomAction({required this.homeCubit, required this.haveOrder});
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
@@ -467,9 +464,7 @@ class _HomeBottomAction extends StatelessWidget {
           orElse: () {},
         );
 
-        // ✅ إذا في سلة -> View Cart
         if (summary.hasCart || loading) {
-          // إذا loading وما في summary بعد، خلّي الزر موجود بس disabled
           final title = loading
               ? "cart.view_cart_loading".tr()
               : "${'cart.view_cart'.tr()} • ${summary.count} • ${context.money(summary.total, decimals: 0)}";

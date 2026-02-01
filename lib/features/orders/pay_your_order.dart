@@ -1,7 +1,23 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as mt;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:easy_localization/easy_localization.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/dialogs.dart';
 import 'package:breezefood/core/services/money.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+
+import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
+
 import 'package:breezefood/features/orders/model/cart_response.dart';
 import 'package:breezefood/features/orders/model/store_order_request.dart';
 import 'package:breezefood/features/orders/payment_method.dart';
@@ -10,16 +26,6 @@ import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_
 import 'package:breezefood/features/orders/request_order/counter_request.dart';
 import 'package:breezefood/features/orders/request_order/meal_card.dart';
 import 'package:breezefood/features/orders/request_order/total.dart';
-import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:developer';
-import 'package:geolocator/geolocator.dart';
 
 class RequestOrderScreen extends StatefulWidget {
   const RequestOrderScreen({super.key});
@@ -29,10 +35,24 @@ class RequestOrderScreen extends StatefulWidget {
 }
 
 class _RequestOrderScreenState extends State<RequestOrderScreen> {
-  int? _selectedAddressId; // saved addresses
-  OrderAddress? _tempOrderAddress; // ✅ temporary for this order only
+  // saved addresses
+  int? _selectedAddressId;
+
+  // temp address (for this order only)
+  OrderAddress? _tempOrderAddress;
   final TextEditingController _tempDetailsCtrl = TextEditingController();
   final FocusNode _tempDetailsFocus = FocusNode();
+
+  // ✅ order notes (notes field)
+  final TextEditingController _orderNotesCtrl = TextEditingController();
+
+  // ✅ per-item special_notes (because your CartItem model doesn't include them)
+  final Map<int, String> _itemNotes = {}; // key = cartItemId
+
+  // ✅ delivery type
+  String _deliveryType = "delivery"; // "pickup" | "delivery"
+
+  String _selectedPayment = 'cash';
 
   final methods = const [
     PaymentMethod(
@@ -48,38 +68,13 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   void dispose() {
     _tempDetailsCtrl.dispose();
     _tempDetailsFocus.dispose();
+    _orderNotesCtrl.dispose();
     super.dispose();
   }
 
-  String _selectedPayment = 'cash';
-
-  String _fullUrl(String path) {
-    final s = path.trim();
-    if (s.isEmpty) return "";
-    if (s.startsWith("http://") || s.startsWith("https://")) return s;
-    final clean = s.replaceFirst(RegExp(r'^/+'), '');
-    return "https://breezefood.cloud/$clean";
-  }
-
-  Widget _chip(String text, {Color? bg, Color? fg}) {
-    return Container(
-      margin: EdgeInsetsDirectional.only(end: 6.w, bottom: 6.h),
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: (bg ?? Colors.white12),
-        borderRadius: BorderRadius.circular(30.r),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: fg ?? Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  // ----------------------------
+  // UI helpers
+  // ----------------------------
 
   Future<bool> _confirmDelete(
     BuildContext context, {
@@ -114,21 +109,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
         false;
   }
 
-  Future<Map<String, dynamic>?> _openTempAddressPicker({
-    required bool isRTL,
-  }) async {
-    final init = _tempOrderAddress == null
-        ? null
-        : LatLng(_tempOrderAddress!.latitude, _tempOrderAddress!.longitude);
-
-    return Navigator.push<Map<String, dynamic>?>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TempAddressMapPicker(isRTL: isRTL, initial: init),
-      ),
-    );
-  }
-
   Future<_PickAddressAction?> _openAddressPickerSheet({
     required bool isRTL,
     required List<CartUserAddress> addresses,
@@ -146,9 +126,180 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
     );
   }
 
+  Future<Map<String, dynamic>?> _openTempAddressPicker({
+    required bool isRTL,
+  }) async {
+    final init = _tempOrderAddress == null
+        ? null
+        : LatLng(_tempOrderAddress!.latitude, _tempOrderAddress!.longitude);
+
+    return Navigator.push<Map<String, dynamic>?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TempAddressMapPicker(isRTL: isRTL, initial: init),
+      ),
+    );
+  }
+
+  // ✅ cart extras -> order extras payload
+  List<OrderExtraRequest> _extrasPayload(CartItem it) {
+    return it.extras
+        .map((e) => OrderExtraRequest(extraId: e.extraId, quantity: e.quantity))
+        .toList();
+  }
+
+  // ✅ edit per-item special notes
+  Future<void> _editItemNote({
+    required bool isRTL,
+    required CartItem item,
+  }) async {
+    final ctrl = TextEditingController(text: _itemNotes[item.id] ?? "");
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColor.black,
+        title: Text(
+          isRTL ? "ملاحظة للوجبة" : "Item note",
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: TextField(
+          controller: ctrl,
+          maxLines: 3,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: isRTL
+                ? "مثلاً: بدون بصل، سبايسي خفيف..."
+                : "e.g. No onion, mild spicy...",
+            hintStyle: const TextStyle(color: Colors.white54),
+            filled: true,
+            fillColor: Colors.white10,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(isRTL ? "إلغاء" : "Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(isRTL ? "حفظ" : "Save"),
+          ),
+        ],
+      ),
+    );
+
+    if (ok == true) {
+      setState(() {
+        final v = ctrl.text.trim();
+        if (v.isEmpty) {
+          _itemNotes.remove(item.id);
+        } else {
+          _itemNotes[item.id] = v;
+        }
+      });
+    }
+  }
+
+  // ----------------------------
+  // Build & submit order
+  // ----------------------------
+
+  Future<void> _storeOrder(
+    BuildContext context,
+    CartResponse cart,
+    String paymentId,
+  ) async {
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+
+    final hasTemp =
+        _tempOrderAddress != null &&
+        _tempOrderAddress!.latitude != 0 &&
+        _tempOrderAddress!.longitude != 0 &&
+        _tempOrderAddress!.text.trim().isNotEmpty;
+
+    final hasAnySaved = cart.addresses.isNotEmpty;
+
+    // ✅ Address required only for delivery
+    if (_deliveryType == "delivery") {
+      if (!hasTemp &&
+          !hasAnySaved &&
+          (cart.primaryAddress?.address?.trim().isEmpty ?? true)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isRTL ? "يرجى اختيار عنوان" : "Please select address",
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+    }
+
+    CartUserAddress? pickedSaved;
+    if (hasAnySaved) {
+      pickedSaved = (_selectedAddressId == null)
+          ? cart.defaultAddress
+          : cart.addresses.firstWhere(
+              (a) => a.id == _selectedAddressId,
+              orElse: () => cart.defaultAddress ?? cart.addresses.first,
+            );
+    }
+
+    final primary = cart.primaryAddress;
+
+    final addressToSend = hasTemp
+        ? _tempOrderAddress!
+        : (pickedSaved != null)
+        ? OrderAddress(
+            text: pickedSaved.address,
+            latitude: pickedSaved.latitude,
+            longitude: pickedSaved.longitude,
+          )
+        : OrderAddress(
+            text: primary?.address ?? "",
+            latitude: primary?.latitude ?? 0,
+            longitude: primary?.longitude ?? 0,
+          );
+
+    final items = cart.items.map((it) {
+      return OrderItemRequest(
+        menuItemId: it.menuItemId,
+        quantity: it.quantity,
+        specialNotes: (_itemNotes[it.id] ?? "").trim(),
+        extras: _extrasPayload(it),
+      );
+    }).toList();
+
+    final req = StoreOrderRequest(
+      restaurantId: cart.restaurantId,
+      deliveryType: _deliveryType,
+      paymentMethod: paymentId,
+      notes: _orderNotesCtrl.text.trim(),
+      deliveryFee: cart.deliveryAfter,
+      address: addressToSend,
+      items: items,
+      appetizers: const [],
+    );
+
+    context.read<OrderFlowCubit>().store(req);
+  }
+
+  // ----------------------------
+  // UI
+  // ----------------------------
+
   @override
   Widget build(BuildContext context) {
-    final isRTL = Directionality.of(context) == TextDirection.rtl;
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -178,15 +329,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       ),
       body: Stack(
         children: [
-          /// 🖼️ Background Image
           Positioned.fill(
             child: Image.asset(
               "assets/images/background_auth.png",
               fit: BoxFit.cover,
             ),
           ),
-
-          /// 🌫️ Overlay (مهم جداً لقراءة النص)
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.55)),
           ),
@@ -219,7 +367,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                     if (!context.mounted) return;
                     Navigator.of(context).pop(true);
                   },
-
                   error: (msg) async {
                     if (EasyLoading.isShow) await EasyLoading.dismiss();
                     if (!context.mounted) return;
@@ -290,7 +437,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 ),
                               ],
 
-
                               SizedBox(height: 10.h),
 
                               if (cart.items.isEmpty)
@@ -302,8 +448,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                   child: Text(
                                     isRTL ? "السلة فارغة" : "Cart is empty",
                                     style: TextStyle(
-                                      color: AppColor.white,
-                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontSize: 16.sp,
                                     ),
                                   ),
                                 )
@@ -322,68 +468,158 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                               ? it.nameEn
                                               : it.nameAr);
 
-                                    final extras = it.extras;
+                                    final note =
+                                        _itemNotes[it.id]?.trim() ?? "";
 
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: 8.h),
                                       child: Slidable(
                                         key: ValueKey("cart_item_${it.id}"),
                                         endActionPane: ActionPane(
-                                          motion: const StretchMotion(), // 🔥 أنعم Motion
-                                          extentRatio: 0.22, // حجم زر الحذف
+                                          motion: const StretchMotion(),
+                                          extentRatio: 0.22,
                                           children: [
                                             SlidableAction(
                                               onPressed: isUpdating
                                                   ? null
                                                   : (_) async {
-                                                final ok = await _confirmDelete(
-                                                  context,
-                                                  isRTL: isRTL,
-                                                );
-                                                if (ok) {
-                                                  context.read<CartCubit>().removeItem(it.id);
-                                                }
-                                              },
-                                              backgroundColor: Colors.red.withOpacity(0.9),
+                                                      final ok =
+                                                          await _confirmDelete(
+                                                            context,
+                                                            isRTL: isRTL,
+                                                          );
+                                                      if (ok) {
+                                                        context
+                                                            .read<CartCubit>()
+                                                            .removeItem(it.id);
+                                                        setState(
+                                                          () => _itemNotes
+                                                              .remove(it.id),
+                                                        );
+                                                      }
+                                                    },
+                                              backgroundColor: Colors.red
+                                                  .withOpacity(0.9),
                                               foregroundColor: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(isRTL ? 14.r : 0),
-                                                bottomLeft: Radius.circular(isRTL ? 14.r : 0),
-                                                topRight: Radius.circular(isRTL ? 0 : 14.r),
-                                                bottomRight: Radius.circular(isRTL ? 0 : 14.r),
-                                              ),                                              icon: Icons.delete_outline,
+                                              icon: Icons.delete_outline,
                                               label: isRTL ? "حذف" : "Delete",
                                             ),
                                           ],
                                         ),
-
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: AppColor.black,
-                                            // borderRadius: BorderRadius.circular(14.r),
-                                            border: Border.all(color: Colors.white10),
-                                          ),
-                                          child: MealCard(
-                                            key: ValueKey(it.id),
-                                            image: it.image,
-                                            name: title,
-                                            price: it.unitPrice,
-                                            counter: CounterRequest(
-                                              value: it.quantity,
-                                              loading: isUpdating,
-                                              onChanged: (newQty) {
-                                                context.read<CartCubit>().updateQty(
-                                                  cartItemId: it.id,
-                                                  quantity: newQty,
-                                                );
-                                              },
+                                            border: Border.all(
+                                              color: Colors.white10,
                                             ),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              MealCard(
+                                                key: ValueKey(it.id),
+                                                image: it.image,
+                                                name: title,
+                                                price: it.unitPrice,
+                                                counter: CounterRequest(
+                                                  value: it.quantity,
+                                                  loading: isUpdating,
+                                                  onChanged: (newQty) {
+                                                    context
+                                                        .read<CartCubit>()
+                                                        .updateQty(
+                                                          cartItemId: it.id,
+                                                          quantity: newQty,
+                                                        );
+                                                  },
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 12.w,
+                                                  vertical: 8.h,
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () =>
+                                                          _editItemNote(
+                                                            isRTL: isRTL,
+                                                            item: it,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10.r,
+                                                          ),
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: 10.w,
+                                                              vertical: 6.h,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white10,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10.r,
+                                                              ),
+                                                          border: Border.all(
+                                                            color:
+                                                                Colors.white12,
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(
+                                                              Icons.edit_note,
+                                                              color: Colors
+                                                                  .white70,
+                                                              size: 18,
+                                                            ),
+                                                            SizedBox(
+                                                              width: 6.w,
+                                                            ),
+                                                            Text(
+                                                              isRTL
+                                                                  ? "ملاحظة"
+                                                                  : "Note",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white70,
+                                                                fontSize: 12.sp,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 10.w),
+                                                    Expanded(
+                                                      child: Text(
+                                                        note.isEmpty
+                                                            ? (isRTL
+                                                                  ? "لا توجد ملاحظة"
+                                                                  : "No note")
+                                                            : note,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                          color: Colors.white54,
+                                                          fontSize: 12.sp,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                     );
-
-
                                   }).toList(),
                                 ),
 
@@ -431,7 +667,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                         cart.deliveryDiscount,
                                       ),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 6.h),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 6.h,
+                                      ),
                                       child: Divider(
                                         height: 1,
                                         thickness: 0.8,
@@ -453,85 +691,120 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                               SizedBox(height: 10.h),
 
-                              _AddressCard(
-                                isRTL: isRTL,
-                                cart: cart,
-                                selectedSavedId:
-                                    _selectedAddressId ??
-                                    cart.defaultAddress?.id,
-                                tempAddress: _tempOrderAddress,
-                                onTap: () async {
-                                  final action = await _openAddressPickerSheet(
-                                    isRTL: isRTL,
-                                    addresses: cart.addresses,
-                                    selectedId:
-                                        _selectedAddressId ??
-                                        cart.defaultAddress?.id,
-                                  );
-
-                                  if (action == null) return;
-
-                                  if (action.type ==
-                                          _PickAddressActionType.saved &&
-                                      action.savedId != null) {
-                                    setState(() {
-                                      _selectedAddressId = action.savedId;
-                                      _tempOrderAddress = null;
-                                      _tempDetailsCtrl.clear();
-                                    });
-                                  }
-
-                                  if (action.type ==
-                                      _PickAddressActionType.temp) {
-                                    final result = await _openTempAddressPicker(
-                                      isRTL: isRTL,
-                                    );
-
-                                    if (result != null) {
-                                      setState(() {
-                                        _tempOrderAddress = OrderAddress(
-                                          text: result["text"] ?? "",
-                                          latitude: result["lat"],
-                                          longitude: result["lng"],
+                              if (_deliveryType == "delivery") ...[
+                                _AddressCard(
+                                  isRTL: isRTL,
+                                  cart: cart,
+                                  selectedSavedId:
+                                      _selectedAddressId ??
+                                      cart.defaultAddress?.id,
+                                  tempAddress: _tempOrderAddress,
+                                  onTap: () async {
+                                    final action =
+                                        await _openAddressPickerSheet(
+                                          isRTL: isRTL,
+                                          addresses: cart.addresses,
+                                          selectedId:
+                                              _selectedAddressId ??
+                                              cart.defaultAddress?.id,
                                         );
 
-                                        // ✨ نعبي حقل التفاصيل تلقائي باسم المكان
-                                        _tempDetailsCtrl.text =
-                                            result["text"] ?? "";
+                                    if (action == null) return;
 
-                                        _selectedAddressId = null;
+                                    if (action.type ==
+                                            _PickAddressActionType.saved &&
+                                        action.savedId != null) {
+                                      setState(() {
+                                        _selectedAddressId = action.savedId;
+                                        _tempOrderAddress = null;
+                                        _tempDetailsCtrl.clear();
                                       });
-
-                                      // ✅ افتح الكيبورد تلقائي
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                            if (!mounted) return;
-                                            _tempDetailsFocus.requestFocus();
-                                          });
                                     }
-                                  }
 
-                                  if (action.type ==
-                                      _PickAddressActionType.clearTemp) {
+                                    if (action.type ==
+                                        _PickAddressActionType.temp) {
+                                      final result =
+                                          await _openTempAddressPicker(
+                                            isRTL: isRTL,
+                                          );
+                                      if (result != null) {
+                                        setState(() {
+                                          _tempOrderAddress = OrderAddress(
+                                            text: (result["text"] ?? "")
+                                                .toString(),
+                                            latitude: (result["lat"] as num)
+                                                .toDouble(),
+                                            longitude: (result["lng"] as num)
+                                                .toDouble(),
+                                          );
+                                          _tempDetailsCtrl.text =
+                                              (result["text"] ?? "").toString();
+                                          _selectedAddressId = null;
+                                        });
+
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              if (!mounted) return;
+                                              _tempDetailsFocus.requestFocus();
+                                            });
+                                      }
+                                    }
+
+                                    if (action.type ==
+                                        _PickAddressActionType.clearTemp) {
+                                      setState(() {
+                                        _tempOrderAddress = null;
+                                        _tempDetailsCtrl.clear();
+                                      });
+                                    }
+                                  },
+                                  tempDetailsCtrl: _tempDetailsCtrl,
+                                  tempDetailsFocus: _tempDetailsFocus,
+                                  onTempDetailsChanged: (v) {
+                                    if (_tempOrderAddress == null) return;
                                     setState(() {
-                                      _tempOrderAddress = null;
-                                      _tempDetailsCtrl.clear();
-                                    });
-                                  }
-                                },
-                                tempDetailsCtrl: _tempDetailsCtrl,
-                                tempDetailsFocus: _tempDetailsFocus,
-                                onTempDetailsChanged: (v) {
-                                  setState(() {
-                                    if (_tempOrderAddress != null) {
                                       _tempOrderAddress = OrderAddress(
                                         text: v.trim(),
                                         latitude: _tempOrderAddress!.latitude,
                                         longitude: _tempOrderAddress!.longitude,
                                       );
-                                    }
-                                  });
-                                },
+                                    });
+                                  },
+                                ),
+                                SizedBox(height: 10.h),
+                              ],
+
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(12.w),
+                                decoration: BoxDecoration(
+                                  color: AppColor.black,
+                                  borderRadius: BorderRadius.circular(12.r),
+                                  border: Border.all(color: Colors.white10),
+                                ),
+                                child: TextField(
+                                  controller: _orderNotesCtrl,
+                                  maxLines: 3,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13.sp,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: isRTL
+                                        ? "ملاحظات للطلب (اختياري) مثال: اتصل قبل الوصول..."
+                                        : "Order notes (optional) e.g. call before arrival...",
+                                    hintStyle: TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 12.sp,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white10,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
                               ),
 
                               SizedBox(height: 10.h),
@@ -544,16 +817,11 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                     setState(() => _selectedPayment = id),
                                 onOrder: isPlacingOrder
                                     ? null
-                                    : (paymentId) {
-                                        _storeOrder(
-                                          context,
-                                          cart,
-                                          paymentId,
-                                          selectedAddressId: _selectedAddressId,
-                                          temp: _tempOrderAddress,
-                                        );
-                                      },
+                                    : (paymentId) =>
+                                          _storeOrder(context, cart, paymentId),
                               ),
+
+                              SizedBox(height: 18.h),
                             ],
                           ),
                         ),
@@ -571,6 +839,10 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   }
 }
 
+// ============================
+// Address card + mini map
+// ============================
+
 class _AddressCard extends StatelessWidget {
   final bool isRTL;
   final CartResponse cart;
@@ -578,7 +850,6 @@ class _AddressCard extends StatelessWidget {
   final OrderAddress? tempAddress;
   final VoidCallback onTap;
 
-  // ✅ جديد
   final TextEditingController tempDetailsCtrl;
   final FocusNode tempDetailsFocus;
   final ValueChanged<String> onTempDetailsChanged;
@@ -601,13 +872,11 @@ class _AddressCard extends StatelessWidget {
     return lat != 0 && lng != 0;
   }
 
-  double _pickedLat(CartUserAddress? saved, OrderAddress? temp) {
-    return (temp?.latitude ?? saved?.latitude ?? 0).toDouble();
-  }
+  double _pickedLat(CartUserAddress? saved, OrderAddress? temp) =>
+      (temp?.latitude ?? saved?.latitude ?? 0).toDouble();
 
-  double _pickedLng(CartUserAddress? saved, OrderAddress? temp) {
-    return (temp?.longitude ?? saved?.longitude ?? 0).toDouble();
-  }
+  double _pickedLng(CartUserAddress? saved, OrderAddress? temp) =>
+      (temp?.longitude ?? saved?.longitude ?? 0).toDouble();
 
   @override
   Widget build(BuildContext context) {
@@ -621,11 +890,6 @@ class _AddressCard extends StatelessWidget {
       );
     }
 
-    // ✅ هذا النص للعرض داخل الصندوق
-    final shownText = (tempAddress != null)
-        ? tempDetailsCtrl.text.trim()
-        : (selectedSaved?.address ?? "");
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
@@ -637,13 +901,11 @@ class _AddressCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14.r),
-        child: Container(
+        child: Padding(
           padding: EdgeInsets.all(12.w),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14.r)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Row: icon + title + change
               Row(
                 children: [
                   Container(
@@ -701,32 +963,6 @@ class _AddressCard extends StatelessWidget {
                   ),
                 ],
               ),
-
-              SizedBox(height: 10.h),
-
-              // if (tempAddress != null) ...[
-              //   SizedBox(height: 10.h),
-              //   TextField(
-              //     controller: tempDetailsCtrl,
-              //     focusNode: tempDetailsFocus,
-              //     style: const TextStyle(color: Colors.white),
-              //     onChanged: onTempDetailsChanged,
-              //     decoration: InputDecoration(
-              //       hintText: isRTL
-              //           ? "تفاصيل العنوان: بناية، طابق، شقة..."
-              //           : "Address details: building, floor, apt...",
-              //       hintStyle: const TextStyle(color: Colors.white54),
-              //       filled: true,
-              //       fillColor: Colors.white10,
-              //       border: OutlineInputBorder(
-              //         borderRadius: BorderRadius.circular(12.r),
-              //         borderSide: BorderSide.none,
-              //       ),
-              //     ),
-              //   ),
-              // ],
-
-              // Mini map preview
               if (_canShowMapPreview(selectedSaved, tempAddress)) ...[
                 SizedBox(height: 10.h),
                 _MiniMapPreview(
@@ -738,35 +974,18 @@ class _AddressCard extends StatelessWidget {
                   onTap: onTap,
                 ),
               ],
-
-              if (tempAddress != null) ...[
-                SizedBox(height: 8.h),
-                Text(
-                  isRTL
-                      ? "هذا عنوان مؤقت للطلب فقط"
-                      : "This is temporary for this order only",
-                  style: TextStyle(color: Colors.white54, fontSize: 11.sp),
-                ),
-              ],
-              SizedBox(height: 10),
-              Container(
-                height: 40,
+              SizedBox(height: 10.h),
+              SizedBox(
+                height: 44,
                 child: TextField(
                   controller: tempDetailsCtrl,
                   focusNode: tempDetailsFocus,
-                  style: TextStyle(
-                    color: AppColor.Dark,
-                    fontSize: 14.sp,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
-                  ),
+                  style: TextStyle(color: AppColor.Dark, fontSize: 14.sp),
                   onChanged: onTempDetailsChanged,
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 2,
-                      horizontal: 2,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
                     ),
                     hintText: isRTL
                         ? "تفاصيل العنوان: بناية، طابق، شقة..."
@@ -781,6 +1000,15 @@ class _AddressCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (tempAddress != null) ...[
+                SizedBox(height: 8.h),
+                Text(
+                  isRTL
+                      ? "هذا عنوان مؤقت للطلب فقط"
+                      : "This is temporary for this order only",
+                  style: TextStyle(color: Colors.white54, fontSize: 11.sp),
+                ),
+              ],
             ],
           ),
         ),
@@ -793,12 +1021,13 @@ class _MiniMapPreview extends StatefulWidget {
   final double lat;
   final double lng;
   final VoidCallback onTap;
+
   const _MiniMapPreview({
-    Key? key,
+    super.key,
     required this.lat,
     required this.lng,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<_MiniMapPreview> createState() => _MiniMapPreviewState();
@@ -810,11 +1039,8 @@ class _MiniMapPreviewState extends State<_MiniMapPreview> {
   @override
   void didUpdateWidget(covariant _MiniMapPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // ✅ إذا تغيّر الموقع → حرّك الكاميرا مباشرة
     if (oldWidget.lat != widget.lat || oldWidget.lng != widget.lng) {
       final newPos = LatLng(widget.lat, widget.lng);
-
       _controller?.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(target: newPos, zoom: 16),
@@ -842,22 +1068,14 @@ class _MiniMapPreviewState extends State<_MiniMapPreview> {
               GoogleMap(
                 initialCameraPosition: CameraPosition(target: pos, zoom: 16),
                 onMapCreated: (c) => _controller = c,
-
                 zoomControlsEnabled: false,
                 myLocationButtonEnabled: false,
                 myLocationEnabled: false,
                 compassEnabled: false,
                 mapToolbarEnabled: false,
                 liteModeEnabled: true,
-
-                markers: {
-                  // Marker(
-                  //   // markerId: const MarkerId("picked"),
-                  //   // position: pos,
-                  // ),
-                },
+                markers: const {},
               ),
-
               Center(
                 child: Icon(
                   Icons.location_history,
@@ -872,6 +1090,10 @@ class _MiniMapPreviewState extends State<_MiniMapPreview> {
     );
   }
 }
+
+// ============================
+// Address picker sheet
+// ============================
 
 enum _PickAddressActionType { saved, temp, clearTemp }
 
@@ -1037,6 +1259,10 @@ class _AddressPickerSheet extends StatelessWidget {
   }
 }
 
+// ============================
+// Total line helper
+// ============================
+
 Widget _totalLine({
   required String title,
   required double value,
@@ -1084,89 +1310,9 @@ Widget _totalLine({
   );
 }
 
-Future<void> _storeOrder(
-  BuildContext context,
-  CartResponse cart,
-  String paymentId, {
-  required int? selectedAddressId,
-  required OrderAddress? temp,
-}) async {
-  final isRTL = Directionality.of(context) == TextDirection.rtl;
-
-  final hasTemp =
-      temp != null &&
-      temp.latitude != 0 &&
-      temp.longitude != 0 &&
-      temp.text.trim().isNotEmpty;
-
-  final hasAnySaved = cart.addresses.isNotEmpty;
-
-  if (!hasTemp &&
-      !hasAnySaved &&
-      (cart.primaryAddress?.address?.trim().isEmpty ?? true)) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isRTL ? "يرجى اختيار عنوان" : "Please select address",
-          style: TextStyle(
-            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                ? 'Cairo'
-                : 'Inter',
-          ),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-    return;
-  }
-
-  final pickedSaved = (selectedAddressId == null)
-      ? cart.defaultAddress
-      : cart.addresses.firstWhere(
-          (a) => a.id == selectedAddressId,
-          orElse: () =>
-              cart.defaultAddress ??
-              (cart.addresses.isNotEmpty
-                  ? cart.addresses.first
-                  : cart.defaultAddress!),
-        );
-
-  final primary = cart.primaryAddress;
-
-  final addressToSend = hasTemp
-      ? temp!
-      : (pickedSaved != null)
-      ? OrderAddress(
-          text: pickedSaved.address,
-          latitude: pickedSaved.latitude,
-          longitude: pickedSaved.longitude,
-        )
-      : OrderAddress(
-          text: primary?.address ?? "",
-          latitude: primary?.latitude ?? 0,
-          longitude: primary?.longitude ?? 0,
-        );
-
-  final req = StoreOrderRequest(
-    restaurantId: cart.restaurantId,
-    deliveryType: "delivery",
-    paymentMethod: paymentId,
-    notes: "",
-    deliveryFee: cart.deliveryAfter,
-    address: addressToSend,
-    items: cart.items.map((it) {
-      return OrderItemRequest(
-        menuItemId: it.menuItemId,
-        quantity: it.quantity,
-        specialNotes: "",
-        extras: const [],
-      );
-    }).toList(),
-    appetizers: const [],
-  );
-
-  context.read<OrderFlowCubit>().store(req);
-}
+// ============================
+// TempAddressMapPicker
+// ============================
 
 class TempAddressMapPicker extends StatefulWidget {
   final bool isRTL;
@@ -1188,10 +1334,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
   @override
   void initState() {
     super.initState();
-
-    // fallback لحد ما نجيب current location
     _picked = widget.initial ?? const LatLng(33.5138, 36.2765);
-
     _initFromCurrentLocation();
   }
 
@@ -1206,15 +1349,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       if (!mounted) return;
 
       final current = LatLng(pos.latitude, pos.longitude);
-      // ✅ تحقق أن الموقع داخل سوريا تقريبًا
-
-      bool _isInsideSyria(LatLng p) {
-        // حدود تقريبية لسوريا
-        return p.latitude >= 32.0 &&
-            p.latitude <= 37.5 &&
-            p.longitude >= 35.5 &&
-            p.longitude <= 42.5;
-      }
 
       setState(() {
         _picked = current;
@@ -1255,7 +1389,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
     }
 
     return Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.bestForNavigation, // أدق شيء ممكن
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
       timeLimit: const Duration(seconds: 15),
     );
   }
@@ -1274,14 +1408,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       backgroundColor: AppColor.Dark,
       appBar: AppBar(
         backgroundColor: AppColor.Dark,
-        title: Text(
-          isRTL ? "اختيار موقع" : "Pick location",
-          style: TextStyle(
-            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                ? 'Cairo'
-                : 'Inter',
-          ),
-        ),
+        title: Text(isRTL ? "اختيار موقع" : "Pick location"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context, null),
@@ -1289,7 +1416,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
         actions: [
           IconButton(
             tooltip: isRTL ? "موقعي" : "My location",
-            onPressed: _initFromCurrentLocation, // ✅ يرجعك لموقعك
+            onPressed: _initFromCurrentLocation,
             icon: const Icon(Icons.my_location),
           ),
         ],
@@ -1298,28 +1425,15 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
         children: [
           GoogleMap(
             initialCameraPosition: CameraPosition(target: _picked, zoom: 16),
-            onMapCreated: (c) async {
-              _map = c;
-              if (!_locating) {
-                await _map?.animateCamera(
-                  CameraUpdate.newCameraPosition(
-                    CameraPosition(target: _picked, zoom: 16),
-                  ),
-                );
-              }
-            },
+            onMapCreated: (c) => _map = c,
             myLocationButtonEnabled: true,
             myLocationEnabled: true,
-
             onCameraMove: (pos) => _picked = pos.target,
             onCameraIdle: () => setState(() {}),
-
             markers: {
               Marker(markerId: const MarkerId("picked"), position: _picked),
             },
           ),
-
-          // ✅ pin بالوسط
           Center(
             child: IgnorePointer(
               child: Icon(
@@ -1329,8 +1443,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
               ),
             ),
           ),
-
-          // ✅ رسالة خطأ (اختياري)
           if (_error != null)
             Positioned(
               left: 12.w,
@@ -1346,20 +1458,12 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                   ),
                   child: Text(
                     _error!,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily:
-                          Localizations.localeOf(context).languageCode == 'ar'
-                          ? 'Cairo'
-                          : 'Inter',
-                    ),
+                    style: const TextStyle(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-
-          // ✅ Overlay تحميل
           if (_locating)
             Positioned.fill(
               child: Container(
@@ -1367,7 +1471,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                 child: const Center(child: CircularProgressIndicator()),
               ),
             ),
-
           Positioned(
             left: 12.w,
             right: 12.w,
@@ -1394,8 +1497,6 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
 
                           if (placemarks.isNotEmpty) {
                             final p = placemarks.first;
-
-                            // نص جميل مثل الصورة
                             addressText =
                                 "${p.subAdministrativeArea ?? ''} ${p.locality ?? ''} ${p.street ?? ''}"
                                     .trim();
@@ -1410,18 +1511,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                           "text": addressText,
                         });
                       },
-
-                child: Text(
-                  isRTL ? "تأكيد الموقع" : "Confirm location",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
-                  ),
-                ),
+                child: Text(isRTL ? "تأكيد الموقع" : "Confirm location"),
               ),
             ),
           ),
@@ -1429,53 +1519,4 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
       ),
     );
   }
-}
-Future<bool> showDeleteCartDialog(
-    BuildContext context, {
-      required bool isRTL,
-    }) async {
-  return await showDialog<bool>(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) {
-      return AlertDialog(
-        backgroundColor: AppColor.Dark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-        title: Text(
-          isRTL ? "حذف العنصر" : "Delete item",
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Text(
-          isRTL
-              ? "هل أنت متأكد من حذف هذا العنصر؟"
-              : "Are you sure you want to delete this item?",
-          style: const TextStyle(fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              isRTL ? "إلغاء" : "Cancel",
-              style: const TextStyle(color: Colors.blue),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              isRTL ? "حذف" : "Delete",
-              style: const TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  ) ??
-      false;
 }
