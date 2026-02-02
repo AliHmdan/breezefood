@@ -1,5 +1,3 @@
-// ignore_for_file: unused_local_variable
-
 import 'package:breezefood/android_swipe_back.dart';
 import 'package:breezefood/core/component/bottom_cart_action.dart';
 import 'package:breezefood/core/component/color.dart';
@@ -8,18 +6,16 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/discountMealSection.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/discout_meal_section.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary_model.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/add_order.dart';
-import 'package:breezefood/features/orders/pay_your_order.dart';
+import 'package:breezefood/features/orders/cart/request_order_screen.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/request_order/tiem_price.dart';
-import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
 import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/ratings/presentation/ui/rate_dialog.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
