@@ -11,11 +11,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Discount extends StatefulWidget {
-  final String imagePath; // ✅ network full url
-  final String subtitle; // restaurant name
-  final dynamic price; // ✅ رقم/سترينغ من API
+  final String imagePath;
+  final String subtitle;
+  final dynamic price;
 
-  final String discount; // discount text
+  final String discount;
   final void Function()? onTap;
 
   const Discount({
@@ -35,8 +35,7 @@ class Discount extends StatefulWidget {
 class _DiscountState extends State<Discount>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late bool _isFavorite;
-  double _rating = 4.9; // أو 0.0 حسب بدك
+  double _rating = 4.9;
 
   @override
   void initState() {
@@ -111,10 +110,7 @@ class _DiscountState extends State<Discount>
                   borderRadius: BorderRadius.circular(5.r),
                   child: buildImage(widget.imagePath, height: 100.h),
                 ),
-                // ✅ شفافية على كامل الصورة
-                // Positioned.fill(
-                //   child: Container(color: Colors.black.withOpacity(0.25)),
-                // ),
+
                 PositionedDirectional(
                   top: 6,
                   end: 6,
@@ -250,10 +246,6 @@ class _DiscountState extends State<Discount>
   }
 }
 
-//////////////////////////////////////////////////////////////
-// 🏠 DiscountHome (REAL HOME DATA)
-//////////////////////////////////////////////////////////////
-
 class DiscountHome extends StatelessWidget {
   final List<MenuItemModel> mostPopular; // ✅ من HomeResponse
 
@@ -280,8 +272,9 @@ class DiscountHome extends StatelessWidget {
   }
 
   String _imageUrl(MenuItemModel it) {
-    final path = it.primaryImage?.imageUrl;
-    return UrlHelper.toFullUrl(path) ?? "";
+    final logoPath =
+        it.restaurant?.logo; // هذا بيجي من discounts.restaurant.logo بالـ API
+    return UrlHelper.toFullUrl(logoPath) ?? "";
   }
 
   @override
@@ -289,9 +282,6 @@ class DiscountHome extends StatelessWidget {
     final items = mostPopular.where(_hasDiscount).toList();
 
     if (items.isEmpty) {
-      // إذا بدك تخفي القسم كلياً:
-      // return const SizedBox.shrink();
-
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
         child: Container(

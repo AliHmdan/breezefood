@@ -291,7 +291,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       return OrderItemRequest(
         menuItemId: it.menuItemId,
         quantity: it.quantity,
-        specialNotes: (_itemNotes[it.id] ?? "").trim(),
+        specialNotes: (it.specialNotes ?? "").trim(),
+
         extras: _extrasPayload(it),
       );
     }).toList();
@@ -600,7 +601,7 @@ class _CartItemsSection extends StatelessWidget {
             ? (it.nameAr.trim().isNotEmpty ? it.nameAr : it.nameEn)
             : (it.nameEn.trim().isNotEmpty ? it.nameEn : it.nameAr);
 
-        final note = itemNotes[it.id]?.trim() ?? "";
+        final note = (it.specialNotes ?? "").trim();
 
         return Padding(
           padding: EdgeInsets.only(bottom: 8.h),

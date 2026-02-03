@@ -169,7 +169,7 @@ class CartItem {
   final int id;
   final int menuItemId;
 
-  final String nameAr;
+  final String nameAr;  final String? specialNotes; // ✅ جديد
   final String nameEn;
 
   final int quantity;
@@ -197,6 +197,7 @@ class CartItem {
     required this.withSpicy,
     required this.priceBefore,
     required this.priceAfter,
+      required this.specialNotes, // ✅
     required this.discountPercent,
     required this.discountType,
     required this.extrasTotal,
@@ -236,23 +237,25 @@ class CartItem {
         ? (unitPrice * qty) + _toDouble(json["extras_total"])
         : total;
 
-    return CartItem(
-      id: _toInt(json["id"]),
-      menuItemId: _toInt(json["menu_item_id"]),
-      nameAr: (json["name_ar"] ?? "").toString(),
-      nameEn: (json["name_en"] ?? "").toString(),
-      quantity: qty,
-      withSpicy: _toInt(json["with_Spicy"]),
-      priceBefore: before,
-      priceAfter: after > 0 ? after : before,
-      discountPercent: _toInt(json["discount_percent"]),
-      discountType: json["discount_type"]?.toString(),
-      extrasTotal: _toDouble(json["extras_total"]),
-      totalPrice: safeTotal,
-      image: (json["image"] ?? "").toString(),
-      deliveryTime: _toInt(json["delivery_time"]),
-      extras: extras,
-    );
+return CartItem(
+  id: _toInt(json["id"]),
+  menuItemId: _toInt(json["menu_item_id"]),
+  nameAr: (json["name_ar"] ?? "").toString(),
+  nameEn: (json["name_en"] ?? "").toString(),
+  quantity: qty,
+  withSpicy: _toInt(json["with_Spicy"]),
+  specialNotes: (json["special_notes"] ?? "").toString(), // ✅
+  priceBefore: before,
+  priceAfter: after > 0 ? after : before,
+  discountPercent: _toInt(json["discount_percent"]),
+  discountType: json["discount_type"]?.toString(),
+  extrasTotal: _toDouble(json["extras_total"]),
+  totalPrice: safeTotal,
+  image: (json["image"] ?? "").toString(),
+  deliveryTime: _toInt(json["delivery_time"]),
+  extras: extras,
+);
+
   }
 
   // Helpers

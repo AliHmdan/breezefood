@@ -342,6 +342,33 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           value: _withSpicy,
                           onChanged: (v) => setState(() => _withSpicy = v),
                         ),
+                        divider(),
+
+                        CustomSubTitle(
+                          subtitle: "cart.item_notes_optional".tr(),
+                          color: AppColor.white,
+                          fontsize: 14.sp,
+                        ),
+                        SizedBox(height: 6.h),
+
+                        TextField(
+                          controller: _noteCtrl,
+                          maxLines: 2,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: "cart.item_notes_hint".tr(),
+                            hintStyle: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12.sp,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white10,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
 
                         CounterSheet(
                           basePrice: widget.price,
@@ -352,8 +379,8 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                               restaurantId: widget.restaurantId,
                               menuItemId: widget.menuItemId,
                               quantity: qty,
-                              specialNotes: _noteCtrl.text
-                                  .trim(), // ✅ بدل "بدون بصل"
+                              specialNotes: _noteCtrl.text.trim(),
+
                               withSpicy: _withSpicy,
                               extras: _selectedExtrasPayload(),
                             );

@@ -88,8 +88,6 @@ class _HomeState extends State<Home> with RouteAware {
   void dispose() {
     routeObserver.unsubscribe(this);
     _scrollController.dispose();
-    _scrollController.dispose();
-    cubit.close();
     super.dispose();
   }
 
@@ -418,7 +416,8 @@ class _HomeState extends State<Home> with RouteAware {
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 85,
+                  bottom: 16 + MediaQuery.of(context).padding.bottom,
+
                   child: BlocBuilder<HomeCubit, HomeState>(
                     bloc: cubit,
                     builder: (context, st) {

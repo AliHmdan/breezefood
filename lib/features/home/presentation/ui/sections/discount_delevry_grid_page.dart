@@ -1,17 +1,13 @@
 import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/discount_delevry.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DiscountDelevryGridPageGridPage extends StatelessWidget {
-  final List<MenuItemModel> discounts; // ✅ real data
+  final List<MenuItemModel> discounts;
 
   const DiscountDelevryGridPageGridPage({super.key, required this.discounts});
 
@@ -21,21 +17,12 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
     return 4;
   }
 
-  String _imageUrl(MenuItemModel it) {
-    final path = it.primaryImage?.imageUrl;
-    return UrlHelper.toFullUrl(path) ?? "";
-  }
+  String _imageUrl(MenuItemModel it) => it.primaryImage?.imageUrl ?? "";
 
-  String _title(MenuItemModel it) {
-    // لو بدك حسب اللغة لاحقاً
-    return it.nameAr.isNotEmpty ? it.nameAr : it.nameEn;
-  }
+  String _title(MenuItemModel it) => it.nameAr.isNotEmpty ? it.nameAr : it.nameEn;
 
-  String _restaurantName(MenuItemModel it) {
-    return (it.restaurant?.name.isNotEmpty == true)
-        ? it.restaurant!.name
-        : "Restaurant";
-  }
+  String _restaurantName(MenuItemModel it) =>
+      (it.restaurant?.name.isNotEmpty == true) ? it.restaurant!.name : "Restaurant";
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +35,7 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomAppbarProfile(
-            title: "Discount Delevery",
+            title: "Discount Deleسvery",
             icon: Icons.arrow_back_ios,
             ontap: () => Navigator.of(context).pop(),
           ),
@@ -76,16 +63,20 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
                 crossAxisCount: crossAxisCount,
                 mainAxisSpacing: 12.h,
                 crossAxisSpacing: 10.w,
-                childAspectRatio: 1.2, // ✅ شكل كرت أحسن من 1.5
+                childAspectRatio: 1.2,
               ),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 final item = list[index];
-                return DiscountPriceCard(
+
+                return DiscountDelevryCard(
+                  item: item,
                   imageUrl: _imageUrl(item),
                   title: _title(item),
-                  oldPrice: item.priceBefore.toStringAsFixed(0),
-                  newPrice: item.priceAfter.toStringAsFixed(0),
+                  restaurantName: _restaurantName(item),
+                  onFavoriteToggle: () {
+                    // TODO: اربطها مع favorite cubit لو بدك
+                  },
                   onTap: () => openDiscountFlow(context, item),
                 );
               },
@@ -97,6 +88,7 @@ class DiscountDelevryGridPageGridPage extends StatelessWidget {
   }
 }
 
+// ✅ الكرت (مظبوط Stack بدل Positioned داخل Column)
 class DiscountDelevryCard extends StatelessWidget {
   final MenuItemModel item;
   final String imageUrl;
@@ -120,8 +112,9 @@ class DiscountDelevryCard extends StatelessWidget {
     final oldP = item.priceBefore;
     final newP = item.priceAfter;
 
-    final hasOld = oldP != null && oldP > 0;
-    final hasNew = newP != null && newP > 0;
+    // ✅ عندك priceBefore/After non-nullable doubles
+    final hasOld = oldP > 0;
+    final hasNew = newP > 0;
 
     return InkWell(
       onTap: onTap,
@@ -139,150 +132,171 @@ class DiscountDelevryCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // IMAGE
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-              child: SizedBox(
-                height: 120.h,
-                width: double.infinity,
-                child: imageUrl.isEmpty
-                    ? Image.asset(
-                        "assets/images/shawarma_box.png",
-                        fit: BoxFit.cover,
-                      )
-                    : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset(
-                          "assets/images/shawarma_box.png",
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-              ),
-            ),
+            // المحتوى الأساسي
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // IMAGE
+                ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+                  child: SizedBox(
+                    height: 120.h,
+                    width: double.infinity,
+                    child: imageUrl.trim().isEmpty
+                        ? Image.asset(
+                            "assets/images/shawarma_box.png",
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Image.asset(
+                              "assets/images/shawarma_box.png",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                  ),
+                ),
 
-            // BODY
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(10.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
-                        fontFamily:
-                            Localizations.localeOf(context).languageCode == 'ar'
-                            ? 'Cairo'
-                            : 'Inter',
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-
-                    // Restaurant name
-                    Text(
-                      restaurantName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11.sp,
-                        fontFamily:
-                            Localizations.localeOf(context).languageCode == 'ar'
-                            ? 'Cairo'
-                            : 'Inter',
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    // Prices row
-                    Row(
+                // BODY
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(10.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (hasOld)
-                          Text(
-                            context.syp(oldP!.toString()),
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.lineThrough,
-                            ),
+                        // Title
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w800,
+                            fontFamily:
+                                Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                           ),
-                        if (hasOld) SizedBox(width: 6.w),
-                        if (hasNew)
-                          Text(
-                            context.syp(newP!.toString()),
-                            style: TextStyle(
-                              color: Colors.amber,
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w900,
-                            ),
+                        ),
+                        SizedBox(height: 4.h),
+
+                        // Restaurant name
+                        Text(
+                          restaurantName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11.sp,
+                            fontFamily:
+                                Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                           ),
+                        ),
+
                         const Spacer(),
 
-                        // Button
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 6.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.primaryColor.withOpacity(0.16),
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(
-                              color: AppColor.primaryColor.withOpacity(0.35),
+                        // Prices row
+                        Row(
+                          children: [
+                            if (hasOld)
+                              Text(
+                                context.syp(oldP.toStringAsFixed(0)),
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                              ),
+                            if (hasOld) SizedBox(width: 6.w),
+                            if (hasNew)
+                              Text(
+                                context.syp(newP.toStringAsFixed(0)),
+                                style: TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            const Spacer(),
+
+                            // Button
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10.w,
+                                vertical: 6.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.primaryColor.withOpacity(0.16),
+                                borderRadius: BorderRadius.circular(12.r),
+                                border: Border.all(
+                                  color: AppColor.primaryColor.withOpacity(0.35),
+                                ),
+                              ),
+                              child: Text(
+                                "اطلب",
+                                style: TextStyle(
+                                  color: AppColor.primaryColor,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            "اطلب",
-                            style: TextStyle(
-                              color: AppColor.primaryColor,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+
+            // ✅ Badge (خصم توصيل) فوق
+            PositionedDirectional(
+              top: 10,
+              start: 10,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.55),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.white.withOpacity(0.10)),
+                ),
+                child: Text(
+                  "خصم توصيل",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
 
-            // Discount badge top-left (اختياري)
-            Positioned.fill(
-              child: Align(
-                 alignment: AlignmentDirectional.topStart,
-                child: Padding(
-                  padding: EdgeInsets.all(10.w),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.55),
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: Colors.white.withOpacity(0.10)),
-                    ),
-                    child: Text(
-                      "خصم توصيل",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+            // (اختياري) زر مفضلة فوق يمين
+            PositionedDirectional(
+              top: 8,
+              end: 8,
+              child: InkWell(
+                onTap: onFavoriteToggle,
+                borderRadius: BorderRadius.circular(999),
+                child: Container(
+                  padding: EdgeInsets.all(6.w),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  ),
+                  child: Icon(
+                    Icons.favorite_border,
+                    size: 16.sp,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -296,7 +310,7 @@ class DiscountDelevryCard extends StatelessWidget {
 
 Future<void> openDiscountFlow(BuildContext context, MenuItemModel item) async {
   final restaurantId = item.restaurant?.id ?? 0;
-  final menuItemId = item.id ?? 0;
+  final menuItemId = item.id; // ✅ non-nullable
 
   if (restaurantId == 0 || menuItemId == 0) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -310,7 +324,7 @@ Future<void> openDiscountFlow(BuildContext context, MenuItemModel item) async {
     MaterialPageRoute(
       builder: (_) => ResturantDetails(
         restaurant_id: restaurantId,
-        // initialMenuItemId: menuItemId, // ✅ أهم سطر
+        // initialMenuItemId: menuItemId, // ✅ إذا بدك تفتح على نفس الوجبة
       ),
     ),
   );

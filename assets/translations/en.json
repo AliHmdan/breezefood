@@ -86,6 +86,13 @@
     "no_current_orders": "No current orders",
     "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
   },
+  "supermarket": {
+    "quantity": "Quantity",
+    "notes_optional": "Notes (optional)",
+    "notes_hint": "Example: No damaged items",
+    "add_to_cart_with_total": "ADD TO CART  {total}"
+  },
+  
   "common": {
     "save": "Save",
     "close": "Close",
@@ -155,6 +162,8 @@
     "your_order": "Your order"
   },
   "cart": {
+    "item_notes_optional": "Item notes (optional)",
+    "item_notes_hint": "e.g. No onion, mild spicy...",
     "view_cart": "View Cart",
     "view_cart_loading": "View Cart ..."
   },

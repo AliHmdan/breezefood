@@ -86,6 +86,7 @@ class CartCubit extends Cubit<CartState> {
       nameEn: oldItem.nameEn,
       quantity: quantity,
       withSpicy: oldItem.withSpicy,
+      specialNotes: oldItem.specialNotes, // ✅ أضفها
       priceBefore: oldItem.priceBefore,
       priceAfter: oldItem.priceAfter,
       discountPercent: oldItem.discountPercent,
@@ -130,7 +131,6 @@ class CartCubit extends Cubit<CartState> {
     if (!res.ok) {
       // rollback
       final rollbackTotal = (oldItem.unitPrice * oldQty) + oldItem.extrasTotal;
-
       final rollbackItem = CartItem(
         id: oldItem.id,
         menuItemId: oldItem.menuItemId,
@@ -138,6 +138,7 @@ class CartCubit extends Cubit<CartState> {
         nameEn: oldItem.nameEn,
         quantity: oldQty,
         withSpicy: oldItem.withSpicy,
+        specialNotes: oldItem.specialNotes, // ✅ أضفها
         priceBefore: oldItem.priceBefore,
         priceAfter: oldItem.priceAfter,
         discountPercent: oldItem.discountPercent,

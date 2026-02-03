@@ -69,6 +69,8 @@
     "orders": "الطلبات"
   },
   "cart": {
+    "item_notes_optional": "ملاحظات للوجبة (اختياري)",
+    "item_notes_hint": "مثال: بدون بصل، سبايسي خفيف...",
     "view_cart": "عرض السلة",
     "view_cart_loading": "عرض السلة ..."
   },
@@ -109,6 +111,12 @@
     "details": {
       "fallback_name": "مطعم"
     }
+  },
+  "supermarket": {
+    "quantity": "الكمية",
+    "notes_optional": "ملاحظات (اختياري)",
+    "notes_hint": "مثال: بدون مواد تالفة",
+    "add_to_cart_with_total": "إضافة إلى السلة  {total}"
   },
   "common": {
     "retry": "إعادة المحاولة",

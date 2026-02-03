@@ -1,4 +1,3 @@
-
 import 'package:breezefood/core/component/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,9 +15,9 @@ class CustomButtonOrder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth( // ✅ العرض يصير حسب المحتوى
+    return IntrinsicWidth(
       child: SizedBox(
-        height: 44.h, // ارتفاع متجاوب
+        height: 44.h,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(

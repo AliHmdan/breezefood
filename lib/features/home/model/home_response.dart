@@ -300,14 +300,24 @@ class MenuItemRestaurant {
   final int id;
   final String name;
   final String? logo;
+  final double ratingAvg;
+  final int ratingCount;
 
-  MenuItemRestaurant({required this.id, required this.name, this.logo});
+  MenuItemRestaurant({
+    required this.id,
+    required this.name,
+    this.logo,
+    required this.ratingAvg,
+    required this.ratingCount,
+  });
 
   factory MenuItemRestaurant.fromJson(Map<String, dynamic> json) =>
       MenuItemRestaurant(
         id: HomeResponse._toInt(json["id"]),
         name: HomeResponse._toStringSafe(json["name"]),
         logo: json["logo"] as String?,
+        ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
+        ratingCount: HomeResponse._toInt(json["rating_count"]),
       );
 }
 

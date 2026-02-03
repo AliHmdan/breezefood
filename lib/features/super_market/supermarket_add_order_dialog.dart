@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/request_order/counter.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -9,7 +10,7 @@ Future<SupermarketAddToCartResult?> showSupermarketAddOrderDialog(
   BuildContext context, {
   required String title,
   required num price,
-  num? oldPrice, // ✅
+  num? oldPrice,
   required String imagePath,
 }) async {
   return showModalBottomSheet<SupermarketAddToCartResult>(
@@ -55,8 +56,7 @@ class SupermarketAddOrderBody extends StatefulWidget {
   });
 
   @override
-  State<SupermarketAddOrderBody> createState() =>
-      _SupermarketAddOrderBodyState();
+  State<SupermarketAddOrderBody> createState() => _SupermarketAddOrderBodyState();
 }
 
 class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
@@ -92,15 +92,12 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ✅ IMAGE + close
+                // IMAGE + close
                 Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(24.r),
-                      ),
-                      child:
-                          (widget.imagePath.startsWith("http://") ||
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+                      child: (widget.imagePath.startsWith("http://") ||
                               widget.imagePath.startsWith("https://"))
                           ? Image.network(
                               widget.imagePath,
@@ -121,16 +118,14 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                               fit: BoxFit.cover,
                             ),
                     ),
-                    Positioned(
+                    PositionedDirectional(
                       top: 10.h,
-                      right: 10.w,
+                      end: 10.w,
                       child: IconButton(
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close, color: Colors.white),
                         style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                            Colors.black54,
-                          ),
+                          backgroundColor: WidgetStateProperty.all(Colors.black54),
                         ),
                       ),
                     ),
@@ -152,7 +147,6 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                             ),
                           ),
 
-                          // ✅ oldPrice اختياري
                           if (widget.oldPrice != null) ...[
                             Text(
                               context.money(widget.oldPrice!, decimals: 0),
@@ -179,7 +173,7 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                       SizedBox(height: 14.h),
 
                       CustomSubTitle(
-                        subtitle: "Quantity",
+                        subtitle: "supermarket.quantity".tr(),
                         color: AppColor.white,
                         fontsize: 14.sp,
                       ),
@@ -188,24 +182,25 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                       QtyCounter(
                         value: _qty,
                         onChanged: (v) => setState(() => _qty = v),
-                        pricePerItem: pricePerItem, // ✅ num
+                        pricePerItem: pricePerItem,
                         moneyDecimals: 0,
                       ),
 
                       SizedBox(height: 16.h),
 
                       CustomSubTitle(
-                        subtitle: "Notes (optional)",
+                        subtitle: "supermarket.notes_optional".tr(),
                         color: AppColor.white,
                         fontsize: 14.sp,
                       ),
                       SizedBox(height: 6.h),
+
                       TextField(
                         controller: notesController,
                         maxLines: 2,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: "Example: No damaged items",
+                          hintText: "supermarket.notes_hint".tr(),
                           hintStyle: TextStyle(
                             color: AppColor.gry,
                             fontSize: 10.sp,
@@ -226,7 +221,7 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
           ),
         ),
 
-        // ✅ ADD BUTTON
+        // ADD BUTTON
         Padding(
           padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 14.h),
           child: SizedBox(
@@ -249,7 +244,11 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                 );
               },
               child: Text(
-                "ADD TO CART  ${context.money((pricePerItem * _qty), decimals: 0)}",
+                "supermarket.add_to_cart_with_total".tr(
+                  namedArgs: {
+                    "total": context.money(pricePerItem * _qty, decimals: 0),
+                  },
+                ),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
