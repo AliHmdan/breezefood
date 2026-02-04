@@ -1,4 +1,5 @@
 {
+  "no_ratings_yet": "No ratings yet",
   "profile": {
     "title": "Profile",
     "personal_info": "Personal info",
@@ -75,7 +76,7 @@
     "status_preparing": "Preparing",
     "status_delivered": "Delivered",
     "status_cancelled": "Cancelled",
-    "status_unknown": "inway",
+    "status_unknown": "On the way",
     "warning_title": "Warning",
     "customer_code_fetch_failed": "Couldn't fetch customer code for this order.",
     "customer_code_title": "Order Code",
@@ -92,8 +93,8 @@
     "notes_hint": "Example: No damaged items",
     "add_to_cart_with_total": "ADD TO CART  {total}"
   },
-  
   "common": {
+    "all": "All",
     "save": "Save",
     "close": "Close",
     "retry": "Retry",
@@ -122,19 +123,23 @@
     }
   },
   "reviews": {
-    "rate_title": "What is your rate?",
-    "rate_hint": "Please share your rate about the restaurant",
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "delete": "Delete rating",
-    "delete_confirm_title": "Delete rating?",
-    "delete_confirm_body": "This will remove your rating for this restaurant.",
-    "delete_confirm_yes": "Yes, delete",
-    "delete_confirm_no": "Cancel",
-    "delete_failed": "Failed to delete rating",
-    "rate_success": "Rating submitted",
-    "rate_failed": "Failed to submit rating",
-    "orders_count": "{count} Order"
+    "your_rate_title": "تقييمك",
+    "already_rated_hint": "أنت مقيّم هذا المطعم مسبقاً. يمكنك حذف تقييمك إذا أردت.",
+    "delete": "حذف التقييم",
+    "orders_count": "{count} طلب",
+    "no_review_to_delete": "لا يوجد تقييم لحذفه",
+    "delete_success": "تم حذف التقييم بنجاح",
+    "delete_confirm_title": "حذف التقييم؟",
+    "delete_confirm_body": "سيتم حذف تقييمك لهذا المطعم.",
+    "delete_confirm_yes": "حذف",
+    "delete_confirm_no": "إلغاء",
+    "rate_failed": "فشل إرسال التقييم",
+    "delete_failed": "فشل حذف التقييم",
+    "rate_title": "ما هو تقييمك؟",
+    "rate_hint": "شاركنا تقييمك عن المطعم",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "rate_success": "تم إرسال التقييم"
   },
   "discount": {
     "title": "Discount",
@@ -147,6 +152,7 @@
     }
   },
   "home": {
+    "discount_delivery": "Delivery discounts",
     "filters": {
       "closer": "Closer to you",
       "stores": "Stores",

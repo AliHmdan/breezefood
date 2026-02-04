@@ -64,7 +64,8 @@ class _RateDialogState extends State<RateDialog> {
 
             Text(
               hasReview
-                  ? "reviews.your_rate_title".tr() // ضيفها بالترجمة
+                  ? "reviews.your_rate_title"
+                        .tr() // ضيفها بالترجمة
                   : "reviews.rate_title".tr(),
               style: TextStyle(
                 color: Colors.white,
@@ -106,7 +107,8 @@ class _RateDialogState extends State<RateDialog> {
 
             Text(
               hasReview
-                  ? "reviews.already_rated_hint".tr() // ضيفها بالترجمة
+                  ? "reviews.already_rated_hint"
+                        .tr() // ضيفها بالترجمة
                   : "reviews.rate_hint".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white70, fontSize: 12.sp),

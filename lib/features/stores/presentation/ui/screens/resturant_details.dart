@@ -6,7 +6,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/discout_meal_section.dart';
+import 'package:breezefood/features/stores/presentation/ui/widget/discout_meal_section.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
@@ -181,8 +181,11 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               String restaurantName = "";
               String description = "";
               String deliveryTime = "--";
-              String deliveryCash = "--";
+              String deliveryBase = "--";
+              String deliveryFinal = "--";
+
               String ratingText = "0.0";
+
               String ordersText = "0";
 
               List<String> categories = [];
@@ -217,7 +220,17 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     deliveryTime = "${g.deliveryTime}";
                   }
 
-                  deliveryCash = context.money(g.deliveryCash, decimals: 0);
+                  final del =
+                      g.delivery; // ✅ لازم تكون ضايفها بالمودل مثل ما حكينا
+
+                  if (del != null) {
+                    deliveryBase = context.money(del.baseFee, decimals: 0);
+                    deliveryFinal = context.money(del.finalFee, decimals: 0);
+                  } else {
+                    // fallback إذا السيرفر ما رجّع delivery object
+                    deliveryBase = context.money(g.deliveryCash, decimals: 0);
+                    deliveryFinal = context.money(g.deliveryCash, decimals: 0);
+                  }
 
                   if (g.avgRating > 0) {
                     ratingText = g.avgRating.toStringAsFixed(1);
@@ -341,18 +354,41 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   vertical: 5,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    TiemPrice(
-                                      icon: Icons.alarm,
-                                      title: deliveryTime,
-                                      subtitle: "min",
+                                    // base (old)
+                                    Text(
+                                      deliveryBase,
+                                      style: TextStyle(
+                                        color: AppColor.LightActive,
+                                        decoration: TextDecoration.lineThrough,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w800,
+                                        fontFamily: context.isAr
+                                            ? 'Cairo'
+                                            : 'Inter',
+                                      ),
                                     ),
-                                    TiemPrice(
-                                      title: deliveryCash,
-                                      subtitle: "",
-                                      svgPath: "assets/icons/motor.svg",
+                                    SizedBox(width: 8.w),
+
+                                    // final (new)
+                                    Text(
+                                      deliveryFinal,
+                                      style: TextStyle(
+                                        color: AppColor.red,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w900,
+                                        fontFamily: context.isAr
+                                            ? 'Cairo'
+                                            : 'Inter',
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    // SvgPicture.asset("assets/icons/motor.svg", width: 16, height: 16, color: Colors.white),
+                                    Icon(
+                                      Icons.delivery_dining,
+                                      color: Colors.white,
+                                      size: 18.sp,
                                     ),
                                   ],
                                 ),
@@ -780,7 +816,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       ),
     );
   }
-
 
   Widget _divider() {
     return Container(

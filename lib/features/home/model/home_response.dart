@@ -3,14 +3,26 @@
 // ===============================
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
+// ===============================
+// home_response.dart (UPDATED)
+// ===============================
+import 'package:breezefood/features/orders/model/active_orders_response.dart'
+    show OrderInfo;
 
 class HomeResponse {
   final List<AdModel> ads;
   final List<RestaurantModel> closerToYou;
   final List<RestaurantModel> nearbyRestaurants;
   final List<RestaurantModel> supermarkets;
+
+  // ✅ ممكن يكون مش موجود بالريسبونس الجديد
   final List<MenuItemModel> mostPopular;
-  final List<MenuItemModel> discounts;
+
+  // ✅ تغيرت
+  final List<RestaurantDiscountModel> discounts;
+  final List<RestaurantDiscountModel> discountDelivery;
+
+  // ✅ قصص
   final List<StoryWrapperModel> stories;
 
   final OrderInfo? haveOrder;
@@ -26,6 +38,7 @@ class HomeResponse {
     required this.supermarkets,
     required this.mostPopular,
     required this.discounts,
+    required this.discountDelivery,
     required this.stories,
     required this.hasCoordinates,
     required this.avatar,
@@ -56,10 +69,7 @@ class HomeResponse {
     return s == "true" || s == "1" || s == "yes";
   }
 
-  static String _toStringSafe(dynamic v) {
-    if (v == null) return "";
-    return v.toString();
-  }
+  static String _toStringSafe(dynamic v) => (v == null) ? "" : v.toString();
 
   static Map<String, dynamic>? _toMap(dynamic v) {
     if (v is Map) return v.cast<String, dynamic>();
@@ -101,22 +111,196 @@ class HomeResponse {
         "supermarkets",
         (e) => RestaurantModel.fromJson(e),
       ),
+
+      // ✅ الجديد ممكن ما يرجع most_popular
       mostPopular: _list(
         json,
         "most_popular",
         (e) => MenuItemModel.fromJson(e),
       ),
-      discounts: _list(json, "discounts", (e) => MenuItemModel.fromJson(e)),
+
+      // ✅ discounts صار Restaurants
+     discounts: _list(json, "discounts", (e) => RestaurantDiscountModel.fromJson(e)),
+
+      // ✅ discountdelevery
+   discountDelivery: _list(
+        json,
+        "discountdelevery",
+        (e) => RestaurantDiscountModel.fromJson(e),
+      ),
+
+      // ✅ stories wrapper
       stories: _list(json, "stories", (e) => StoryWrapperModel.fromJson(e)),
 
       hasCoordinates: _toBool(json["has_coordinates"]),
       avatar: (json["avatar"] == null) ? null : _toStringSafe(json["avatar"]),
       provinceDetected: json["province_detected"] as String?,
-
       haveOrder: haveOrderMap == null ? null : OrderInfo.fromJson(haveOrderMap),
     );
   }
 }
+
+// =================== URL Helper ===================
+class Urls {
+  static const host = "https://breezefood.cloud/";
+  static String? abs(String? raw) {
+    final v = raw?.trim();
+    if (v == null || v.isEmpty) return null;
+    if (v.startsWith("http://") || v.startsWith("https://")) return v;
+    final cleaned = v.startsWith("/") ? v.substring(1) : v;
+    return "$host$cleaned";
+  }
+}
+
+// =================== Discounts ===================
+
+class DiscountRestaurantModel {
+  final int? restaurantId;
+  final String? restaurantName;
+  final String? logo;
+  final String? discountType;
+  final double? discountValue;
+
+  DiscountRestaurantModel({
+    this.restaurantId,
+    this.restaurantName,
+    this.logo,
+    this.discountType,
+    this.discountValue,
+  });
+
+  factory DiscountRestaurantModel.fromJson(Map<String, dynamic> json) {
+    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
+
+    return DiscountRestaurantModel(
+      restaurantId: i(json["restaurant_id"]),
+      restaurantName: json["restaurant_name"]?.toString(),
+      logo: json["logo"]?.toString(),
+      discountType: json["discount_type"]?.toString(),
+      discountValue: d(json["discount_value"]),
+    );
+  }
+}
+
+
+class DeliveryDiscountModel {
+  final int restaurantId;
+  final String restaurantName;
+  final String? logo;
+  final String discountType; // fixed | percentage
+  final double discountValue;
+  final DeliveryFeeModel? delivery;
+
+  DeliveryDiscountModel({
+    required this.restaurantId,
+    required this.restaurantName,
+    required this.logo,
+    required this.discountType,
+    required this.discountValue,
+    required this.delivery,
+  });
+
+  factory DeliveryDiscountModel.fromJson(Map<String, dynamic> json) {
+    int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
+    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+
+    return DeliveryDiscountModel(
+      restaurantId: i(json["restaurant_id"]),
+      restaurantName: (json["restaurant_name"] ?? "").toString(),
+      logo: json["logo"]?.toString(),
+      discountType: (json["discount_type"] ?? "").toString(),
+      discountValue: d(json["discount_value"]),
+      delivery: (json["delivery"] is Map)
+          ? DeliveryFeeModel.fromJson((json["delivery"] as Map).cast<String, dynamic>())
+          : null,
+    );
+  }
+}
+
+
+
+
+
+
+// =================== Stories ===================
+
+class StoryWrapperModel {
+  final StoryModel storyData;
+  final double rating;
+
+  StoryWrapperModel({required this.storyData, required this.rating});
+
+  factory StoryWrapperModel.fromJson(Map<String, dynamic> json) {
+    final storyMap =
+        HomeResponse._toMap(json["story_data"]) ?? <String, dynamic>{};
+    return StoryWrapperModel(
+      storyData: StoryModel.fromJson(storyMap),
+      rating: HomeResponse._toDouble(json["rating"]),
+    );
+  }
+}
+
+class StoryModel {
+  final int id;
+  final int restaurantId;
+  final String title;
+  final String? description;
+  final String? image;
+  final String status;
+  final String? startAt;
+  final String? endAt;
+
+  // ✅ نخلي restaurant خفيف (id/name/logo فقط) حتى ما تحمل menu_items
+  final StoryRestaurantMini? restaurant;
+
+  StoryModel({
+    required this.id,
+    required this.restaurantId,
+    required this.title,
+    required this.description,
+    required this.image,
+    required this.status,
+    required this.startAt,
+    required this.endAt,
+    required this.restaurant,
+  });
+
+  String? get imageUrl => Urls.abs(image);
+
+  factory StoryModel.fromJson(Map<String, dynamic> json) {
+    final restMap = HomeResponse._toMap(json["restaurant"]);
+    return StoryModel(
+      id: HomeResponse._toInt(json["id"]),
+      restaurantId: HomeResponse._toInt(json["restaurant_id"]),
+      title: HomeResponse._toStringSafe(json["title"]),
+      description: json["description"] as String?,
+      image: json["image"] as String?,
+      status: HomeResponse._toStringSafe(json["status"]),
+      startAt: json["start_at"]?.toString(),
+      endAt: json["end_at"]?.toString(),
+      restaurant: restMap == null
+          ? null
+          : StoryRestaurantMini.fromJson(restMap),
+    );
+  }
+}
+
+class StoryRestaurantMini {
+  final int id;
+  final String name;
+
+  StoryRestaurantMini({required this.id, required this.name});
+
+  factory StoryRestaurantMini.fromJson(Map<String, dynamic> json) {
+    return StoryRestaurantMini(
+      id: HomeResponse._toInt(json["id"]),
+      name: HomeResponse._toStringSafe(json["name"]),
+    );
+  }
+}
+
+// =================== Existing Models (keep yours) ===================
 
 class AdModel {
   final int id;
@@ -143,12 +327,7 @@ class AdModel {
     required this.priority,
   });
 
-  String? get fullImageUrl {
-    final p = image?.trim();
-    if (p == null || p.isEmpty) return null;
-    if (p.startsWith('http')) return p;
-    return 'https://breezefood.cloud$p';
-  }
+  String? get fullImageUrl => Urls.abs(image);
 
   factory AdModel.fromJson(Map<String, dynamic> json) => AdModel(
     id: HomeResponse._toInt(json["id"]),
@@ -169,7 +348,7 @@ class AdModel {
 }
 
 class RestaurantModel {
-  final double? deliveryFee; // ✅ جديد
+  final double? deliveryFee;
   final int id;
   final String name;
   final String? logo;
@@ -177,6 +356,7 @@ class RestaurantModel {
   final double ratingAvg;
   final int ratingCount;
   final int? deliveryTime;
+
   RestaurantModel({
     this.deliveryFee,
     required this.id,
@@ -188,6 +368,9 @@ class RestaurantModel {
     this.deliveryTime,
   });
 
+  String? get logoUrl => Urls.abs(logo);
+  String? get coverUrl => Urls.abs(coverImage);
+
   factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
       RestaurantModel(
         id: HomeResponse._toInt(json["id"]),
@@ -196,7 +379,6 @@ class RestaurantModel {
         coverImage: json["cover_image"] as String?,
         ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
         ratingCount: HomeResponse._toInt(json["rating_count"]),
-
         deliveryTime: json["delivery_time"] == null
             ? null
             : HomeResponse._toInt(json["delivery_time"]),
@@ -320,40 +502,113 @@ class MenuItemRestaurant {
         ratingCount: HomeResponse._toInt(json["rating_count"]),
       );
 }
+class RestaurantDiscountModel {
+  final int restaurantId;
+  final String restaurantName;
+  final String? logo;
 
-class StoryWrapperModel {
-  final StoryModel storyData;
-  final double rating;
+  final double ratingAvg;
+  final int ratingCount;
 
-  StoryWrapperModel({required this.storyData, required this.rating});
+  final DiscountInfo? foodDiscount;
+  final DeliveryDiscountInfo? deliveryDiscount;
 
-  factory StoryWrapperModel.fromJson(Map<String, dynamic> json) {
-    final storyMap =
-        HomeResponse._toMap(json["story_data"]) ?? <String, dynamic>{};
-    return StoryWrapperModel(
-      storyData: StoryModel.fromJson(storyMap),
-      rating: HomeResponse._toDouble(json["rating"]),
+  RestaurantDiscountModel({
+    required this.restaurantId,
+    required this.restaurantName,
+    required this.logo,
+    required this.ratingAvg,
+    required this.ratingCount,
+    required this.foodDiscount,
+    required this.deliveryDiscount,
+  });
+
+  // ✅ لوغو صالح للعرض: إذا جاي مسار ويندوز اعتبره null
+  String? get logoSafe {
+    final v = (logo ?? "").trim();
+    if (v.isEmpty) return null;
+    if (v.contains(r":\")) return null; // مثل C:\xampp\tmp\...
+    return v;
+  }
+
+  factory RestaurantDiscountModel.fromJson(Map<String, dynamic> json) {
+    int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+
+    Map<String, dynamic>? m(dynamic v) =>
+        (v is Map) ? v.cast<String, dynamic>() : null;
+
+    final foodMap = m(json["food_discount"]);
+    final delMap = m(json["delivery_discount"]);
+
+    return RestaurantDiscountModel(
+      restaurantId: i(json["restaurant_id"]),
+      restaurantName: (json["restaurant_name"] ?? "").toString(),
+      logo: json["logo"]?.toString(),
+      ratingAvg: d(json["rating_avg"]),
+      ratingCount: i(json["rating_count"]),
+      foodDiscount: foodMap == null ? null : DiscountInfo.fromJson(foodMap),
+      deliveryDiscount: delMap == null ? null : DeliveryDiscountInfo.fromJson(delMap),
     );
   }
 }
 
-class StoryModel {
-  final int id;
-  final String title;
-  final String? image;
-  final int restaurantId;
 
-  StoryModel({
-    required this.id,
-    required this.title,
-    required this.image,
-    required this.restaurantId,
+class DiscountInfo {
+  final String discountType; // fixed | percentage
+  final double discountValue;
+
+  DiscountInfo({required this.discountType, required this.discountValue});
+
+  factory DiscountInfo.fromJson(Map<String, dynamic> json) {
+    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+
+    return DiscountInfo(
+      discountType: (json["discount_type"] ?? "").toString(),
+      discountValue: d(json["discount_value"]),
+    );
+  }
+}
+
+class DeliveryDiscountInfo {
+  final String discountType; // fixed | percentage
+  final double discountValue;
+  final DeliveryFeeModel? delivery;
+
+  DeliveryDiscountInfo({
+    required this.discountType,
+    required this.discountValue,
+    required this.delivery,
   });
 
-  factory StoryModel.fromJson(Map<String, dynamic> json) => StoryModel(
-    id: HomeResponse._toInt(json["id"]),
-    title: HomeResponse._toStringSafe(json["title"]),
-    image: json["image"] as String?,
-    restaurantId: HomeResponse._toInt(json["restaurant_id"]),
-  );
+  factory DeliveryDiscountInfo.fromJson(Map<String, dynamic> json) {
+    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+
+    final deliveryJson = json["delivery"];
+    final delivery =
+        (deliveryJson is Map) ? DeliveryFeeModel.fromJson(deliveryJson.cast<String, dynamic>()) : null;
+
+    return DeliveryDiscountInfo(
+      discountType: (json["discount_type"] ?? "").toString(),
+      discountValue: d(json["discount_value"]),
+      delivery: delivery,
+    );
+  }
+}
+
+class DeliveryFeeModel {
+  final double baseFee;
+  final double finalFee;
+
+  DeliveryFeeModel({required this.baseFee, required this.finalFee});
+
+  factory DeliveryFeeModel.fromJson(Map<String, dynamic> json) {
+    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+
+    return DeliveryFeeModel(
+      baseFee: d(json["base_fee"]),
+      finalFee: d(json["final_fee"]),
+    );
+  }
 }

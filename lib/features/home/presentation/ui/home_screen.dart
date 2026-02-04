@@ -6,7 +6,8 @@ import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_c
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/closer_to_you.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/discount_home.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_delivery/discount_delivery_home.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_meals/discount_home.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/home_filters.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/open_now.dart';
@@ -16,8 +17,9 @@ import 'package:breezefood/features/home/presentation/ui/widgets/app_animated_ba
 import 'package:breezefood/features/home/presentation/ui/widgets/appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary_model.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/discount_on_delivery.dart';
 import 'package:breezefood/features/orders/cart/request_order_screen.dart';
+import 'package:breezefood/features/orders/model/active_orders_response.dart'
+    show OrderInfo;
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
@@ -25,13 +27,11 @@ import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cub
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:breezefood/main.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:breezefood/features/orders/model/active_orders_response.dart'
-    show OrderInfo;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -42,6 +42,54 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with RouteAware {
   final _scrollController = ScrollController();
+
+  final _closerKey = GlobalKey();
+  final _storesKey = GlobalKey();
+  final _discountsKey = GlobalKey();
+  final _deliveryKey = GlobalKey();
+  final _supermarketKey = GlobalKey();
+  final _openNowKey = GlobalKey();
+
+  late final HomeCubit cubit;
+  bool _subscribed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    cubit = getIt<HomeCubit>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await cubit.sendMyLocationOnce();
+      await cubit.load();
+      if (mounted) context.read<CartCubit>().loadCart();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_subscribed) return;
+
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+      _subscribed = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_subscribed) routeObserver.unsubscribe(this);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _refreshHomeAndCart();
+  }
+
+  // ===== Helpers =====
   int _extractId(dynamic x) {
     if (x == null) return 0;
 
@@ -65,10 +113,7 @@ class _HomeState extends State<Home> with RouteAware {
 
   String _extractTitle(dynamic x) {
     if (x == null) return "";
-
-    if (x is Map) {
-      return (x["name"] ?? x["title"] ?? "").toString();
-    }
+    if (x is Map) return (x["name"] ?? x["title"] ?? "").toString();
 
     try {
       return ((x as dynamic).name ?? "").toString();
@@ -77,32 +122,9 @@ class _HomeState extends State<Home> with RouteAware {
     return "";
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) routeObserver.subscribe(this, route);
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didPopNext() {
-    _refreshHomeAndCart();
-  }
-
   Future<void> _refreshHomeAndCart() async {
     if (!mounted) return;
-
-    await Future.wait([
-      this.cubit.load(),
-      context.read<CartCubit>().loadCart(),
-    ]);
+    await Future.wait([cubit.load(), context.read<CartCubit>().loadCart()]);
   }
 
   Future<void> _openRestaurant(dynamic r) async {
@@ -123,7 +145,7 @@ class _HomeState extends State<Home> with RouteAware {
       ),
     );
 
-    await _refreshHomeAndCart(); // ✅ لما ترجع
+    await _refreshHomeAndCart();
   }
 
   Future<void> _openMarket(dynamic m) async {
@@ -131,7 +153,7 @@ class _HomeState extends State<Home> with RouteAware {
     if (id == 0) return;
 
     final title = _extractTitle(m).trim();
-    final homeData = (cubit.state).maybeWhen(
+    final homeData = cubit.state.maybeWhen(
       loaded: (d) => d,
       orElse: () => null,
     );
@@ -147,29 +169,10 @@ class _HomeState extends State<Home> with RouteAware {
       ),
     );
 
-    await _refreshHomeAndCart(); // ✅ لما ترجع
+    await _refreshHomeAndCart();
   }
 
-  final _closerKey = GlobalKey();
-  final _storesKey = GlobalKey();
-  final _discountsKey = GlobalKey();
-  final _deliveryKey = GlobalKey();
-  final _supermarketKey = GlobalKey();
-  final _openNowKey = GlobalKey();
-
-  late final HomeCubit cubit;
-
-  @override
-  void initState() {
-    super.initState();
-    cubit = getIt<HomeCubit>();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await cubit.sendMyLocationOnce();
-      await cubit.load();
-      context.read<CartCubit>().loadCart(); // ✅
-    });
-  }
+  Widget _anchor(GlobalKey key) => SizedBox(key: key, height: 1);
 
   Future<void> _scrollTo(GlobalKey key) async {
     final ctx = key.currentContext;
@@ -177,9 +180,9 @@ class _HomeState extends State<Home> with RouteAware {
 
     await Scrollable.ensureVisible(
       ctx,
-      duration: const Duration(milliseconds: 500),
-      alignment: 0.05,
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 520),
+      alignment: 0.06,
+      curve: Curves.easeInOutCubic,
     );
   }
 
@@ -213,19 +216,59 @@ class _HomeState extends State<Home> with RouteAware {
     return Padding(
       padding: padding,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade700,
-        highlightColor: Colors.grey.shade500,
+        baseColor: Colors.grey.shade800,
+        highlightColor: Colors.grey.shade600,
         child: Container(
           height: height,
           decoration: BoxDecoration(
             color: Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: Colors.white.withOpacity(0.06)),
           ),
         ),
       ),
     );
   }
 
+  Widget _buildAds(HomeState state, bool loading) {
+    if (loading) {
+      return _shimmerBox(height: 100.h, padding: const EdgeInsets.all(10));
+    }
+
+    return state.maybeWhen(
+      loaded: (data) {
+        final ads = data.ads;
+        if (ads.isEmpty) return const SizedBox.shrink();
+
+        return SizedBox(
+          height: 100.h,
+          child: PageView.builder(
+            itemCount: ads.length,
+            controller: PageController(viewportFraction: 0.92),
+            itemBuilder: (context, index) {
+              final ad = ads[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ReferralAdPage(ad: ad)),
+                  );
+                },
+                child: AdBanner(ad: ad),
+              );
+            },
+          ),
+        );
+      },
+      error: (msg) => Padding(
+        padding: const EdgeInsets.all(10),
+        child: Text(msg, style: const TextStyle(color: Colors.red)),
+      ),
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
+
+  // ===== UI =====
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
@@ -253,68 +296,27 @@ class _HomeState extends State<Home> with RouteAware {
                   onRefresh: _refreshHomeAndCart,
                   child: SingleChildScrollView(
                     controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Top
                         AppbarHome(home: homeData, homeCubit: cubit),
                         HomeFilters(onFilterTap: _onFilterTap),
-                        loading
-                            ? _shimmerBox(
-                                height: 100.h,
-                                padding: const EdgeInsets.all(10),
-                              )
-                            : state.maybeWhen(
-                                loaded: (data) {
-                                  final ads = data.ads;
-                                  if (ads.isEmpty)
-                                    return const SizedBox.shrink();
 
-                                  return SizedBox(
-                                    height: 100.h,
-                                    child: PageView.builder(
-                                      itemCount: ads.length,
-                                      controller: PageController(
-                                        viewportFraction: 0.92,
-                                      ),
-                                      itemBuilder: (context, index) {
-                                        final ad = ads[index];
+                        // Ads
+                        _buildAds(state, loading),
+                        SizedBox(height: 12.h),
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    ReferralAdPage(ad: ad),
-                                              ),
-                                            );
-                                          },
-                                          child: AdBanner(ad: ad),
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                error: (msg) => Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    msg,
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
-
-                        const SizedBox(height: 10),
-
-                        Container(key: _closerKey),
+                        // Closer
+                        _anchor(_closerKey),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: CustomTitleSection(
                             title: "home.closer_to_you".tr(),
                           ),
                         ),
-                        const SizedBox(height: 10),
-
+                        SizedBox(height: 10.h),
                         loading
                             ? _shimmerBox(height: 178.h)
                             : state.maybeWhen(
@@ -322,16 +324,15 @@ class _HomeState extends State<Home> with RouteAware {
                                     CloserToYou(restaurants: data.closerToYou),
                                 orElse: () => const SizedBox.shrink(),
                               ),
+                        SizedBox(height: 14.h),
 
-                        const SizedBox(height: 12),
-
-                        Container(key: _storesKey),
+                        // Stores
+                        _anchor(_storesKey),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: CustomTitleSection(title: "home.stores".tr()),
                         ),
-                        const SizedBox(height: 10),
-
+                        SizedBox(height: 10.h),
                         loading
                             ? _shimmerBox(height: 178.h)
                             : state.maybeWhen(
@@ -339,60 +340,59 @@ class _HomeState extends State<Home> with RouteAware {
                                     Stores(restaurants: data.nearbyRestaurants),
                                 orElse: () => const SizedBox.shrink(),
                               ),
+                        SizedBox(height: 14.h),
 
-                        const SizedBox(height: 12),
-
-                        Container(key: _discountsKey),
+                        // Discounts
+                        _anchor(_discountsKey),
                         loading
                             ? _shimmerBox(height: 130.h)
                             : state.maybeWhen(
                                 loaded: (data) =>
-                                    DiscountHome(mostPopular: data.discounts),
+                                    DiscountHome(discounts: data.discounts),
                                 orElse: () => const SizedBox.shrink(),
                               ),
+                        SizedBox(height: 14.h),
 
-                        const SizedBox(height: 12),
-
-                        Container(key: _deliveryKey),
+                        // Delivery discount
+                        _anchor(_deliveryKey),
                         loading
                             ? _shimmerBox(height: 120.h)
                             : state.maybeWhen(
-                                loaded: (data) =>
-                                    DiscountDelvery(discounts: data.discounts),
+                                loaded: (data) => DiscountDeliveryHome(
+                                  discountDelivery: data.discountDelivery,
+                                ),
                                 orElse: () => const SizedBox.shrink(),
                               ),
+                        SizedBox(height: 12.h),
 
-                        const SizedBox(height: 8),
-
-                        Container(key: _supermarketKey),
+                        // Supermarket
+                        _anchor(_supermarketKey),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: CustomTitleSection(
                             title: "home.super_market".tr(),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         state.maybeWhen(
                           loaded: (data) => Supermarketslider(
                             restaurants: data.supermarkets,
-                            onTap: (m) => _openMarket(m),
-                            onRateSuccess: () => cubit.load(), // ✅ refresh
+                            onTap: _openMarket,
+                            onRateSuccess: () => cubit.load(),
                           ),
-
                           orElse: () => const SizedBox.shrink(),
                         ),
+                        SizedBox(height: 14.h),
 
-                        const SizedBox(height: 12),
-
-                        Container(key: _openNowKey),
+                        // Open now
+                        _anchor(_openNowKey),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: CustomTitleSection(
                             title: "home.open_now".tr(),
                           ),
                         ),
-                        const SizedBox(height: 10),
-
+                        SizedBox(height: 10.h),
                         loading
                             ? _shimmerBox(height: 320.h)
                             : state.maybeWhen(
@@ -400,24 +400,23 @@ class _HomeState extends State<Home> with RouteAware {
                                   restaurants: data.nearbyRestaurants,
                                   onTap: _openRestaurant,
                                 ),
-
                                 orElse: () => const SizedBox.shrink(),
                               ),
 
-                        // ✅ مساحة حتى ما يغطي الزر السفلي المحتوى
-                        SizedBox(height: showBottom ? 80.h : 20.h),
+                        // bottom padding for bottom action
+                        SizedBox(height: showBottom ? 90.h : 24.h),
                       ],
                     ),
                   ),
                 ),
               ),
 
+              // Bottom action
               if (showBottom)
                 Positioned(
                   left: 0,
                   right: 0,
                   bottom: 16 + MediaQuery.of(context).padding.bottom,
-
                   child: BlocBuilder<HomeCubit, HomeState>(
                     bloc: cubit,
                     builder: (context, st) {
@@ -448,7 +447,9 @@ class _HomeState extends State<Home> with RouteAware {
 class _HomeBottomAction extends StatelessWidget {
   final HomeCubit homeCubit;
   final OrderInfo haveOrder;
+
   const _HomeBottomAction({required this.homeCubit, required this.haveOrder});
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
@@ -458,9 +459,7 @@ class _HomeBottomAction extends StatelessWidget {
 
         st.maybeWhen(
           loading: () => loading = true,
-          cartLoaded: (cart, __, ___) {
-            summary = CartSummary.from(cart);
-          },
+          cartLoaded: (cart, __, ___) => summary = CartSummary.from(cart),
           orElse: () {},
         );
 
@@ -499,7 +498,6 @@ class _HomeBottomAction extends StatelessWidget {
           );
         }
 
-        // ✅ ما في سلة -> Your Order
         return CustomButtonOrder(
           title: "home.your_order".tr(),
           onPressed: () {

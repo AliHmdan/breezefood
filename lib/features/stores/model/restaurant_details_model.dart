@@ -20,7 +20,9 @@ class RestaurantDetailsResponse {
         (json["general"] as Map).cast<String, dynamic>(),
       ),
       restaurantMenuItems: _parseSections(json["restaurant_menu_items"]),
-      myRating: (rawRating is Map) ? MyRating.fromJson(rawRating.cast<String, dynamic>()) : null,
+      myRating: (rawRating is Map)
+          ? MyRating.fromJson(rawRating.cast<String, dynamic>())
+          : null,
     );
   }
 
@@ -33,10 +35,10 @@ class RestaurantDetailsResponse {
   }
 }
 
-
 class RestaurantGeneral {
   final int id;
   final String name;
+  final DeliveryInfo? delivery;
   final String? description;
   final String? logo;
   final String? cover;
@@ -56,6 +58,7 @@ class RestaurantGeneral {
     required this.name,
     this.description,
     this.logo,
+    this.delivery,
     this.cover,
     this.address,
     this.phone,
@@ -68,6 +71,7 @@ class RestaurantGeneral {
 
   factory RestaurantGeneral.fromJson(Map<String, dynamic> json) {
     final ratingJson = json["rating"];
+
     return RestaurantGeneral(
       id: (json["id"] ?? 0) as int,
       name: (json["name"] ?? "") as String,
@@ -81,14 +85,16 @@ class RestaurantGeneral {
       deliveryTime: (json["delivery_time"] ?? 0) as int,
       deliveryCash: (json["delivery_cash"] ?? 0) as num,
 
-      // ✅ parse rating object
+      // ✅ parse delivery object
+      delivery: (json["delivery"] is Map)
+          ? DeliveryInfo.fromJson((json["delivery"] as Map).cast<String, dynamic>())
+          : null,
+
       myRating: (ratingJson is Map)
           ? MyRating.fromJson(ratingJson.cast<String, dynamic>())
           : null,
     );
   }
-
-
 
   static double _toDouble(dynamic v) {
     if (v == null) return 0;
@@ -105,9 +111,44 @@ class MenuCategory {
   MenuCategory({required this.id, required this.nameAr, required this.nameEn});
 
   factory MenuCategory.fromJson(Map<String, dynamic> json) => MenuCategory(
-        id: (json["id"] ?? 0) as int,
-        nameAr: (json["name_ar"] ?? "") as String,
-        nameEn: (json["name_en"] ?? "") as String,
+    id: (json["id"] ?? 0) as int,
+    nameAr: (json["name_ar"] ?? "") as String,
+    nameEn: (json["name_en"] ?? "") as String,
+  );
+}
+
+class DeliveryInfo {
+  final num baseFee;
+  final num finalFee;
+  final DeliveryDiscount? discount;
+
+  const DeliveryInfo({
+    required this.baseFee,
+    required this.finalFee,
+    this.discount,
+  });
+
+  factory DeliveryInfo.fromJson(Map<String, dynamic> json) => DeliveryInfo(
+    baseFee: json["base_fee"] ?? 0,
+    finalFee: json["final_fee"] ?? 0,
+    discount: (json["discount"] is Map)
+        ? DeliveryDiscount.fromJson(
+            (json["discount"] as Map).cast<String, dynamic>(),
+          )
+        : null,
+  );
+}
+
+class DeliveryDiscount {
+  final String type; // fixed | percentage ...
+  final num value;
+
+  const DeliveryDiscount({required this.type, required this.value});
+
+  factory DeliveryDiscount.fromJson(Map<String, dynamic> json) =>
+      DeliveryDiscount(
+        type: (json["type"] ?? "").toString(),
+        value: json["value"] ?? 0,
       );
 }
 
@@ -155,21 +196,21 @@ class MenuItem {
   });
 
   factory MenuItem.fromJson(Map<String, dynamic> json) => MenuItem(
-        id: (json["id"] ?? 0) as int,
-        price: _toDouble(json["price"]),
-        // ✅ من السيرفر
-        priceBefore: _toDouble(json["price_before"]),
-        priceAfter: _toDouble(json["price_after"]),
-        discountPercent: _toDouble(json["discount_percent"]),
-        discountType: json["discount_type"] as String?,
-        image: json["image"] as String?,
-        isFavorite: (json["is_favorite"] ?? false) as bool,
-        nameAr: (json["name_ar"] ?? "") as String,
-        nameEn: (json["name_en"] ?? "") as String,
-        descriptionAr: json["description_ar"] as String?,
-        descriptionEn: json["description_en"] as String?,
-        mealExtras: _parseExtras(json["extras"]),
-      );
+    id: (json["id"] ?? 0) as int,
+    price: _toDouble(json["price"]),
+    // ✅ من السيرفر
+    priceBefore: _toDouble(json["price_before"]),
+    priceAfter: _toDouble(json["price_after"]),
+    discountPercent: _toDouble(json["discount_percent"]),
+    discountType: json["discount_type"] as String?,
+    image: json["image"] as String?,
+    isFavorite: (json["is_favorite"] ?? false) as bool,
+    nameAr: (json["name_ar"] ?? "") as String,
+    nameEn: (json["name_en"] ?? "") as String,
+    descriptionAr: json["description_ar"] as String?,
+    descriptionEn: json["description_en"] as String?,
+    mealExtras: _parseExtras(json["extras"]),
+  );
 
   static List<MenuExtra> _parseExtras(dynamic v) {
     if (v is! List) return <MenuExtra>[];
@@ -186,7 +227,6 @@ class MenuItem {
   }
 }
 
-
 class MenuExtra {
   final int id;
   final double price;
@@ -201,11 +241,11 @@ class MenuExtra {
   });
 
   factory MenuExtra.fromJson(Map<String, dynamic> json) => MenuExtra(
-        id: (json["id"] ?? 0) as int,
-        price: _toDouble(json["price"]),
-        nameAr: (json["name_ar"] ?? "") as String,
-        nameEn: (json["name_en"] ?? "") as String,
-      );
+    id: (json["id"] ?? 0) as int,
+    price: _toDouble(json["price"]),
+    nameAr: (json["name_ar"] ?? "") as String,
+    nameEn: (json["name_en"] ?? "") as String,
+  );
 
   static double _toDouble(dynamic v) {
     if (v == null) return 0;
@@ -224,33 +264,32 @@ class MenuCategorySection {
     final rawItems = json["items"];
     final items = (rawItems is List)
         ? rawItems
-            .whereType<Map>()
-            .map((e) => MenuItem.fromJson(e.cast<String, dynamic>()))
-            .toList()
+              .whereType<Map>()
+              .map((e) => MenuItem.fromJson(e.cast<String, dynamic>()))
+              .toList()
         : <MenuItem>[];
 
     return MenuCategorySection(
-      category: MenuCategory.fromJson((json["category"] as Map).cast<String, dynamic>()),
+      category: MenuCategory.fromJson(
+        (json["category"] as Map).cast<String, dynamic>(),
+      ),
       items: items,
     );
   }
 }
+
 class MyRating {
   final int id;
   final double rating;
   final String? comment;
 
-  MyRating({
-    required this.id,
-    required this.rating,
-    this.comment,
-  });
+  MyRating({required this.id, required this.rating, this.comment});
 
   factory MyRating.fromJson(Map<String, dynamic> json) => MyRating(
-        id: (json["id"] ?? 0) as int,
-        rating: _toDouble(json["rating"]),
-        comment: json["comment"] as String?,
-      );
+    id: (json["id"] ?? 0) as int,
+    rating: _toDouble(json["rating"]),
+    comment: json["comment"] as String?,
+  );
 
   static double _toDouble(dynamic v) {
     if (v == null) return 0;
@@ -258,4 +297,3 @@ class MyRating {
     return double.tryParse(v.toString()) ?? 0;
   }
 }
-
