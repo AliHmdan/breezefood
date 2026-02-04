@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+
 class RestaurantDetailsResponse {
   final RestaurantGeneral general;
   final List<MenuCategorySection> restaurantMenuItems;
@@ -120,24 +122,78 @@ class MenuCategory {
 class DeliveryInfo {
   final num baseFee;
   final num finalFee;
-  final DeliveryDiscount? discount;
 
-  const DeliveryInfo({
-    required this.baseFee,
-    required this.finalFee,
-    this.discount,
-  });
+  const DeliveryInfo({required this.baseFee, required this.finalFee});
+
+  static num _toNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+    final s = v.toString().trim();
+    if (s.isEmpty) return 0;
+    final cleaned = s.replaceAll(RegExp(r'[^0-9\.\-]'), '');
+    return num.tryParse(cleaned) ?? 0;
+  }
 
   factory DeliveryInfo.fromJson(Map<String, dynamic> json) => DeliveryInfo(
-    baseFee: json["base_fee"] ?? 0,
-    finalFee: json["final_fee"] ?? 0,
-    discount: (json["discount"] is Map)
-        ? DeliveryDiscount.fromJson(
-            (json["discount"] as Map).cast<String, dynamic>(),
-          )
-        : null,
-  );
+        baseFee: _toNum(json["base_fee"]),
+        finalFee: _toNum(json["final_fee"]),
+      );
 }
+
+class RestaurantModel {
+  final int id;
+  final String name;
+
+  final String? logo;
+  final String? coverImage;
+
+  final double ratingAvg;
+  final int ratingCount;
+
+  final int? deliveryTime;
+
+  // ✅ جديد (من الريسبونس)
+  final num deliveryBaseFee;
+
+  // ✅ جديد (من الريسبونس)
+  final DeliveryInfo? delivery;
+
+  RestaurantModel({
+    required this.id,
+    required this.name,
+    this.logo,
+    this.coverImage,
+    this.ratingAvg = 0,
+    this.ratingCount = 0,
+    this.deliveryTime,
+    this.deliveryBaseFee = 0,
+    this.delivery,
+  });
+
+  static num _toNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+    final s = v.toString().trim();
+    if (s.isEmpty) return 0;
+    final cleaned = s.replaceAll(RegExp(r'[^0-9\.\-]'), '');
+    return num.tryParse(cleaned) ?? 0;
+  }
+
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) => RestaurantModel(
+        id: (json["id"] ?? 0) as int,
+        name: (json["name"] ?? "") as String,
+        logo: json["logo"] as String?,
+        coverImage: json["cover_image"] as String?,
+        ratingAvg: ((json["rating_avg"] ?? 0) as num).toDouble(),
+        ratingCount: (json["rating_count"] ?? 0) as int,
+        deliveryTime: (json["delivery_time"] as int?),
+        deliveryBaseFee: _toNum(json["delivery_base_fee"]),
+        delivery: (json["delivery"] is Map<String, dynamic>)
+            ? DeliveryInfo.fromJson(json["delivery"] as Map<String, dynamic>)
+            : null,
+      );
+}
+
 
 class DeliveryDiscount {
   final String type; // fixed | percentage ...
@@ -297,3 +353,4 @@ class MyRating {
     return double.tryParse(v.toString()) ?? 0;
   }
 }
+

@@ -1,7 +1,10 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/services/del_price_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
+ 
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,7 +12,7 @@ import 'package:dio/dio.dart';
 import 'package:breezefood/core/di/di.dart'; // إذا عندك Dio في getIt
 
 class Supermarketslider extends StatelessWidget {
-  final List<RestaurantModel> restaurants;
+  final List<HomeRestaurantModel> restaurants;
   final void Function(dynamic r)? onTap;
 
   // ✅ جديد
@@ -50,7 +53,7 @@ class Supermarketslider extends StatelessWidget {
 }
 
 class _SliderItemWidget extends StatefulWidget {
-  final RestaurantModel model;
+  final HomeRestaurantModel model;
   final VoidCallback? onTap;
 
   // ✅ جديد
@@ -82,10 +85,7 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
         UrlHelper.toFullUrl(widget.model.logo) ??
         "";
 
-    // لو deliveryTime موجودة نعرضها، وإلا نخليها نص افتراضي
-    final deliveryText = widget.model.deliveryTime != null
-        ? "${widget.model.deliveryTime} min"
-        : "—";
+    final feeText = deliveryFeeText(widget.model);
 
     return InkWell(
       borderRadius: BorderRadius.circular(11.r),
@@ -163,6 +163,19 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
             ),
 
             // Rating chip (يعرض avg_rating دائمًا + عند الضغط يرسل تقييم)
+            PositionedDirectional(
+              start: 12,
+              top: 12,
+              child: _InfoChip(
+                icon: Icon(
+                  Icons.delivery_dining,
+                  color: Colors.white,
+                  size: 16.sp,
+                ),
+                text: feeText,
+              ),
+            ),
+
             PositionedDirectional(
               end: 12,
               top: 12,

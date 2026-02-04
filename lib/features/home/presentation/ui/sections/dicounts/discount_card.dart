@@ -126,6 +126,7 @@ class Discount extends StatelessWidget {
     final gapH = showDelPrices ? 4.h : 6.h;
 
     return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
          borderRadius: BorderRadius.circular(5.r),

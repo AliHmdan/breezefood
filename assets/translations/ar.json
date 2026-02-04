@@ -9,11 +9,28 @@
     "terms": "الشروط والأحكام",
     "logout": "تسجيل الخروج"
   },
+  "logout": {
+    "confirm": "هل أنت متأكد من تسجيل الخروج؟",
+    "loading": "جاري تسجيل الخروج..."
+  },
   "order_status": {
+    "no_driver": "جارٍ البحث عن سائق",
     "pending": "تم استلام الطلب",
     "preparing": "قيد التحضير",
     "inway": "بالطريق إليك",
     "delivered": "تم التسليم"
+  },
+  "stores": {
+    "delivery_fee_short": "{fee} ل.س",
+    "title": "المتاجر",
+    "tabs": {
+      "restaurants": "مطاعم",
+      "supermarkets": "سوبر ماركت"
+    },
+    "empty_restaurants": "لا يوجد مطاعم",
+    "empty_supermarkets": "لا يوجد سوبرماركت",
+    "orders_count": "{count} طلب",
+    "mock_navigate": "تجربة: الانتقال إلى تفاصيل {name}"
   },
   "tracking": {
     "customer_code_title": "كود الاستلام",
@@ -42,7 +59,8 @@
     "loading": "جارِ تحميل موقع السائق...",
     "live": "التتبع يعمل",
     "not_available": "التتبع غير متاح",
-    "driver": "السائق"
+    "driver": "السائق",
+    "search": "بحث"
   },
   "search": {
     "hint": "ابحث عن وجبة أو متجر أو مطعم",
@@ -120,6 +138,11 @@
     "add_to_cart_with_total": "إضافة إلى السلة  {total}"
   },
   "common": {
+    "dash": "--",
+    "minutes_short": "{min}د",
+    "error_prefix": "{msg}",
+    "yes": "نعم",
+    "cancel": "إلغاء",
     "all": "الكل",
     "retry": "إعادة المحاولة",
     "AddToCart": "إضافة إلى السلة",
@@ -168,6 +191,19 @@
     "rate_success": "تم إرسال التقييم"
   },
   "home": {
+    "current_location": "موقعي الحالي",
+    "select_location": "حدد موقعك",
+    "location_hint": "لإظهار الأقرب إليك (مطاعم / سوبر ماركت)",
+    "my_location": "موقعي",
+    "location_picker_title": "اختيار الموقع",
+    "pick_on_map": {
+      "title": "اختيار على الخريطة",
+      "subtitle": "حدد موقع جديد وتحديث العنوان"
+    },
+    "use_my_location": {
+      "title": "استخدام موقعي الحالي",
+      "subtitle": "التحديث تلقائياً من GPS"
+    },
     "discount_delivery": "خصومات التوصيل",
     "filters": {
       "closer": "الأقرب إليك",

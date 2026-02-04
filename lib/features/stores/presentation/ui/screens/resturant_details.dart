@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ResturantDetails extends StatefulWidget {
   final int restaurant_id;
@@ -385,10 +386,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     ),
                                     SizedBox(width: 6.w),
                                     // SvgPicture.asset("assets/icons/motor.svg", width: 16, height: 16, color: Colors.white),
-                                    Icon(
-                                      Icons.delivery_dining,
+                                    SvgPicture.asset(
                                       color: Colors.white,
-                                      size: 18.sp,
+                                      "assets/icons/motor.svg",
                                     ),
                                   ],
                                 ),

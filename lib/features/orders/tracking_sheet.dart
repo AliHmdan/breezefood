@@ -10,7 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class TrackingSheet extends StatelessWidget {
+class TrackingSheet extends StatefulWidget {
   final int orderId;
   final ScrollController scrollController;
 
@@ -19,6 +19,14 @@ class TrackingSheet extends StatelessWidget {
     required this.orderId,
     required this.scrollController,
   });
+
+  @override
+  State<TrackingSheet> createState() => _TrackingSheetState();
+}
+
+class _TrackingSheetState extends State<TrackingSheet> {
+  dynamic _cachedDetails;
+  String? _cachedErrorKey;
 
   // ================= Helpers =================
 
@@ -40,7 +48,6 @@ class TrackingSheet extends StatelessWidget {
     if (p.isEmpty) return;
 
     final uri = Uri(scheme: "tel", path: p);
-
     final ok = await canLaunchUrl(uri);
     if (!ok) return;
 
@@ -218,7 +225,9 @@ class TrackingSheet extends StatelessWidget {
 
     if (ok != true) return;
 
-    final success = await context.read<OrdersDetailsCubit>().cancel(orderId);
+    final success = await context.read<OrdersDetailsCubit>().cancel(
+      widget.orderId,
+    );
     if (!context.mounted) return;
 
     if (success) {
@@ -236,443 +245,519 @@ class TrackingSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     const stepKeys = ["pending", "preparing", "inway", "delivered"];
 
-    return BlocBuilder<OrdersDetailsCubit, OrdersDetailsState>(
-      builder: (context, state) {
-        final details = state.maybeWhen(success: (d) => d, orElse: () => null);
+    return BlocListener<OrdersDetailsCubit, OrdersDetailsState>(
+      listener: (context, state) {
+        // ✅ خزّن آخر نجاح
+        state.whenOrNull(
+          success: (d) {
+            _cachedDetails = d;
+            _cachedErrorKey = null;
+          },
+          error: (mKey) {
+            // ✅ ما نفضي البيانات؛ بس نخزن آخر error key
+            _cachedErrorKey = mKey;
+          },
+        );
+      },
+      child: BlocBuilder<OrdersDetailsCubit, OrdersDetailsState>(
+        buildWhen: (prev, curr) {
+          // ✅ قلل rebuilds: بنعيد البناء بس عند success أو أول load بدون cache أو error أول مرة
+          final hasCache = _cachedDetails != null;
 
-        final driverName = _v(details?.driver.name);
-        final driverPhoneRaw = (details?.driver.phone ?? "").toString();
-        final driverPhone = _cleanPhone(driverPhoneRaw);
-        final driverImg = absUrl(details?.driver.profileImage ?? "");
+          return curr.maybeWhen(
+            success: (_) => true,
+            loading: () => !hasCache,
+            error: (_) => !hasCache,
+            orElse: () => false,
+          );
+        },
+        builder: (context, state) {
+          // ✅ source of truth للعرض: cache إذا موجود
+          final details = state.maybeWhen(
+            success: (d) => d,
+            orElse: () => _cachedDetails,
+          );
 
-        final restaurantName = _v(details?.restaurant.name);
-        final restLogo = absUrl(details?.restaurant.logo ?? "");
+          // ✅ أول مرة فقط: إذا ما في cache نهائياً
+          final hasDetails = details != null;
 
-        final order = details?.order;
-        final status = (order?.status ?? "").toString();
-        final st = status.toLowerCase().trim();
-     final canCancel = st == "no_driver" || st == "pending";
-
-
-        final itemsTotal = order?.itemsTotal;
-        final deliveryFee = order?.deliveryFee;
-        final total = order?.totalPrice;
-
-        final codeInt = order?.orderCustomerCode;
-        final code = (codeInt == null) ? "" : codeInt.toString();
-        final codeDigits = code.isEmpty
-            ? ["-", "-", "-", "-"]
-            : code.padLeft(4, "0").split("");
-
-        final timeline = details?.timeline ?? const [];
-        final items = details?.items ?? const [];
-
-        return Material(
-          color: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColor.Dark,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(25.r),
-                topRight: Radius.circular(25.r),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.18),
-                  blurRadius: 18,
+          if (!hasDetails) {
+            return Material(
+              color: Colors.transparent,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColor.Dark,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(25.r),
+                    topRight: Radius.circular(25.r),
+                  ),
                 ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              child: CustomScrollView(
-                controller: scrollController,
-                physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // handle
-                  SliverToBoxAdapter(
+                child: SafeArea(
+                  top: false,
+                  child: Center(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 10.h, bottom: 12.h),
-                      child: Center(
-                        child: Container(
-                          width: 44.w,
-                          height: 5.h,
-                          decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(99),
+                      padding: EdgeInsets.symmetric(vertical: 24.h),
+                      child: const SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          // ==== استخراج البيانات من details (كما عندك) ====
+          final driverName = _v(details.driver.name);
+          final driverPhoneRaw = (details.driver.phone ?? "").toString();
+          final driverPhone = _cleanPhone(driverPhoneRaw);
+          final driverImg = absUrl(details.driver.profileImage ?? "");
+
+          final restaurantName = _v(details.restaurant.name);
+          final restLogo = absUrl(details.restaurant.logo ?? "");
+
+          final order = details.order;
+          final status = (order.status ?? "").toString();
+          final st = status.toLowerCase().trim();
+          final canCancel = st == "no_driver" || st == "pending";
+
+          final itemsTotal = order.itemsTotal;
+          final deliveryFee = order.deliveryFee;
+          final total = order.totalPrice;
+
+          final codeInt = order.orderCustomerCode;
+          final code = (codeInt == null) ? "" : codeInt.toString();
+          final codeDigits = code.isEmpty
+              ? ["-", "-", "-", "-"]
+              : code.padLeft(4, "0").split("");
+
+          final timeline = details.timeline ?? const [];
+          final items = details.items ?? const [];
+
+          // ✅ إذا في error أثناء refresh: لا نغير الشاشة
+          // بس نظهر سطر صغير خفيف "آخر تحديث فشل" بدون spinner
+          final softErrorBar = (_cachedErrorKey != null)
+              ? Padding(
+                  padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 0),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Iconsax.warning_2,
+                        color: Colors.amber,
+                        size: 16,
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: Text(
+                          _cachedErrorKey!.tr(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.read<OrdersDetailsCubit>().load(
+                          widget.orderId,
+                        ),
+                        child: Text(
+                          "common.retry".tr(),
+                          style: TextStyle(
+                            color: AppColor.primaryColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink();
+
+          return Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColor.Dark,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25.r),
+                  topRight: Radius.circular(25.r),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.18),
+                    blurRadius: 18,
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: CustomScrollView(
+                  controller: widget.scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    // handle
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10.h, bottom: 12.h),
+                        child: Center(
+                          child: Container(
+                            width: 44.w,
+                            height: 5.h,
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Header
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 56.w,
-                            height: 56.w,
-                            clipBehavior: Clip.antiAlias,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColor.LightActive,
-                              border: Border.all(
-                                color: AppColor.primaryColor.withOpacity(0.6),
-                                width: 2,
+                    // Header
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 56.w,
+                              height: 56.w,
+                              clipBehavior: Clip.antiAlias,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColor.LightActive,
+                                border: Border.all(
+                                  color: AppColor.primaryColor.withOpacity(0.6),
+                                  width: 2,
+                                ),
                               ),
-                            ),
-                            child: driverImg.isEmpty
-                                ? const Icon(
-                                    Icons.person,
-                                    color: AppColor.white,
-                                  )
-                                : Image.network(
-                                    driverImg,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const Icon(
+                              child: driverImg.isEmpty
+                                  ? const Icon(
                                       Icons.person,
                                       color: AppColor.white,
+                                    )
+                                  : Image.network(
+                                      driverImg,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.person,
+                                        color: AppColor.white,
+                                      ),
+                                    ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    driverName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: AppColor.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 16.sp,
                                     ),
                                   ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  driverName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppColor.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 16.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 6.h),
-                                Row(
-                                  children: [
-                                    if (restLogo.isNotEmpty)
-                                      Container(
-                                        width: 18.w,
-                                        height: 18.w,
-                                        margin: EdgeInsets.only(right: 6.w),
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          color: AppColor.LightActive,
-                                          borderRadius: BorderRadius.circular(
-                                            6.r,
+                                  SizedBox(height: 6.h),
+                                  Row(
+                                    children: [
+                                      if (restLogo.isNotEmpty)
+                                        Container(
+                                          width: 18.w,
+                                          height: 18.w,
+                                          margin: EdgeInsets.only(right: 6.w),
+                                          clipBehavior: Clip.antiAlias,
+                                          decoration: BoxDecoration(
+                                            color: AppColor.LightActive,
+                                            borderRadius: BorderRadius.circular(
+                                              6.r,
+                                            ),
+                                          ),
+                                          child: Image.network(
+                                            restLogo,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                const SizedBox.shrink(),
                                           ),
                                         ),
-                                        child: Image.network(
-                                          restLogo,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) =>
-                                              const SizedBox.shrink(),
+                                      Expanded(
+                                        child: Text(
+                                          restaurantName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: AppColor.gry,
+                                            fontSize: 13.sp,
+                                          ),
                                         ),
                                       ),
-                                    Expanded(
-                                      child: Text(
-                                        restaurantName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: AppColor.gry,
-                                          fontSize: 13.sp,
+                                    ],
+                                  ),
+                                  if (driverPhone.isNotEmpty) ...[
+                                    SizedBox(height: 6.h),
+                                    Text(
+                                      driverPhone,
+                                      style: TextStyle(
+                                        color: AppColor.gry,
+                                        fontSize: 12.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            _actionCircle(
+                              icon: Icons.call,
+                              onTap: driverPhone.isEmpty
+                                  ? null
+                                  : () => _callPhone(driverPhone),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // ✅ soft error bar (بدون ما نقلب UI)
+                    SliverToBoxAdapter(child: softErrorBar),
+
+                    // body
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 22.h),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _divider(),
+
+                          _sectionTitle("tracking.customer_code_title".tr()),
+                          Text(
+                            "tracking.show_code_hint".tr(),
+                            style: TextStyle(
+                              color: AppColor.gry,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12.h,
+                              horizontal: 14.w,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.LightActive,
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: List.generate(
+                                4,
+                                (i) => Text(
+                                  codeDigits[i],
+                                  style: TextStyle(
+                                    color: AppColor.white,
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          _divider(),
+
+                          _sectionTitle("tracking.order_details".tr()),
+                          _kv(
+                            "tracking.status".tr(),
+                            st.isEmpty ? "—" : "order_status.$st".tr(),
+                          ),
+                          _kv(
+                            "tracking.items_total".tr(),
+                            context.syp(itemsTotal),
+                          ),
+                          _kv(
+                            "tracking.delivery_fee".tr(),
+                            context.syp(deliveryFee),
+                          ),
+                          _kv("tracking.total".tr(), context.syp(total)),
+
+                          if (canCancel) ...[
+                            SizedBox(height: 12.h),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.close),
+                                label: Text("orders.cancel_order".tr()),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14.r),
+                                  ),
+                                ),
+                                onPressed: () => _confirmAndCancel(context),
+                              ),
+                            ),
+                          ],
+
+                          _divider(),
+
+                          _sectionTitle("tracking.timeline".tr()),
+                          ...List.generate(stepKeys.length, (i) {
+                            final k = stepKeys[i];
+                            final t = _timeFor(timeline, k);
+                            return _buildStep(
+                              _stepTitle(k),
+                              t,
+                              _isStepCompleted(k, st),
+                              i == stepKeys.length - 1,
+                            );
+                          }),
+
+                          _divider(),
+
+                          _sectionTitle("tracking.items".tr()),
+                          if (items.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 4.h),
+                              child: Text(
+                                "common.empty".tr(),
+                                style: TextStyle(color: AppColor.gry),
+                              ),
+                            )
+                          else
+                            ...items.map((it) {
+                              final img = absUrl(it.image);
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10.h),
+                                padding: EdgeInsets.all(12.w),
+                                decoration: BoxDecoration(
+                                  color: AppColor.LightActive,
+                                  borderRadius: BorderRadius.circular(14.r),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 52.w,
+                                      height: 52.w,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                          12.r,
                                         ),
+                                        color: AppColor.Dark,
+                                      ),
+                                      child: img.isEmpty
+                                          ? const Icon(
+                                              Icons.fastfood,
+                                              color: AppColor.white,
+                                            )
+                                          : Image.network(
+                                              img,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  const Icon(
+                                                    Icons.fastfood,
+                                                    color: AppColor.white,
+                                                  ),
+                                            ),
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            it.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: AppColor.white,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 13.sp,
+                                            ),
+                                          ),
+                                          SizedBox(height: 6.h),
+                                          Wrap(
+                                            spacing: 8.w,
+                                            runSpacing: 6.h,
+                                            children: [
+                                              _chipKV(
+                                                "tracking.qty".tr(),
+                                                "${it.quantity}",
+                                              ),
+                                              _chipKV(
+                                                "tracking.item_price".tr(),
+                                                context.syp(it.totalPrice),
+                                              ),
+                                              _chipKV(
+                                                "tracking.delivery_time".tr(),
+                                                "${it.deliveryTime}",
+                                              ),
+                                            ],
+                                          ),
+                                          if (it.withSpicy)
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: 8.h,
+                                              ),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.w,
+                                                  vertical: 6.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColor.Dark,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        999,
+                                                      ),
+                                                  border: Border.all(
+                                                    color: Colors.white12,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .local_fire_department,
+                                                      color: AppColor.white,
+                                                      size: 16.sp,
+                                                    ),
+                                                    SizedBox(width: 6.w),
+                                                    Text(
+                                                      "tracking.spicy".tr(),
+                                                      style: TextStyle(
+                                                        color: AppColor.white,
+                                                        fontSize: 12.sp,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                                if (driverPhone.isNotEmpty) ...[
-                                  SizedBox(height: 6.h),
-                                  Text(
-                                    driverPhone,
-                                    style: TextStyle(
-                                      color: AppColor.gry,
-                                      fontSize: 12.sp,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          _actionCircle(
-                            icon: Icons.call,
-                            onTap: driverPhone.isEmpty
-                                ? null
-                                : () => _callPhone(driverPhone),
-                          ),
-                        ],
+                              );
+                            }).toList(),
+                        ]),
                       ),
                     ),
-                  ),
-
-                  // loading/error
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 0),
-                      child: state.maybeWhen(
-                        loading: () => const Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                        error: (message) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              message.tr(),
-                              style: TextStyle(color: AppColor.gry),
-                            ),
-                            SizedBox(height: 8.h),
-                            GestureDetector(
-                              onTap: () => context
-                                  .read<OrdersDetailsCubit>()
-                                  .load(orderId),
-                              child: Text(
-                                "common.retry".tr(),
-                                style: TextStyle(
-                                  color: AppColor.primaryColor,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        orElse: () => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
-
-                  // body
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 22.h),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        _divider(),
-
-                        _sectionTitle("tracking.customer_code_title".tr()),
-                        Text(
-                          "tracking.show_code_hint".tr(),
-                          style: TextStyle(
-                            color: AppColor.gry,
-                            fontSize: 13.sp,
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12.h,
-                            horizontal: 14.w,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.LightActive,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: List.generate(
-                              4,
-                              (i) => Text(
-                                codeDigits[i],
-                                style: TextStyle(
-                                  color: AppColor.white,
-                                  fontSize: 24.sp,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        _divider(),
-
-                        _sectionTitle("tracking.order_details".tr()),
-                        _kv("tracking.status".tr(), _v(status)),
-                        _kv(
-                          "tracking.items_total".tr(),
-                          context.syp(itemsTotal),
-                        ),
-                        _kv(
-                          "tracking.delivery_fee".tr(),
-                          context.syp(deliveryFee),
-                        ),
-                        _kv("tracking.total".tr(), context.syp(total)),
-
-                        // ✅ Cancel button (ONLY pending)
-                        if (canCancel) ...[
-                          SizedBox(height: 12.h),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              icon: const Icon(Icons.close),
-                              label: Text("orders.cancel_order".tr()),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(vertical: 12.h),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14.r),
-                                ),
-                              ),
-                              onPressed: () => _confirmAndCancel(context),
-                            ),
-                          ),
-                        ],
-
-                        _divider(),
-
-                        _sectionTitle("tracking.timeline".tr()),
-                        ...List.generate(stepKeys.length, (i) {
-                          final k = stepKeys[i];
-                          final t = _timeFor(timeline, k);
-                          return _buildStep(
-                            _stepTitle(k),
-                            t,
-                            _isStepCompleted(k, st),
-                            i == stepKeys.length - 1,
-                          );
-                        }),
-
-                        _divider(),
-
-                        _sectionTitle("tracking.items".tr()),
-                        if (items.isEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: 4.h),
-                            child: Text(
-                              "common.empty".tr(),
-                              style: TextStyle(color: AppColor.gry),
-                            ),
-                          )
-                        else
-                          ...items.map((it) {
-                            final img = absUrl(it.image);
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 10.h),
-                              padding: EdgeInsets.all(12.w),
-                              decoration: BoxDecoration(
-                                color: AppColor.LightActive,
-                                borderRadius: BorderRadius.circular(14.r),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 52.w,
-                                    height: 52.w,
-                                    clipBehavior: Clip.antiAlias,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12.r),
-                                      color: AppColor.Dark,
-                                    ),
-                                    child: img.isEmpty
-                                        ? const Icon(
-                                            Icons.fastfood,
-                                            color: AppColor.white,
-                                          )
-                                        : Image.network(
-                                            img,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) =>
-                                                const Icon(
-                                                  Icons.fastfood,
-                                                  color: AppColor.white,
-                                                ),
-                                          ),
-                                  ),
-                                  SizedBox(width: 12.w),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          it.title,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: AppColor.white,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 13.sp,
-                                          ),
-                                        ),
-                                        SizedBox(height: 6.h),
-                                        Wrap(
-                                          spacing: 8.w,
-                                          runSpacing: 6.h,
-                                          children: [
-                                            _chipKV(
-                                              "tracking.qty".tr(),
-                                              "${it.quantity}",
-                                            ),
-                                            _chipKV(
-                                              "tracking.item_price".tr(),
-                                              context.syp(it.totalPrice),
-                                            ),
-                                            _chipKV(
-                                              "tracking.delivery_time".tr(),
-                                              "${it.deliveryTime}",
-                                            ),
-                                          ],
-                                        ),
-                                        if (it.withSpicy)
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 8.h),
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10.w,
-                                                vertical: 6.h,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: AppColor.Dark,
-                                                borderRadius:
-                                                    BorderRadius.circular(999),
-                                                border: Border.all(
-                                                  color: Colors.white12,
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.local_fire_department,
-                                                    color: AppColor.white,
-                                                    size: 16.sp,
-                                                  ),
-                                                  SizedBox(width: 6.w),
-                                                  Text(
-                                                    "tracking.spicy".tr(),
-                                                    style: TextStyle(
-                                                      color: AppColor.white,
-                                                      fontSize: 12.sp,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                      ]),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

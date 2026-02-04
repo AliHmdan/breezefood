@@ -1,8 +1,10 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/services/restart_widget.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class Language extends StatefulWidget {
   const Language({super.key});
 
@@ -22,8 +24,13 @@ class _LanguageState extends State<Language> {
 
   Future<void> _setLang(String code) async {
     if (selected == code) return;
+
     setState(() => selected = code);
+
     await context.setLocale(Locale(code));
+
+    // ✅ Restart ناعم حتى يتطبق كلشي (RTL/LTR + خطوط + UI)
+    RestartWidget.restartApp(context);
   }
 
   @override

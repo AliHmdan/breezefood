@@ -15,7 +15,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 bool _isNetwork(String path) =>
     path.startsWith("http://") || path.startsWith("https://");
 
-String? _restaurantImage(RestaurantModel r) {
+String? _restaurantImage(HomeRestaurantModel r) {
   final cover = r.coverImage?.toString().trim();
   final logo = r.logo?.toString().trim();
 
@@ -126,22 +126,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                 child: _buildImage(widget.image, height: 100.h),
               ),
 
-              // Gradient overlay
-              // Container(
-              //   height: 100.h,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(12.r),
-              //     gradient: LinearGradient(
-              //       begin: Alignment.bottomCenter,
-              //       end: Alignment.topCenter,
-              //       colors: [
-              //         Colors.black.withOpacity(0.65),
-              //         Colors.transparent,
-              //       ],
-              //     ),
-              //   ),
-              // ),
-
               PositionedDirectional(
                 top: 6,
                 end: 6,
@@ -218,7 +202,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
 //////////////////////////////////////////////////////////////
 
 class CloserToYou extends StatelessWidget {
-  final List<RestaurantModel> restaurants;
+  final List<HomeRestaurantModel> restaurants;
   final bool hideWhenEmpty;
 
   const CloserToYou({
@@ -272,7 +256,7 @@ class CloserToYou extends StatelessWidget {
               image: _restaurantImage(r),
               name: r.name,
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,
-              deliveryFee: r.deliveryFee,
+              deliveryFee: r.deliveryFinalFee?.toDouble(),
 
               onTap: () async {
                 await Navigator.push(

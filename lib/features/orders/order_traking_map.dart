@@ -21,8 +21,13 @@ class OrderTrackingScreen extends StatefulWidget {
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
 }
 
-class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBindingObserver{
+class _OrderTrackingScreenState extends State<OrderTrackingScreen>
+    with WidgetsBindingObserver {
   GoogleMapController? _mapController;
+
+  // ✅ Sheet refresh throttle
+  DateTime? _lastDetailsRefreshAt;
+  bool _detailsRefreshing = false;
 
   BitmapDescriptor? _driverIcon;
   BitmapDescriptor? _meIcon;
@@ -30,16 +35,46 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
   LatLng? _driverLatLng;
   LatLng? _myLatLng;
 
-  // Markers + polyline
   final Set<Marker> _markers = {};
-
-  // My location stream
   StreamSubscription<Position>? _posSub;
 
-  // UI states
   bool _movedCameraOnce = false;
+  Timer? _detailsTimer;
 
-@override
+  // ================= Tracking + Sheet refresh =================
+
+  void _startTracking() {
+    context.read<OrdersTrackingCubit>().start(
+      widget.orderId,
+      interval: const Duration(seconds: 15),
+    );
+  }
+
+  Future<void> _refreshSheetDetailsThrottled() async {
+    if (!mounted) return;
+
+    final now = DateTime.now();
+    final last = _lastDetailsRefreshAt;
+
+    // ✅ نفس آلية التحديث (15 ثانية)
+    if (last != null && now.difference(last) < const Duration(seconds: 15)) {
+      return;
+    }
+    if (_detailsRefreshing) return;
+
+    _detailsRefreshing = true;
+    _lastDetailsRefreshAt = now;
+
+    try {
+      await context.read<OrdersDetailsCubit>().load(widget.orderId);
+    } finally {
+      _detailsRefreshing = false;
+    }
+  }
+
+  // ================= Lifecycle =================
+
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -47,24 +82,24 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
     _loadIcons();
     _startMyLocation();
     _startTracking();
+    _detailsTimer?.cancel();
+    _detailsTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _refreshSheetDetailsThrottled();
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrdersDetailsCubit>().load(widget.orderId);
     });
   }
- void _startTracking() {
-    context.read<OrdersTrackingCubit>().start(
-      widget.orderId,
-      interval: const Duration(seconds: 15),
-    );
-  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-
-    context.read<OrdersTrackingCubit>().stop(); // ✅ لازم
     _posSub?.cancel();
+    context.read<OrdersTrackingCubit>().stop();
     _mapController?.dispose();
+    _detailsTimer?.cancel();
+
     super.dispose();
   }
 
@@ -73,22 +108,21 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive ||
         state == AppLifecycleState.detached) {
-      context.read<OrdersTrackingCubit>().stop(); // ✅ وقف لما يطلع من الشاشة/يخفت التطبيق
+      context.read<OrdersTrackingCubit>().stop();
+      return;
     }
 
     if (state == AppLifecycleState.resumed) {
-      context.read<OrdersTrackingCubit>().start(
-        widget.orderId,
-        interval: const Duration(seconds: 15),
-      );
+      _startTracking();
+      _refreshSheetDetailsThrottled(); // ✅ تحديث فوري عند الرجوع
     }
   }
 
- 
+  // ================= Map icons =================
 
   Future<void> _loadIcons() async {
     try {
-      const driverW = 64; // جرّب 64 إذا بدك أصغر
+      const driverW = 64;
       const meW = 64;
 
       final driver = await MapMarkerIcon.fromAsset(
@@ -101,6 +135,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
       );
 
       if (!mounted) return;
+
       setState(() {
         _driverIcon = driver;
         _meIcon = me;
@@ -108,10 +143,13 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
 
       // إعادة رسم إذا كانت المواقع وصلت قبل تحميل الأيقونات
       if (_myLatLng != null) _setMyMarker(_myLatLng!);
-      if (_driverLatLng != null)
+      if (_driverLatLng != null) {
         _setDriverMarker(_driverLatLng!, moveCamera: false);
+      }
     } catch (_) {}
   }
+
+  // ================= My location =================
 
   Future<void> _startMyLocation() async {
     try {
@@ -122,6 +160,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
         desiredAccuracy: LocationAccuracy.high,
       );
       if (!mounted) return;
+
       _setMyMarker(LatLng(pos.latitude, pos.longitude));
 
       const settings = LocationSettings(
@@ -153,6 +192,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
     return true;
   }
 
+  // ================= Map utils =================
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -174,10 +214,12 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
           infoWindow: InfoWindow(title: "tracking.driver".tr()),
         ),
       );
+
     setState(() {});
+
     if (moveCamera && !_movedCameraOnce) {
       _movedCameraOnce = true;
-      _mapController?.animateCamera(CameraUpdate.newLatLngZoom(p, 16));
+      _recenter(); // ✅ أول مرة اعمل fit bounds إذا في me+driver
     }
   }
 
@@ -232,27 +274,35 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
     await _mapController!.animateCamera(CameraUpdate.newLatLngZoom(target, 16));
   }
 
+  // ================= UI =================
+
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: const Size(360, 800));
-
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: BlocListener<OrdersTrackingCubit, OrdersTrackingState>(
-        listener: (context, state) {
-          state.whenOrNull(
-            tracking: (tracking, driverLatLng, updatedAt) {
-              if (tracking) _setDriverMarker(driverLatLng, moveCamera: true);
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<OrdersTrackingCubit, OrdersTrackingState>(
+            listener: (context, state) {
+              // ✅ كل تحديث من tracking cubit → refresh للشيت
+              _refreshSheetDetailsThrottled();
+
+              state.whenOrNull(
+                tracking: (tracking, driverLatLng, updatedAt) {
+                  if (tracking)
+                    _setDriverMarker(driverLatLng, moveCamera: true);
+                },
+              );
             },
-          );
-        },
+          ),
+        ],
         child: Stack(
           children: [
             GoogleMap(
               mapType: MapType.normal,
               initialCameraPosition: const CameraPosition(
-                target: LatLng(0, 0),
-                zoom: 2,
+                target: LatLng(33.5138, 36.2765),
+                zoom: 13,
               ),
               onMapCreated: _onMapCreated,
               markers: _markers,
@@ -261,7 +311,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
               compassEnabled: false,
             ),
 
-            // زر رجوع مثل المثال
+            // زر رجوع
             Positioned(
               top: MediaQuery.of(context).padding.top + 12.h,
               left: 12.w,
@@ -277,7 +327,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
               ),
             ),
 
-            // عنوان مثل المثال
+            // عنوان
             Positioned(
               top: MediaQuery.of(context).padding.top + 12.h,
               left: 70.w,
@@ -333,12 +383,12 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
               ),
             ),
 
-            // كارد السائق تحت — بدون call/chat
+            // كارد السائق
             Positioned(
               bottom: 20.h,
               left: 20.w,
               right: 20.w,
-              child: _DriverMiniCard(),
+              child: const _DriverMiniCard(),
             ),
 
             // زر recenter
@@ -347,7 +397,8 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
               bottom: 120.h,
               child: _RoundFab(icon: Icons.my_location, onTap: _recenter),
             ),
-            // ✅ الشيت ثابت فوق الخريطة
+
+            // الشيت فوق الخريطة
             Positioned.fill(
               child: Align(
                 alignment: Alignment.bottomCenter,
@@ -358,9 +409,12 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsB
                   snap: true,
                   snapSizes: const [0.16, 0.30, 0.60, 0.92],
                   builder: (context, scrollController) {
-                    return TrackingSheet(
-                      orderId: widget.orderId,
-                      scrollController: scrollController,
+                    return BlocProvider.value(
+                      value: context.read<OrdersDetailsCubit>(),
+                      child: TrackingSheet(
+                        orderId: widget.orderId,
+                        scrollController: scrollController,
+                      ),
                     );
                   },
                 ),
@@ -409,42 +463,59 @@ class _DriverMiniCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: AppColor.white,
-        borderRadius: BorderRadius.circular(25.r),
-        boxShadow: [
-          BoxShadow(color: AppColor.black.withOpacity(0.2), blurRadius: 10),
-        ],
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage('assets/b_driver/driver_map_point.png'),
-            backgroundColor: AppColor.primaryColor,
+    return BlocBuilder<OrdersTrackingCubit, OrdersTrackingState>(
+      builder: (context, state) {
+        final bool isLive = state.maybeWhen(
+          tracking: (tracking, _, __) => tracking,
+          orElse: () => false,
+        );
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+          decoration: BoxDecoration(
+            color: AppColor.white,
+            borderRadius: BorderRadius.circular(25.r),
+            boxShadow: [
+              BoxShadow(color: AppColor.black.withOpacity(0.2), blurRadius: 10),
+            ],
           ),
-          SizedBox(width: 8.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(
-                "tracking.driver".tr(),
-                style: TextStyle(
-                  color: AppColor.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+              const CircleAvatar(
+                radius: 20,
+                backgroundImage: AssetImage(
+                  'assets/b_driver/driver_map_point.png',
                 ),
+                backgroundColor: AppColor.primaryColor,
               ),
-              Text(
-                "tracking.live".tr(),
-                style: TextStyle(color: AppColor.gry, fontSize: 12.sp),
+              SizedBox(width: 8.w),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "tracking.driver".tr(),
+                    style: TextStyle(
+                      color: AppColor.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                  Text(
+                    isLive
+                        ? "tracking.live".tr()
+                        : "tracking.not_available".tr(),
+                    style: TextStyle(
+                      color: isLive ? const Color(0xFF0A7A2F) : AppColor.gry,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

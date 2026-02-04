@@ -1,19 +1,11 @@
-// ===============================
-// home_response.dart
-// ===============================
-import 'package:breezefood/features/orders/model/active_orders_response.dart'
-    show OrderInfo;
-// ===============================
-// home_response.dart (UPDATED)
-// ===============================
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
 
 class HomeResponse {
   final List<AdModel> ads;
-  final List<RestaurantModel> closerToYou;
-  final List<RestaurantModel> nearbyRestaurants;
-  final List<RestaurantModel> supermarkets;
+  final List<HomeRestaurantModel> closerToYou;
+  final List<HomeRestaurantModel> nearbyRestaurants;
+  final List<HomeRestaurantModel> supermarkets;
 
   // ✅ ممكن يكون مش موجود بالريسبونس الجديد
   final List<MenuItemModel> mostPopular;
@@ -99,17 +91,17 @@ class HomeResponse {
       closerToYou: _list(
         json,
         "closer_to_you",
-        (e) => RestaurantModel.fromJson(e),
+        (e) => HomeRestaurantModel.fromJson(e),
       ),
       nearbyRestaurants: _list(
         json,
         "nearby_restaurants",
-        (e) => RestaurantModel.fromJson(e),
+        (e) => HomeRestaurantModel.fromJson(e),
       ),
       supermarkets: _list(
         json,
         "supermarkets",
-        (e) => RestaurantModel.fromJson(e),
+        (e) => HomeRestaurantModel.fromJson(e),
       ),
 
       // ✅ الجديد ممكن ما يرجع most_popular
@@ -347,18 +339,25 @@ class AdModel {
   );
 }
 
-class RestaurantModel {
-  final double? deliveryFee;
+class HomeRestaurantModel {
   final int id;
   final String name;
+
   final String? logo;
   final String? coverImage;
+
   final double ratingAvg;
   final int ratingCount;
+
   final int? deliveryTime;
 
-  RestaurantModel({
-    this.deliveryFee,
+  /// ✅ موجود بالـ /home و /super-markets/all
+  final num deliveryBaseFee;
+
+  /// ✅ موجود بالـ /home فقط
+  final DeliveryPreview? delivery;
+
+  HomeRestaurantModel({
     required this.id,
     required this.name,
     this.logo,
@@ -366,27 +365,62 @@ class RestaurantModel {
     required this.ratingAvg,
     required this.ratingCount,
     this.deliveryTime,
+    required this.deliveryBaseFee,
+    required this.delivery,
   });
 
   String? get logoUrl => Urls.abs(logo);
   String? get coverUrl => Urls.abs(coverImage);
 
-  factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
-      RestaurantModel(
-        id: HomeResponse._toInt(json["id"]),
-        name: HomeResponse._toStringSafe(json["name"]),
-        logo: json["logo"] as String?,
-        coverImage: json["cover_image"] as String?,
-        ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
-        ratingCount: HomeResponse._toInt(json["rating_count"]),
-        deliveryTime: json["delivery_time"] == null
-            ? null
-            : HomeResponse._toInt(json["delivery_time"]),
-        deliveryFee: json["delivery_fee"] == null
-            ? null
-            : HomeResponse._toDouble(json["delivery_fee"]),
-      );
+  /// ✅ أهم Getter: السعر النهائي للعرض
+  num? get deliveryFinalFee {
+    final f = delivery?.finalFee;
+    if (f != null && f > 0) return f;
+    if (deliveryBaseFee > 0) return deliveryBaseFee;
+    return null;
+  }
+
+  factory HomeRestaurantModel.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic>? m(dynamic v) =>
+        (v is Map) ? v.cast<String, dynamic>() : null;
+
+    final deliveryMap = m(json["delivery"]);
+
+    return HomeRestaurantModel(
+      id: HomeResponse._toInt(json["id"]),
+      name: HomeResponse._toStringSafe(json["name"]),
+      logo: json["logo"] as String?,
+      coverImage: json["cover_image"] as String?,
+      ratingAvg: HomeResponse._toDouble(json["rating_avg"]),
+      ratingCount: HomeResponse._toInt(json["rating_count"]),
+      deliveryTime: json["delivery_time"] == null
+          ? null
+          : HomeResponse._toInt(json["delivery_time"]),
+
+      /// ✅ هذا هو المهم
+      deliveryBaseFee: (json["delivery_base_fee"] == null)
+          ? 0
+          : HomeResponse._toDouble(json["delivery_base_fee"]),
+
+      /// ✅ /home
+      delivery: deliveryMap == null ? null : DeliveryPreview.fromJson(deliveryMap),
+    );
+  }
 }
+class DeliveryPreview {
+  final num baseFee;
+  final num finalFee;
+
+  DeliveryPreview({required this.baseFee, required this.finalFee});
+
+  factory DeliveryPreview.fromJson(Map<String, dynamic> json) {
+    return DeliveryPreview(
+      baseFee: HomeResponse._toDouble(json["base_fee"]),
+      finalFee: HomeResponse._toDouble(json["final_fee"]),
+    );
+  }
+}
+
 
 class MenuItemModel {
   final int id;

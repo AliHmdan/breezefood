@@ -1,9 +1,11 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
+import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/presentation/cubit/markets_cubit.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,13 +66,17 @@ class _MarketPageState extends State<MarketPage> {
           }
           if (state is MarketsLoaded) {
             final products = state.markets.map((m) {
+              final hasLogo = (m.logo != null && m.logo!.trim().isNotEmpty);
+
               return MarketItem(
                 id: m.id,
                 title: m.name,
-                image: (m.logo != null && m.logo!.trim().isNotEmpty)
+                image: hasLogo
                     ? "https://breezefood.cloud/${m.logo}"
                     : "assets/images/bread.png",
-                isAsset: !(m.logo != null && m.logo!.trim().isNotEmpty),
+                isAsset: !hasLogo,
+                // ✅ جديد
+                deliveryBaseFee: m.deliveryBaseFee,
               );
             }).toList();
 
@@ -96,7 +102,6 @@ class _MarketPageState extends State<MarketPage> {
   }
 }
 
-/// شبكة العناصر (GridView.builder)
 class MarketGrid extends StatelessWidget {
   final List<MarketItem> items;
   final void Function(int index, MarketItem item)? onItemTap;
@@ -184,6 +189,47 @@ class MarketCard extends StatelessWidget {
                 ),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 10.h),
+              child: Column(
+                children: [
+                  Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: AppColor.white,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: "Manrope",
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 6.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.primaryColor.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColor.primaryColor.withOpacity(0.35),
+                      ),
+                    ),
+                    child: Text(
+                      "${"tracking.delivery_fee".tr()}: ${context.syp(item.deliveryBaseFee)}",
+                      style: TextStyle(
+                        color: AppColor.white,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -197,10 +243,14 @@ class MarketItem {
   final String image;
   final bool isAsset;
 
+  // ✅ جديد
+  final num deliveryBaseFee;
+
   const MarketItem({
     required this.id,
     required this.title,
     required this.image,
+    required this.deliveryBaseFee,
     this.isAsset = true,
   });
 }

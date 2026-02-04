@@ -2,7 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/terms/terms.dart';
+import 'package:breezefood/features/terms/presentation/ui/terms.dart';
 import 'package:breezefood/features/help_center/help_center.dart';
 import 'package:breezefood/features/profile/presentation/widget/dialog_logout.dart';
 import 'package:breezefood/features/profile/presentation/ui/info_profile.dart';
@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
-import 'package:breezefood/features/profile/presentation/ui/addresses_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Profile extends StatefulWidget {

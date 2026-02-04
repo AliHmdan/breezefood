@@ -47,16 +47,27 @@ class CartCubit extends Cubit<CartState> {
   // Helper: ensure we are in loaded state
   _CartLoaded? _loaded() => state is _CartLoaded ? state as _CartLoaded : null;
 
-  // Helper: optimistic patch cart safely without losing new fields
   void _emitLoadedPatch({
     required _CartLoaded st,
-    required CartResponse cart,
-    required Set<int> updatingIds,
+    CartResponse? cart,
+    Set<int>? updatingIds,
     String? toast,
   }) {
-    emit(st.copyWith(cart: cart, updatingIds: updatingIds, toast: toast));
+    emit(
+      st.copyWith(
+        cart: cart ?? st.cart,
+        updatingIds: updatingIds ?? st.updatingIds,
+        toast: toast,
+      ),
+    );
   }
 
+  // ===========================================================
+  // ✅ Update Qty
+  // - optimistic: update item qty + item total only (UI)
+  // - DO NOT recompute totals (server is the source of truth)
+  // - after success: reload cart
+  // ===========================================================
   Future<void> updateQty({
     required int cartItemId,
     required int quantity,
@@ -73,9 +84,8 @@ class CartCubit extends Cubit<CartState> {
     final oldItem = prevCart.items[idx];
     final oldQty = oldItem.quantity;
 
-    // ✅ Optimistic item total:
-    // - إذا السيرفر عنده total_price، غالباً بيعتمد (unitPrice * qty) + extras_total
-    // - extras_total بالـ API تبعك ظاهر أنه إجمالي الإكسترا للعنصر (مش لكل وحدة)
+    // ✅ Optimistic patch: just update qty + line total (for better UI)
+    // extrasTotal in your API is already total extras for the item row.
     final optimisticTotal =
         (oldItem.unitPrice * quantity) + oldItem.extrasTotal;
 
@@ -86,7 +96,7 @@ class CartCubit extends Cubit<CartState> {
       nameEn: oldItem.nameEn,
       quantity: quantity,
       withSpicy: oldItem.withSpicy,
-      specialNotes: oldItem.specialNotes, // ✅ أضفها
+      specialNotes: oldItem.specialNotes,
       priceBefore: oldItem.priceBefore,
       priceAfter: oldItem.priceAfter,
       discountPercent: oldItem.discountPercent,
@@ -101,17 +111,8 @@ class CartCubit extends Cubit<CartState> {
     final newItems = [...prevCart.items];
     newItems[idx] = optimisticItem;
 
-    final optimisticItemsTotalAfter = newItems.fold<double>(
-      0,
-      (sum, it) => sum + it.totalPrice,
-    );
-
-    final optimisticCart = prevCart.copyWith(
-      items: newItems,
-      itemsTotalAfter: optimisticItemsTotalAfter,
-      grandAfter: optimisticItemsTotalAfter + prevCart.deliveryAfter,
-      // (ما منغيّر delivery/discount هون لأنه السيرفر بيحسمها)
-    );
+    // ✅ IMPORTANT: do NOT change totals (itemsTotalAfter/grandAfter)
+    final optimisticCart = prevCart.copyWith(items: newItems);
 
     _emitLoadedPatch(
       st: st0,
@@ -129,63 +130,39 @@ class CartCubit extends Cubit<CartState> {
     if (st1 == null) return;
 
     if (!res.ok) {
-      // rollback
-      final rollbackTotal = (oldItem.unitPrice * oldQty) + oldItem.extrasTotal;
-      final rollbackItem = CartItem(
-        id: oldItem.id,
-        menuItemId: oldItem.menuItemId,
-        nameAr: oldItem.nameAr,
-        nameEn: oldItem.nameEn,
-        quantity: oldQty,
-        withSpicy: oldItem.withSpicy,
-        specialNotes: oldItem.specialNotes, // ✅ أضفها
-        priceBefore: oldItem.priceBefore,
-        priceAfter: oldItem.priceAfter,
-        discountPercent: oldItem.discountPercent,
-        discountType: oldItem.discountType,
-        extrasTotal: oldItem.extrasTotal,
-        totalPrice: rollbackTotal,
-        image: oldItem.image,
-        deliveryTime: oldItem.deliveryTime,
-        extras: oldItem.extras,
-      );
-
+      // rollback just item list
       final rollbackItems = [...prevCart.items];
-      rollbackItems[idx] = rollbackItem;
-
-      final rollbackItemsTotalAfter = rollbackItems.fold<double>(
-        0,
-        (sum, it) => sum + it.totalPrice,
-      );
-
-      final rollbackCart = prevCart.copyWith(
-        items: rollbackItems,
-        itemsTotalAfter: rollbackItemsTotalAfter,
-        grandAfter: rollbackItemsTotalAfter + prevCart.deliveryAfter,
+      rollbackItems[idx] = oldItem.copyWith(
+        quantity: oldQty,
+        totalPrice: oldItem.totalPrice,
       );
 
       _emitLoadedPatch(
         st: st1,
-        cart: rollbackCart,
+        cart: prevCart.copyWith(items: rollbackItems),
         updatingIds: {...st1.updatingIds}..remove(cartItemId),
         toast: res.message ?? "فشل تحديث الكمية",
       );
       return;
     }
 
-    // remove updating flag first
+    // remove updating flag
     _emitLoadedPatch(
       st: st1,
-      cart: st1.cart,
       updatingIds: {...st1.updatingIds}..remove(cartItemId),
       toast: null,
     );
 
-    // ✅ Reload from server to get exact pricing/discounts
+    // ✅ reload from server to get exact pricing/discounts/grand_total
     await loadCart();
   }
 
-  // ✅ Remove item (Swipe)
+  // ===========================================================
+  // ✅ Remove Item
+  // - optimistic: remove item row only
+  // - DO NOT recompute totals
+  // - after success: reload cart
+  // ===========================================================
   Future<void> removeItem(int cartItemId) async {
     final st0 = _loaded();
     if (st0 == null) return;
@@ -197,19 +174,9 @@ class CartCubit extends Cubit<CartState> {
 
     final removedItem = prevCart.items[idx];
 
-    // optimistic remove
+    // optimistic remove from list only
     final newItems = [...prevCart.items]..removeAt(idx);
-
-    final optimisticItemsTotalAfter = newItems.fold<double>(
-      0,
-      (sum, it) => sum + it.totalPrice,
-    );
-
-    final optimisticCart = prevCart.copyWith(
-      items: newItems,
-      itemsTotalAfter: optimisticItemsTotalAfter,
-      grandAfter: optimisticItemsTotalAfter + prevCart.deliveryAfter,
-    );
+    final optimisticCart = prevCart.copyWith(items: newItems);
 
     _emitLoadedPatch(
       st: st0,
@@ -227,20 +194,9 @@ class CartCubit extends Cubit<CartState> {
       // rollback
       final rollbackItems = [...optimisticCart.items]..insert(idx, removedItem);
 
-      final rollbackItemsTotalAfter = rollbackItems.fold<double>(
-        0,
-        (sum, it) => sum + it.totalPrice,
-      );
-
-      final rollbackCart = prevCart.copyWith(
-        items: rollbackItems,
-        itemsTotalAfter: rollbackItemsTotalAfter,
-        grandAfter: rollbackItemsTotalAfter + prevCart.deliveryAfter,
-      );
-
       _emitLoadedPatch(
         st: st1,
-        cart: rollbackCart,
+        cart: prevCart.copyWith(items: rollbackItems),
         updatingIds: {...st1.updatingIds}..remove(cartItemId),
         toast: res.message ?? "فشل حذف العنصر",
       );
@@ -249,11 +205,11 @@ class CartCubit extends Cubit<CartState> {
 
     _emitLoadedPatch(
       st: st1,
-      cart: st1.cart,
       updatingIds: {...st1.updatingIds}..remove(cartItemId),
       toast: null,
     );
 
+    // reload server totals
     await loadCart();
   }
 }

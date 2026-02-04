@@ -4,6 +4,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/router/navigation_key.dart';
 import 'package:breezefood/core/services/app_notification_service.dart';
 import 'package:breezefood/core/services/launch_screen.dart';
+import 'package:breezefood/core/services/restart_widget.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
@@ -40,7 +41,7 @@ Future<void> main() async {
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
       saveLocale: true,
-      child: const MyApp(),
+      child: const RestartWidget(child: MyApp()),
     ),
   );
   final fcm = await FirebaseMessaging.instance.getToken();
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
         BlocProvider(create: (_) => getIt<HomeCubit>()),
-        BlocProvider(create: (_) => getIt<ProfileCubit>()),  
+        BlocProvider(create: (_) => getIt<ProfileCubit>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),

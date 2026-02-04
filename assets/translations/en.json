@@ -1,4 +1,5 @@
 {
+  "Search": "search",
   "no_ratings_yet": "No ratings yet",
   "profile": {
     "title": "Profile",
@@ -8,6 +9,19 @@
     "help_center": "Help center",
     "terms": "Terms & Conditions",
     "logout": "Logout"
+  },
+  "stores": {
+    
+    "delivery_fee_short": "{fee} SYP",
+    "title": "Stores",
+    "tabs": {
+      "restaurants": "Restaurants",
+      "supermarkets": "Super Markets"
+    },
+    "empty_restaurants": "No restaurants available",
+    "empty_supermarkets": "No supermarkets available",
+    "orders_count": "{count} Orders",
+    "mock_navigate": "Mock Action: Navigating to {name} details (Store)"
   },
   "search": {
     "hint": "Search food, stores, restaurants",
@@ -19,6 +33,7 @@
     "suggestion_drinks": "Drinks"
   },
   "order_status": {
+    "no_driver": "Searching for a driver",
     "pending": "Pending",
     "preparing": "Preparing",
     "inway": "Inway",
@@ -93,7 +108,17 @@
     "notes_hint": "Example: No damaged items",
     "add_to_cart_with_total": "ADD TO CART  {total}"
   },
+  "logout": {
+    "confirm": "Do you want to log out?",
+    "loading": "Logging out..."
+  },
   "common": {
+
+    "dash": "--",
+    "minutes_short": "{min}m",
+    "error_prefix": "{msg}",
+    "yes": "Yes",
+    "cancel": "Cancel",
     "all": "All",
     "save": "Save",
     "close": "Close",
@@ -152,21 +177,33 @@
     }
   },
   "home": {
-    "discount_delivery": "Delivery discounts",
-    "filters": {
-      "closer": "Closer to you",
-      "stores": "Stores",
-      "discounts": "Discounts",
-      "delivery": "Delivery discounts",
-      "supermarket": "Super Market",
-      "open": "Open now"
+    "current_location": "My current location",
+    "select_location": "Select your location",
+    "location_hint": "To show nearby (restaurants / supermarkets)",
+    "my_location": "My location",
+    "location_picker_title": "Choose location",
+    "pick_on_map": {
+      "title": "Pick on map",
+      "subtitle": "Select a new location and update address"
     },
-    "closer_to_you": "Closer to you",
-    "stores": "Stores",
-    "super_market": "Super Market",
-    "open_now": "Open Now",
-    "your_order": "Your order"
+    "use_my_location": {
+      "title": "Use my current location",
+      "subtitle": "Automatically detect using GPS"
+    }
   },
+  "discount_delivery": "Delivery discounts",
+  "filters": {
+    "closer": "Closer to you",
+    "stores": "Stores",
+    "discounts": "Discounts",
+    "delivery": "Delivery discounts",
+    "supermarket": "Super Market",
+    "open": "Open now"
+  },
+  "closer_to_you": "Closer to you",
+  "super_market": "Super Market",
+  "open_now": "Open Now",
+  "your_order": "Your order",
   "cart": {
     "item_notes_optional": "Item notes (optional)",
     "item_notes_hint": "e.g. No onion, mild spicy...",

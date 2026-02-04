@@ -8,11 +8,12 @@ class CartResponse {
   final int restaurantId;
   final String restaurantName;
   final String restaurantLogo;
+
   final CartPrimaryAddress? primaryAddress;
   final List<CartUserAddress> addresses;
   final List<CartItem> items;
 
-  // pricing
+  // ================= PRICING =================
   final double itemsTotalBefore;
   final double itemsTotalAfter;
   final double itemsDiscount;
@@ -43,10 +44,11 @@ class CartResponse {
     required this.grandAfter,
   });
 
+  // ================= Helpers =================
   static double _toDouble(dynamic v) {
-    if (v == null) return 0;
+    if (v == null) return 0.0;
     if (v is num) return v.toDouble();
-    return double.tryParse(v.toString()) ?? 0;
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
   static int _toInt(dynamic v) {
@@ -56,7 +58,20 @@ class CartResponse {
     return int.tryParse(v.toString()) ?? 0;
   }
 
+  // ================= FROM JSON =================
   factory CartResponse.fromJson(Map<String, dynamic> json) {
+    final order = (json["order"] as Map?)?.cast<String, dynamic>() ?? {};
+    final restaurant =
+        (json["restaurant"] as Map?)?.cast<String, dynamic>() ?? {};
+    final pricing =
+        (json["order_pricing"] as Map?)?.cast<String, dynamic>() ?? {};
+
+    final itemsJson = (json["items"] as List? ?? const []);
+    final items = itemsJson
+        .where((e) => e is Map)
+        .map((e) => CartItem.fromJson((e as Map).cast<String, dynamic>()))
+        .toList();
+
     final primaryJson = (json["primary_address"] as Map?)
         ?.cast<String, dynamic>();
     final primary = primaryJson == null
@@ -70,21 +85,20 @@ class CartResponse {
           (e) => CartUserAddress.fromJson((e as Map).cast<String, dynamic>()),
         )
         .toList();
-    final itemsJson = (json["items"] as List? ?? const []);
-    final items = itemsJson
-        .where((e) => e is Map)
-        .map((e) => CartItem.fromJson((e as Map).cast<String, dynamic>()))
-        .toList();
 
-    final order = (json["order"] as Map?)?.cast<String, dynamic>() ?? {};
-    final restaurant =
-        (json["restaurant"] as Map?)?.cast<String, dynamic>() ?? {};
-    final pricing =
-        (json["order_pricing"] as Map?)?.cast<String, dynamic>() ?? {};
+    // ✅ القيم الفعلية من السيرفر
+    final itemsAfter = _toDouble(pricing["items_total_after"]);
+    final deliveryBefore = _toDouble(pricing["delivery_fee_before"]);
+    final deliveryAfter = _toDouble(pricing["delivery_fee_after"]);
+    final deliveryDiscount = _toDouble(pricing["delivery_discount"]);
+
+    // ✅ السيرفر يرجع grand_total فقط
+    final grandTotal = _toDouble(pricing["grand_total"]);
+
+    // ✅ fallback احتياطي
+    final computedGrand = itemsAfter + deliveryAfter;
 
     return CartResponse(
-      primaryAddress: primary,
-      addresses: addresses,
       orderId: _toInt(order["id"]),
       orderStatus: (order["status"] ?? "").toString(),
 
@@ -92,91 +106,89 @@ class CartResponse {
       restaurantName: (restaurant["name"] ?? "My Cart").toString(),
       restaurantLogo: (restaurant["logo"] ?? "").toString(),
 
+      primaryAddress: primary,
+      addresses: addresses,
       items: items,
 
-      itemsTotalBefore: _toDouble(pricing["items_total_before"]),
-      itemsTotalAfter: _toDouble(pricing["items_total_after"]),
-      itemsDiscount: _toDouble(pricing["items_discount"]),
+      // ❌ غير موجودة بالريسبونس → محسوبة
+      itemsTotalBefore: itemsAfter,
+      itemsTotalAfter: itemsAfter,
+      itemsDiscount: 0,
 
-      deliveryBefore: _toDouble(pricing["delivery_fee_before"]),
-      deliveryAfter: _toDouble(pricing["delivery_fee_after"]),
-      deliveryDiscount: _toDouble(pricing["delivery_discount"]),
+      deliveryBefore: deliveryBefore,
+      deliveryAfter: deliveryAfter,
+      deliveryDiscount: deliveryDiscount,
 
-      grandBefore: _toDouble(pricing["grand_total_before"]),
-      grandAfter: _toDouble(pricing["grand_total_after"]),
-    );
-  }
-  CartUserAddress? get defaultAddress {
-    if (addresses.isEmpty) return null;
-    return addresses.firstWhere(
-      (a) => a.isDefault,
-      orElse: () => addresses.first,
+      // ❌ غير موجودة
+      grandBefore: 0,
+      // ✅ المهم
+      grandAfter: grandTotal > 0 ? grandTotal : computedGrand,
     );
   }
 
-  // Convenience getters
+  // ================= Convenience =================
   double get itemsTotal => itemsTotalAfter;
   double get deliveryFee => deliveryAfter;
   double get grandTotal => grandAfter;
 
   bool get hasAnyDiscount =>
-      (itemsTotalBefore > itemsTotalAfter) || (deliveryBefore > deliveryAfter);
-
-      CartResponse copyWith({
-  int? orderId,
-  String? orderStatus,
-  int? restaurantId,
-  String? restaurantName,
-  String? restaurantLogo,
-  List<CartItem>? items,
-  double? itemsTotalBefore,
-  double? itemsTotalAfter,
-  double? itemsDiscount,
-  double? deliveryBefore,
-  double? deliveryAfter,
-  double? deliveryDiscount,
-  double? grandBefore,
-  double? grandAfter,
-
-  // ✅ لو عندك هالحقول (بعد التحديث اللي عملناه):
-  CartPrimaryAddress? primaryAddress,
-  List<CartUserAddress>? addresses,
-}) {
-  return CartResponse(
-    orderId: orderId ?? this.orderId,
-    orderStatus: orderStatus ?? this.orderStatus,
-    restaurantId: restaurantId ?? this.restaurantId,
-    restaurantName: restaurantName ?? this.restaurantName,
-    restaurantLogo: restaurantLogo ?? this.restaurantLogo,
-    items: items ?? this.items,
-    itemsTotalBefore: itemsTotalBefore ?? this.itemsTotalBefore,
-    itemsTotalAfter: itemsTotalAfter ?? this.itemsTotalAfter,
-    itemsDiscount: itemsDiscount ?? this.itemsDiscount,
-    deliveryBefore: deliveryBefore ?? this.deliveryBefore,
-    deliveryAfter: deliveryAfter ?? this.deliveryAfter,
-    deliveryDiscount: deliveryDiscount ?? this.deliveryDiscount,
-    grandBefore: grandBefore ?? this.grandBefore,
-    grandAfter: grandAfter ?? this.grandAfter,
-
-    primaryAddress: primaryAddress ?? this.primaryAddress,
-    addresses: addresses ?? this.addresses,
-  );
+      itemsTotalBefore > itemsTotalAfter || deliveryBefore > deliveryAfter;
+  CartResponse copyWith({
+    int? orderId,
+    String? orderStatus,
+    int? restaurantId,
+    String? restaurantName,
+    String? restaurantLogo,
+    CartPrimaryAddress? primaryAddress,
+    List<CartUserAddress>? addresses,
+    List<CartItem>? items,
+    double? itemsTotalBefore,
+    double? itemsTotalAfter,
+    double? itemsDiscount,
+    double? deliveryBefore,
+    double? deliveryAfter,
+    double? deliveryDiscount,
+    double? grandBefore,
+    double? grandAfter,
+  }) {
+    return CartResponse(
+      orderId: orderId ?? this.orderId,
+      orderStatus: orderStatus ?? this.orderStatus,
+      restaurantId: restaurantId ?? this.restaurantId,
+      restaurantName: restaurantName ?? this.restaurantName,
+      restaurantLogo: restaurantLogo ?? this.restaurantLogo,
+      primaryAddress: primaryAddress ?? this.primaryAddress,
+      addresses: addresses ?? this.addresses,
+      items: items ?? this.items,
+      itemsTotalBefore: itemsTotalBefore ?? this.itemsTotalBefore,
+      itemsTotalAfter: itemsTotalAfter ?? this.itemsTotalAfter,
+      itemsDiscount: itemsDiscount ?? this.itemsDiscount,
+      deliveryBefore: deliveryBefore ?? this.deliveryBefore,
+      deliveryAfter: deliveryAfter ?? this.deliveryAfter,
+      deliveryDiscount: deliveryDiscount ?? this.deliveryDiscount,
+      grandBefore: grandBefore ?? this.grandBefore,
+      grandAfter: grandAfter ?? this.grandAfter,
+    );
+  }
 }
 
-}
+// =================================================
+// ================= CART ITEM ======================
+// =================================================
 
 class CartItem {
   final int id;
   final int menuItemId;
 
-  final String nameAr;  final String? specialNotes; // ✅ جديد
+  final String nameAr;
   final String nameEn;
 
   final int quantity;
-  final int withSpicy; // 0 / 1
+  final int withSpicy;
 
   final double priceBefore;
   final double priceAfter;
+
   final int discountPercent;
   final String? discountType;
 
@@ -186,6 +198,7 @@ class CartItem {
   final String image;
   final int deliveryTime;
 
+  final String? specialNotes;
   final List<CartExtra> extras;
 
   CartItem({
@@ -197,20 +210,20 @@ class CartItem {
     required this.withSpicy,
     required this.priceBefore,
     required this.priceAfter,
-      required this.specialNotes, // ✅
     required this.discountPercent,
     required this.discountType,
     required this.extrasTotal,
     required this.totalPrice,
     required this.image,
     required this.deliveryTime,
+    required this.specialNotes,
     required this.extras,
   });
 
   static double _toDouble(dynamic v) {
-    if (v == null) return 0;
+    if (v == null) return 0.0;
     if (v is num) return v.toDouble();
-    return double.tryParse(v.toString()) ?? 0;
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
   static int _toInt(dynamic v) {
@@ -224,7 +237,7 @@ class CartItem {
     final qty = _toInt(json["quantity"]);
     final before = _toDouble(json["price_before"]);
     final after = _toDouble(json["price_after"]);
-    final unitPrice = after > 0 ? after : before;
+    final unit = after > 0 ? after : before;
 
     final extrasJson = (json["extras"] as List? ?? const []);
     final extras = extrasJson
@@ -233,43 +246,80 @@ class CartItem {
         .toList();
 
     final total = _toDouble(json["total_price"]);
-    final safeTotal = total == 0
-        ? (unitPrice * qty) + _toDouble(json["extras_total"])
-        : total;
+    final safeTotal = total > 0
+        ? total
+        : (unit * qty) + _toDouble(json["extras_total"]);
 
-return CartItem(
-  id: _toInt(json["id"]),
-  menuItemId: _toInt(json["menu_item_id"]),
-  nameAr: (json["name_ar"] ?? "").toString(),
-  nameEn: (json["name_en"] ?? "").toString(),
-  quantity: qty,
-  withSpicy: _toInt(json["with_Spicy"]),
-  specialNotes: (json["special_notes"] ?? "").toString(), // ✅
-  priceBefore: before,
-  priceAfter: after > 0 ? after : before,
-  discountPercent: _toInt(json["discount_percent"]),
-  discountType: json["discount_type"]?.toString(),
-  extrasTotal: _toDouble(json["extras_total"]),
-  totalPrice: safeTotal,
-  image: (json["image"] ?? "").toString(),
-  deliveryTime: _toInt(json["delivery_time"]),
-  extras: extras,
-);
-
+    return CartItem(
+      id: _toInt(json["id"]),
+      menuItemId: _toInt(json["menu_item_id"]),
+      nameAr: (json["name_ar"] ?? "").toString(),
+      nameEn: (json["name_en"] ?? "").toString(),
+      quantity: qty,
+      withSpicy: _toInt(json["with_Spicy"]),
+      priceBefore: before,
+      priceAfter: unit,
+      discountPercent: _toInt(json["discount_percent"]),
+      discountType: json["discount_type"]?.toString(),
+      extrasTotal: _toDouble(json["extras_total"]),
+      totalPrice: safeTotal,
+      image: (json["image"] ?? "").toString(),
+      deliveryTime: _toInt(json["delivery_time"]),
+      specialNotes: json["special_notes"]?.toString(),
+      extras: extras,
+    );
   }
 
-  // Helpers
   bool get isSpicy => withSpicy == 1;
   bool get hasDiscount => discountPercent > 0 || priceBefore > priceAfter;
-
-  double get unitPrice => priceAfter > 0 ? priceAfter : priceBefore;
+  double get unitPrice => priceAfter;
+  CartItem copyWith({
+    int? id,
+    int? menuItemId,
+    String? nameAr,
+    String? nameEn,
+    int? quantity,
+    int? withSpicy,
+    String? specialNotes,
+    double? priceBefore,
+    double? priceAfter,
+    int? discountPercent,
+    String? discountType,
+    double? extrasTotal,
+    double? totalPrice,
+    String? image,
+    int? deliveryTime,
+    List<CartExtra>? extras,
+  }) {
+    return CartItem(
+      id: id ?? this.id,
+      menuItemId: menuItemId ?? this.menuItemId,
+      nameAr: nameAr ?? this.nameAr,
+      nameEn: nameEn ?? this.nameEn,
+      quantity: quantity ?? this.quantity,
+      withSpicy: withSpicy ?? this.withSpicy,
+      specialNotes: specialNotes ?? this.specialNotes,
+      priceBefore: priceBefore ?? this.priceBefore,
+      priceAfter: priceAfter ?? this.priceAfter,
+      discountPercent: discountPercent ?? this.discountPercent,
+      discountType: discountType ?? this.discountType,
+      extrasTotal: extrasTotal ?? this.extrasTotal,
+      totalPrice: totalPrice ?? this.totalPrice,
+      image: image ?? this.image,
+      deliveryTime: deliveryTime ?? this.deliveryTime,
+      extras: extras ?? this.extras,
+    );
+  }
 }
+
+
 
 class CartExtra {
   final int id;
   final int extraId;
   final int quantity;
-  final int withSpicy; // 0 / 1
+  final int withSpicy;
+
   final double unitPrice;
   final double totalPrice;
 
@@ -288,9 +338,9 @@ class CartExtra {
   });
 
   static double _toDouble(dynamic v) {
-    if (v == null) return 0;
+    if (v == null) return 0.0;
     if (v is num) return v.toDouble();
-    return double.tryParse(v.toString()) ?? 0;
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
   static int _toInt(dynamic v) {
@@ -323,8 +373,12 @@ class CartExtra {
   bool get isSpicy => withSpicy == 1;
 }
 
+// =================================================
+// ================= ADDRESSES =====================
+// =================================================
+
 class CartPrimaryAddress {
-  final String? address; // ممكن null حسب اللّوغ
+  final String? address;
   final double latitude;
   final double longitude;
 
@@ -335,9 +389,9 @@ class CartPrimaryAddress {
   });
 
   static double _toDouble(dynamic v) {
-    if (v == null) return 0;
+    if (v == null) return 0.0;
     if (v is num) return v.toDouble();
-    return double.tryParse(v.toString()) ?? 0;
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
   factory CartPrimaryAddress.fromJson(Map<String, dynamic> json) {
@@ -372,9 +426,9 @@ class CartUserAddress {
   }
 
   static double _toDouble(dynamic v) {
-    if (v == null) return 0;
+    if (v == null) return 0.0;
     if (v is num) return v.toDouble();
-    return double.tryParse(v.toString()) ?? 0;
+    return double.tryParse(v.toString()) ?? 0.0;
   }
 
   static bool _toBool(dynamic v) {

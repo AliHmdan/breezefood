@@ -3,7 +3,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/auth/presentation/cubit/auth_flow_cubit.dart';
 import 'package:breezefood/features/auth/presentation/login_page.dart';
-import 'package:breezefood/features/main_shell.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -21,7 +21,8 @@ void showLogoutDialog(BuildContext context) {
         bloc: cubit,
         listener: (ctx, state) {
           state.whenOrNull(
-            loading: () => EasyLoading.show(status: "Logging out..."),
+            loading: () => EasyLoading.show(status: "logout.loading".tr()),
+
             error: (msg) {
               EasyLoading.dismiss();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -80,10 +81,11 @@ void showLogoutDialog(BuildContext context) {
                 ),
                 const SizedBox(height: 12),
                 CustomSubTitle(
-                  subtitle: "Do you want logout?",
+                  subtitle: "logout.confirm".tr(),
                   color: AppColor.white,
                   fontsize: 14.sp,
                 ),
+
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -104,7 +106,7 @@ void showLogoutDialog(BuildContext context) {
                         cubit.logout();
                       },
                       child: CustomSubTitle(
-                        subtitle: "Yes",
+                        subtitle: "common.yes".tr(),
                         color: AppColor.white,
                         fontsize: 14.sp,
                       ),
@@ -123,7 +125,7 @@ void showLogoutDialog(BuildContext context) {
                       ),
                       onPressed: () => Navigator.pop(dialogCtx),
                       child: CustomSubTitle(
-                        subtitle: "Cancel",
+                        subtitle: "common.cancel".tr(),
                         color: AppColor.white,
                         fontsize: 14.sp,
                       ),

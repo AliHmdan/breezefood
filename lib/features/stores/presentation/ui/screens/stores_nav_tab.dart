@@ -13,6 +13,7 @@ import 'package:breezefood/features/stores/presentation/cubit/super_markets_list
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:breezefood/features/super_market/market_page_price.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -170,7 +171,7 @@ class RestaurantCard extends StatelessWidget {
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.access_time,
+                                Icons.delivery_dining,
                                 color: Colors.white,
                                 size: 14,
                               ),
@@ -290,7 +291,7 @@ class _StoresTabListState extends State<_StoresTabList>
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Mock Action: Navigating to ${r.name} details (Store)',
+                      "stores.mock_navigate".tr(namedArgs: {"name": r.name}),
                     ),
                   ),
                 );
@@ -325,9 +326,6 @@ class _NoGlowBehavior extends ScrollBehavior {
   }
 }
 
-// *************************************************************
-// 🏠 الـ Widget الرئيسية المجردة: StoresNavTab
-// *************************************************************
 class StoresNavTab extends StatefulWidget {
   const StoresNavTab({super.key});
 
@@ -338,14 +336,17 @@ class StoresNavTab extends StatefulWidget {
 class _StoresNavTabState extends State<StoresNavTab>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  final List<String> _titles = const ["Restaurant", "Super Market"];
+  final List<String> _titlesKeys = const [
+    "stores.tabs.restaurants",
+    "stores.tabs.supermarkets",
+  ];
 
   late final StoresCubit cubit;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _titles.length, vsync: this)
+    _tabController = TabController(length: _titlesKeys.length, vsync: this)
       ..addListener(() {
         if (mounted) setState(() {});
       });
@@ -369,13 +370,15 @@ class _StoresNavTabState extends State<StoresNavTab>
 
   String _timeText(RestaurantModel r) {
     final t = r.deliveryTime ?? 0;
-    return t == 0 ? "--" : "${t}M";
+    if (t <= 0) return "common.dash".tr(); // "--"
+    return "common.minutes_short".tr(
+      namedArgs: {"min": t.toString()},
+    ); // "{min}m"
   }
 
   String _ordersText(RestaurantModel r) {
     final c = r.ratingCount;
-    if (c <= 0) return "0 Orders";
-    return "$c Orders";
+    return "stores.orders_count".tr(namedArgs: {"count": c.toString()});
   }
 
   String? _restaurantImage(RestaurantModel r) {
@@ -392,12 +395,11 @@ class _StoresNavTabState extends State<StoresNavTab>
       backgroundColor: AppColor.Dark,
       body: Column(
         children: [
-          // const CustomAppbarHome(title: "Stores"),
-          CustomAppbarProfile(ontap: () {}, title: "Stores"),
+          CustomAppbarProfile(ontap: () {}, title: "stores.title".tr()),
 
           // Tabs
           Row(
-            children: List.generate(_titles.length, (index) {
+            children: List.generate(_titlesKeys.length, (index) {
               final bool isSelected = _tabController.index == index;
               return Expanded(
                 child: GestureDetector(
@@ -411,7 +413,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CustomSubTitle(
-                          subtitle: _titles[index],
+                          subtitle: _titlesKeys[index].tr(),
                           color: isSelected
                               ? AppColor.primaryColor
                               : AppColor.white,
@@ -459,9 +461,9 @@ class _StoresNavTabState extends State<StoresNavTab>
                         ),
                         loaded: (restaurants) {
                           if (restaurants.isEmpty) {
-                            return const Center(
+                            return Center(
                               child: Text(
-                                "لا يوجد مطاعم",
+                                "stores.empty_restaurants".tr(),
                                 style: TextStyle(color: Colors.white70),
                               ),
                             );
@@ -511,9 +513,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                     bloc: superMarketsCubit,
                     builder: (context, state) {
                       if (state is SuperMarketsListLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return const Center(child: CircularProgressIndicator());
                       }
                       if (state is SuperMarketsListError) {
                         return Center(
@@ -525,9 +525,9 @@ class _StoresNavTabState extends State<StoresNavTab>
                       }
                       if (state is SuperMarketsListLoaded) {
                         if (state.markets.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Text(
-                              "لا يوجد سوبرماركت",
+                              "stores.empty_supermarkets".tr(),
                               style: TextStyle(color: Colors.white70),
                             ),
                           );
@@ -549,8 +549,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                               final m = state.markets[index];
 
                               final img =
-                                  (m.logo != null &&
-                                      m.logo!.trim().isNotEmpty)
+                                  (m.logo != null && m.logo!.trim().isNotEmpty)
                                   ? UrlHelper.toFullUrl(m.logo) ?? ""
                                   : "";
 
@@ -570,9 +569,15 @@ class _StoresNavTabState extends State<StoresNavTab>
                                   name: m.name,
                                   rating:
                                       0.0, // API عندك rating_avg موجود بس أنت ما حطيته بالموديل
-                                  orders: "0 Orders", // نفس الشي
-                                  time:
-                                      "--", // delivery_time موجود إذا بدك نضيفه للموديل
+                                  orders: "stores.orders_count".tr(
+                                    namedArgs: {"count": "0"},
+                                  ),
+                                  time: "stores.delivery_fee_short".tr(
+                                    namedArgs: {
+                                      "fee": m.deliveryBaseFee.toString(),
+                                    },
+                                  ),
+
                                   isClosed: false,
                                 ),
                               );

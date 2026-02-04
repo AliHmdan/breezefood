@@ -5,16 +5,16 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RateDialogResult {
-  final double? rating; // submit
-  final bool delete; // delete
+  final double? rating;  
+  final bool delete;  
   const RateDialogResult.submit(this.rating) : delete = false;
   const RateDialogResult.delete() : rating = null, delete = true;
 }
 
 class RateDialog extends StatefulWidget {
-  final double currentRating; // rating الموجود عند المستخدم (0 إذا ما في)
-  final int? reviewId; // إذا موجود => المستخدم مقيّم
-  final bool allowEditWhenReviewed; // بدك false حسب طلبك
+  final double currentRating; 
+  final int? reviewId;  
+  final bool allowEditWhenReviewed;  
 
   const RateDialog({
     super.key,
@@ -108,7 +108,7 @@ class _RateDialogState extends State<RateDialog> {
             Text(
               hasReview
                   ? "reviews.already_rated_hint"
-                        .tr() // ضيفها بالترجمة
+                        .tr()  
                   : "reviews.rate_hint".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white70, fontSize: 12.sp),
@@ -116,7 +116,6 @@ class _RateDialogState extends State<RateDialog> {
 
             SizedBox(height: 20.h),
 
-            // ✅ Submit يظهر فقط إذا ما عنده تقييم سابق
             if (!hasReview) ...[
               SizedBox(
                 width: double.infinity,
@@ -142,7 +141,6 @@ class _RateDialogState extends State<RateDialog> {
               ),
             ],
 
-            // ✅ Delete يظهر فقط إذا عنده تقييم سابق
             if (hasReview) ...[
               SizedBox(height: 10.h),
               SizedBox(

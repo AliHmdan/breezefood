@@ -77,7 +77,7 @@ class MealCard extends StatelessWidget {
             if (counter != null) ...[const SizedBox(width: 10), counter!],
           ],
         ),
-        PositionedDirectional(bottom: 5,end: 10,child: CustomSubTitle(subtitle: " <<<<<Delete", color: AppColor.red, fontsize: 12.sp))
+        // PositionedDirectional(bottom: 5,end: 10,child: CustomSubTitle(subtitle: " <<<<<Delete", color: AppColor.red, fontsize: 12.sp))
 
       ],
 

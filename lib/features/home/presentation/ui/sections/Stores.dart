@@ -11,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Stores extends StatelessWidget {
-  final List<RestaurantModel> restaurants;
+  final List<HomeRestaurantModel> restaurants;
 
   const Stores({super.key, required this.restaurants});
 

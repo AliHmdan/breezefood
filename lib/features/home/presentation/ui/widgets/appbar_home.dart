@@ -7,6 +7,7 @@ import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dar
 import 'package:breezefood/features/profile/presentation/ui/map_picker_screen.dart';
 import 'package:breezefood/features/profile/presentation/ui/profile.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -24,11 +25,18 @@ class AppbarHome extends StatelessWidget {
     final hasCoords = home?.hasCoordinates ?? false;
     final province = home?.provinceDetected;
 
-    final title = hasCoords
-        ? (province?.isNotEmpty == true ? province! : "موقعك الحالي")
-        : "حدد موقعك";
+final title = hasCoords
+    ? (province?.isNotEmpty == true
+        ? province!
+        : "home.current_location".tr())
+    : "home.select_location".tr();
 
-    final subtitle = hasCoords ? "" : "لإظهار الأقرب إليك (مطاعم/سوبر ماركت)";
+final subtitle = hasCoords
+    ? ""
+    : "home.location_hint".tr();
+
+
+
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
@@ -56,15 +64,17 @@ class AppbarHome extends StatelessWidget {
           ),
 
           const SizedBox(height: 15),
-          CustomSearch(
-            hint: 'Search',
-            readOnly: true,
-            onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => Search()));
-            },
-          ),
+       CustomSearch(
+  hint: "common.search".tr(),
+  readOnly: true,
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const Search()),
+    );
+  },
+),
+
         ],
       ),
     );
@@ -98,7 +108,8 @@ class AppbarHome extends StatelessWidget {
         final pos = await _getMyLocation();
         if (pos != null) {
           await homeCubit.updateUserLocation(
-            address: "موقعي الحالي",
+           address: "home.my_location".tr(),
+
             lat: pos.latitude,
             lon: pos.longitude,
           );
@@ -237,29 +248,31 @@ class _HomeLocationPickerSheet extends StatelessWidget {
             ),
           ),
           SizedBox(height: 14.h),
-          Text(
-            "اختيار الموقع",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+       Text(
+  "home.location_picker_title".tr(),
+  style: TextStyle(
+    color: Colors.white,
+    fontSize: 15.sp,
+    fontWeight: FontWeight.w800,
+  ),
+),
+
           SizedBox(height: 10.h),
           const Divider(color: Colors.white24),
 
-          tile(
-            icon: Icons.map_outlined,
-            title: "اختيار على الخريطة",
-            subtitle: "حدد موقع جديد وتحديث العنوان",
-            action: _HomeLocationAction.pickOnMap,
-          ),
-          tile(
-            icon: Icons.my_location,
-            title: "استخدام موقعي الحالي",
-            subtitle: "التحديث تلقائياً من GPS",
-            action: _HomeLocationAction.useMyLocation,
-          ),
+       tile(
+  icon: Icons.map_outlined,
+  title: "home.pick_on_map.title".tr(),
+  subtitle: "home.pick_on_map.subtitle".tr(),
+  action: _HomeLocationAction.pickOnMap,
+),
+tile(
+  icon: Icons.my_location,
+  title: "home.use_my_location.title".tr(),
+  subtitle: "home.use_my_location.subtitle".tr(),
+  action: _HomeLocationAction.useMyLocation,
+),
+
         ],
       ),
     );

@@ -3,14 +3,34 @@ class MarketModel {
   final String name;
   final String? logo;
 
-  MarketModel({required this.id, required this.name, this.logo});
+  // ✅ جديد
+  final num deliveryBaseFee;
+
+  MarketModel({
+    required this.id,
+    required this.name,
+    this.logo,
+    required this.deliveryBaseFee,
+  });
+
+  static num _toNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+    final s = v.toString().trim();
+    if (s.isEmpty) return 0;
+    final cleaned = s.replaceAll(RegExp(r'[^0-9\.\-]'), '');
+    return num.tryParse(cleaned) ?? 0;
+  }
 
   factory MarketModel.fromJson(Map<String, dynamic> json) => MarketModel(
         id: (json['id'] ?? 0) as int,
         name: (json['name'] ?? '') as String,
         logo: json['logo'] as String?,
+        // ✅ هون
+        deliveryBaseFee: _toNum(json['delivery_base_fee']),
       );
 }
+
 
 class CategoryModel {
   final int id;

@@ -1,14 +1,16 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/features/home/model/home_response.dart';
+import 'package:breezefood/core/services/del_price_helper.dart'
+    show deliveryFeeText;
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-
+import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:breezefood/features/home/model/home_response.dart' as home;
+
 class RestaurantCard extends StatefulWidget {
-  final RestaurantModel restaurant;
+  final home.HomeRestaurantModel restaurant;
   final VoidCallback? onTap;
 
   const RestaurantCard({super.key, required this.restaurant, this.onTap});
@@ -23,7 +25,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
   @override
   void initState() {
     super.initState();
-    _rating = (widget.restaurant.ratingAvg ?? 0).toDouble();
+    _rating = (widget.restaurant.ratingAvg).toDouble();
   }
 
   @override
@@ -31,7 +33,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.restaurant.id != widget.restaurant.id ||
         oldWidget.restaurant.ratingAvg != widget.restaurant.ratingAvg) {
-      _rating = (widget.restaurant.ratingAvg ?? 0).toDouble();
+      _rating = (widget.restaurant.ratingAvg).toDouble();
     }
   }
 
@@ -43,12 +45,11 @@ class _RestaurantCardState extends State<RestaurantCard> {
     final logo = UrlHelper.toFullUrl(r.logo);
     final imageUrl = (cover ?? "").trim().isNotEmpty ? cover : logo;
 
-    final ratingCount = (r.ratingCount ?? 0);
+    final ratingCount = r.ratingCount;
     final ordersText = ratingCount > 0 ? "$ratingCount Ratings" : "New";
 
-    final deliveryTime = (r.deliveryTime ?? 0);
-
-    final timeText = deliveryTime > 0 ? "$deliveryTime min" : "--";
+    // ✅ سعر التوصيل (من helper اللي عملناه)
+    final feeText = deliveryFeeText(r);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -58,136 +59,110 @@ class _RestaurantCardState extends State<RestaurantCard> {
           borderRadius: BorderRadius.circular(50.r),
           child: Stack(
             children: [
-              // Background image
               _NetImage(url: imageUrl, height: 112.h),
 
-              // overlay
-              // Container(
-              //   height: 112.h,
-              //   decoration: BoxDecoration(
-              //     gradient: LinearGradient(
-              //       colors: [
-              //         Colors.black.withOpacity(0.25),
-              //         Colors.black.withOpacity(0.25),
-              //       ],
-              //       begin: Alignment.topCenter,
-              //       end: Alignment.bottomCenter,
-              //     ),
-              //   ),
-              // ),
-
-              // content
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: Positioned.fill(
-                  child: Padding(
-                    padding: EdgeInsets.all(10.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Top Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // ⭐ Rating
-                            GestureDetector(
-                              onTap: () async {
-                              
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 4.w,
-                                  vertical: 2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 14,
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      _rating.toStringAsFixed(1),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    const Text(
-                                      "|",
-                                      style: TextStyle(color: Colors.white54),
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    CustomSubTitle(
-                                      subtitle: ordersText,
-                                      color: AppColor.white,
-                                      fontsize: 12.sp,
-                                    ),
-                                  ],
-                                ),
-                              ),
+              Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.all(10.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // ⭐ Rating
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4.w,
+                              vertical: 2.h,
                             ),
-
-                            // ⏱ delivery time
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 4.w,
-                                vertical: 2.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.25),
-                                borderRadius: BorderRadius.circular(20.r),
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    timeText,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                    ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20.r),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 14,
+                                ),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  _rating.toStringAsFixed(1),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Bottom Text
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 18.h),
-                          child: Column(
-                            children: [
-                              Text(
-                                (r.name ?? "Restaurant").trim(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.bold,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 8,
-                                      color: Colors.black.withOpacity(0.7),
-                                    ),
-                                  ],
                                 ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                                SizedBox(width: 6.w),
+                                const Text(
+                                  "|",
+                                  style: TextStyle(color: Colors.white54),
+                                ),
+                                SizedBox(width: 6.w),
+                                CustomSubTitle(
+                                  subtitle: ordersText,
+                                  color: AppColor.white,
+                                  fontsize: 12.sp,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // 🚚 delivery fee chip
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 2.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(20.r),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.delivery_dining,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  feeText,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 18.h),
+                        child: Text(
+                          (r.name).trim(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 8,
+                                color: Colors.black.withOpacity(0.7),
                               ),
                             ],
                           ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -199,13 +174,9 @@ class _RestaurantCardState extends State<RestaurantCard> {
   }
 }
 
-//////////////////////////////////////////////////////////////
-// Open Now List (REAL DATA)
-//////////////////////////////////////////////////////////////
-
 class OpenNow extends StatelessWidget {
-  final List<RestaurantModel> restaurants;
-  final void Function(RestaurantModel r)? onTap;
+  final List<home.HomeRestaurantModel> restaurants;
+  final void Function(home.HomeRestaurantModel r)? onTap;
 
   const OpenNow({super.key, required this.restaurants, this.onTap});
 
@@ -238,10 +209,6 @@ class OpenNow extends StatelessWidget {
     );
   }
 }
-
-//////////////////////////////////////////////////////////////
-// Net Image helper
-//////////////////////////////////////////////////////////////
 
 class _NetImage extends StatelessWidget {
   final String? url;
@@ -310,7 +277,3 @@ class _NetImage extends StatelessWidget {
     );
   }
 }
-
-//////////////////////////////////////////////////////////////
-// Rating Dialog (same as yours)
-//////////////////////////////////////////////////////////////
