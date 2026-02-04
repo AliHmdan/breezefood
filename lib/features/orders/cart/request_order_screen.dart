@@ -158,57 +158,57 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   }) async {
     final ctrl = TextEditingController(text: _itemNotes[item.id] ?? "");
 
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColor.black,
-        title: Text(
-          isRTL ? "ملاحظة للوجبة" : "Item note",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: TextField(
-          controller: ctrl,
-          maxLines: 3,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: isRTL
-                ? "مثلاً: بدون بصل، سبايسي خفيف..."
-                : "e.g. No onion, mild spicy...",
-            hintStyle: const TextStyle(color: Colors.white54),
-            filled: true,
-            fillColor: Colors.white10,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(isRTL ? "إلغاء" : "Cancel"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(isRTL ? "حفظ" : "Save"),
-          ),
-        ],
-      ),
-    );
+    // final ok = await showDialog<bool>(
+    //   context: context,
+    //   builder: (_) => AlertDialog(
+    //     backgroundColor: AppColor.black,
+    //     title: Text(
+    //       isRTL ? "ملاحظة للوجبة" : "Item note",
+    //       style: const TextStyle(
+    //         color: Colors.white,
+    //         fontWeight: FontWeight.w700,
+    //       ),
+    //     ),
+    //     content: TextField(
+    //       controller: ctrl,
+    //       maxLines: 3,
+    //       style: const TextStyle(color: Colors.white),
+    //       decoration: InputDecoration(
+    //         hintText: isRTL
+    //             ? "مثلاً: بدون بصل، سبايسي خفيف..."
+    //             : "e.g. No onion, mild spicy...",
+    //         hintStyle: const TextStyle(color: Colors.white54),
+    //         filled: true,
+    //         fillColor: Colors.white10,
+    //         border: OutlineInputBorder(
+    //           borderRadius: BorderRadius.circular(12.r),
+    //           borderSide: BorderSide.none,
+    //         ),
+    //       ),
+    //     ),
+    //     actions: [
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(context, false),
+    //         child: Text(isRTL ? "إلغاء" : "Cancel"),
+    //       ),
+    //       TextButton(
+    //         onPressed: () => Navigator.pop(context, true),
+    //         child: Text(isRTL ? "حفظ" : "Save"),
+    //       ),
+    //     ],
+    //   ),
+    // );
 
-    if (ok == true) {
-      setState(() {
-        final v = ctrl.text.trim();
-        if (v.isEmpty) {
-          _itemNotes.remove(item.id);
-        } else {
-          _itemNotes[item.id] = v;
-        }
-      });
-    }
+    // if (ok == true) {
+    //   setState(() {
+    //     final v = ctrl.text.trim();
+    //     if (v.isEmpty) {
+    //       _itemNotes.remove(item.id);
+    //     } else {
+    //       _itemNotes[item.id] = v;
+    //     }
+    //   });
+    // }
   }
 
   // ----------------------------
@@ -617,6 +617,7 @@ class _CartItemsSection extends StatelessWidget {
                   foregroundColor: Colors.white,
                   icon: Icons.delete_outline,
                   label: isRTL ? "حذف" : "Delete",
+
                 ),
               ],
             ),
@@ -638,63 +639,63 @@ class _CartItemsSection extends StatelessWidget {
                       onChanged: (newQty) => onQtyChange(it, newQty),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 8.h,
-                    ),
-                    child: Row(
-                      children: [
-                        InkWell(
-                          onTap: () => onEditNote(it),
-                          borderRadius: BorderRadius.circular(10.r),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 6.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white10,
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: Colors.white12),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.edit_note,
-                                  color: Colors.white70,
-                                  size: 18,
-                                ),
-                                SizedBox(width: 6.w),
-                                Text(
-                                  isRTL ? "ملاحظة" : "Note",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: Text(
-                            note.isEmpty
-                                ? (isRTL ? "لا توجد ملاحظة" : "No note")
-                                : note,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: 12.w,
+                  //     vertical: 8.h,
+                  //   ),
+                  //   child: Row(
+                  //     children: [
+                  //       InkWell(
+                  //         onTap: () => onEditNote(it),
+                  //         borderRadius: BorderRadius.circular(10.r),
+                  //         child: Container(
+                  //           padding: EdgeInsets.symmetric(
+                  //             horizontal: 10.w,
+                  //             vertical: 6.h,
+                  //           ),
+                  //           decoration: BoxDecoration(
+                  //             color: Colors.white10,
+                  //             borderRadius: BorderRadius.circular(10.r),
+                  //             border: Border.all(color: Colors.white12),
+                  //           ),
+                  //           child: Row(
+                  //             children: [
+                  //               const Icon(
+                  //                 Icons.edit_note,
+                  //                 color: Colors.white70,
+                  //                 size: 18,
+                  //               ),
+                  //               SizedBox(width: 6.w),
+                  //               Text(
+                  //                 isRTL ? "ملاحظة" : "Note",
+                  //                 style: TextStyle(
+                  //                   color: Colors.white70,
+                  //                   fontSize: 12.sp,
+                  //                   fontWeight: FontWeight.w700,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       SizedBox(width: 10.w),
+                  //       Expanded(
+                  //         child: Text(
+                  //           note.isEmpty
+                  //               ? (isRTL ? "لا توجد ملاحظة" : "No note")
+                  //               : note,
+                  //           maxLines: 2,
+                  //           overflow: TextOverflow.ellipsis,
+                  //           style: TextStyle(
+                  //             color: Colors.white54,
+                  //             fontSize: 12.sp,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
