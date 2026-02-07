@@ -62,7 +62,7 @@ class DiscountHome extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 10, left: 8, right: 0.2),
+          padding:  EdgeInsetsDirectional.only(top: 10, start: 8, end: 0.2),
           child: SizedBox(
             height: 130.h,
             child: LayoutBuilder(

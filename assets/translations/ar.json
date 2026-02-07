@@ -99,10 +99,7 @@
     "confirm": "تأكيد الموقع",
     "error_cannot_locate": "تعذر تحديد موقعك الحالي، اختره يدويًا من الخريطة",
     "error_failed_update": "فشل تحديث العنوان",
-    "success_updated": "تم تحديث العنوان",
-    "selected_location": "الموقع المحدد",
-    "resolving": "جارٍ تحديد العنوان...",
-    "locating": "جارٍ تحديد موقعك..."
+    "success_updated": "تم تحديث العنوان"
   },
   "tracking.error_generic": "هناك خطأ بالتتبع",
   "tracking.error_bad_response": "استجابة غير صحيحة",
@@ -134,37 +131,6 @@
       "fallback_name": "مطعم"
     }
   },
-  "auth": {
-    "accept_terms": "أوافق على الشروط والأحكام وسياسة الخصوصية",
-    "enable_location_services_hint": "لتحديد موقعك، يرجى تفعيل خدمة الموقع (GPS) من الإعدادات.",
-    "enable_location_permission_hint": "يرجى السماح للتطبيق بالوصول إلى موقعك من إعدادات التطبيق.",
-    "open_location_settings": "فتح إعدادات الموقع",
-    "open_app_settings": "فتح إعدادات التطبيق",
-    "check_required_fields": "تحقق من الحقول المطلوبة",
-    "code_sent": "تم إرسال الرمز",
-    "welcome_title": "مرحباً بك في Breeze",
-    "login_hint": "يرجى إدخال رقم هاتفك لتسجيل الدخول",
-    "phone_number": "رقم الهاتف",
-    "enter_phone": "أدخل رقم الهاتف",
-    "invalid_phone": "رقم الهاتف غير صالح",
-    "verifying": "جارِ التحقق...",
-    "enter_code_title": "أدخل الرمز",
-    "enter_code_hint": "أدخل رمز التحقق الذي أرسلناه للتو إلى {0}",
-    "resend_code": "إعادة إرسال الرمز",
-    "updating_location": "جارٍ تحديث موقعك...",
-    "location_services_disabled": "خدمات الموقع غير مفعّلة",
-    "permission_denied_forever": "تم رفض الإذن نهائياً",
-    "permission_denied": "تم رفض الإذن",
-    "getting_location": "جارٍ تحديد موقعك...",
-    "resolving_address": "جارٍ تحديد العنوان...",
-    "updating_address": "جارٍ تحديث العنوان...",
-    "failed_update_address": "فشل تحديث العنوان",
-    "address_added": "تمت إضافة العنوان",
-    "enter_first_last": "يرجى إدخال الاسم الأول واسم العائلة",
-    "enter_info_title": "يرجى إدخال معلوماتك",
-    "first_name": "الاسم الأول",
-    "last_name": "اسم العائلة"
-  },
   "supermarket": {
     "quantity": "الكمية",
     "notes_optional": "ملاحظات (اختياري)",
@@ -172,12 +138,6 @@
     "add_to_cart_with_total": "إضافة إلى السلة  {total}"
   },
   "common": {
-    "error": "خطأ",
-    "loading": "جارٍ التحميل...",
-    "saving": "جارٍ الحفظ...",
-    "continue": "متابعة",
-    "placeholder": "عنصر مؤقت",
-    "unknown_address": "عنوان غير معروف",
     "dash": "--",
     "minutes_short": "{min}د",
     "error_prefix": "{msg}",
@@ -231,16 +191,9 @@
     "rate_success": "تم إرسال التقييم"
   },
   "home": {
-    "your_order": "طلبك",
-    "open_now": "مفتوح الآن",
-    "breakfast_restaurants": "مطاعم الفطور",
-    "breakfast_chip": "فطور",
-    "empty_area_title": "لا يوجد مطاعم حاليا في منطقتك",
-    "empty_area_hint": "جرّب تغيّر موقعك أو اسحب للتحديث",
-    "empty_breakfast": "لا يوجد مطاعم فطور حاليا",
     "current_location": "موقعي الحالي",
     "select_location": "حدد موقعك",
-    "location_hint": "لإظهار الأقرب إليك",
+    "location_hint": "لإظهار الأقرب إليك (مطاعم / سوبر ماركت)",
     "my_location": "موقعي",
     "location_picker_title": "اختيار الموقع",
     "pick_on_map": {
@@ -253,17 +206,19 @@
     },
     "discount_delivery": "خصومات التوصيل",
     "filters": {
-      "breakfast": "فطور",
       "closer": "الأقرب إليك",
-      "stores": "المتاجر",
+      "stores": "القصص",
       "discounts": "الخصومات",
+
       "delivery": "خصومات التوصيل",
       "supermarket": "سوبر ماركت",
       "open": "مفتوح الآن"
     },
     "closer_to_you": "الأقرب إليك",
-    "stores": "المتاجر",
-    "super_market": "السوبر ماركت"
+    "stores": "القصص",
+    "super_market": "السوبر ماركت",
+    "open_now": "مفتوح الآن",
+    "your_order": "طلبك"
   },
   "your_rate_title": "تقييمك",
   "already_rated_hint": "أنت مقيّم هذا المطعم مسبقاً. يمكنك حذف تقييمك إذا أردت.",

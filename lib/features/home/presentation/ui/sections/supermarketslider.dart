@@ -9,7 +9,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dio/dio.dart';
-import 'package:breezefood/core/di/di.dart'; // إذا عندك Dio في getIt
+import 'package:breezefood/core/di/di.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // إذا عندك Dio في getIt
 
 class Supermarketslider extends StatelessWidget {
   final List<HomeRestaurantModel> restaurants;
@@ -132,17 +133,17 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
             //   child: Container(color: Colors.black.withOpacity(0.25)),
             // ),
             // Gradient
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                ),
-              ),
-            ),
+            // Positioned.fill(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       gradient: LinearGradient(
+            //         colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+            //         begin: Alignment.bottomCenter,
+            //         end: Alignment.topCenter,
+            //       ),
+            //     ),
+            //   ),
+            // ),
 
             // Title (نفس التصميم)
             Center(
@@ -155,7 +156,7 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -167,10 +168,9 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
               start: 12,
               top: 12,
               child: _InfoChip(
-                icon: Icon(
-                  Icons.delivery_dining,
+                icon:  SvgPicture.asset(
                   color: Colors.white,
-                  size: 16.sp,
+                  "assets/icons/motor.svg",
                 ),
                 text: feeText,
               ),

@@ -6,6 +6,7 @@ import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
+import 'package:breezefood/features/stores/presentation/ui/widget/CategoryItemsGridPage.dart';
 import 'package:breezefood/features/stores/presentation/ui/widget/discout_meal_section.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
@@ -743,6 +744,20 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       ),
                                       child: CustomTitleSection(
                                         title: category,
+                                        all: "All",
+                                        icon: Icons.arrow_forward_ios,
+                                        ontap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => CategoryItemsGridPage(
+                                                restaurant_id: widget.restaurant_id,
+                                                title: category,
+                                                items: items,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ),
                                     const SizedBox(height: 10),
@@ -950,7 +965,8 @@ class DiscountItemCard extends StatelessWidget {
                         bottomEnd: Radius.circular(20.r),
                       ),
                     ),
-                    child: CustomSubTitle(
+                    child:
+                    CustomSubTitle(
                       subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
                       color: AppColor.white,
                       fontsize: 11.sp,

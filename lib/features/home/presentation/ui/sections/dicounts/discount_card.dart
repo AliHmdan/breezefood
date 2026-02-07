@@ -90,7 +90,7 @@ class Discount extends StatelessWidget {
         if (progress == null) return child;
         return Container(
           height: height,
-          color: Colors.black.withOpacity(0.15),
+          // color: Colors.black.withOpacity(0.15),
           alignment: Alignment.center,
           child: SizedBox(
             width: 22.w,
@@ -178,17 +178,17 @@ class Discount extends StatelessWidget {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.75),
-                            Colors.black.withOpacity(0.45),
-                            Colors.black.withOpacity(0.15),
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.35, 0.65, 1.0],
-                        ),
+                        // gradient: LinearGradient(
+                        //   begin: Alignment.bottomCenter,
+                        //   end: Alignment.topCenter,
+                        //   colors: [
+                        //     Colors.black.withOpacity(0.75),
+                        //     Colors.black.withOpacity(0.45),
+                        //     Colors.black.withOpacity(0.15),
+                        //     Colors.transparent,
+                        //   ],
+                        //   stops: const [0.0, 0.35, 0.65, 1.0],
+                        // ),
                       ),
                       child: Center(
                         child: Padding(
@@ -200,7 +200,7 @@ class Discount extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: AppColor.white,
-                              fontSize: 14.sp,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -258,12 +258,10 @@ class Discount extends StatelessWidget {
                 Padding(
                   padding: EdgeInsetsDirectional.only(start: 2.w, top: 2.h),
                   child: Row(
+
                     children: [
-                      SvgPicture.asset(
-                        color: Colors.white,
-                        "assets/icons/motor.svg",
-                      ),
-                      SizedBox(width: 4.w),
+
+
                       Expanded(
                         child: FittedBox(
                           alignment: Alignment.centerLeft,
@@ -295,6 +293,11 @@ class Discount extends StatelessWidget {
                             ],
                           ),
                         ),
+                      ),
+                      SizedBox(width: 4.w),
+                      SvgPicture.asset(
+                        color: Colors.white,
+                        "assets/icons/motor.svg",
                       ),
                     ],
                   ),

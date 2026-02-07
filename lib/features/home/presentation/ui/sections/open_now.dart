@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:breezefood/features/home/model/home_response.dart' as home;
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RestaurantCard extends StatefulWidget {
   final home.HomeRestaurantModel restaurant;
@@ -66,6 +67,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                   padding: EdgeInsets.all(10.w),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,33 +125,31 @@ class _RestaurantCardState extends State<RestaurantCard> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.delivery_dining,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
+
+
+
+                                CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
                                 SizedBox(width: 4.w),
-                                Text(
-                                  feeText,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
+                                SvgPicture.asset(
+                                  color: Colors.white,
+                                  "assets/icons/motor.svg",
                                 ),
                               ],
                             ),
                           ),
                         ],
                       ),
-
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 18.h),
+                      const Spacer(),
+                      Center(
                         child: Text(
                           (r.name).trim(),
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 14.sp,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
+                         fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                              ? 'Cairo'
+                              : 'Inter',
                             shadows: [
                               Shadow(
                                 blurRadius: 8,
@@ -162,6 +162,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const Spacer(),
                     ],
                   ),
                 ),

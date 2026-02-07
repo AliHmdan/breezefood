@@ -104,7 +104,7 @@ class DiscountDeliveryGridPage extends StatelessWidget {
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Container(
                                   height: imageH,
-                                  color: Colors.grey.shade800,
+                                  // color: Colors.grey.shade800,
                                   alignment: Alignment.center,
                                   child: Icon(
                                     Icons.store,

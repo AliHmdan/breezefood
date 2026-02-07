@@ -77,105 +77,105 @@ class Stores extends StatelessWidget {
                 //   ),
                 // ),
 
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Padding(
-                    padding: EdgeInsets.all(12.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "subtitle",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                                ? 'Cairo'
-                                : 'Inter',
-                          ),
-                        ),
-                        SizedBox(height: 3.h),
-
-                        Text(
-                          r.name ?? "Store",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                                ? 'Cairo'
-                                : 'Inter',
-                          ),
-                        ),
-
-                        // if (location.isNotEmpty) ...[
-                        //   SizedBox(height: 2.h),
-                        //   Container(
-                        //     padding: EdgeInsets.symmetric(
-                        //       horizontal: 8.w,
-                        //       vertical: 3.h,
-                        //     ),
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.black.withOpacity(0.35),
-                        //       borderRadius: BorderRadius.circular(20.r),
-                        //     ),
-                        //     child: Text(
-                        //       location,
-                        //       style: TextStyle(
-                        //         color: AppColor.gry,
-                        //         fontSize: 11.sp,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ],
-                        SizedBox(height: 6.h),
-
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.primaryColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 2.h,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6.r),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BlocProvider(
-                                  create: (context) => getIt<FavoritesCubit>(),
-                                  child: ResturantDetails(restaurant_id: r.id),
-                                ),
-                              ),
-                            );
-                            context.read<CartCubit>().loadCart();
-                          },
-                          child: Text(
-                            "Order Now",
-                            style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 12.sp,
-                              fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                                  ? 'Cairo'
-                                  : 'Inter',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   left: 0,
+                //   right: 0,
+                //   bottom: 0,
+                //   child: Padding(
+                //     padding: EdgeInsets.all(12.w),
+                //     child: Column(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Text(
+                //           "subtitle",
+                //           maxLines: 1,
+                //           overflow: TextOverflow.ellipsis,
+                //           style: TextStyle(
+                //             color: AppColor.white,
+                //             fontSize: 12.sp,
+                //             fontWeight: FontWeight.w400,
+                //             fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                //                 ? 'Cairo'
+                //                 : 'Inter',
+                //           ),
+                //         ),
+                //         SizedBox(height: 3.h),
+                //
+                //         Text(
+                //           r.name ?? "Store",
+                //           maxLines: 1,
+                //           overflow: TextOverflow.ellipsis,
+                //           style: TextStyle(
+                //             color: AppColor.white,
+                //             fontSize: 14.sp,
+                //             fontWeight: FontWeight.w700,
+                //             fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                //                 ? 'Cairo'
+                //                 : 'Inter',
+                //           ),
+                //         ),
+                //
+                //         // if (location.isNotEmpty) ...[
+                //         //   SizedBox(height: 2.h),
+                //         //   Container(
+                //         //     padding: EdgeInsets.symmetric(
+                //         //       horizontal: 8.w,
+                //         //       vertical: 3.h,
+                //         //     ),
+                //         //     decoration: BoxDecoration(
+                //         //       color: Colors.black.withOpacity(0.35),
+                //         //       borderRadius: BorderRadius.circular(20.r),
+                //         //     ),
+                //         //     child: Text(
+                //         //       location,
+                //         //       style: TextStyle(
+                //         //         color: AppColor.gry,
+                //         //         fontSize: 11.sp,
+                //         //       ),
+                //         //     ),
+                //         //   ),
+                //         // ],
+                //         // SizedBox(height: 6.h),
+                //
+                //         // ElevatedButton(
+                //         //   style: ElevatedButton.styleFrom(
+                //         //     backgroundColor: AppColor.primaryColor,
+                //         //     padding: EdgeInsets.symmetric(
+                //         //       horizontal: 10.w,
+                //         //       vertical: 2.h,
+                //         //     ),
+                //         //     shape: RoundedRectangleBorder(
+                //         //       borderRadius: BorderRadius.circular(6.r),
+                //         //     ),
+                //         //   ),
+                //         //   onPressed: () {
+                //         //     Navigator.push(
+                //         //       context,
+                //         //       MaterialPageRoute(
+                //         //         builder: (context) => BlocProvider(
+                //         //           create: (context) => getIt<FavoritesCubit>(),
+                //         //           child: ResturantDetails(restaurant_id: r.id),
+                //         //         ),
+                //         //       ),
+                //         //     );
+                //         //     context.read<CartCubit>().loadCart();
+                //         //   },
+                //         //   child: Text(
+                //         //     "Order Now",
+                //         //     style: TextStyle(
+                //         //       color: AppColor.white,
+                //         //       fontSize: 12.sp,
+                //         //       fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                //         //           ? 'Cairo'
+                //         //           : 'Inter',
+                //         //     ),
+                //         //   ),
+                //         // ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ],
             );
           },
@@ -214,7 +214,7 @@ class _NetImage extends StatelessWidget {
         if (progress == null) return child;
         return Container(
           height: height,
-          color: Colors.black.withOpacity(0.2),
+          // color: Colors.black.withOpacity(0.2),
           alignment: Alignment.center,
           child: SizedBox(
             width: 22.w,

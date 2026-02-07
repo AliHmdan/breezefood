@@ -43,7 +43,9 @@ class CustomTitleSection extends StatelessWidget {
             fontSize: 16.sp,
             fontWeight: FontWeight.bold,
             color: AppColor.white,
-            fontFamily: "Manrope",
+            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'Cairo'
+                : 'Inter',
           ),
         ),
         if (all != null && ontap != null)
@@ -54,13 +56,15 @@ class CustomTitleSection extends StatelessWidget {
                 Text(
                   all!,
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                     color: AppColor.white,
-                    fontFamily: "Manrope",
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
                   ),
                 ),
                 SizedBox(width: 4.w),
-                Icon(icon, size: 12.sp, color: AppColor.white),
+                Icon(icon, size: 14.sp, color: AppColor.white),
               ],
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/meal_grid_page.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
@@ -31,18 +32,32 @@ class DiscountMealSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
-            children: [   Icon(
+
+            children: <Widget>[
+              Icon(
               Icons.local_offer,
               color: AppColor.yellow,
               size: 18.sp,
             ),
               SizedBox(width: 2,),
-              CustomTitleSection(
-                title: "Discount",
-
-                ontap: () {
-
-                },
+              Expanded(
+                child: CustomTitleSection(
+                  title: "Discount",
+                  icon: Icons.arrow_forward_ios,
+                  all: "All",
+                  ontap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DiscountGridPage(
+                            items: items, // 👈 نفس الليست
+                            fullImageUrl: fullImageUrl,
+                            onTap: onTap,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
