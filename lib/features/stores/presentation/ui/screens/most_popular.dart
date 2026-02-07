@@ -3,7 +3,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/popular_grid_Page.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/popular_grid_Page.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
@@ -263,11 +263,40 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
     final before = (widget.item.priceBefore > 0)
         ? widget.item.priceBefore
-        : widget.item.priceAfter;
+        : (widget.item.priceAfter > 0 ? widget.item.priceAfter : 0);
 
     final after = (widget.item.priceAfter > 0)
         ? widget.item.priceAfter
-        : widget.item.priceBefore;
+        : (widget.item.priceBefore > 0 ? widget.item.priceBefore : 0);
+
+    final discountType = (widget.item.discountType ?? "percentage")
+        .toLowerCase();
+    final discountValue = (widget.item.discountValue ?? 0).toDouble();
+
+    String _discountBadgeText(BuildContext context) {
+      if (!hasDiscount) return "";
+
+      // percentage
+      if (discountType == "percentage") {
+        // إذا السيرفر بعت percent ضمن discountValue
+        if (discountValue > 0) return "-${discountValue.toStringAsFixed(0)}%";
+
+        // fallback: احسبها من قبل/بعد
+        final p = ((before - after) / before) * 100;
+        return "-${p.toStringAsFixed(0)}%";
+      }
+
+      // fixed amount
+      if (discountType == "fixed") {
+        // discountValue مبلغ الخصم
+        if (discountValue > 0) return "-${context.syp(discountValue)}";
+        // fallback: احسب مبلغ الخصم من قبل/بعد
+        return "-${context.syp(before - after)}";
+      }
+
+      // أي نوع غير معروف: اعرض فرق السعر
+      return "-${context.syp(before - after)}";
+    }
 
     final percent = (widget.item.discountValue ?? 0).toDouble();
 
@@ -315,7 +344,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                       ),
                     ),
                     child: Text(
-                      "-${percent.toStringAsFixed(0)}%",
+                      _discountBadgeText(context),
                       style: TextStyle(
                         color: AppColor.white,
                         fontSize: 11.sp,

@@ -25,16 +25,6 @@ void showLogoutDialog(BuildContext context) {
 
             error: (msg) {
               EasyLoading.dismiss();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: CustomSubTitle(
-                    subtitle: msg,
-                    color: AppColor.white,
-                    fontsize: 12.sp,
-                  ),
-                  backgroundColor: Colors.redAccent,
-                ),
-              );
             },
             loggedOut: (msg) {
               EasyLoading.dismiss();
@@ -45,17 +35,6 @@ void showLogoutDialog(BuildContext context) {
                 context,
                 MaterialPageRoute(builder: (_) => const Login()),
                 (_) => false,
-              );
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: CustomSubTitle(
-                    subtitle: msg,
-                    color: AppColor.white,
-                    fontsize: 12.sp,
-                  ),
-                  backgroundColor: AppColor.primaryColor,
-                ),
               );
             },
           );

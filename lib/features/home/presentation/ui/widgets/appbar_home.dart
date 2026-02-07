@@ -1,4 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/services/shared_perfrences_key.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
@@ -14,42 +15,80 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class AppbarHome extends StatelessWidget {
+enum _LocFail { serviceOff, denied, deniedForever, error }
+
+class _LocResult {
+  final LatLng? pos;
+  final _LocFail? fail;
+  const _LocResult.success(this.pos) : fail = null;
+  const _LocResult.fail(this.fail) : pos = null;
+}
+
+class AppbarHome extends StatefulWidget {
   final HomeResponse? home;
-  final HomeCubit homeCubit; // ✅
+  final HomeCubit homeCubit;
 
   const AppbarHome({super.key, this.home, required this.homeCubit});
 
   @override
+  State<AppbarHome> createState() => _AppbarHomeState();
+}
+
+class _AppbarHomeState extends State<AppbarHome> {
+  String? _cachedTitle;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCached();
+  }
+
+  Future<void> _loadCached() async {
+    final loc = await AuthStorageHelper.getUserLocation();
+    if (!mounted) return;
+    if (loc == null) return;
+    setState(() => _cachedTitle = (loc["text"] ?? "").toString());
+  }
+
+  Future<void> _savePickedLocation({
+    required String text,
+    required double lat,
+    required double lon,
+  }) async {
+    await AuthStorageHelper.overrideHomeLocation(
+      text: text,
+      lat: lat,
+      lon: lon,
+    );
+
+    if (!mounted) return;
+    setState(() => _cachedTitle = text);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hasCoords = home?.hasCoordinates ?? false;
-    final province = home?.provinceDetected;
+    final hasCoords = widget.home?.hasCoordinates ?? false;
+    final province = widget.home?.provinceDetected;
 
-final title = hasCoords
-    ? (province?.isNotEmpty == true
-        ? province!
-        : "home.current_location".tr())
-    : "home.select_location".tr();
+    final title = (_cachedTitle?.trim().isNotEmpty == true)
+        ? _cachedTitle!
+        : (hasCoords
+              ? (province?.isNotEmpty == true
+                    ? province!
+                    : "home.current_location".tr())
+              : "home.select_location".tr());
 
-final subtitle = hasCoords
-    ? ""
-    : "home.location_hint".tr();
-
-
-
+    final subtitle = hasCoords ? "" : "home.location_hint".tr();
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: Column(
         children: [
           CustomAppbarHome(
-            title: title,
             subtitle: subtitle,
             image: "assets/icons/location.svg",
             icon: Icons.keyboard_arrow_down,
-
-            avatarUrl: home?.avatar, 
-
+            avatarUrl: widget.home?.avatar,
             onLocationTap: () => _openLocationSheet(context),
             onProfileTap: () async {
               final changed = await Navigator.push(
@@ -58,23 +97,19 @@ final subtitle = hasCoords
               );
 
               if (changed == true && context.mounted) {
-                context.read<ProfileCubit>().load(); 
+                context.read<ProfileCubit>().load();
               }
             },
           ),
-
           const SizedBox(height: 15),
-       CustomSearch(
-  hint: "common.search".tr(),
-  readOnly: true,
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const Search()),
-    );
-  },
-),
-
+          CustomSearch(
+            hint: "common.search".tr(),
+            readOnly: true,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const Search()),
+            ),
+          ),
         ],
       ),
     );
@@ -99,21 +134,44 @@ final subtitle = hasCoords
           context,
           MaterialPageRoute(builder: (_) => MapPickerScreen(initial: initial)),
         );
+
         if (res != null) {
-          await homeCubit.load();
+          await widget.homeCubit.updateUserLocation(
+            address: res.address,
+            lat: res.latitude,
+            lon: res.longitude,
+          );
+          await _savePickedLocation(
+            text: res.address,
+            lat: res.latitude,
+            lon: res.longitude,
+          );
+          await widget.homeCubit.load();
         }
         break;
 
       case _HomeLocationAction.useMyLocation:
-        final pos = await _getMyLocation();
-        if (pos != null) {
-          await homeCubit.updateUserLocation(
-           address: "home.my_location".tr(),
+        final res = await _getMyLocation();
+        if (!context.mounted) return;
 
-            lat: pos.latitude,
-            lon: pos.longitude,
+        if (res.pos != null) {
+          final txt = "home.my_location".tr();
+          await widget.homeCubit.updateUserLocation(
+            address: txt,
+            lat: res.pos!.latitude,
+            lon: res.pos!.longitude,
           );
+          await _savePickedLocation(
+            text: txt,
+            lat: res.pos!.latitude,
+            lon: res.pos!.longitude,
+          );
+          await widget.homeCubit.load();
+          return;
         }
+
+        // failures dialog (مثل عندك سابقاً)
+        // تقدر تتركها مثل ما هي عندك
         break;
     }
   }
@@ -141,26 +199,29 @@ final subtitle = hasCoords
     }
   }
 
-  Future<LatLng?> _getMyLocation() async {
+  Future<_LocResult> _getMyLocation() async {
     try {
       final enabled = await Geolocator.isLocationServiceEnabled();
-      if (!enabled) return null;
+      if (!enabled) return const _LocResult.fail(_LocFail.serviceOff);
 
       var perm = await Geolocator.checkPermission();
       if (perm == LocationPermission.denied) {
         perm = await Geolocator.requestPermission();
       }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
-        return null;
+
+      if (perm == LocationPermission.deniedForever) {
+        return const _LocResult.fail(_LocFail.deniedForever);
+      }
+      if (perm == LocationPermission.denied) {
+        return const _LocResult.fail(_LocFail.denied);
       }
 
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      return LatLng(pos.latitude, pos.longitude);
+      return _LocResult.success(LatLng(pos.latitude, pos.longitude));
     } catch (_) {
-      return null;
+      return const _LocResult.fail(_LocFail.error);
     }
   }
 }
@@ -248,31 +309,29 @@ class _HomeLocationPickerSheet extends StatelessWidget {
             ),
           ),
           SizedBox(height: 14.h),
-       Text(
-  "home.location_picker_title".tr(),
-  style: TextStyle(
-    color: Colors.white,
-    fontSize: 15.sp,
-    fontWeight: FontWeight.w800,
-  ),
-),
-
+          Text(
+            "home.location_picker_title".tr(),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           SizedBox(height: 10.h),
           const Divider(color: Colors.white24),
 
-       tile(
-  icon: Icons.map_outlined,
-  title: "home.pick_on_map.title".tr(),
-  subtitle: "home.pick_on_map.subtitle".tr(),
-  action: _HomeLocationAction.pickOnMap,
-),
-tile(
-  icon: Icons.my_location,
-  title: "home.use_my_location.title".tr(),
-  subtitle: "home.use_my_location.subtitle".tr(),
-  action: _HomeLocationAction.useMyLocation,
-),
-
+          tile(
+            icon: Icons.map_outlined,
+            title: "home.pick_on_map.title".tr(),
+            subtitle: "home.pick_on_map.subtitle".tr(),
+            action: _HomeLocationAction.pickOnMap,
+          ),
+          tile(
+            icon: Icons.my_location,
+            title: "home.use_my_location.title".tr(),
+            subtitle: "home.use_my_location.subtitle".tr(),
+            action: _HomeLocationAction.useMyLocation,
+          ),
         ],
       ),
     );

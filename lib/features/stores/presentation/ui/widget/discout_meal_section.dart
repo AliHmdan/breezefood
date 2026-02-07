@@ -1,5 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';

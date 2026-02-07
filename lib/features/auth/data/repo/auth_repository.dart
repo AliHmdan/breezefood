@@ -52,59 +52,59 @@ class AuthRepository {
     }
   }
 
-Future<AppResponse> verifyPhone({
-  required String phone,
-  required String code,
-  String? firebaseToken,
-}) async {
-  try {
-    final body = <String, dynamic>{
-      "phone": phone,
-      "code": code,
-    };
+  Future<AppResponse> verifyPhone({
+    required String phone,
+    required String code,
+    String? firebaseToken,
+  }) async {
+    try {
+      final body = <String, dynamic>{"phone": phone, "code": code};
 
-    if (firebaseToken != null && firebaseToken.trim().isNotEmpty) {
-      body["token"] = firebaseToken.trim();
+      if (firebaseToken != null && firebaseToken.trim().isNotEmpty) {
+        body["token"] = firebaseToken.trim();
+      }
+
+      // ✅ لوج
+      // ignore: avoid_print
+      print("🛰️ verify-phone body: $body");
+
+      final res = await api.verifyPhone(body);
+
+      final token = res.data["token"]?.toString();
+      if (token == null || token.isEmpty) {
+        return AppResponse.fail(message: "لم يتم استلام رمز الدخول");
+      }
+
+      await AuthStorageHelper.saveToken(token);
+      DioFactory.setToken(token);
+
+      final user = (res.data["user"] as Map?)?.cast<String, dynamic>();
+
+      final lat = user?["latitude"];
+      final lon = user?["longitude"];
+      if (lat != null && lon != null) {
+        await AuthStorageHelper.saveUserLocation(
+          lat: (lat as num).toDouble(),
+          lon: (lon as num).toDouble(),
+          // text اختياري… إذا عندك address من API حطه هون
+        );
+      }
+
+      final role = user?["type"]?.toString();
+      if (role != null && role.isNotEmpty) {
+        await AuthStorageHelper.saveUserRole(role);
+      }
+
+      return AppResponse.ok(
+        message: res.data["message"] ?? "تم تسجيل الدخول",
+        data: res.data,
+      );
+    } on DioException catch (e) {
+      return AppResponseHandler.handleError(e);
+    } catch (_) {
+      return AppResponse.fail(message: "رمز التحقق غير صحيح");
     }
-
-    // ✅ لوج
-    // ignore: avoid_print
-    print("🛰️ verify-phone body: $body");
-
-    final res = await api.verifyPhone(body);
-
-    final token = res.data["token"]?.toString();
-    if (token == null || token.isEmpty) {
-      return AppResponse.fail(message: "لم يتم استلام رمز الدخول");
-    }
-
-    await AuthStorageHelper.saveToken(token);
-    DioFactory.setToken(token);
-
-    final user = (res.data["user"] as Map?)?.cast<String, dynamic>();
-
-    final lat = user?["latitude"]?.toString();
-    final lon = user?["longitude"]?.toString();
-    if (lat != null && lat.isNotEmpty && lon != null && lon.isNotEmpty) {
-      await AuthStorageHelper.saveUserLocation(lat: lat, lon: lon);
-    }
-
-    final role = user?["type"]?.toString();
-    if (role != null && role.isNotEmpty) {
-      await AuthStorageHelper.saveUserRole(role);
-    }
-
-    return AppResponse.ok(
-      message: res.data["message"] ?? "تم تسجيل الدخول",
-      data: res.data,
-    );
-  } on DioException catch (e) {
-    return AppResponseHandler.handleError(e);
-  } catch (_) {
-    return AppResponse.fail(message: "رمز التحقق غير صحيح");
   }
-}
-
 
   Future<AppResponse> resendCode({required String phone}) async {
     try {
@@ -123,7 +123,7 @@ Future<AppResponse> verifyPhone({
   Future<AppResponse> updateProfile({
     required String firstName,
     required String lastName,
-    String? profileImagePath,  
+    String? profileImagePath,
   }) async {
     try {
       final body = <String, dynamic>{
@@ -159,8 +159,16 @@ Future<AppResponse> verifyPhone({
       });
 
       await AuthStorageHelper.saveUserLocation(
-        lat: latitude.toString(),
-        lon: longitude.toString(),
+        text: address,
+        lat: latitude,
+        lon: longitude,
+      );
+
+      // كمان خلي cart default نفسو
+      await AuthStorageHelper.saveCartLocation(
+        text: address,
+        lat: latitude,
+        lon: longitude,
       );
 
       return AppResponse.ok(

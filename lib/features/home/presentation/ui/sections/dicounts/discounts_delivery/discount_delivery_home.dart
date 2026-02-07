@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart'
+import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart'
     show CustomTitleSection;
 
 class DiscountDeliveryHome extends StatelessWidget {

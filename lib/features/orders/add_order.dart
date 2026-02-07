@@ -333,16 +333,6 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           divider(),
                         ],
 
-                        CustomSubTitle(
-                          subtitle: "Hot?",
-                          color: AppColor.white,
-                          fontsize: 16.sp,
-                        ),
-                        CustomHot(
-                          value: _withSpicy,
-                          onChanged: (v) => setState(() => _withSpicy = v),
-                        ),
-                        divider(),
 
                         CustomSubTitle(
                           subtitle: "cart.item_notes_optional".tr(),

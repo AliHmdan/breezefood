@@ -1,20 +1,24 @@
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
 
+import 'package:breezefood/features/orders/model/active_orders_response.dart'
+    show OrderInfo;
+
 class HomeResponse {
   final List<AdModel> ads;
   final List<HomeRestaurantModel> closerToYou;
   final List<HomeRestaurantModel> nearbyRestaurants;
   final List<HomeRestaurantModel> supermarkets;
 
+  // ✅ NEW
+  final List<HomeRestaurantModel> breakfastRestaurants;
+
   // ✅ ممكن يكون مش موجود بالريسبونس الجديد
   final List<MenuItemModel> mostPopular;
 
-  // ✅ تغيرت
   final List<RestaurantDiscountModel> discounts;
   final List<RestaurantDiscountModel> discountDelivery;
 
-  // ✅ قصص
   final List<StoryWrapperModel> stories;
 
   final OrderInfo? haveOrder;
@@ -23,11 +27,15 @@ class HomeResponse {
   final String? avatar;
   final String? provinceDetected;
 
+  // ✅ NEW (للـ empty area message)
+  final String? message;
+
   HomeResponse({
     required this.ads,
     required this.closerToYou,
     required this.nearbyRestaurants,
     required this.supermarkets,
+    required this.breakfastRestaurants, // ✅
     required this.mostPopular,
     required this.discounts,
     required this.discountDelivery,
@@ -36,6 +44,7 @@ class HomeResponse {
     required this.avatar,
     required this.provinceDetected,
     required this.haveOrder,
+    this.message, // ✅
   });
 
   // ========= Helpers =========
@@ -87,6 +96,9 @@ class HomeResponse {
     final haveOrderMap = _toMap(json["have_order"]);
 
     return HomeResponse(
+      // ✅ message للـ empty
+      message: json["message"]?.toString(),
+
       ads: _list(json, "ads", (e) => AdModel.fromJson(e)),
       closerToYou: _list(
         json,
@@ -104,24 +116,31 @@ class HomeResponse {
         (e) => HomeRestaurantModel.fromJson(e),
       ),
 
-      // ✅ الجديد ممكن ما يرجع most_popular
+      // ✅ NEW
+      breakfastRestaurants: _list(
+        json,
+        "breakfast_restaurants",
+        (e) => HomeRestaurantModel.fromJson(e),
+      ),
+
       mostPopular: _list(
         json,
         "most_popular",
         (e) => MenuItemModel.fromJson(e),
       ),
 
-      // ✅ discounts صار Restaurants
-     discounts: _list(json, "discounts", (e) => RestaurantDiscountModel.fromJson(e)),
+      discounts: _list(
+        json,
+        "discounts",
+        (e) => RestaurantDiscountModel.fromJson(e),
+      ),
 
-      // ✅ discountdelevery
-   discountDelivery: _list(
+      discountDelivery: _list(
         json,
         "discountdelevery",
         (e) => RestaurantDiscountModel.fromJson(e),
       ),
 
-      // ✅ stories wrapper
       stories: _list(json, "stories", (e) => StoryWrapperModel.fromJson(e)),
 
       hasCoordinates: _toBool(json["has_coordinates"]),
@@ -162,7 +181,8 @@ class DiscountRestaurantModel {
   });
 
   factory DiscountRestaurantModel.fromJson(Map<String, dynamic> json) {
-    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
     int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
 
     return DiscountRestaurantModel(
@@ -174,7 +194,6 @@ class DiscountRestaurantModel {
     );
   }
 }
-
 
 class DeliveryDiscountModel {
   final int restaurantId;
@@ -195,7 +214,8 @@ class DeliveryDiscountModel {
 
   factory DeliveryDiscountModel.fromJson(Map<String, dynamic> json) {
     int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
-    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
 
     return DeliveryDiscountModel(
       restaurantId: i(json["restaurant_id"]),
@@ -204,16 +224,13 @@ class DeliveryDiscountModel {
       discountType: (json["discount_type"] ?? "").toString(),
       discountValue: d(json["discount_value"]),
       delivery: (json["delivery"] is Map)
-          ? DeliveryFeeModel.fromJson((json["delivery"] as Map).cast<String, dynamic>())
+          ? DeliveryFeeModel.fromJson(
+              (json["delivery"] as Map).cast<String, dynamic>(),
+            )
           : null,
     );
   }
 }
-
-
-
-
-
 
 // =================== Stories ===================
 
@@ -403,10 +420,13 @@ class HomeRestaurantModel {
           : HomeResponse._toDouble(json["delivery_base_fee"]),
 
       /// ✅ /home
-      delivery: deliveryMap == null ? null : DeliveryPreview.fromJson(deliveryMap),
+      delivery: deliveryMap == null
+          ? null
+          : DeliveryPreview.fromJson(deliveryMap),
     );
   }
 }
+
 class DeliveryPreview {
   final num baseFee;
   final num finalFee;
@@ -420,7 +440,6 @@ class DeliveryPreview {
     );
   }
 }
-
 
 class MenuItemModel {
   final int id;
@@ -470,10 +489,19 @@ class MenuItemModel {
         ? null
         : HomeResponse._toDouble(discountRaw);
 
-    final hasDiscount = (json.containsKey("has_discount"))
+    final hasOffer = json.containsKey("has_offer")
+        ? HomeResponse._toBool(json["has_offer"])
+        : false;
+
+    final hasDiscountKey = json.containsKey("has_discount")
         ? HomeResponse._toBool(json["has_discount"])
-        : (discountValue != null && discountValue > 0) ||
-              (priceAfter < priceBefore);
+        : false;
+
+    final hasDiscount =
+        hasDiscountKey ||
+        hasOffer ||
+        (discountValue != null && discountValue > 0) ||
+        (priceAfter < priceBefore);
 
     final primaryMap = HomeResponse._toMap(json["primary_image"]);
     final restMap = HomeResponse._toMap(json["restaurant"]);
@@ -536,6 +564,7 @@ class MenuItemRestaurant {
         ratingCount: HomeResponse._toInt(json["rating_count"]),
       );
 }
+
 class RestaurantDiscountModel {
   final int restaurantId;
   final String restaurantName;
@@ -583,11 +612,12 @@ class RestaurantDiscountModel {
       ratingAvg: d(json["rating_avg"]),
       ratingCount: i(json["rating_count"]),
       foodDiscount: foodMap == null ? null : DiscountInfo.fromJson(foodMap),
-      deliveryDiscount: delMap == null ? null : DeliveryDiscountInfo.fromJson(delMap),
+      deliveryDiscount: delMap == null
+          ? null
+          : DeliveryDiscountInfo.fromJson(delMap),
     );
   }
 }
-
 
 class DiscountInfo {
   final String discountType; // fixed | percentage
@@ -596,7 +626,8 @@ class DiscountInfo {
   DiscountInfo({required this.discountType, required this.discountValue});
 
   factory DiscountInfo.fromJson(Map<String, dynamic> json) {
-    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
 
     return DiscountInfo(
       discountType: (json["discount_type"] ?? "").toString(),
@@ -617,11 +648,13 @@ class DeliveryDiscountInfo {
   });
 
   factory DeliveryDiscountInfo.fromJson(Map<String, dynamic> json) {
-    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
 
     final deliveryJson = json["delivery"];
-    final delivery =
-        (deliveryJson is Map) ? DeliveryFeeModel.fromJson(deliveryJson.cast<String, dynamic>()) : null;
+    final delivery = (deliveryJson is Map)
+        ? DeliveryFeeModel.fromJson(deliveryJson.cast<String, dynamic>())
+        : null;
 
     return DeliveryDiscountInfo(
       discountType: (json["discount_type"] ?? "").toString(),
@@ -638,7 +671,8 @@ class DeliveryFeeModel {
   DeliveryFeeModel({required this.baseFee, required this.finalFee});
 
   factory DeliveryFeeModel.fromJson(Map<String, dynamic> json) {
-    double d(dynamic v) => (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
+    double d(dynamic v) =>
+        (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
 
     return DeliveryFeeModel(
       baseFee: d(json["base_fee"]),

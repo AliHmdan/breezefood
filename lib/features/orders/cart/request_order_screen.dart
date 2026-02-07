@@ -1,3 +1,4 @@
+import 'package:breezefood/core/services/shared_perfrences_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as mt;
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,6 +84,30 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
     final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
 
+    // 1) ✅ Try effective saved location (cart -> user)
+    final saved = await AuthStorageHelper.getEffectiveCartLocation();
+    if (!mounted) return;
+
+    if (saved != null) {
+      final text = (saved["text"] ?? "").toString().trim();
+      final lat = (saved["lat"] as num).toDouble();
+      final lon = (saved["lon"] as num).toDouble();
+
+      final fallback = isRTL ? "موقعي الحالي" : "My current location";
+      final finalText = text.isNotEmpty ? text : fallback;
+
+      setState(() {
+        _tempOrderAddress = OrderAddress(
+          text: finalText,
+          latitude: lat,
+          longitude: lon,
+        );
+        _tempDetailsCtrl.text = finalText;
+      });
+      return;
+    }
+
+    // 2) ✅ Fallback to GPS
     try {
       final pos = await LocationHelper.getCurrentPosition();
       if (!mounted) return;
@@ -141,6 +166,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       );
       _tempDetailsCtrl.text = _tempOrderAddress!.text;
     });
+
+    await AuthStorageHelper.saveCartLocation(
+      text: _tempOrderAddress!.text,
+      lat: _tempOrderAddress!.latitude,
+      lon: _tempOrderAddress!.longitude,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -617,7 +648,6 @@ class _CartItemsSection extends StatelessWidget {
                   foregroundColor: Colors.white,
                   icon: Icons.delete_outline,
                   label: isRTL ? "حذف" : "Delete",
-
                 ),
               ],
             ),

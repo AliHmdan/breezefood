@@ -1,6 +1,6 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/model/home_response.dart'; // MenuItemModel
-import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart'; // PopularItemCard (MenuItemModel)
+import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart'; // PopularItemCard (MenuItemModel)
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart'; // MenuExtra (الموحد)

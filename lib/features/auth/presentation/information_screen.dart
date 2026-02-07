@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class InformationScreen extends StatefulWidget {
   const InformationScreen({Key? key}) : super(key: key);
@@ -34,13 +35,13 @@ class _InformationScreenState extends State<InformationScreen> {
     final last = lastnameController.text.trim();
 
     if (first.isEmpty || last.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both first and last name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('auth.enter_first_last'.tr())));
       return;
     }
 
-    cubit.updateProfile(firstName: first, lastName: last); // ✅ /updateProfile
+    cubit.updateProfile(firstName: first, lastName: last);
   }
 
   Widget _buildTextField({
@@ -49,7 +50,7 @@ class _InformationScreenState extends State<InformationScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.white, // خلفية الحقل بيضاء
+        color: AppColor.white,
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
@@ -70,10 +71,9 @@ class _InformationScreenState extends State<InformationScreen> {
             horizontal: 20.w,
             vertical: 15.h,
           ),
-          border: InputBorder.none, // إزالة البوردر الافتراضي
+          border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: OutlineInputBorder(
-            // إضافة بوردر عند التركيز
             borderRadius: BorderRadius.circular(15.r),
             borderSide: const BorderSide(
               color: AppColor.primaryColor,
@@ -91,11 +91,11 @@ class _InformationScreenState extends State<InformationScreen> {
       bloc: cubit,
       listener: (context, state) {
         state.whenOrNull(
-          loading: () => EasyLoading.show(status: "Saving..."),
+          loading: () => EasyLoading.show(status: "common.saving".tr()),
           error: (msg) {
             EasyLoading.dismiss();
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(msg), backgroundColor: Colors.red),
+              SnackBar(content: Text(msg.tr()), backgroundColor: Colors.red),
             );
           },
           profileUpdated: (_) {
@@ -109,7 +109,6 @@ class _InformationScreenState extends State<InformationScreen> {
       child: Scaffold(
         body: Stack(
           children: [
-            // الخلفية مرنة مع الشاشة
             Image.asset(
               "assets/images/background_auth.png",
               height: MediaQuery.of(context).size.height,
@@ -118,20 +117,18 @@ class _InformationScreenState extends State<InformationScreen> {
               errorBuilder: (_, __, ___) => Container(
                 color: AppColor.Dark,
                 alignment: Alignment.center,
-                child: const Text(
-                  "Placeholder",
-                  style: TextStyle(color: AppColor.white),
+                child: Text(
+                  "common.placeholder".tr(),
+                  style: const TextStyle(color: AppColor.white),
                 ),
               ),
             ),
-
             SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // CustomArrow (مدمج ومختصر)
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
                       child: Container(
@@ -151,39 +148,27 @@ class _InformationScreenState extends State<InformationScreen> {
                         ),
                       ),
                     ),
-
                     SizedBox(height: 16.h),
-
                     Text(
-                      "Please enter your information",
+                      "auth.enter_info_title".tr(),
                       style: TextStyle(
-                        fontSize: 18.sp, // تم تعديل الحجم ليكون مناسباً كعنوان
+                        fontSize: 18.sp,
                         color: AppColor.white,
                         fontFamily: "Manrope",
-                        fontWeight:
-                            FontWeight.bold, // تعديل الوزن ليتناسب مع العنوان
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 35.h),
-
-                    // حقل الاسم الأول (CustomTextFormField مدمج)
                     _buildTextField(
-                      hint: "First Name",
+                      hint: "auth.first_name".tr(),
                       controller: firstnameController,
                     ),
-
                     SizedBox(height: 20.h),
-
-                    // حقل الاسم الأخير (CustomTextFormField مدمج)
                     _buildTextField(
-                      hint: "Last Name",
+                      hint: "auth.last_name".tr(),
                       controller: lastnameController,
                     ),
-
                     SizedBox(height: 30.h),
-
-                    // الزر (CustomButton مدمج ومختصر)
                     InkWell(
                       onTap: _isLoading ? null : _saveInformation,
                       child: Container(
@@ -201,7 +186,7 @@ class _InformationScreenState extends State<InformationScreen> {
                                 color: AppColor.white,
                               )
                             : Text(
-                                "Save",
+                                "common.save".tr(),
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   color: AppColor.white,
@@ -211,7 +196,6 @@ class _InformationScreenState extends State<InformationScreen> {
                               ),
                       ),
                     ),
-
                     SizedBox(height: 40.h),
                   ],
                 ),

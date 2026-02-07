@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/auth/presentation/cubit/auth_flow_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class VerfiyCode extends StatefulWidget {
   final String phone;
@@ -34,7 +35,6 @@ class _VerfiyCodeState extends State<VerfiyCode> {
 
   @override
   void dispose() {
-    // ✅ مهم إذا cubit مو جاي من BlocProvider
     cubit.close();
     super.dispose();
   }
@@ -42,8 +42,6 @@ class _VerfiyCodeState extends State<VerfiyCode> {
   void _verifyCode(String code) {
     final c = code.trim();
     if (c.length != 4) return;
-
-    // ✅ منع التكرار (PinCode sometimes fires twice)
     if (_isVerifying) return;
 
     setState(() {
@@ -51,7 +49,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
       _message = null;
     });
 
-    cubit.verify(phone: widget.phone, code: c); // ✅ /verify-phone (token داخله)
+    cubit.verify(phone: widget.phone, code: c);
   }
 
   void _resendCode() {
@@ -62,7 +60,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
       _message = null;
     });
 
-    cubit.resend(phone: widget.phone); // ✅ /resend-code (بدون await)
+    cubit.resend(phone: widget.phone);
   }
 
   void _showSuccess(String msg) {
@@ -90,29 +88,26 @@ class _VerfiyCodeState extends State<VerfiyCode> {
         bloc: cubit,
         listener: (context, state) {
           state.whenOrNull(
-            loading: () => EasyLoading.show(status: "Verifying..."),
-
+            loading: () => EasyLoading.show(status: "auth.verifying".tr()),
             error: (msg) {
               EasyLoading.dismiss();
               if (mounted) {
                 setState(() {
-                  _isVerifying = false; // ✅ فك القفل
-                  _isResending = false; // ✅ فك القفل
+                  _isVerifying = false;
+                  _isResending = false;
                 });
               }
-              _showError(msg);
+              _showError(msg.tr());
             },
-
             codeResent: (data) {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isResending = false);
 
               final msg = (data is Map)
-                  ? (data["message"] ?? "تم إرسال الرمز")
-                  : "تم إرسال الرمز";
+                  ? (data["message"] ?? "auth.code_sent".tr())
+                  : "auth.code_sent".tr();
               _showSuccess(msg.toString());
             },
-
             verified: (data) {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isVerifying = false);
@@ -134,9 +129,9 @@ class _VerfiyCodeState extends State<VerfiyCode> {
               errorBuilder: (_, __, ___) => Container(
                 color: AppColor.Dark,
                 alignment: Alignment.center,
-                child: const Text(
-                  "Placeholder",
-                  style: TextStyle(color: AppColor.white),
+                child: Text(
+                  "common.placeholder".tr(),
+                  style: const TextStyle(color: AppColor.white),
                 ),
               ),
             ),
@@ -167,7 +162,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                     ),
                     SizedBox(height: 10.h),
                     Text(
-                      "Enter the Code",
+                      "auth.enter_code_title".tr(),
                       style: TextStyle(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
@@ -176,7 +171,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      "Enter the verification code we just sent to ${widget.phone}",
+                      "auth.enter_code_hint".tr(args: [widget.phone]),
                       style: TextStyle(
                         fontSize: 14.sp,
                         color: AppColor.gry,
@@ -185,7 +180,6 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                       ),
                     ),
                     SizedBox(height: 45.h),
-
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.9,
                       child: PinCodeTextField(
@@ -210,15 +204,11 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                         ),
                         animationDuration: const Duration(milliseconds: 300),
                         enableActiveFill: true,
-
-                        // ✅ منع إدخال/تأكيد أثناء verify
                         enabled: !_isVerifying,
-
                         onCompleted: _verifyCode,
                         onChanged: (_) {},
                       ),
                     ),
-
                     if (_message != null)
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 10.h),
@@ -230,15 +220,13 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                           ),
                         ),
                       ),
-
                     SizedBox(height: 20.h),
-
                     InkWell(
-                      onTap: (_isResending || _isVerifying)
-                          ? null
-                          : _resendCode,
+                      onTap: (_isResending || _isVerifying) ? null : _resendCode,
                       child: Text(
-                        _isResending ? "Sending..." : "Resend Code",
+                        _isResending
+                            ? "common.sending".tr()
+                            : "auth.resend_code".tr(),
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontFamily: "Manrope",

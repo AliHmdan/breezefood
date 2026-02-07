@@ -11,7 +11,6 @@
     "logout": "Logout"
   },
   "stores": {
-    
     "delivery_fee_short": "{fee} SYP",
     "title": "Stores",
     "tabs": {
@@ -71,13 +70,18 @@
     "driver": "Driver"
   },
   "map_picker": {
-    "title": "Pick location",
-    "my_location": "My location",
-    "confirm": "Confirm location",
-    "error_cannot_locate": "Couldn't determine your current location. Pick it manually from the map.",
-    "error_failed_update": "Failed to update address",
-    "success_updated": "Address updated"
-  },
+  "title": "Pick location",
+  "my_location": "My location",
+  "confirm": "Confirm location",
+  "error_cannot_locate": "Couldn't determine your current location. Pick it manually from the map.",
+  "error_failed_update": "Failed to update address",
+  "success_updated": "Address updated",
+
+  "selected_location": "Selected location",
+  "resolving": "Resolving address...",
+  "locating": "Getting your location..."
+}
+,
   "tracking.error_generic": "Something went wrong while tracking",
   "tracking.error_bad_response": "Invalid tracking response",
   "tracking.error_missing_locations": "Unable to load tracking data",
@@ -112,8 +116,44 @@
     "confirm": "Do you want to log out?",
     "loading": "Logging out..."
   },
+  "auth": {
+      "accept_terms": "I agree to the Terms & Conditions and Privacy Policy",
+    "enable_location_services_hint": "To determine your location, please enable Location Services (GPS) from your device settings.",
+    "enable_location_permission_hint": "Please allow the app to access your location from the app settings.",
+    "open_location_settings": "Open location settings",
+    "open_app_settings": "Open app settings",
+    "check_required_fields": "Please check required fields",
+    "code_sent": "Code sent",
+    "welcome_title": "Welcome to breeze",
+    "login_hint": "Please enter your phone to login",
+    "phone_number": "Phone Number",
+    "enter_phone": "Enter phone number",
+    "invalid_phone": "Invalid phone number",
+    "verifying": "Verifying...",
+    "enter_code_title": "Enter the Code",
+    "enter_code_hint": "Enter the verification code we just sent to {0}",
+    "resend_code": "Resend Code",
+    "updating_location": "Updating your location...",
+    "location_services_disabled": "Location services are disabled",
+    "permission_denied_forever": "Permission permanently denied",
+    "permission_denied": "Permission denied",
+    "getting_location": "Getting your location...",
+    "resolving_address": "Resolving address...",
+    "updating_address": "Updating your address...",
+    "failed_update_address": "Failed to update address",
+    "address_added": "Address added",
+    "enter_first_last": "Please enter both first and last name",
+    "enter_info_title": "Please enter your information",
+    "first_name": "First Name",
+    "last_name": "Last Name"
+  },
   "common": {
-
+    "error": "Error",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "continue": "Continue",
+    "placeholder": "Placeholder",
+    "unknown_address": "Unknown address",
     "dash": "--",
     "minutes_short": "{min}m",
     "error_prefix": "{msg}",
@@ -177,9 +217,25 @@
     }
   },
   "home": {
+    "your_order": "Your order",
+    "open_now": "Open Now",
+    "filters": {
+      "breakfast": "Breakfast",
+      "closer": "Closer to you",
+      "stores": "Stores",
+      "discounts": "Discounts",
+      "delivery": "Delivery discounts",
+      "supermarket": "Super Market",
+      "open": "Open now"
+    },
+    "breakfast_restaurants": "Breakfast restaurants",
+    "breakfast_chip": "Breakfast",
+    "empty_area_title": "No restaurants available in your area",
+    "empty_area_hint": "Try changing your location or pull to refresh",
+    "empty_breakfast": "No breakfast restaurants available",
     "current_location": "My current location",
     "select_location": "Select your location",
-    "location_hint": "To show nearby (restaurants / supermarkets)",
+    "location_hint": "To show nearby",
     "my_location": "My location",
     "location_picker_title": "Choose location",
     "pick_on_map": {
@@ -192,18 +248,8 @@
     }
   },
   "discount_delivery": "Delivery discounts",
-  "filters": {
-    "closer": "Closer to you",
-    "stores": "Stores",
-    "discounts": "Discounts",
-    "delivery": "Delivery discounts",
-    "supermarket": "Super Market",
-    "open": "Open now"
-  },
   "closer_to_you": "Closer to you",
   "super_market": "Super Market",
-  "open_now": "Open Now",
-  "your_order": "Your order",
   "cart": {
     "item_notes_optional": "Item notes (optional)",
     "item_notes_hint": "e.g. No onion, mild spicy...",

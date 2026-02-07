@@ -5,11 +5,13 @@ import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/Stores.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/breakfast_restaurants.dart'; // ✅ NEW
 import 'package:breezefood/features/home/presentation/ui/sections/closer_to_you.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_delivery/discount_delivery_home.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_meals/discount_home.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/home_filters.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/most_popular.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/home_empty.dart';
+import 'package:breezefood/features/home/presentation/ui/sections/home_filter.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/open_now.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/page_ads.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/supermarketslider.dart';
@@ -44,6 +46,7 @@ class _HomeState extends State<Home> with RouteAware {
   final _scrollController = ScrollController();
 
   final _closerKey = GlobalKey();
+  final _breakfastKey = GlobalKey(); // ✅ NEW
   final _storesKey = GlobalKey();
   final _discountsKey = GlobalKey();
   final _deliveryKey = GlobalKey();
@@ -60,7 +63,17 @@ class _HomeState extends State<Home> with RouteAware {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await cubit.sendMyLocationOnce();
-      await cubit.load();
+      if (mounted) {
+        final isLoadedOrLoading = cubit.state.maybeWhen(
+          loading: () => true,
+          loaded: (_) => true,
+          orElse: () => false,
+        );
+        if (!isLoadedOrLoading) {
+          await cubit.load();
+        }
+      }
+
       if (mounted) context.read<CartCubit>().loadCart();
     });
   }
@@ -191,6 +204,9 @@ class _HomeState extends State<Home> with RouteAware {
       case "closer":
         _scrollTo(_closerKey);
         break;
+      case "breakfast": // ✅ NEW
+        _scrollTo(_breakfastKey);
+        break;
       case "stores":
         _scrollTo(_storesKey);
         break;
@@ -287,6 +303,13 @@ class _HomeState extends State<Home> with RouteAware {
         final haveOrder = homeData?.haveOrder;
         final showBottom = haveOrder != null;
 
+        // ✅ Empty area condition (محسوب مع الفطور)
+        final noNearby = homeData?.nearbyRestaurants.isEmpty ?? false;
+        final noCloser = homeData?.closerToYou.isEmpty ?? false;
+        final noBreakfast = homeData?.breakfastRestaurants.isEmpty ?? false;
+        final isEmptyArea =
+            homeData != null && noNearby && noCloser && noBreakfast;
+
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
@@ -302,109 +325,145 @@ class _HomeState extends State<Home> with RouteAware {
                       children: [
                         // Top
                         AppbarHome(home: homeData, homeCubit: cubit),
-                        HomeFilters(onFilterTap: _onFilterTap),
+
+                        // ✅ اخفي الفلاتر لما المنطقة فاضية
+                        if (!(!loading && isEmptyArea))
+                          HomeFilters(onFilterTap: _onFilterTap),
 
                         // Ads
                         _buildAds(state, loading),
                         SizedBox(height: 12.h),
 
-                        // Closer
-                        _anchor(_closerKey),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: CustomTitleSection(
-                            title: "home.closer_to_you".tr(),
+                        // ✅ Empty Area
+                        if (!loading && isEmptyArea) ...[
+                          HomeEmptyArea(
+                            titleKey: "home.empty_area_title",
+                            subtitleKey: "home.empty_area_hint",
+                            onRefresh: _refreshHomeAndCart,
                           ),
-                        ),
-                        SizedBox(height: 10.h),
-                        loading
-                            ? _shimmerBox(height: 178.h)
-                            : state.maybeWhen(
-                                loaded: (data) =>
-                                    CloserToYou(restaurants: data.closerToYou),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
-                        SizedBox(height: 14.h),
 
-                        // Stores
-                        _anchor(_storesKey),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: CustomTitleSection(title: "home.stores".tr()),
-                        ),
-                        SizedBox(height: 10.h),
-                        loading
-                            ? _shimmerBox(height: 178.h)
-                            : state.maybeWhen(
-                                loaded: (data) =>
-                                    Stores(restaurants: data.nearbyRestaurants),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
-                        SizedBox(height: 14.h),
-
-                        // Discounts
-                        _anchor(_discountsKey),
-                        loading
-                            ? _shimmerBox(height: 130.h)
-                            : state.maybeWhen(
-                                loaded: (data) =>
-                                    DiscountHome(discounts: data.discounts),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
-                        SizedBox(height: 14.h),
-
-                        // Delivery discount
-                        _anchor(_deliveryKey),
-                        loading
-                            ? _shimmerBox(height: 120.h)
-                            : state.maybeWhen(
-                                loaded: (data) => DiscountDeliveryHome(
-                                  discountDelivery: data.discountDelivery,
+                          SizedBox(height: showBottom ? 90.h : 24.h),
+                        ] else ...[
+                          // Closer
+                          _anchor(_closerKey),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: CustomTitleSection(
+                              title: "home.closer_to_you".tr(),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          loading
+                              ? _shimmerBox(height: 178.h)
+                              : state.maybeWhen(
+                                  loaded: (data) => CloserToYou(
+                                    restaurants: data.closerToYou,
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
                                 ),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
-                        SizedBox(height: 12.h),
+                          SizedBox(height: 14.h),
 
-                        // Supermarket
-                        _anchor(_supermarketKey),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: CustomTitleSection(
-                            title: "home.super_market".tr(),
+                          // ✅ Breakfast (NEW)
+                          _anchor(_breakfastKey),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: CustomTitleSection(
+                              title: "home.breakfast_restaurants".tr(),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10.h),
-                        state.maybeWhen(
-                          loaded: (data) => Supermarketslider(
-                            restaurants: data.supermarkets,
-                            onTap: _openMarket,
-                            onRateSuccess: () => cubit.load(),
-                          ),
-                          orElse: () => const SizedBox.shrink(),
-                        ),
-                        SizedBox(height: 14.h),
-
-                        // Open now
-                        _anchor(_openNowKey),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: CustomTitleSection(
-                            title: "home.open_now".tr(),
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        loading
-                            ? _shimmerBox(height: 320.h)
-                            : state.maybeWhen(
-                                loaded: (data) => OpenNow(
-                                  restaurants: data.nearbyRestaurants,
-                                  onTap: _openRestaurant,
+                          SizedBox(height: 10.h),
+                          loading
+                              ? _shimmerBox(height: 178.h)
+                              : state.maybeWhen(
+                                  loaded: (data) => BreakfastRestaurantsSection(
+                                    restaurants: data.breakfastRestaurants,
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
                                 ),
-                                orElse: () => const SizedBox.shrink(),
-                              ),
+                          SizedBox(height: 14.h),
 
-                        // bottom padding for bottom action
-                        SizedBox(height: showBottom ? 90.h : 24.h),
+                          // Stores
+                          _anchor(_storesKey),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: CustomTitleSection(
+                              title: "home.stores".tr(),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          loading
+                              ? _shimmerBox(height: 178.h)
+                              : state.maybeWhen(
+                                  loaded: (data) => Stores(
+                                    restaurants: data.nearbyRestaurants,
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                ),
+                          SizedBox(height: 14.h),
+
+                          // Discounts
+                          _anchor(_discountsKey),
+                          loading
+                              ? _shimmerBox(height: 130.h)
+                              : state.maybeWhen(
+                                  loaded: (data) =>
+                                      DiscountHome(discounts: data.discounts),
+                                  orElse: () => const SizedBox.shrink(),
+                                ),
+                          SizedBox(height: 14.h),
+
+                          // Delivery discount
+                          _anchor(_deliveryKey),
+                          loading
+                              ? _shimmerBox(height: 120.h)
+                              : state.maybeWhen(
+                                  loaded: (data) => DiscountDeliveryHome(
+                                    discountDelivery: data.discountDelivery,
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                ),
+                          SizedBox(height: 12.h),
+
+                          // Supermarket
+                          _anchor(_supermarketKey),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: CustomTitleSection(
+                              title: "home.super_market".tr(),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          state.maybeWhen(
+                            loaded: (data) => Supermarketslider(
+                              restaurants: data.supermarkets,
+                              onTap: _openMarket,
+                              onRateSuccess: () => cubit.load(),
+                            ),
+                            orElse: () => const SizedBox.shrink(),
+                          ),
+                          SizedBox(height: 14.h),
+
+                          // Open now
+                          _anchor(_openNowKey),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: CustomTitleSection(
+                              title: "home.open_now".tr(),
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          loading
+                              ? _shimmerBox(height: 320.h)
+                              : state.maybeWhen(
+                                  loaded: (data) => OpenNow(
+                                    restaurants: data.nearbyRestaurants,
+                                    onTap: _openRestaurant,
+                                  ),
+                                  orElse: () => const SizedBox.shrink(),
+                                ),
+
+                          SizedBox(height: showBottom ? 90.h : 24.h),
+                        ],
                       ],
                     ),
                   ),

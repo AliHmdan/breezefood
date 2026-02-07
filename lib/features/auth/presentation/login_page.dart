@@ -1,4 +1,5 @@
 import 'package:breezefood/core/services/app_notification_service.dart';
+import 'package:breezefood/features/auth/presentation/ui/terms.dart';
 import 'package:breezefood/features/auth/presentation/verify_code.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/auth/presentation/cubit/auth_flow_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -23,6 +25,19 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _acceptedTerms = false;
+Future<void> _openTermsAndMaybeAccept() async {
+  final ok = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => const TermsDialog(),
+  );
+
+  if (!mounted) return;
+  if (ok == true) {
+    setState(() => _acceptedTerms = true);
+  }
+}
 
   late final AuthFlowCubit cubit;
 
@@ -69,21 +84,20 @@ class _LoginState extends State<Login> {
     );
   }
 
-void _handleLogin() async {
-  if (!_formKey.currentState!.validate()) {
-    _showSnackBar(
-      context,
-      message: 'تحقق من الحقول المطلوبة',
-      background: AppColor.primaryColor,
-      icon: Icons.info_outline,
-    );
-    return;
+  void _handleLogin() async {
+    if (!_formKey.currentState!.validate()) {
+      _showSnackBar(
+        context,
+        message: 'auth.check_required_fields'.tr(),
+        background: AppColor.primaryColor,
+        icon: Icons.info_outline,
+      );
+      return;
+    }
+
+    final phone = "+963${phoneController.text.trim()}";
+    cubit.sendCode(phone: phone); // ✅ بدون توكن
   }
-
-  final phone = "+963${phoneController.text.trim()}";
-  cubit.sendCode(phone: phone); // ✅ بدون توكن
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -94,12 +108,12 @@ void _handleLogin() async {
         bloc: cubit,
         listener: (context, state) {
           state.whenOrNull(
-            loading: () => EasyLoading.show(status: "Loading..."),
+            loading: () => EasyLoading.show(status: "common.loading".tr()),
             error: (msg) {
               EasyLoading.dismiss();
               _showSnackBar(
                 context,
-                message: msg,
+                message: msg.tr(),
                 background: Colors.redAccent,
                 icon: Icons.error_outline,
               );
@@ -114,8 +128,9 @@ void _handleLogin() async {
               );
 
               final msg = (data is Map)
-                  ? (data["message"] ?? "تم إرسال الرمز")
-                  : "تم إرسال الرمز";
+                  ? (data["message"] ?? "auth.code_sent".tr())
+                  : "auth.code_sent".tr();
+
               _showSnackBar(
                 context,
                 message: msg.toString(),
@@ -173,19 +188,17 @@ void _handleLogin() async {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const CustomTitle(
-                                    title: "Welcome to breeze",
+                                  CustomTitle(
+                                    title: "auth.welcome_title".tr(),
                                     color: Colors.white,
                                   ),
                                   SizedBox(height: 2.h),
                                   CustomSubTitle(
-                                    subtitle:
-                                        "Please Enter your phone to login",
+                                    subtitle: "auth.login_hint".tr(),
                                     color: AppColor.gry,
                                     fontsize: 12.sp,
                                   ),
                                   SizedBox(height: 32.h),
-
                                   Row(
                                     children: [
                                       Container(
@@ -222,26 +235,87 @@ void _handleLogin() async {
                                         child: _CustomTextFormField(
                                           controller: phoneController,
                                           keyboardType: TextInputType.number,
-                                          hintText: "Phone Number",
+                                          hintText: "auth.phone_number".tr(),
                                           validator: (v) {
                                             final val = (v ?? '').trim();
-                                            if (val.isEmpty)
-                                              return 'أدخل رقم الهاتف';
-                                            if (val.length < 8)
-                                              return 'رقم الهاتف غير صالح';
+                                            if (val.isEmpty) {
+                                              return 'auth.enter_phone'.tr();
+                                            }
+                                            if (val.length < 8) {
+                                              return 'auth.invalid_phone'.tr();
+                                            }
                                             return null;
                                           },
                                         ),
                                       ),
                                     ],
                                   ),
+                                  SizedBox(height: 14.h),
+                               Row(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Checkbox(
+      value: _acceptedTerms,
+      activeColor: AppColor.primaryColor,
+      onChanged: (v) async {
+        if (v == true) {
+          await _openTermsAndMaybeAccept(); // ✅ ما بيصير true إلا إذا وافق بالديالوج
+        } else {
+          setState(() => _acceptedTerms = false);
+        }
+      },
+    ),
+    Expanded(
+      child: GestureDetector(
+        onTap: _openTermsAndMaybeAccept,
+        child: Padding(
+          padding: EdgeInsets.only(top: 12.h),
+          child: Text(
+            "Tap to view Terms & Conditions and accept",
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 12.sp,
+              height: 1.4,
+              decoration: TextDecoration.underline,
+              decorationColor: Colors.white38,
+            ),
+          ),
+        ),
+      ),
+    ),
+  ],
+),
 
                                   SizedBox(height: 24.h),
-
-                                  // زر
-                                  CustomButton(
-                                    title: "Continue",
-                                    onPressed: _handleLogin,
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 55.h,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(15.r),
+                                      onTap: _acceptedTerms
+                                          ? _handleLogin
+                                          : null,
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: _acceptedTerms
+                                              ? AppColor.primaryColor
+                                              : AppColor.gry,
+                                          borderRadius: BorderRadius.circular(
+                                            15.r,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "common.continue".tr(),
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Manrope',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

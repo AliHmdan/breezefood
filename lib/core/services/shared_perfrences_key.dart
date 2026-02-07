@@ -2,14 +2,29 @@ import 'package:hive/hive.dart';
 
 class AuthStorageHelper {
   static const String _authBoxName = 'auth_box';
+  static const String _prefsBoxName = 'app_prefs_box';
+
   static const String _tokenKey = 'auth_token';
   static const String _roleKey = 'user_role';
   static const String _isGuestKey = 'is_guest';
-  static const String _latKey = 'user_lat';
-  static const String _lonKey = 'user_lon';
-  static const String _prefsBoxName = 'app_prefs_box';
+
   static const String _zoomHintKey = 'verify_zoom_hint_dismissed_v1';
   static const String acceptConditionKey = 'accept_condition';
+
+  // -----------------------
+  // ✅ Location keys (Hive)
+  // -----------------------
+  static const String _userLocTextKey = 'user_loc_text';
+  static const String _userLatKey = 'user_lat';
+  static const String _userLonKey = 'user_lon';
+
+  static const String _cartLocTextKey = 'cart_loc_text';
+  static const String _cartLatKey = 'cart_lat';
+  static const String _cartLonKey = 'cart_lon';
+
+  // -------------------------------------------------------------
+  // Guest Mode
+  // -------------------------------------------------------------
   static Future<void> setGuestMode(bool value) async {
     final box = await Hive.openBox(_prefsBoxName);
     await box.put(_isGuestKey, value);
@@ -25,55 +40,8 @@ class AuthStorageHelper {
     await box.delete(_isGuestKey);
   }
 
- 
-
-  static String? getUserRoleSync() {
-    try {
-      final box = Hive.box(_authBoxName);
-      return box.get(_roleKey) as String?;
-    } catch (e) {
-      print('⚠️ Hive not ready for getUserRoleSync: $e');
-      return null;
-    }
-  }
-
   // -------------------------------------------------------------
-  // 🔹 TOKEN MANAGEMENT (Generic)
-  // -------------------------------------------------------------
-  static Future<void> saveToken(String token) async {
-    final box = await Hive.openBox(_authBoxName);
-    await box.put(_tokenKey, token);
-    print('✅ Token saved successfully');
-  }
-
-  static Future<String?> getToken() async {
-    final box = await Hive.openBox(_authBoxName);
-    return box.get(_tokenKey);
-  }
-
-  static String? getTokenSync() {
-    try {
-      final box = Hive.box(_authBoxName);
-      return box.get(_tokenKey);
-    } catch (e) {
-      print('⚠️ Error getting token synchronously: $e');
-      return null;
-    }
-  }
-
-  static Future<void> removeToken() async {
-    final box = await Hive.openBox(_authBoxName);
-    await box.delete(_tokenKey);
-    print('🗑️ Token removed successfully');
-  }
-
-  static Future<bool> hasToken() async {
-    final token = await getToken();
-    return token != null && token.isNotEmpty;
-  }
-
-  // -------------------------------------------------------------
-  // 🔹 ROLE MANAGEMENT
+  // ROLE
   // -------------------------------------------------------------
   static Future<void> saveUserRole(String role) async {
     final box = await Hive.openBox(_authBoxName);
@@ -85,17 +53,54 @@ class AuthStorageHelper {
     return box.get(_roleKey);
   }
 
+  static String? getUserRoleSync() {
+    try {
+      final box = Hive.box(_authBoxName);
+      return box.get(_roleKey) as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<void> removeUserRole() async {
     final box = await Hive.openBox(_authBoxName);
     await box.delete(_roleKey);
   }
 
+  // -------------------------------------------------------------
+  // TOKEN
+  // -------------------------------------------------------------
+  static Future<void> saveToken(String token) async {
+    final box = await Hive.openBox(_authBoxName);
+    await box.put(_tokenKey, token);
+  }
 
+  static Future<String?> getToken() async {
+    final box = await Hive.openBox(_authBoxName);
+    return box.get(_tokenKey);
+  }
 
+  static String? getTokenSync() {
+    try {
+      final box = Hive.box(_authBoxName);
+      return box.get(_tokenKey) as String?;
+    } catch (_) {
+      return null;
+    }
+  }
 
+  static Future<void> removeToken() async {
+    final box = await Hive.openBox(_authBoxName);
+    await box.delete(_tokenKey);
+  }
+
+  static Future<bool> hasToken() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
+  }
 
   // -------------------------------------------------------------
-  // 🔹 ZOOM HINT FLAG (Existing)
+  // ZOOM HINT
   // -------------------------------------------------------------
   static Future<bool> isZoomHintDismissed() async {
     final box = await Hive.openBox(_prefsBoxName);
@@ -113,7 +118,7 @@ class AuthStorageHelper {
   }
 
   // -------------------------------------------------------------
-  // 🔹 GENERIC FLAGS (Existing)
+  // FLAGS
   // -------------------------------------------------------------
   static Future<void> setFlag(String key, bool value) async {
     final box = await Hive.openBox(_prefsBoxName);
@@ -131,49 +136,103 @@ class AuthStorageHelper {
   static Future<bool?> getAcceptCondition() async =>
       getFlag(acceptConditionKey);
 
-
-//MAPS STUFF 
-
-       static Future<void> saveUserLocation({
-    required String lat,
-    required String lon,
+  // =============================================================
+  // ✅ USER LOCATION (Home default)
+  // text صار OPTIONAL حتى ما يكسر verify/addAddress
+  // lat/lon صاروا double
+  // =============================================================
+  static Future<void> saveUserLocation({
+    String? text,
+    required double lat,
+    required double lon,
   }) async {
     final box = await Hive.openBox(_authBoxName);
-    await box.put(_latKey, lat);
-    await box.put(_lonKey, lon);
-    print('✅ Location saved: ($lat, $lon)');
+
+    if (text != null && text.trim().isNotEmpty) {
+      await box.put(_userLocTextKey, text.trim());
+    }
+
+    await box.put(_userLatKey, lat);
+    await box.put(_userLonKey, lon);
   }
 
-  static Future<Map<String, String?> > getUserLocation() async {
+  static Future<Map<String, dynamic>?> getUserLocation() async {
     final box = await Hive.openBox(_authBoxName);
+
+    final text = box.get(_userLocTextKey) as String?;
+    final lat = box.get(_userLatKey);
+    final lon = box.get(_userLonKey);
+
+    if (lat == null || lon == null) return null;
+
     return {
-      "lat": box.get(_latKey) as String?,
-      "lon": box.get(_lonKey) as String?,
+      "text": text,
+      "lat": (lat as num).toDouble(),
+      "lon": (lon as num).toDouble(),
     };
-  }
-
-  static String? getUserLatSync() {
-    try {
-      final box = Hive.box(_authBoxName);
-      return box.get(_latKey) as String?;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  static String? getUserLonSync() {
-    try {
-      final box = Hive.box(_authBoxName);
-      return box.get(_lonKey) as String?;
-    } catch (_) {
-      return null;
-    }
   }
 
   static Future<void> removeUserLocation() async {
     final box = await Hive.openBox(_authBoxName);
-    await box.delete(_latKey);
-    await box.delete(_lonKey);
+    await box.delete(_userLocTextKey);
+    await box.delete(_userLatKey);
+    await box.delete(_userLonKey);
   }
 
+  // =============================================================
+  // ✅ CART LOCATION (only if user changed in cart)
+  // =============================================================
+  static Future<void> saveCartLocation({
+    required String text,
+    required double lat,
+    required double lon,
+  }) async {
+    final box = await Hive.openBox(_authBoxName);
+    await box.put(_cartLocTextKey, text.trim());
+    await box.put(_cartLatKey, lat);
+    await box.put(_cartLonKey, lon);
+  }
+
+  static Future<Map<String, dynamic>?> getCartLocation() async {
+    final box = await Hive.openBox(_authBoxName);
+
+    final text = box.get(_cartLocTextKey) as String?;
+    final lat = box.get(_cartLatKey);
+    final lon = box.get(_cartLonKey);
+
+    if (text == null || text.trim().isEmpty) return null;
+    if (lat == null || lon == null) return null;
+
+    return {
+      "text": text,
+      "lat": (lat as num).toDouble(),
+      "lon": (lon as num).toDouble(),
+    };
+  }
+    /// ✅ لما تغيّر موقعك من الهوم: خليه default جديد للجميع
+  /// وبنفس الوقت صفّي cart_location حتى الكارت يتبع الجديد
+  static Future<void> overrideHomeLocation({
+    required String text,
+    required double lat,
+    required double lon,
+  }) async {
+    await saveUserLocation(text: text, lat: lat, lon: lon);
+
+    // ✅ خلي الكارت يرجع يتبع الـ user_location الجديد
+    await clearCartLocation();
+  }
+
+  /// ✅ الموقع الفعلي للكارت: إذا في cart_location استخدمه
+  /// وإلا استخدم user_location
+  static Future<Map<String, dynamic>?> getEffectiveCartLocation() async {
+    final cart = await getCartLocation();
+    if (cart != null) return cart;
+    return await getUserLocation();
+  }
+  static Future<void> clearCartLocation() async {
+    final box = await Hive.openBox(_authBoxName);
+    await box.delete(_cartLocTextKey);
+    await box.delete(_cartLatKey);
+    await box.delete(_cartLonKey);
+  }
 }

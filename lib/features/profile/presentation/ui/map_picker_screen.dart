@@ -126,15 +126,15 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
     }
 
     await _ctrl?.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: fixed, zoom: zoom),
-      ),
+      CameraUpdate.newCameraPosition(CameraPosition(target: fixed, zoom: zoom)),
     );
 
     _scheduleResolveAddress(fixed);
   }
 
-  Future<void> _initFromCurrentLocationOrFallback({bool showError = false}) async {
+  Future<void> _initFromCurrentLocationOrFallback({
+    bool showError = false,
+  }) async {
     setState(() {
       _locating = true;
       _error = null;
@@ -205,7 +205,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         if ((p.street ?? '').trim().isNotEmpty) p.street!,
         if ((p.subLocality ?? '').trim().isNotEmpty) p.subLocality!,
         if ((p.locality ?? '').trim().isNotEmpty) p.locality!,
-        if ((p.administrativeArea ?? '').trim().isNotEmpty) p.administrativeArea!,
+        if ((p.administrativeArea ?? '').trim().isNotEmpty)
+          p.administrativeArea!,
         if ((p.country ?? '').trim().isNotEmpty) p.country!,
       ];
 
@@ -270,16 +271,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             _showErrorSnack(msg);
           },
           addressAdded: (data) async {
-            final addressMsg = (data is Map)
-                ? (data["address"]?.toString() ??
-                    data["message"]?.toString() ??
-                    "map_picker.success_updated".tr())
-                : "map_picker.success_updated".tr();
+            final addressText = _address.trim().isNotEmpty
+                ? _address
+                : await _resolveAddress(_picked.latitude, _picked.longitude);
 
             final result = MapPickerResult(
               latitude: _picked.latitude,
               longitude: _picked.longitude,
-              address: addressMsg,
+              address: addressText,
             );
 
             if (!mounted) return;
@@ -316,8 +315,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         body: Stack(
           children: [
             GoogleMap(
-              initialCameraPosition:
-                  const CameraPosition(target: _placeholder, zoom: 2),
+              initialCameraPosition: const CameraPosition(
+                target: _placeholder,
+                zoom: 2,
+              ),
 
               onMapCreated: (c) async {
                 _ctrl = c;
@@ -394,7 +395,8 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               bottom: 170.h,
               child: SafeArea(
                 child: InkWell(
-                  onTap: () => _initFromCurrentLocationOrFallback(showError: true),
+                  onTap: () =>
+                      _initFromCurrentLocationOrFallback(showError: true),
                   borderRadius: BorderRadius.circular(16.r),
                   child: Container(
                     width: 48.w,
@@ -428,7 +430,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                   padding: EdgeInsets.fromLTRB(14.w, 12.h, 14.w, 12.h),
                   decoration: BoxDecoration(
                     color: AppColor.Dark.withOpacity(0.92),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(22.r),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.4),
@@ -490,13 +494,18 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                             SizedBox(
                                               width: 14.w,
                                               height: 14.w,
-                                              child: const CircularProgressIndicator(strokeWidth: 2),
+                                              child:
+                                                  const CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                  ),
                                             ),
                                             SizedBox(width: 8.w),
                                             Text(
                                               "map_picker.resolving".tr(),
                                               style: TextStyle(
-                                                color: Colors.white.withOpacity(0.7),
+                                                color: Colors.white.withOpacity(
+                                                  0.7,
+                                                ),
                                                 fontSize: 12.sp,
                                               ),
                                             ),
@@ -510,7 +519,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            color: Colors.white.withOpacity(0.75),
+                                            color: Colors.white.withOpacity(
+                                              0.75,
+                                            ),
                                             fontSize: 12.sp,
                                             height: 1.35,
                                           ),
@@ -529,16 +540,24 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                           decoration: BoxDecoration(
                             color: Colors.red.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(14.r),
-                            border: Border.all(color: Colors.red.withOpacity(0.35)),
+                            border: Border.all(
+                              color: Colors.red.withOpacity(0.35),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline, color: Colors.redAccent),
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.redAccent,
+                              ),
                               SizedBox(width: 8.w),
                               Expanded(
                                 child: Text(
                                   _error!,
-                                  style: TextStyle(color: Colors.white, fontSize: 12.sp),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.sp,
+                                  ),
                                 ),
                               ),
                             ],
@@ -560,12 +579,16 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                               borderRadius: BorderRadius.circular(16.r),
                             ),
                           ),
-                          onPressed: (_saving || _locating || !_mapReady) ? null : _confirm,
+                          onPressed: (_saving || _locating || !_mapReady)
+                              ? null
+                              : _confirm,
                           child: (_saving || _locating)
                               ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 )
                               : Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -574,7 +597,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                                     SizedBox(width: 8.w),
                                     Text(
                                       "map_picker.confirm".tr(),
-                                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -596,7 +622,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                       decoration: BoxDecoration(
                         color: AppColor.Dark.withOpacity(0.85),
                         borderRadius: BorderRadius.circular(18.r),
-                        border: Border.all(color: Colors.white.withOpacity(0.08)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.08),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

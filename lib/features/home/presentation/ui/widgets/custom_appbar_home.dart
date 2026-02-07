@@ -62,7 +62,6 @@ class CachedAvatar extends StatelessWidget {
 }
 
 class CustomAppbarHome extends StatelessWidget {
-  final String title;
   final String? subtitle;
   final String? image;
   final IconData? icon;
@@ -74,7 +73,6 @@ class CustomAppbarHome extends StatelessWidget {
   const CustomAppbarHome({
     super.key,
     this.avatarUrl,
-    required this.title,
     this.subtitle,
     this.image,
     this.icon,
@@ -157,7 +155,6 @@ class CustomAppbarHome extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CustomTitle(title: title, color: AppColor.white),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
