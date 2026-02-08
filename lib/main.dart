@@ -19,11 +19,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
   configEasyLoading();
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -44,7 +46,9 @@ Future<void> main() async {
       child: const RestartWidget(child: MyApp()),
     ),
   );
+
   final fcm = await FirebaseMessaging.instance.getToken();
+  // ignore: avoid_print
   print(fcm);
 }
 
@@ -57,22 +61,26 @@ class MyApp extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<CartCubit>(create: (_) => getIt<CartCubit>()),
+        // ✅ LazySingletons → value
+        BlocProvider.value(value: getIt<HomeCubit>()),
+        BlocProvider.value(value: getIt<ProfileCubit>()),
+        BlocProvider.value(value: getIt<CartCubit>()),
+
+        // ✅ Factory → create مرة وحدة هون
         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
-        BlocProvider(create: (_) => getIt<HomeCubit>()),
-        BlocProvider(create: (_) => getIt<ProfileCubit>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),
         minTextAdapt: true,
         splitScreenMode: true,
-        builder: (_, child) {
+        builder: (_, __) {
           return MaterialApp(
             navigatorObservers: [routeObserver],
             navigatorKey: NavigationKey.navigatorKey,
             debugShowCheckedModeBanner: false,
             title: 'breeze food UI',
-            home: child ?? const LaunchScreen(),
+
+            home: const LaunchScreen(),
 
             locale: context.locale,
             supportedLocales: context.supportedLocales,
@@ -92,9 +100,8 @@ class MyApp extends StatelessWidget {
 
             builder: (context, widget) {
               final wrapped = MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(textScaler: const TextScaler.linear(1.0)),
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.0)),
                 child: widget ?? const SizedBox.shrink(),
               );
 
@@ -103,16 +110,15 @@ class MyApp extends StatelessWidget {
 
               return Theme(
                 data: Theme.of(context).copyWith(
-                  textTheme: Theme.of(
-                    context,
-                  ).textTheme.apply(fontFamily: isArabic ? 'Cairo' : 'Inter'),
+                  textTheme: Theme.of(context).textTheme.apply(
+                        fontFamily: isArabic ? 'Cairo' : 'Inter',
+                      ),
                 ),
                 child: EasyLoading.init()(context, wrapped),
               );
             },
           );
         },
-        child: const LaunchScreen(),
       ),
     );
   }

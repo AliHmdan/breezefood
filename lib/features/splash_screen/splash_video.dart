@@ -1,5 +1,9 @@
-import 'dart:async'; // تم استخدامها لإضافة Timer
-import 'package:breezefood/features/auth/presentation/login_page.dart';
+import 'dart:async';
+import 'package:breezefood/core/di/di.dart';
+import 'package:breezefood/features/main_shell.dart';
+import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -11,66 +15,79 @@ class SplashVideoScreen extends StatefulWidget {
 }
 
 class _SplashVideoScreenState extends State<SplashVideoScreen> {
-  late VideoPlayerController _controller;
+  late final VideoPlayerController _controller;
+  Timer? _timer;
 
-  // ✅ متغير لتخزين مؤقت التنقل
-  Timer? _navigationTimer;
+  late final Future<void> _bootstrapFuture;
 
-  // الصوت
   bool _isMuted = true;
-  double _volumeBeforeMute = 1.0;
 
   @override
   void initState() {
     super.initState();
-    _init();
+    _bootstrapFuture = _bootstrap();
+    _initVideo();
   }
 
-  Future<void> _init() async {
-    _controller = VideoPlayerController.asset('assets/video/splachscreen.mp4');
+  Future<void> _bootstrap() async {
+    final home = getIt<HomeCubit>();
+    final profile = getIt<ProfileCubit>();
+    final cart = getIt<CartCubit>();
 
+    // لو فشل GPS ما بدنا نوقف كل شيء
+    try {
+      await home.sendMyLocationOnce();
+    } catch (_) {}
+
+    // load كلاتهم سوا
+    await Future.wait([
+      home.load(),
+      profile.load(),
+      cart.loadCart(),
+    ]);
+  }
+
+  Future<void> _initVideo() async {
+    _controller = VideoPlayerController.asset('assets/video/splachscreen.mp4');
     _controller.setLooping(false);
     _controller.setVolume(_isMuted ? 0.0 : 1.0);
-    _controller.initialize().then((_) {
-      if (!mounted) return;
-      setState(() {});
-      _controller.play();
 
-      // 🚀 إضافة الـ Timer للتنقل بعد 8 ثوانٍ
-      _navigationTimer = Timer(const Duration(seconds: 8), _goToLogin);
-    });
-  }
-
-  void _goToLogin() {
+    await _controller.initialize();
     if (!mounted) return;
 
-    _navigationTimer?.cancel();
+    setState(() {});
+    _controller.play();
 
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (context) => const Login()));
+    // بعد 8 ثواني منبلّش الانتقال (وبنستنى bootstrap)
+    _timer = Timer(const Duration(seconds: 8), _goNext);
   }
 
-  Future<void> _applyVolume() async {
-    final vol = _isMuted ? 0.0 : (_volumeBeforeMute.clamp(0.0, 1.0));
-    await _controller.setVolume(vol);
+  Future<void> _goNext() async {
+    if (!mounted) return;
+    _timer?.cancel();
+
+    // استنى اللود يخلص (بس ما تفشل التنقل إذا صار خطأ)
+    try {
+      await _bootstrapFuture;
+    } catch (_) {}
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MainShell()),
+    );
   }
 
   Future<void> _toggleMute() async {
-    if (_isMuted) {
-      setState(() => _isMuted = false);
-      await _applyVolume();
-    } else {
-      _volumeBeforeMute = _volumeBeforeMute == 0.0 ? 1.0 : _volumeBeforeMute;
-      setState(() => _isMuted = false);
-      await _applyVolume();
-    }
+    _isMuted = !_isMuted;
+    if (!mounted) return;
+    setState(() {});
+    await _controller.setVolume(_isMuted ? 0.0 : 1.0);
   }
 
   @override
   void dispose() {
-    // 🛑 إلغاء الـ Timer عند تدمير الـ Widget
-    _navigationTimer?.cancel();
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -83,7 +100,6 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // الفيديو
           Center(
             child: initialized
                 ? AspectRatio(
@@ -95,20 +111,43 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
                   ),
           ),
 
-          // زر كتم/تشغيل الصوت
+          // ✅ مؤشر صغير فقط إذا الفيديو شغال ولسا اللود ما خلص
+          Positioned(
+            bottom: 22,
+            left: 22,
+            child: FutureBuilder<void>(
+              future: _bootstrapFuture,
+              builder: (_, snap) {
+                if (snap.connectionState == ConnectionState.done) {
+                  return const SizedBox.shrink();
+                }
+                return const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // ✅ زر الصوت
           if (initialized)
             SafeArea(
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Material(
                     color: Colors.black.withOpacity(0.35),
                     shape: const CircleBorder(),
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
-                      tooltip: _isMuted ? 'تشغيل الصوت' : 'كتم الصوت',
-                      icon: Icon(_isMuted ? Icons.volume_off : Icons.volume_up),
+                      icon: Icon(
+                        _isMuted ? Icons.volume_off : Icons.volume_up,
+                      ),
                       color: Colors.white,
                       onPressed: _toggleMute,
                     ),

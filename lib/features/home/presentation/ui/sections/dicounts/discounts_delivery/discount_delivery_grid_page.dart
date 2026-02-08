@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,7 +35,7 @@ class DiscountDeliveryGridPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomAppbarProfile(
-            title: "Discount Delivery",
+            title: "discount_delivery".tr(),
             icon: Icons.arrow_back_ios,
             ontap: () => Navigator.of(context).pop(),
           ),
@@ -49,7 +50,7 @@ class DiscountDeliveryGridPage extends StatelessWidget {
             if (discountDelivery.isEmpty) {
               return Center(
                 child: Text(
-                  "No delivery discounts",
+                  "no_delivery_discounts".tr(),
                   style: TextStyle(color: AppColor.white, fontSize: 14.sp),
                 ),
               );

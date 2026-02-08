@@ -59,7 +59,7 @@ class _HomeState extends State<Home> with RouteAware {
   @override
   void initState() {
     super.initState();
-    cubit = getIt<HomeCubit>();
+  cubit = context.read<HomeCubit>(); // ✅
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await cubit.sendMyLocationOnce();
@@ -309,7 +309,10 @@ class _HomeState extends State<Home> with RouteAware {
         final noBreakfast = homeData?.breakfastRestaurants.isEmpty ?? false;
         final isEmptyArea =
             homeData != null && noNearby && noCloser && noBreakfast;
-
+        final lang = context.locale.languageCode;
+        final msg = (lang == 'ar')
+            ? (homeData?.messageAr?.trim() ?? "")
+            : (homeData?.messageEn?.trim() ?? "");
         return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
@@ -335,10 +338,13 @@ class _HomeState extends State<Home> with RouteAware {
                         SizedBox(height: 12.h),
 
                         // ✅ Empty Area
+                        // ✅ Empty Area
                         if (!loading && isEmptyArea) ...[
                           HomeEmptyArea(
-                            titleKey: "home.empty_area_title",
-                            subtitleKey: "home.empty_area_hint",
+                            title: msg.isNotEmpty
+                                ? msg
+                                : "There are currently no restaurants in your area.", // fallback optional
+                            subtitle: null,
                             onRefresh: _refreshHomeAndCart,
                           ),
 
@@ -386,9 +392,7 @@ class _HomeState extends State<Home> with RouteAware {
                           _anchor(_storesKey),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: CustomTitleSection(
-                              title: "home.stores".tr(),
-                            ),
+                            child: CustomTitleSection(title: "story".tr()),
                           ),
                           SizedBox(height: 10.h),
                           loading

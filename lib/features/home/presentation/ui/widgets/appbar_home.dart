@@ -71,22 +71,19 @@ class _AppbarHomeState extends State<AppbarHome> {
     final hasCoords = widget.home?.hasCoordinates ?? false;
     final province = widget.home?.provinceDetected;
 
-    final title = (_cachedTitle?.trim().isNotEmpty == true)
-        ? _cachedTitle!
-        : (hasCoords
-              ? (province?.isNotEmpty == true
-                    ? province!
-                    : "home.current_location".tr())
-              : "home.select_location".tr());
+    final title = (widget.home?.provinceDetected?.trim().isNotEmpty == true)
+        ? widget.home!.provinceDetected!.trim()
+        : ""; // أو "--"
 
-    final subtitle = hasCoords ? "" : "home.location_hint".tr();
+    final subtitle = ""; // دائماً فاضي
 
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: Column(
         children: [
           CustomAppbarHome(
-            subtitle: subtitle,
+            title: title.isEmpty ? "--" : title,
+            subtitle: "", // لا تعرض أي شيء
             image: "assets/icons/location.svg",
             icon: Icons.keyboard_arrow_down,
             avatarUrl: widget.home?.avatar,
@@ -171,8 +168,6 @@ class _AppbarHomeState extends State<AppbarHome> {
           return;
         }
 
-        // failures dialog (مثل عندك سابقاً)
-        // تقدر تتركها مثل ما هي عندك
         break;
     }
   }
@@ -269,7 +264,11 @@ class _HomeLocationPickerSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomSubTitle(subtitle: title, color: AppColor.white, fontsize: 12.sp),
+                    CustomSubTitle(
+                      subtitle: title,
+                      color: AppColor.white,
+                      fontsize: 12.sp,
+                    ),
                     // Text(
                     //   title,
                     //   style: TextStyle(

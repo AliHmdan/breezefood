@@ -744,7 +744,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       ),
                                       child: CustomTitleSection(
                                         title: category,
-                                        all: "All",
+                                        all: "common.all".tr().tr(),
                                         icon: Icons.arrow_forward_ios,
                                         ontap: () {
                                           Navigator.push(

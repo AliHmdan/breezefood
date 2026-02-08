@@ -1,6 +1,13 @@
 {
-  "Search": "search",
+  "splash":{
+"sound_on":"Sound on",
+"sound_of":"Sound of"
+  },
+  "story": "Stories",
+  "most_popular": "Most popular",
   "no_ratings_yet": "No ratings yet",
+  "discount_delivery": "Discount Delivery",
+  "no_delivery_discounts": "No delivery Discounts",
   "profile": {
     "title": "Profile",
     "personal_info": "Personal info",
@@ -9,6 +16,17 @@
     "help_center": "Help center",
     "terms": "Terms & Conditions",
     "logout": "Logout"
+  },
+  "logout": {
+    "confirm": "Do you want to log out?",
+    "loading": "Logging out..."
+  },
+  "order_status": {
+    "no_driver": "Searching for a driver",
+    "pending": "Order received",
+    "preparing": "Preparing",
+    "inway": "On the way",
+    "delivered": "Delivered"
   },
   "stores": {
     "delivery_fee_short": "{fee} SYP",
@@ -20,30 +38,9 @@
     "empty_restaurants": "No restaurants available",
     "empty_supermarkets": "No supermarkets available",
     "orders_count": "{count} Orders",
-    "mock_navigate": "Mock Action: Navigating to {name} details (Store)"
+    "mock_navigate": "Mock Action: Navigating to {name} details"
   },
-  "search": {
-    "hint": "Search food, stores, restaurants",
-    "province": "Province",
-    "start_hint": "Start searching for a meal or a restaurant",
-    "no_results": "No results found",
-    "suggestion_syrian_food": "Syrian food",
-    "suggestion_desserts": "Desserts",
-    "suggestion_drinks": "Drinks"
-  },
-  "order_status": {
-    "no_driver": "Searching for a driver",
-    "pending": "Pending",
-    "preparing": "Preparing",
-    "inway": "Inway",
-    "delivered": "Delivered"
-  },
-  "your_rate_title": "Your rating",
-  "already_rated_hint": "You already rated this restaurant. You can delete your rating if you want.",
   "tracking": {
-    "qty": "Qty",
-    "item_price": "Price",
-    "delivery_time": "Delivery time",
     "customer_code_title": "Customer Code",
     "show_code_hint": "Show this code to the driver when you receive the order",
     "delivering_to": "Delivering to",
@@ -61,27 +58,60 @@
     "total": "Total",
     "timeline": "Timeline",
     "items": "Items",
+    "qty": "Qty",
+    "item_price": "Price",
+    "delivery_time": "Delivery time",
     "spicy": "Spicy",
     "me": "Me",
     "title": "Tracking Order #{id}",
     "loading": "Loading driver's location...",
     "live": "Live tracking",
     "not_available": "Tracking not available",
-    "driver": "Driver"
+    "driver": "Driver",
+    "search": "Search"
+  },
+  "search": {
+    "hint": "Search food, stores, restaurants",
+    "province": "Province",
+    "start_hint": "Start searching for a meal or a restaurant",
+    "no_results": "No results found",
+    "suggestion_syrian_food": "Syrian food",
+    "suggestion_desserts": "Desserts",
+    "suggestion_drinks": "Drinks"
+  },
+  "discount": {
+    "title": "Discounts",
+    "fallback": {
+      "restaurant": "Restaurant"
+    },
+    "price_syp": "{price} SYP",
+    "errors": {
+      "cannot_identify": "Couldn't identify the meal or the restaurant."
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "stores": "Stores",
+    "favorites": "Favorites",
+    "orders": "Orders"
+  },
+  "cart": {
+    "item_notes_optional": "Item notes (optional)",
+    "item_notes_hint": "e.g. No onion, mild spicy...",
+    "view_cart": "View Cart",
+    "view_cart_loading": "View Cart ..."
   },
   "map_picker": {
-  "title": "Pick location",
-  "my_location": "My location",
-  "confirm": "Confirm location",
-  "error_cannot_locate": "Couldn't determine your current location. Pick it manually from the map.",
-  "error_failed_update": "Failed to update address",
-  "success_updated": "Address updated",
-
-  "selected_location": "Selected location",
-  "resolving": "Resolving address...",
-  "locating": "Getting your location..."
-}
-,
+    "title": "Pick location",
+    "my_location": "My location",
+    "confirm": "Confirm location",
+    "error_cannot_locate": "Couldn't determine your current location. Pick it manually from the map.",
+    "error_failed_update": "Failed to update address",
+    "success_updated": "Address updated",
+    "selected_location": "Selected location",
+    "resolving": "Resolving address...",
+    "locating": "Getting your location..."
+  },
   "tracking.error_generic": "Something went wrong while tracking",
   "tracking.error_bad_response": "Invalid tracking response",
   "tracking.error_missing_locations": "Unable to load tracking data",
@@ -102,50 +132,21 @@
     "customer_code_copied": "Code copied",
     "price_label": "Price : ",
     "items_count": "Items: {count}",
-    "tap_to_show_customer_code": "Tap to show customer code",
+    "tap_to_show_customer_code": "Tap to show order code",
     "no_current_orders": "No current orders",
     "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
+  },
+  "restaurant": {
+    "menu": "Menu",
+    "details": {
+      "fallback_name": "Restaurant"
+    }
   },
   "supermarket": {
     "quantity": "Quantity",
     "notes_optional": "Notes (optional)",
     "notes_hint": "Example: No damaged items",
     "add_to_cart_with_total": "ADD TO CART  {total}"
-  },
-  "logout": {
-    "confirm": "Do you want to log out?",
-    "loading": "Logging out..."
-  },
-  "auth": {
-      "accept_terms": "I agree to the Terms & Conditions and Privacy Policy",
-    "enable_location_services_hint": "To determine your location, please enable Location Services (GPS) from your device settings.",
-    "enable_location_permission_hint": "Please allow the app to access your location from the app settings.",
-    "open_location_settings": "Open location settings",
-    "open_app_settings": "Open app settings",
-    "check_required_fields": "Please check required fields",
-    "code_sent": "Code sent",
-    "welcome_title": "Welcome to breeze",
-    "login_hint": "Please enter your phone to login",
-    "phone_number": "Phone Number",
-    "enter_phone": "Enter phone number",
-    "invalid_phone": "Invalid phone number",
-    "verifying": "Verifying...",
-    "enter_code_title": "Enter the Code",
-    "enter_code_hint": "Enter the verification code we just sent to {0}",
-    "resend_code": "Resend Code",
-    "updating_location": "Updating your location...",
-    "location_services_disabled": "Location services are disabled",
-    "permission_denied_forever": "Permission permanently denied",
-    "permission_denied": "Permission denied",
-    "getting_location": "Getting your location...",
-    "resolving_address": "Resolving address...",
-    "updating_address": "Updating your address...",
-    "failed_update_address": "Failed to update address",
-    "address_added": "Address added",
-    "enter_first_last": "Please enter both first and last name",
-    "enter_info_title": "Please enter your information",
-    "first_name": "First Name",
-    "last_name": "Last Name"
   },
   "common": {
     "error": "Error",
@@ -160,9 +161,9 @@
     "yes": "Yes",
     "cancel": "Cancel",
     "all": "All",
+    "retry": "Retry",
     "save": "Save",
     "close": "Close",
-    "retry": "Retry",
     "copy": "Copy",
     "currency": "SYP",
     "sending": "Sending...",
@@ -188,51 +189,25 @@
     }
   },
   "reviews": {
-    "your_rate_title": "تقييمك",
-    "already_rated_hint": "أنت مقيّم هذا المطعم مسبقاً. يمكنك حذف تقييمك إذا أردت.",
-    "delete": "حذف التقييم",
-    "orders_count": "{count} طلب",
-    "no_review_to_delete": "لا يوجد تقييم لحذفه",
-    "delete_success": "تم حذف التقييم بنجاح",
-    "delete_confirm_title": "حذف التقييم؟",
-    "delete_confirm_body": "سيتم حذف تقييمك لهذا المطعم.",
-    "delete_confirm_yes": "حذف",
-    "delete_confirm_no": "إلغاء",
-    "rate_failed": "فشل إرسال التقييم",
-    "delete_failed": "فشل حذف التقييم",
-    "rate_title": "ما هو تقييمك؟",
-    "rate_hint": "شاركنا تقييمك عن المطعم",
-    "submit": "إرسال",
-    "cancel": "إلغاء",
-    "rate_success": "تم إرسال التقييم"
-  },
-  "discount": {
-    "title": "Discount",
-    "fallback": {
-      "restaurant": "Restaurant"
-    },
-    "price_syp": "{price} SYP",
-    "errors": {
-      "cannot_identify": "Couldn't identify the meal or the restaurant."
-    }
+    "your_rate_title": "Your rating",
+    "already_rated_hint": "You already rated this restaurant. You can delete your rating if you want.",
+    "delete": "Delete rating",
+    "orders_count": "{count} Orders",
+    "no_review_to_delete": "No rating to delete",
+    "delete_success": "Rating deleted successfully",
+    "delete_confirm_title": "Delete rating?",
+    "delete_confirm_body": "This will delete your rating for this restaurant.",
+    "delete_confirm_yes": "Delete",
+    "delete_confirm_no": "Cancel",
+    "rate_failed": "Failed to submit rating",
+    "delete_failed": "Failed to delete rating",
+    "rate_title": "What is your rating?",
+    "rate_hint": "Share your rating about the restaurant",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "rate_success": "Rating submitted"
   },
   "home": {
-    "your_order": "Your order",
-    "open_now": "Open Now",
-    "filters": {
-      "breakfast": "Breakfast",
-      "closer": "Closer to you",
-      "stores": "Stores",
-      "discounts": "Discounts",
-      "delivery": "Delivery discounts",
-      "supermarket": "Super Market",
-      "open": "Open now"
-    },
-    "breakfast_restaurants": "Breakfast restaurants",
-    "breakfast_chip": "Breakfast",
-    "empty_area_title": "No restaurants available in your area",
-    "empty_area_hint": "Try changing your location or pull to refresh",
-    "empty_breakfast": "No breakfast restaurants available",
     "current_location": "My current location",
     "select_location": "Select your location",
     "location_hint": "To show nearby",
@@ -245,28 +220,27 @@
     "use_my_location": {
       "title": "Use my current location",
       "subtitle": "Automatically detect using GPS"
-    }
-  },
-  "discount_delivery": "Delivery discounts",
-  "closer_to_you": "Closer to you",
-  "super_market": "Super Market",
-  "cart": {
-    "item_notes_optional": "Item notes (optional)",
-    "item_notes_hint": "e.g. No onion, mild spicy...",
-    "view_cart": "View Cart",
-    "view_cart_loading": "View Cart ..."
-  },
-  "nav": {
-    "home": "Home",
+    },
+    "filters": {
+      "breakfast": "Breakfast",
+      "closer": "Closer to you",
+      "stores": "Stores",
+      "discounts": "Discounts",
+      "delivery": "Delivery discounts",
+      "supermarket": "Super Market",
+      "open": "Open now"
+    },
+    "discount_delivery": "Delivery discounts",
+    "closer_to_you": "Closer to you",
     "stores": "Stores",
-    "favorites": "Favorites",
-    "orders": "Orders"
-  },
-  "restaurant": {
-    "menu": "Menu",
-    "details": {
-      "fallback_name": "Restaurant"
-    }
+    "super_market": "Super Market",
+    "open_now": "Open Now",
+    "your_order": "Your order",
+    "breakfast_restaurants": "Breakfast restaurants",
+    "breakfast_chip": "Breakfast",
+    "empty_breakfast": "No breakfast restaurants available",
+    "empty_area_title": "No restaurants available in your area",
+    "empty_area_hint": "Try changing your location or pull to refresh"
   },
   "referral": {
     "copy": "Copy",

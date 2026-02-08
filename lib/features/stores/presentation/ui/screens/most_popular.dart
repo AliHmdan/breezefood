@@ -9,6 +9,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.da
 import 'package:breezefood/features/orders/add_order.dart'; // showAddOrderDialog
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart'; // MenuExtra (الموحد)
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -107,8 +108,8 @@ class MostPopularSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomTitleSection(
-            title: "Most Popular",
-            all: "All",
+            title: "most_popular".tr(),
+            all: "common.all".tr().tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
               Navigator.of(context).push(

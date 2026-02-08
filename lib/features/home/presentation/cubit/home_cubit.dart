@@ -77,8 +77,6 @@ class HomeCubit extends Cubit<HomeState> {
     if (!res.ok) {
       return;
     }
-
-    // ✅ موجود عندك: بعد إرسال الموقع حمّل الهوم
     await load();
   }
 

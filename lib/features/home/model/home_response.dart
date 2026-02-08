@@ -3,6 +3,8 @@ import 'package:breezefood/features/orders/model/active_orders_response.dart'
 
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 class HomeResponse {
   final List<AdModel> ads;
@@ -28,9 +30,12 @@ class HomeResponse {
   final String? provinceDetected;
 
   // ✅ NEW (للـ empty area message)
-  final String? message;
+  final String? messageAr;
+  final String? messageEn;
 
   HomeResponse({
+    this.messageAr,
+    this.messageEn,
     required this.ads,
     required this.closerToYou,
     required this.nearbyRestaurants,
@@ -44,7 +49,6 @@ class HomeResponse {
     required this.avatar,
     required this.provinceDetected,
     required this.haveOrder,
-    this.message, // ✅
   });
 
   // ========= Helpers =========
@@ -96,8 +100,9 @@ class HomeResponse {
     final haveOrderMap = _toMap(json["have_order"]);
 
     return HomeResponse(
-      // ✅ message للـ empty
-      message: json["message"]?.toString(),
+      // ✅ رسائل السيرفر
+      messageAr: json["message_ar"]?.toString(),
+      messageEn: json["message_en"]?.toString(),
 
       ads: _list(json, "ads", (e) => AdModel.fromJson(e)),
       closerToYou: _list(
@@ -115,39 +120,39 @@ class HomeResponse {
         "supermarkets",
         (e) => HomeRestaurantModel.fromJson(e),
       ),
-
-      // ✅ NEW
       breakfastRestaurants: _list(
         json,
         "breakfast_restaurants",
         (e) => HomeRestaurantModel.fromJson(e),
       ),
-
       mostPopular: _list(
         json,
         "most_popular",
         (e) => MenuItemModel.fromJson(e),
       ),
-
       discounts: _list(
         json,
         "discounts",
         (e) => RestaurantDiscountModel.fromJson(e),
       ),
-
       discountDelivery: _list(
         json,
         "discountdelevery",
         (e) => RestaurantDiscountModel.fromJson(e),
       ),
-
       stories: _list(json, "stories", (e) => StoryWrapperModel.fromJson(e)),
-
       hasCoordinates: _toBool(json["has_coordinates"]),
       avatar: (json["avatar"] == null) ? null : _toStringSafe(json["avatar"]),
       provinceDetected: json["province_detected"] as String?,
       haveOrder: haveOrderMap == null ? null : OrderInfo.fromJson(haveOrderMap),
     );
+  }
+  String? localizedEmptyMessage(BuildContext context) {
+    final code = context.locale.languageCode; // ar / en
+    final msg = (code == 'ar') ? messageAr : messageEn;
+    final v = msg?.trim();
+    if (v == null || v.isEmpty) return null;
+    return v;
   }
 }
 

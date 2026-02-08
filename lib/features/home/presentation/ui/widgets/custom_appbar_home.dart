@@ -62,20 +62,21 @@ class CachedAvatar extends StatelessWidget {
 }
 
 class CustomAppbarHome extends StatelessWidget {
-  final String? subtitle;
+  final String title; // ✅ جديد: النص الأساسي (طرطوس / العنوان)
+  final String? subtitle; // ✅ اختياري: تلميح تحت العنوان
   final String? image;
   final IconData? icon;
   final String? avatarUrl;
   final VoidCallback? onProfileTap;
-
   final VoidCallback? onLocationTap;
 
   const CustomAppbarHome({
     super.key,
-    this.avatarUrl,
+    required this.title,
     this.subtitle,
     this.image,
     this.icon,
+    this.avatarUrl,
     this.onProfileTap,
     this.onLocationTap,
   });
@@ -105,7 +106,7 @@ class CustomAppbarHome extends StatelessWidget {
                     height: 40.w,
                     child: (url == null || url.isEmpty)
                         ? Container(
-                            color: Colors.grey.shade200, // خلفية للأيقونة
+                            color: Colors.grey.shade200,
                             child: Center(
                               child: Icon(
                                 Icons.person_outline,
@@ -144,7 +145,7 @@ class CustomAppbarHome extends StatelessWidget {
           ),
         ),
 
-        // ✅ النص والموقع: يفتح اختيار الموقع فقط
+        // ✅ العنوان + سطر تلميح
         Expanded(
           child: InkWell(
             onTap: onLocationTap,
@@ -165,17 +166,38 @@ class CustomAppbarHome extends StatelessWidget {
                           width: 20,
                           height: 20,
                         ),
-                      SizedBox(width: image != null ? 4 : 0),
-                      if (subtitle != null)
-                        CustomSubTitle(
-                          subtitle: "$subtitle",
-                          color: AppColor.LightActive,
-                          fontsize: 12.sp,
+                      SizedBox(width: image != null ? 6.w : 0),
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColor.LightActive,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
+                      ),
+
                       if (icon != null)
-                        Icon(icon, color: AppColor.LightActive, size: 24.sp),
+                        Icon(icon, color: AppColor.LightActive, size: 22.sp),
                     ],
                   ),
+
+                  if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

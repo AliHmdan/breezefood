@@ -1,5 +1,6 @@
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discount_card.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_delivery/discount_delivery_grid_page.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -49,8 +50,8 @@ class DiscountDeliveryHome extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: CustomTitleSection(
-            title: "Discount Delivery",
-            all: "All",
+            title: "discount_delivery".tr(),
+            all: "common.all".tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
               Navigator.of(context).push(
@@ -86,7 +87,8 @@ class DiscountDeliveryHome extends StatelessWidget {
                       width: itemWidth,
                       margin: EdgeInsetsDirectional.only(end: 10.w),
                       child: Discount(
-                         onTap: () => openRestaurantById(context, d.restaurantId), 
+                        onTap: () =>
+                            openRestaurantById(context, d.restaurantId),
                         imagePath: _logoUrl(d),
                         subtitle: d.restaurantName,
                         price: fin ?? 0,

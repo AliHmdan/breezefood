@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 class HomeEmptyArea extends StatelessWidget {
-  final String titleKey;        // ✅ key
-  final String? subtitleKey;    // ✅ key
+  final String title;       // ✅ نص جاهز من السيرفر
+  final String? subtitle;   // ✅ نص جاهز (اختياري)
   final VoidCallback onRefresh;
 
   const HomeEmptyArea({
     super.key,
-    required this.titleKey,
-    this.subtitleKey,
+    required this.title,
+    this.subtitle,
     required this.onRefresh,
   });
 
@@ -27,11 +26,10 @@ class HomeEmptyArea extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const Icon(Icons.location_off_rounded,
-                color: Colors.white70, size: 44),
+            const Icon(Icons.location_off_rounded, color: Colors.white70, size: 44),
             const SizedBox(height: 10),
             Text(
-              titleKey.tr(),
+              title, // ✅ بدون tr()
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
@@ -39,10 +37,10 @@ class HomeEmptyArea extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            if (subtitleKey != null && subtitleKey!.trim().isNotEmpty) ...[
+            if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
-                subtitleKey!.tr(),
+                subtitle!, // ✅ بدون tr()
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.75),
@@ -56,7 +54,7 @@ class HomeEmptyArea extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onRefresh,
                 icon: const Icon(Icons.refresh_rounded),
-                label: Text("common.retry".tr()),
+                label: Text("common.retry".tr()), // زر فقط ترجمة عادي
               ),
             ),
           ],
