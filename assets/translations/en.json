@@ -1,4 +1,8 @@
 {
+  "stories": {
+    "empty": "No stories right now",
+    "story_fallback": "Story"
+  },
   "favorites": {
     "title": "Favorites",
     "empty": "No items in favorites",

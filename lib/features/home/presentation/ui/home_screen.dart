@@ -59,7 +59,7 @@ class _HomeState extends State<Home> with RouteAware {
   @override
   void initState() {
     super.initState();
-  cubit = context.read<HomeCubit>(); // ✅
+    cubit = context.read<HomeCubit>(); // ✅
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await cubit.sendMyLocationOnce();
@@ -398,13 +398,13 @@ class _HomeState extends State<Home> with RouteAware {
                           loading
                               ? _shimmerBox(height: 178.h)
                               : state.maybeWhen(
-                                  loaded: (data) => Stores(
-                                    restaurants: data.nearbyRestaurants,
+                                  loaded: (data) => StoriesSlider(
+                                    stories: data.stories,
+                                    onTap: (story) {},
                                   ),
                                   orElse: () => const SizedBox.shrink(),
                                 ),
-                          SizedBox(height: 14.h),
-
+                          SizedBox(height: 10.h),
                           // Discounts
                           _anchor(_discountsKey),
                           loading

@@ -1,4 +1,8 @@
 {
+  "stories": {
+    "empty": "لا توجد قصص حالياً",
+    "story_fallback": "قصة"
+  },
   "favorites": {
     "title": "المفضلة",
     "empty": "لا توجد عناصر في المفضلة",

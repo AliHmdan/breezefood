@@ -1,31 +1,35 @@
 import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/core/di/di.dart';
-import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
-import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart' as mt;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class Stores extends StatelessWidget {
-  final List<HomeRestaurantModel> restaurants;
+class StoriesSlider extends StatelessWidget {
+  final List<StoryWrapperModel> stories;
+  final void Function(StoryWrapperModel story)? onTap;
 
-  const Stores({super.key, required this.restaurants});
+  const StoriesSlider({super.key, required this.stories, this.onTap});
+
+  bool _isAr(BuildContext context) => context.locale.languageCode == 'ar';
 
   @override
   Widget build(BuildContext context) {
     final height = 160.h;
+    final isAr = _isAr(context);
 
-    if (restaurants.isEmpty) {
+    if (stories.isEmpty) {
       return SizedBox(
         height: height,
         child: Center(
           child: Text(
-            "No stores available",
-            style: TextStyle(color: AppColor.gry, fontSize: 12.sp),
+            "stories.empty".tr(),
+            style: TextStyle(
+              color: AppColor.gry,
+              fontSize: 12.sp,
+              fontFamily: isAr ? 'Cairo' : 'Inter',
+            ),
           ),
         ),
       );
@@ -38,145 +42,35 @@ class Stores extends StatelessWidget {
         child: CarouselSlider.builder(
           options: CarouselOptions(
             height: height,
-            autoPlay: restaurants.length > 1,
+            autoPlay: stories.length > 1,
             enlargeCenterPage: true,
             viewportFraction: 0.92,
           ),
-          itemCount: restaurants.length,
+          itemCount: stories.length,
           itemBuilder: (context, index, realIndex) {
-            final r = restaurants[index];
+            final w = stories[index];
+            final s = w.storyData;
 
-            // اختيار صورة مناسبة
-            final cover = UrlHelper.toFullUrl(r.coverImage);
-            final logo = UrlHelper.toFullUrl(r.logo);
-            final imageUrl = (cover ?? "").trim().isNotEmpty ? cover : logo;
+            // ✅ صورة الستوري
+            final imageUrl = (s.imageUrl ?? "").trim();
 
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // خلفية الصورة
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12.r),
-                  child: _NetImage(url: imageUrl, height: height),
-                ),
+            // ✅ عنوان القصة (من السيرفر) + fallback مترجم
+            final rawTitle = (s.restaurant?.name ?? s.title).trim();
+            final title = rawTitle.isEmpty
+                ? "stories.story_fallback".tr()
+                : rawTitle;
 
-                // طبقة شفافة + gradient
-                // Positioned.fill(
-                //   child: Container(
-                //     decoration: BoxDecoration(
-                //       borderRadius: BorderRadius.circular(12.r),
-                //       gradient: LinearGradient(
-                //         begin: Alignment.bottomCenter,
-                //         end: Alignment.topCenter,
-                //         colors: [
-                //           Colors.black.withOpacity(0.65),
-                //           Colors.black.withOpacity(0.25),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
-
-                // Positioned(
-                //   left: 0,
-                //   right: 0,
-                //   bottom: 0,
-                //   child: Padding(
-                //     padding: EdgeInsets.all(12.w),
-                //     child: Column(
-                //       crossAxisAlignment: CrossAxisAlignment.start,
-                //       mainAxisSize: MainAxisSize.min,
-                //       children: [
-                //         Text(
-                //           "subtitle",
-                //           maxLines: 1,
-                //           overflow: TextOverflow.ellipsis,
-                //           style: TextStyle(
-                //             color: AppColor.white,
-                //             fontSize: 12.sp,
-                //             fontWeight: FontWeight.w400,
-                //             fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                //                 ? 'Cairo'
-                //                 : 'Inter',
-                //           ),
-                //         ),
-                //         SizedBox(height: 3.h),
-                //
-                //         Text(
-                //           r.name ?? "Store",
-                //           maxLines: 1,
-                //           overflow: TextOverflow.ellipsis,
-                //           style: TextStyle(
-                //             color: AppColor.white,
-                //             fontSize: 14.sp,
-                //             fontWeight: FontWeight.w700,
-                //             fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                //                 ? 'Cairo'
-                //                 : 'Inter',
-                //           ),
-                //         ),
-                //
-                //         // if (location.isNotEmpty) ...[
-                //         //   SizedBox(height: 2.h),
-                //         //   Container(
-                //         //     padding: EdgeInsets.symmetric(
-                //         //       horizontal: 8.w,
-                //         //       vertical: 3.h,
-                //         //     ),
-                //         //     decoration: BoxDecoration(
-                //         //       color: Colors.black.withOpacity(0.35),
-                //         //       borderRadius: BorderRadius.circular(20.r),
-                //         //     ),
-                //         //     child: Text(
-                //         //       location,
-                //         //       style: TextStyle(
-                //         //         color: AppColor.gry,
-                //         //         fontSize: 11.sp,
-                //         //       ),
-                //         //     ),
-                //         //   ),
-                //         // ],
-                //         // SizedBox(height: 6.h),
-                //
-                //         // ElevatedButton(
-                //         //   style: ElevatedButton.styleFrom(
-                //         //     backgroundColor: AppColor.primaryColor,
-                //         //     padding: EdgeInsets.symmetric(
-                //         //       horizontal: 10.w,
-                //         //       vertical: 2.h,
-                //         //     ),
-                //         //     shape: RoundedRectangleBorder(
-                //         //       borderRadius: BorderRadius.circular(6.r),
-                //         //     ),
-                //         //   ),
-                //         //   onPressed: () {
-                //         //     Navigator.push(
-                //         //       context,
-                //         //       MaterialPageRoute(
-                //         //         builder: (context) => BlocProvider(
-                //         //           create: (context) => getIt<FavoritesCubit>(),
-                //         //           child: ResturantDetails(restaurant_id: r.id),
-                //         //         ),
-                //         //       ),
-                //         //     );
-                //         //     context.read<CartCubit>().loadCart();
-                //         //   },
-                //         //   child: Text(
-                //         //     "Order Now",
-                //         //     style: TextStyle(
-                //         //       color: AppColor.white,
-                //         //       fontSize: 12.sp,
-                //         //       fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                //         //           ? 'Cairo'
-                //         //           : 'Inter',
-                //         //     ),
-                //         //   ),
-                //         // ),
-                //       ],
-                //     ),
-                //   ),
-                // ),
-              ],
+            return GestureDetector(
+              onTap: onTap == null ? null : () => onTap!(w),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: _NetImage(url: imageUrl, height: height),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -201,7 +95,7 @@ class _NetImage extends StatelessWidget {
         width: double.infinity,
         color: Colors.blueGrey.shade900,
         alignment: Alignment.center,
-        child: Icon(Icons.storefront, color: Colors.white70, size: 30.sp),
+        child: Icon(Icons.image, color: Colors.white70, size: 30.sp),
       );
     }
 
@@ -214,7 +108,6 @@ class _NetImage extends StatelessWidget {
         if (progress == null) return child;
         return Container(
           height: height,
-          // color: Colors.black.withOpacity(0.2),
           alignment: Alignment.center,
           child: SizedBox(
             width: 22.w,
