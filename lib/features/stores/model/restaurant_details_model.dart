@@ -259,7 +259,8 @@ class MenuItem {
     priceAfter: _toDouble(json["price_after"]),
     discountPercent: _toDouble(json["discount_percent"]),
     discountType: json["discount_type"] as String?,
-    image: json["image"] as String?,
+   image: _parseImage(json["image"] ?? json["primary_image"]),
+
     isFavorite: (json["is_favorite"] ?? false) as bool,
     nameAr: (json["name_ar"] ?? "") as String,
     nameEn: (json["name_en"] ?? "") as String,
@@ -282,6 +283,25 @@ class MenuItem {
     return double.tryParse(v.toString()) ?? 0;
   }
 }
+
+String? _parseImage(dynamic v) {
+  if (v == null) return null;
+
+  // إذا جاي String مباشرة
+  if (v is String) return v;
+
+  // إذا جاي Map مثل primary_image
+  if (v is Map) {
+    final m = v.cast<String, dynamic>();
+
+    // أشهر مفاتيح ممكنة
+    final url = m["image_url"] ?? m["url"] ?? m["path"];
+    if (url is String) return url;
+  }
+
+  return null;
+}
+
 
 class MenuExtra {
   final int id;
