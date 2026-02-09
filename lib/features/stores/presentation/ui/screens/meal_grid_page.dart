@@ -20,13 +20,10 @@ class DiscountGridPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-
       backgroundColor: AppColor.Dark,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50.h),
-        child:
-        CustomAppbarProfile(
+        child: CustomAppbarProfile(
           title: "Discount",
           icon: Icons.arrow_back_ios,
           ontap: () => Navigator.of(context).pop(),
@@ -48,6 +45,7 @@ class DiscountGridPage extends StatelessWidget {
             child: DiscountItemCard(
               item: it,
               imageUrl: fullImageUrl(it.image ?? ""),
+
             ),
           );
         },
@@ -55,3 +53,5 @@ class DiscountGridPage extends StatelessWidget {
     );
   }
 }
+
+ 

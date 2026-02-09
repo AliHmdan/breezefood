@@ -109,7 +109,7 @@ class MostPopularSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomTitleSection(
             title: "most_popular".tr(),
-            all: "common.all".tr().tr(),
+            all: "common.all".tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
               Navigator.of(context).push(

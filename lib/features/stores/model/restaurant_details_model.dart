@@ -89,7 +89,9 @@ class RestaurantGeneral {
 
       // ✅ parse delivery object
       delivery: (json["delivery"] is Map)
-          ? DeliveryInfo.fromJson((json["delivery"] as Map).cast<String, dynamic>())
+          ? DeliveryInfo.fromJson(
+              (json["delivery"] as Map).cast<String, dynamic>(),
+            )
           : null,
 
       myRating: (ratingJson is Map)
@@ -135,9 +137,9 @@ class DeliveryInfo {
   }
 
   factory DeliveryInfo.fromJson(Map<String, dynamic> json) => DeliveryInfo(
-        baseFee: _toNum(json["base_fee"]),
-        finalFee: _toNum(json["final_fee"]),
-      );
+    baseFee: _toNum(json["base_fee"]),
+    finalFee: _toNum(json["final_fee"]),
+  );
 }
 
 class RestaurantModel {
@@ -179,7 +181,8 @@ class RestaurantModel {
     return num.tryParse(cleaned) ?? 0;
   }
 
-  factory RestaurantModel.fromJson(Map<String, dynamic> json) => RestaurantModel(
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
+      RestaurantModel(
         id: (json["id"] ?? 0) as int,
         name: (json["name"] ?? "") as String,
         logo: json["logo"] as String?,
@@ -193,7 +196,6 @@ class RestaurantModel {
             : null,
       );
 }
-
 
 class DeliveryDiscount {
   final String type; // fixed | percentage ...
@@ -259,7 +261,7 @@ class MenuItem {
     priceAfter: _toDouble(json["price_after"]),
     discountPercent: _toDouble(json["discount_percent"]),
     discountType: json["discount_type"] as String?,
-   image: _parseImage(json["image"] ?? json["primary_image"]),
+    image: _parseImage(json["primary_image"] ?? json["image"]),
 
     isFavorite: (json["is_favorite"] ?? false) as bool,
     nameAr: (json["name_ar"] ?? "") as String,
@@ -302,7 +304,6 @@ String? _parseImage(dynamic v) {
   return null;
 }
 
-
 class MenuExtra {
   final int id;
   final double price;
@@ -318,7 +319,8 @@ class MenuExtra {
 
   factory MenuExtra.fromJson(Map<String, dynamic> json) => MenuExtra(
     id: (json["id"] ?? 0) as int,
-    price: _toDouble(json["price"]),
+    price: _toDouble(json["price"] ?? json["base_price"]),
+
     nameAr: (json["name_ar"] ?? "") as String,
     nameEn: (json["name_en"] ?? "") as String,
   );
@@ -373,4 +375,3 @@ class MyRating {
     return double.tryParse(v.toString()) ?? 0;
   }
 }
-

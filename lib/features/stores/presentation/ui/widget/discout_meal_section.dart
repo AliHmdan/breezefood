@@ -43,9 +43,9 @@ class DiscountMealSection extends StatelessWidget {
               SizedBox(width: 2,),
               Expanded(
                 child: CustomTitleSection(
-                  title: "discount".tr(),
+                  title: "discount.title".tr(),
                   icon: Icons.arrow_forward_ios,
-                  all: "common.all".tr().tr(),
+                  all: "common.all".tr(),
                   ontap: () {
                     Navigator.push(
                       context,
