@@ -5,6 +5,7 @@ import 'package:breezefood/features/favorite_page/data/model/favorites_response.
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../profile/presentation/widget/custom_appbar_profile.dart';
+import '../../../profile/presentation/widget/custom_appbar_profile.dart';
 
 class FavoritePage extends StatefulWidget {
   const FavoritePage({super.key});
@@ -45,7 +46,8 @@ class FavoritePageState extends State<FavoritePage> {
 
   Future<void> _deleteFavorite(FavoriteItem item) async {
     _removingNow = true;
-    EasyLoading.show(status: "Removing...");
+    EasyLoading.show(status: "favorites.removing".tr());
+
     await cubit.remove(item);
   }
 
@@ -147,10 +149,15 @@ class FavoritePageState extends State<FavoritePage> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Price : ",
+                              text: "favorites.price".tr(),
+
                               style: TextStyle(
                                 color: AppColor.white,
-                                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
                                     ? 'Cairo'
                                     : 'Inter',
                                 fontSize: 12.sp,
@@ -160,7 +167,11 @@ class FavoritePageState extends State<FavoritePage> {
                               text: context.syp(item.price),
                               style: TextStyle(
                                 color: AppColor.yellow,
-                                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
                                     ? 'Cairo'
                                     : 'Inter',
                                 fontWeight: FontWeight.bold,
@@ -197,7 +208,7 @@ class FavoritePageState extends State<FavoritePage> {
 
               if (_removingNow) {
                 _removingNow = false;
-                EasyLoading.showSuccess("Removed");
+                EasyLoading.showSuccess("favorites.removed".tr());
               }
             },
             error: (msg) {
@@ -227,8 +238,10 @@ class FavoritePageState extends State<FavoritePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-
-                    CustomAppbarProfile(ontap: (){},title:"Favorite" ,),
+                    CustomAppbarProfile(
+                      ontap: () {},
+                      title: "favorites.title".tr(),
+                    ),
 
                     Expanded(
                       child: isLoading
@@ -244,11 +257,18 @@ class FavoritePageState extends State<FavoritePage> {
                                     size: 50,
                                   ),
                                   SizedBox(height: 10.h),
-                                   Text(
-                                    "لا توجد عناصر في المفضلة",
-                                    style: TextStyle(color: Colors.white70,fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                                        ? 'Cairo'
-                                        : 'Inter',),
+                                  Text(
+                                    "favorites.empty".tr(),
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontFamily:
+                                          Localizations.localeOf(
+                                                context,
+                                              ).languageCode ==
+                                              'ar'
+                                          ? 'Cairo'
+                                          : 'Inter',
+                                    ),
                                   ),
                                 ],
                               ),

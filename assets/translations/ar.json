@@ -1,13 +1,54 @@
 {
-   "splash":{
-"sound_on":"تشغيل الصوت",
-"sound_of":"كتم الصوت"
+  "favorites": {
+    "title": "المفضلة",
+    "empty": "لا توجد عناصر في المفضلة",
+    "price": "السعر: ",
+    "removing": "جارٍ الإزالة...",
+    "removed": "تمت الإزالة من المفضلة"
   },
-  "story":"القصص",
+  "auth": {
+    "welcome_title": "مرحباً بك في Breeze",
+    "login_hint": "أدخل رقم هاتفك لإرسال رمز التحقق",
+    "phone_number": "رقم الهاتف",
+    "enter_phone": "أدخل رقم الهاتف",
+    "invalid_phone": "رقم الهاتف غير صالح",
+    "check_required_fields": "تحقق من الحقول المطلوبة",
+    "code_sent": "تم إرسال رمز التحقق",
+    "verifying": "جارٍ التحقق...",
+    "enter_code_title": "أدخل رمز التحقق",
+    "enter_code_hint": "تم إرسال الرمز",
+    "resend_code": "إعادة إرسال الرمز",
+    "enter_info_title": "أدخل معلوماتك",
+    "first_name": "الاسم الأول",
+    "last_name": "اسم العائلة",
+    "enter_first_last": "الرجاء إدخال الاسم الأول واسم العائلة",
+    "updating_location": "جارٍ تحديث موقعك...",
+    "location_services_disabled": "خدمة الموقع متوقفة. فعّلها من الإعدادات.",
+    "permission_denied_forever": "تم رفض صلاحية الموقع نهائياً. فعّلها من إعدادات التطبيق.",
+    "permission_denied": "تم رفض صلاحية الموقع.",
+    "getting_location": "جارٍ تحديد موقعك...",
+    "resolving_address": "جارٍ تحديد العنوان...",
+    "updating_address": "جارٍ تحديث العنوان...",
+    "failed_update_address": "فشل تحديث العنوان، حاول مرة أخرى.",
+    "open_location_settings": "فتح إعدادات الموقع",
+    "open_app_settings": "فتح إعدادات التطبيق",
+    "address_added": "تم حفظ العنوان بنجاح"
+  },
+  "terms": {
+    "title": "الشروط والأحكام",
+    "tap_to_view_and_accept": "اضغط لعرض الشروط والأحكام والموافقة عليها",
+    "i_agree": "أوافق",
+    "must_accept": "يجب الموافقة على الشروط والأحكام للمتابعة"
+  },
+  "splash": {
+    "sound_on": "تشغيل الصوت",
+    "sound_of": "كتم الصوت"
+  },
+  "story": "القصص",
   "most_popular": "الأكثر طلباً",
   "no_ratings_yet": "لا يوجد تقييمات",
   "discount_delivery": "خصومات التوصيل",
-  "no_delivery_discounts":"لا يوجد خصومات",
+  "no_delivery_discounts": "لا يوجد خصومات",
   "profile": {
     "title": "الملف الشخصي",
     "personal_info": "المعلومات الشخصية",
@@ -17,20 +58,19 @@
     "terms": "الشروط والأحكام",
     "logout": "تسجيل الخروج"
   },
-
   "logout": {
     "confirm": "هل أنت متأكد من تسجيل الخروج؟",
     "loading": "جاري تسجيل الخروج..."
   },
-
   "order_status": {
+    "cancelled": "ملغي",
+    "completed": "مكتمل",
     "no_driver": "جارٍ البحث عن سائق",
     "pending": "تم استلام الطلب",
     "preparing": "قيد التحضير",
     "inway": "بالطريق إليك",
     "delivered": "تم التسليم"
   },
-
   "stores": {
     "delivery_fee_short": "{fee} ل.س",
     "title": "المتاجر",
@@ -43,7 +83,6 @@
     "orders_count": "{count} طلب",
     "mock_navigate": "تجربة: الانتقال إلى تفاصيل {name}"
   },
-
   "tracking": {
     "customer_code_title": "كود الاستلام",
     "show_code_hint": "اعرض هذا الكود للسائق عند استلام الطلب",
@@ -74,7 +113,6 @@
     "driver": "السائق",
     "search": "بحث"
   },
-
   "search": {
     "hint": "ابحث عن وجبة أو متجر أو مطعم",
     "province": "المحافظة",
@@ -84,7 +122,6 @@
     "suggestion_desserts": "حلويات",
     "suggestion_drinks": "مشروبات"
   },
-
   "discount": {
     "title": "الخصومات",
     "fallback": {
@@ -95,21 +132,18 @@
       "cannot_identify": "لا يمكن تحديد الوجبة أو المطعم."
     }
   },
-
   "nav": {
     "home": "الرئيسية",
     "stores": "المتاجر",
     "favorites": "المفضلة",
     "orders": "الطلبات"
   },
-
   "cart": {
     "item_notes_optional": "ملاحظات للوجبة (اختياري)",
     "item_notes_hint": "مثال: بدون بصل، سبايسي خفيف...",
     "view_cart": "عرض السلة",
     "view_cart_loading": "عرض السلة ..."
   },
-
   "map_picker": {
     "title": "اختر الموقع",
     "my_location": "موقعي",
@@ -121,12 +155,12 @@
     "resolving": "جارٍ تحديد العنوان...",
     "locating": "جارٍ تحديد موقعك..."
   },
-
   "tracking.error_generic": "هناك خطأ بالتتبع",
   "tracking.error_bad_response": "استجابة غير صحيحة",
   "tracking.error_missing_locations": "لا يمكن تحميل بيانات التتبع",
-
   "orders": {
+    "price": "السعر: ",
+    "empty_history": "لا توجد طلبات سابقة",
     "cancel_order": "إلغاء الطلب",
     "cancel_confirm_title": "إلغاء الطلب؟",
     "cancel_confirm_body": "سيتم إلغاء طلبك. هل أنت متأكد؟",
@@ -147,21 +181,18 @@
     "tap_to_show_customer_code": "اضغط لعرض كود الطلب",
     "no_current_orders": "لا توجد طلبات حالية"
   },
-
   "restaurant": {
     "menu": "المنيو",
     "details": {
       "fallback_name": "مطعم"
     }
   },
-
   "supermarket": {
     "quantity": "الكمية",
     "notes_optional": "ملاحظات (اختياري)",
     "notes_hint": "مثال: بدون مواد تالفة",
     "add_to_cart_with_total": "إضافة إلى السلة  {total}"
   },
-
   "common": {
     "error": "خطأ",
     "loading": "جارٍ التحميل...",
@@ -169,7 +200,6 @@
     "continue": "متابعة",
     "placeholder": "مكان مخصص",
     "unknown_address": "عنوان غير معروف",
-
     "dash": "--",
     "minutes_short": "{min}د",
     "error_prefix": "{msg}",
@@ -192,7 +222,6 @@
     "view_cart_loading": "عرض السلة ...",
     "view_cart": "عرض السلة • {count} • {total}"
   },
-
   "notifications": {
     "title": "الإشعارات",
     "mark_all_read": "تحديد الكل كمقروء",
@@ -204,7 +233,6 @@
       "hours": "{0}س"
     }
   },
-
   "reviews": {
     "your_rate_title": "تقييمك",
     "already_rated_hint": "أنت مقيّم هذا المطعم مسبقاً. يمكنك حذف تقييمك إذا أردت.",
@@ -224,24 +252,20 @@
     "cancel": "إلغاء",
     "rate_success": "تم إرسال التقييم"
   },
-
   "home": {
     "current_location": "موقعي الحالي",
     "select_location": "حدد موقعك",
     "location_hint": "لإظهار الأقرب إليك (مطاعم / سوبر ماركت)",
     "my_location": "موقعي",
     "location_picker_title": "اختيار الموقع",
-
     "pick_on_map": {
       "title": "اختيار على الخريطة",
       "subtitle": "حدد موقع جديد وتحديث العنوان"
     },
-
     "use_my_location": {
       "title": "استخدام موقعي الحالي",
       "subtitle": "التحديث تلقائياً من GPS"
     },
-
     "filters": {
       "breakfast": "فطور",
       "closer": "الأقرب إليك",
@@ -251,21 +275,18 @@
       "supermarket": "سوبر ماركت",
       "open": "مفتوح الآن"
     },
-
     "discount_delivery": "خصومات التوصيل",
     "closer_to_you": "الأقرب إليك",
     "stores": "المتاجر",
     "super_market": "السوبر ماركت",
     "open_now": "مفتوح الآن",
     "your_order": "طلبك",
-
     "breakfast_restaurants": "مطاعم الفطور",
     "breakfast_chip": "فطور",
     "empty_breakfast": "لا يوجد مطاعم فطور",
     "empty_area_title": "لا يوجد مطاعم في منطقتك",
     "empty_area_hint": "جرّب تغيير موقعك أو اسحب للتحديث"
   },
-
   "referral": {
     "copy": "نسخ",
     "share": "مشاركة",

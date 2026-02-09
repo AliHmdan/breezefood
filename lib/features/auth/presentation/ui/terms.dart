@@ -1,7 +1,9 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/terms/presentation/cubit/terms_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as mt;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -35,7 +37,7 @@ class _TermsDialogState extends State<TermsDialog> {
                   children: [
                     Expanded(
                       child: Text(
-                        "Terms & Conditions",
+                        "terms.title".tr(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15.sp,
@@ -46,6 +48,7 @@ class _TermsDialogState extends State<TermsDialog> {
                     IconButton(
                       onPressed: () => Navigator.pop(context, false),
                       icon: const Icon(Icons.close, color: Colors.white70),
+                      tooltip: "common.close".tr(),
                     ),
                   ],
                 ),
@@ -90,8 +93,11 @@ class _TermsDialogState extends State<TermsDialog> {
                     builder: (context, state) {
                       return state.when(
                         initial: () => const SizedBox.shrink(),
-                        loading: () => const Center(
-                          child: CircularProgressIndicator(),
+                        loading: () => Center(
+                          child: Text(
+                            "common.loading".tr(),
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ),
                         error: (msg) => Center(
                           child: Text(
@@ -120,8 +126,8 @@ class _TermsDialogState extends State<TermsDialog> {
                                 physics: const BouncingScrollPhysics(),
                                 child: Directionality(
                                   textDirection: _langIndex == 0
-                                      ? TextDirection.rtl
-                                      : TextDirection.ltr,
+                                      ? mt.TextDirection.rtl
+                                      : mt.TextDirection.ltr,
                                   child: Text(
                                     text.isEmpty ? "—" : text,
                                     style: TextStyle(
@@ -150,14 +156,16 @@ class _TermsDialogState extends State<TermsDialog> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white70,
-                          side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          side: BorderSide(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14.r),
                           ),
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                         ),
                         onPressed: () => Navigator.pop(context, false),
-                        child: const Text("Cancel"),
+                        child: Text("common.cancel".tr()),
                       ),
                     ),
                     SizedBox(width: 10.w),
@@ -172,7 +180,7 @@ class _TermsDialogState extends State<TermsDialog> {
                           padding: EdgeInsets.symmetric(vertical: 12.h),
                         ),
                         onPressed: () => Navigator.pop(context, true),
-                        child: const Text("I Agree"),
+                        child: Text("terms.i_agree".tr()),
                       ),
                     ),
                   ],

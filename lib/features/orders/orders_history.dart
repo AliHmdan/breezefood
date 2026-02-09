@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart'; // OrderBundle
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -106,11 +107,12 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomSubTitle(
-                        subtitle: restaurant.name,
-                        color: AppColor.white,
-                        fontsize: 14.sp,
-                      ),
+                    CustomSubTitle(
+  subtitle: "order_status.${item.status}".tr(),
+  color: statusColor,
+  fontsize: 12.sp,
+),
+
                       const SizedBox(height: 4),
                       CustomSubTitle(
                         subtitle: item.status,
@@ -122,7 +124,8 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Price : ",
+                             text: "orders.price".tr(),
+
                               style: TextStyle(
                                 color: AppColor.white,
                                 fontFamily: "Manrope",
@@ -130,7 +133,8 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                               ),
                             ),
                             TextSpan(
-                              text: "${item.totalPrice.toStringAsFixed(0)} ل.س",
+                             text: "${item.totalPrice.toStringAsFixed(0)} ${"common.currency".tr()}",
+
                               style: TextStyle(
                                 color: AppColor.yellow,
                                 fontFamily: "Manrope",
@@ -184,12 +188,13 @@ class _OrdersHistoryState extends State<OrdersHistory> {
         }
 
         if (orders.isEmpty) {
-          return const Center(
-            child: Text(
-              "لا توجد طلبات سابقة",
-              style: TextStyle(color: Colors.white70),
-            ),
-          );
+        return Center(
+  child: Text(
+    "orders.empty_history".tr(),
+    style: const TextStyle(color: Colors.white70),
+  ),
+);
+
         }
 
         return RefreshIndicator(

@@ -1,7 +1,48 @@
 {
-  "splash":{
-"sound_on":"Sound on",
-"sound_of":"Sound of"
+  "favorites": {
+    "title": "Favorites",
+    "empty": "No items in favorites",
+    "price": "Price: ",
+    "removing": "Removing...",
+    "removed": "Removed from favorites"
+  },
+  "auth": {
+    "welcome_title": "Welcome to Breeze",
+    "login_hint": "Enter your phone number to receive a verification code",
+    "phone_number": "Phone number",
+    "enter_phone": "Enter phone number",
+    "invalid_phone": "Invalid phone number",
+    "check_required_fields": "Please check required fields",
+    "code_sent": "Verification code sent",
+    "verifying": "Verifying...",
+    "enter_code_title": "Enter verification code",
+    "enter_code_hint": "We sent a code to {0}",
+    "resend_code": "Resend code",
+    "enter_info_title": "Enter your information",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "enter_first_last": "Please enter first and last name",
+    "updating_location": "Updating your location...",
+    "location_services_disabled": "Location services are disabled. Enable them in settings.",
+    "permission_denied_forever": "Location permission denied permanently. Enable it from app settings.",
+    "permission_denied": "Location permission denied.",
+    "getting_location": "Getting your location...",
+    "resolving_address": "Resolving address...",
+    "updating_address": "Updating address...",
+    "failed_update_address": "Failed to update address. Please try again.",
+    "open_location_settings": "Open location settings",
+    "open_app_settings": "Open app settings",
+    "address_added": "Address saved successfully"
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "tap_to_view_and_accept": "Tap to view Terms & Conditions and accept",
+    "i_agree": "I Agree",
+    "must_accept": "You must accept Terms & Conditions to continue"
+  },
+  "splash": {
+    "sound_on": "Sound on",
+    "sound_of": "Sound of"
   },
   "story": "Stories",
   "most_popular": "Most popular",

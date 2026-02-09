@@ -1,19 +1,15 @@
-import 'package:breezefood/core/services/app_notification_service.dart';
-import 'package:breezefood/features/auth/presentation/ui/terms.dart';
-import 'package:breezefood/features/auth/presentation/verify_code.dart';
 import 'package:breezefood/core/component/color.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
-import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/auth/presentation/cubit/auth_flow_cubit.dart';
+import 'package:breezefood/features/auth/presentation/verify_code.dart';
+import 'package:breezefood/features/auth/presentation/ui/terms.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_title.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -25,21 +21,10 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _acceptedTerms = false;
-Future<void> _openTermsAndMaybeAccept() async {
-  final ok = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const TermsDialog(),
-  );
-
-  if (!mounted) return;
-  if (ok == true) {
-    setState(() => _acceptedTerms = true);
-  }
-}
 
   late final AuthFlowCubit cubit;
+
+  bool _acceptedTerms = false;
 
   @override
   void initState() {
@@ -51,6 +36,22 @@ Future<void> _openTermsAndMaybeAccept() async {
   void dispose() {
     phoneController.dispose();
     super.dispose();
+  }
+
+  // ✅ يترجم فقط إذا الرسالة key، غير هيك يعرضها كما هي
+  String trOrRaw(String s) {
+    final k = s.trim();
+    if (k.isEmpty) return k;
+
+    // keys عادة بتكون فيها نقطة: "errors.invalid_phone"
+    // أو underscore: "invalid_phone"
+    final looksLikeKey = k.contains('.') || k.contains('_');
+
+    if (!looksLikeKey) return k;
+
+    final translated = k.tr();
+    // إذا ما انترجم ورجع نفس النص تماماً -> اعتبره raw
+    return translated == k ? k : translated;
   }
 
   void _showSnackBar(
@@ -71,7 +72,10 @@ Future<void> _openTermsAndMaybeAccept() async {
               const SizedBox(width: 10),
             ],
             Expanded(
-              child: Text(message, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -84,19 +88,45 @@ Future<void> _openTermsAndMaybeAccept() async {
     );
   }
 
-  void _handleLogin() async {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _openTermsAndMaybeAccept() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const TermsDialog(),
+    );
+
+    if (!mounted) return;
+
+    if (ok == true) {
+      setState(() => _acceptedTerms = true);
+    }
+  }
+
+  void _handleLogin() {
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if (!isValid) {
       _showSnackBar(
         context,
-        message: 'auth.check_required_fields'.tr(),
+        message: "auth.check_required_fields".tr(),
         background: AppColor.primaryColor,
         icon: Icons.info_outline,
       );
       return;
     }
 
+    if (!_acceptedTerms) {
+      _showSnackBar(
+        context,
+        message: "terms.must_accept".tr(),
+        background: Colors.orange,
+        icon: Icons.warning_amber_rounded,
+      );
+      return;
+    }
+
     final phone = "+963${phoneController.text.trim()}";
-    cubit.sendCode(phone: phone); // ✅ بدون توكن
+    cubit.sendCode(phone: phone);
   }
 
   @override
@@ -113,7 +143,7 @@ Future<void> _openTermsAndMaybeAccept() async {
               EasyLoading.dismiss();
               _showSnackBar(
                 context,
-                message: msg.tr(),
+                message: trOrRaw(msg), // ✅ هون الإصلاح
                 background: Colors.redAccent,
                 icon: Icons.error_outline,
               );
@@ -128,12 +158,12 @@ Future<void> _openTermsAndMaybeAccept() async {
               );
 
               final msg = (data is Map)
-                  ? (data["message"] ?? "auth.code_sent".tr())
+                  ? (data["message"]?.toString() ?? "auth.code_sent".tr())
                   : "auth.code_sent".tr();
 
               _showSnackBar(
                 context,
-                message: msg.toString(),
+                message: msg,
                 background: AppColor.primaryColor,
                 icon: Icons.check_circle_outline,
               );
@@ -199,6 +229,8 @@ Future<void> _openTermsAndMaybeAccept() async {
                                     fontsize: 12.sp,
                                   ),
                                   SizedBox(height: 32.h),
+
+                                  // Phone
                                   Row(
                                     children: [
                                       Container(
@@ -208,12 +240,8 @@ Future<void> _openTermsAndMaybeAccept() async {
                                         ),
                                         decoration: BoxDecoration(
                                           color: AppColor.white,
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
-                                          ),
-                                          border: Border.all(
-                                            color: AppColor.gry,
-                                          ),
+                                          borderRadius: BorderRadius.circular(8.r),
+                                          border: Border.all(color: AppColor.gry),
                                         ),
                                         child: Row(
                                           children: [
@@ -239,10 +267,10 @@ Future<void> _openTermsAndMaybeAccept() async {
                                           validator: (v) {
                                             final val = (v ?? '').trim();
                                             if (val.isEmpty) {
-                                              return 'auth.enter_phone'.tr();
+                                              return "auth.enter_phone".tr();
                                             }
                                             if (val.length < 8) {
-                                              return 'auth.invalid_phone'.tr();
+                                              return "auth.invalid_phone".tr();
                                             }
                                             return null;
                                           },
@@ -250,60 +278,68 @@ Future<void> _openTermsAndMaybeAccept() async {
                                       ),
                                     ],
                                   ),
+
                                   SizedBox(height: 14.h),
-                               Row(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Checkbox(
-      value: _acceptedTerms,
-      activeColor: AppColor.primaryColor,
-      onChanged: (v) async {
-        if (v == true) {
-          await _openTermsAndMaybeAccept(); // ✅ ما بيصير true إلا إذا وافق بالديالوج
-        } else {
-          setState(() => _acceptedTerms = false);
-        }
-      },
-    ),
-    Expanded(
-      child: GestureDetector(
-        onTap: _openTermsAndMaybeAccept,
-        child: Padding(
-          padding: EdgeInsets.only(top: 12.h),
-          child: Text(
-            "Tap to view Terms & Conditions and accept",
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12.sp,
-              height: 1.4,
-              decoration: TextDecoration.underline,
-              decorationColor: Colors.white38,
-            ),
-          ),
-        ),
-      ),
-    ),
-  ],
-),
+
+                                  // Terms checkbox + tap
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Checkbox(
+                                        value: _acceptedTerms,
+                                        activeColor: AppColor.primaryColor,
+                                        onChanged: (v) async {
+                                          if (v == true) {
+                                            await _openTermsAndMaybeAccept();
+                                          } else {
+                                            setState(() => _acceptedTerms = false);
+                                          }
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: _openTermsAndMaybeAccept,
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 12.h),
+                                            child: Text(
+                                              "terms.tap_to_view_and_accept".tr(),
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 12.sp,
+                                                height: 1.4,
+                                                decoration: TextDecoration.underline,
+                                                decorationColor: Colors.white38,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
 
                                   SizedBox(height: 24.h),
+
+                                  // Continue button
                                   SizedBox(
                                     width: double.infinity,
                                     height: 55.h,
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(15.r),
-                                      onTap: _acceptedTerms
-                                          ? _handleLogin
-                                          : null,
+                                      onTap: _acceptedTerms ? _handleLogin : () {
+                                        _showSnackBar(
+                                          context,
+                                          message: "terms.must_accept".tr(),
+                                          background: Colors.orange,
+                                          icon: Icons.warning_amber_rounded,
+                                        );
+                                      },
                                       child: Container(
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
                                           color: _acceptedTerms
                                               ? AppColor.primaryColor
                                               : AppColor.gry,
-                                          borderRadius: BorderRadius.circular(
-                                            15.r,
-                                          ),
+                                          borderRadius: BorderRadius.circular(15.r),
                                         ),
                                         child: Text(
                                           "common.continue".tr(),
@@ -386,17 +422,6 @@ class __CustomTextFormFieldState extends State<_CustomTextFormField> {
           borderRadius: BorderRadius.circular(8.r),
           borderSide: BorderSide.none,
         ),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                onPressed: () => setState(() => _obscure = !_obscure),
-                icon: Image.asset(
-                  _obscure ? 'assets/icons/eye.png' : 'assets/icons/hide.png',
-                  width: 24,
-                  height: 24,
-                  color: AppColor.black,
-                ),
-              )
-            : null,
       ),
     );
   }
