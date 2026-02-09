@@ -2,7 +2,6 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
@@ -12,7 +11,6 @@ import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart'
 import 'package:breezefood/features/stores/presentation/cubit/super_markets_list_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
-import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,7 +71,6 @@ class RestaurantCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(50.r),
       child: Stack(
         children: [
-          // 1. الخلفية
           ColorFiltered(
             colorFilter: isClosed
                 ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
@@ -83,8 +80,6 @@ class RestaurantCard extends StatelessWidget {
                   ),
             child: _buildImage(imageUrl),
           ),
-
-          // 2. التدرج
           Container(
             height: 110.h,
             decoration: BoxDecoration(
@@ -189,8 +184,6 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // اسم المطعم + نص إضافي إذا مغلق
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.h),
                     child: Column(
@@ -249,10 +242,6 @@ class MockStore {
   });
 }
 
-// *************************************************************
-// 📝 قائمة المتاجر (Stores Tab List)
-// *************************************************************
-
 class _StoresTabList extends StatefulWidget {
   final List<MockStore> items;
   final void Function(BuildContext context, MockStore r)? onItemTap;
@@ -272,7 +261,6 @@ class _StoresTabListState extends State<_StoresTabList>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // 💡 تم إزالة تعريف الـ Function Mock واستبداله بـ RestaurantCard الحقيقي
     return ScrollConfiguration(
       behavior: const _NoGlowBehavior(),
       child: ListView.separated(
@@ -287,7 +275,6 @@ class _StoresTabListState extends State<_StoresTabList>
               if (widget.onItemTap != null) {
                 widget.onItemTap!(context, r);
               } else {
-                // 🖱️ محاكاة الانتقال إلى صفحة تفاصيل المطعم
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -297,7 +284,6 @@ class _StoresTabListState extends State<_StoresTabList>
                 );
               }
             },
-            // 🚀 استخدام RestaurantCard الذي تم تعريفه الآن
             child: RestaurantCard(
               imageUrl: r.imageUrl,
               name: r.name,
@@ -335,6 +321,16 @@ class StoresNavTab extends StatefulWidget {
 
 class _StoresNavTabState extends State<StoresNavTab>
     with SingleTickerProviderStateMixin {
+  String _deliveryFeeText(RestaurantModel r) {
+  final fee = r.deliveryBaseFee;
+  if (fee <= 0) return "common.dash".tr();
+
+  return "stores.delivery_fee_short".tr(
+    namedArgs: {"fee": fee.toStringAsFixed(0)},
+  );
+}
+
+
   late final TabController _tabController;
   final List<String> _titlesKeys = const [
     "stores.tabs.restaurants",
@@ -356,7 +352,7 @@ class _StoresNavTabState extends State<StoresNavTab>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cubit.loadRestaurants();
-      superMarketsCubit.load(); // ✅ تحميل أسواق
+      superMarketsCubit.load();
     });
   }
 
@@ -364,16 +360,14 @@ class _StoresNavTabState extends State<StoresNavTab>
   void dispose() {
     _tabController.dispose();
     cubit.close();
-    superMarketsCubit.close(); // ✅ مهم لأنه factory
+    superMarketsCubit.close();
     super.dispose();
   }
 
   String _timeText(RestaurantModel r) {
     final t = r.deliveryTime ?? 0;
-    if (t <= 0) return "common.dash".tr(); // "--"
-    return "common.minutes_short".tr(
-      namedArgs: {"min": t.toString()},
-    ); // "{min}m"
+    if (t <= 0) return "common.dash".tr();
+    return "common.minutes_short".tr(namedArgs: {"min": t.toString()});
   }
 
   String _ordersText(RestaurantModel r) {
@@ -449,144 +443,202 @@ class _StoresNavTabState extends State<StoresNavTab>
                   BlocBuilder<StoresCubit, StoresState>(
                     bloc: cubit,
                     builder: (context, state) {
-                      return state.when(
-                        initial: () => const SizedBox.shrink(),
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (msg) => Center(
-                          child: Text(
-                            msg,
-                            style: const TextStyle(color: Colors.red),
+                      return RefreshIndicator(
+                        onRefresh: () async => cubit.loadRestaurants(),
+                        child: state.when(
+                          initial: () => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [SizedBox(height: 200)],
                           ),
+                          loading: () => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              SizedBox(height: 200),
+                              Center(child: CircularProgressIndicator()),
+                            ],
+                          ),
+                          error: (msg) => ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(height: 200.h),
+                              Center(
+                                child: Text(
+                                  msg,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                          loaded: (restaurants) {
+                            if (restaurants.isEmpty) {
+                              return ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(height: 200.h),
+                                  Center(
+                                    child: Text(
+                                      "stores.empty_restaurants".tr(),
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return ListView.separated(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 5,
+                              ),
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: restaurants.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 12),
+                              itemBuilder: (context, i) {
+                                final r = restaurants[i];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => BlocProvider(
+                                          create: (context) =>
+                                              getIt<FavoritesCubit>(),
+                                          child: ResturantDetails(
+                                            restaurant_id: r.id,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    context.read<CartCubit>().loadCart();
+                                  },
+                                  child: RestaurantCard(
+                                    imageUrl: _restaurantImage(r) ?? "",
+                                    name: r.name,
+                                    rating: r.ratingAvg,
+                                    orders: _ordersText(r),
+                                  time: _deliveryFeeText(r),
+
+                                    isClosed: false,
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        loaded: (restaurants) {
-                          if (restaurants.isEmpty) {
-                            return Center(
-                              child: Text(
-                                "stores.empty_restaurants".tr(),
-                                style: TextStyle(color: Colors.white70),
+                      );
+                    },
+                  ),
+
+                  BlocBuilder<SuperMarketsListCubit, SuperMarketsListState>(
+                    bloc: superMarketsCubit,
+                    builder: (context, state) {
+                      return RefreshIndicator(
+                        onRefresh: () async => superMarketsCubit.load(),
+                        child: () {
+                          if (state is SuperMarketsListLoading) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: const [
+                                SizedBox(height: 200),
+                                Center(child: CircularProgressIndicator()),
+                              ],
+                            );
+                          }
+
+                          if (state is SuperMarketsListError) {
+                            return ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(height: 200.h),
+                                Center(
+                                  child: Text(
+                                    state.msg,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          if (state is SuperMarketsListLoaded) {
+                            if (state.markets.isEmpty) {
+                              return ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(height: 200.h),
+                                  Center(
+                                    child: Text(
+                                      "stores.empty_supermarkets".tr(),
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return ScrollConfiguration(
+                              behavior: const _NoGlowBehavior(),
+                              child: ListView.separated(
+                                key: const PageStorageKey('tab_supermarkets'),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6,
+                                  horizontal: 5,
+                                ),
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                itemCount: state.markets.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final m = state.markets[index];
+
+                                  final img =
+                                      (m.logo != null &&
+                                          m.logo!.trim().isNotEmpty)
+                                      ? (UrlHelper.toFullUrl(m.logo) ?? "")
+                                      : "";
+
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              MarketCategoriesScreen(
+                                                marketId: m.id,
+                                                title: m.name,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    child: RestaurantCard(
+                                      imageUrl: img,
+                                      name: m.name,
+                                      rating: 0.0,
+                                      orders: "stores.orders_count".tr(
+                                        namedArgs: {"count": "0"},
+                                      ),
+                                      time: "stores.delivery_fee_short".tr(
+                                        namedArgs: {
+                                          "fee": m.deliveryBaseFee.toString(),
+                                        },
+                                      ),
+                                      isClosed: false,
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           }
 
-                          return ListView.separated(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 6,
-                              horizontal: 5,
-                            ),
-                            itemCount: restaurants.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, i) {
-                              final r = restaurants[i];
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => BlocProvider(
-                                        create: (context) =>
-                                            getIt<FavoritesCubit>(),
-                                        child: ResturantDetails(
-                                          restaurant_id: r.id,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                  context.read<CartCubit>().loadCart();
-                                },
-                                child: RestaurantCard(
-                                  imageUrl: _restaurantImage(r) ?? "",
-                                  name: r.name,
-                                  rating: r.ratingAvg,
-                                  orders: _ordersText(r),
-                                  time: _timeText(r),
-                                  isClosed: false,
-                                ),
-                              );
-                            },
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [SizedBox(height: 200)],
                           );
-                        },
+                        }(),
                       );
-                    },
-                  ),
-                  BlocBuilder<SuperMarketsListCubit, SuperMarketsListState>(
-                    bloc: superMarketsCubit,
-                    builder: (context, state) {
-                      if (state is SuperMarketsListLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (state is SuperMarketsListError) {
-                        return Center(
-                          child: Text(
-                            state.msg,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        );
-                      }
-                      if (state is SuperMarketsListLoaded) {
-                        if (state.markets.isEmpty) {
-                          return Center(
-                            child: Text(
-                              "stores.empty_supermarkets".tr(),
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                          );
-                        }
-
-                        return ScrollConfiguration(
-                          behavior: const _NoGlowBehavior(),
-                          child: ListView.separated(
-                            key: const PageStorageKey('tab_supermarkets'),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 6,
-                              horizontal: 5,
-                            ),
-                            physics: const ClampingScrollPhysics(),
-                            itemCount: state.markets.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final m = state.markets[index];
-
-                              final img =
-                                  (m.logo != null && m.logo!.trim().isNotEmpty)
-                                  ? UrlHelper.toFullUrl(m.logo) ?? ""
-                                  : "";
-
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => MarketCategoriesScreen(
-                                        marketId: m.id,
-                                        title: m.name,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: RestaurantCard(
-                                  imageUrl: img,
-                                  name: m.name,
-                                  rating:
-                                      0.0, // API عندك rating_avg موجود بس أنت ما حطيته بالموديل
-                                  orders: "stores.orders_count".tr(
-                                    namedArgs: {"count": "0"},
-                                  ),
-                                  time: "stores.delivery_fee_short".tr(
-                                    namedArgs: {
-                                      "fee": m.deliveryBaseFee.toString(),
-                                    },
-                                  ),
-
-                                  isClosed: false,
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      }
-
-                      return const SizedBox.shrink();
                     },
                   ),
                 ],

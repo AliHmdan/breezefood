@@ -21,6 +21,9 @@ class RestaurantModel {
   final int ratingCount;
   final int? deliveryTime;
 
+  // ✅ جديد
+  final num deliveryBaseFee;
+
   RestaurantModel({
     required this.id,
     required this.name,
@@ -29,6 +32,7 @@ class RestaurantModel {
     required this.ratingAvg,
     required this.ratingCount,
     this.deliveryTime,
+    required this.deliveryBaseFee,
   });
 
   factory RestaurantModel.fromJson(Map<String, dynamic> json) => RestaurantModel(
@@ -39,11 +43,20 @@ class RestaurantModel {
         ratingAvg: _toDouble(json["rating_avg"]),
         ratingCount: (json["rating_count"] ?? 0) as int,
         deliveryTime: json["delivery_time"] as int?,
+
+        // ✅ من الريسبونس
+        deliveryBaseFee: _toNum(json["delivery_base_fee"]),
       );
 
   static double _toDouble(dynamic v) {
     if (v == null) return 0;
     if (v is num) return v.toDouble();
     return double.tryParse(v.toString()) ?? 0;
+  }
+
+  static num _toNum(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v;
+    return num.tryParse(v.toString()) ?? 0;
   }
 }

@@ -150,19 +150,7 @@ class MarketPagePrice extends StatelessWidget {
               backgroundcolor: Colors.transparent,
             ),
           ),
-          // AppBar(
-          //   backgroundColor: const Color(0xFF121212),
-          //   elevation: 0,
-          //   centerTitle: true,
-          //   title: Text(
-          //     title,
-          //     style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-          //   ),
-          //   leading: IconButton(
-          //     icon: Icon(Icons.arrow_back, size: 22.sp),
-          //     onPressed: () => Navigator.pop(context),
-          //   ),
-          // ),
+     
           body: Stack(
             children: [
               Padding(

@@ -4,7 +4,6 @@ import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/presentation/cubit/markets_cubit.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
-import 'package:breezefood/features/super_market/market_page_price.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
