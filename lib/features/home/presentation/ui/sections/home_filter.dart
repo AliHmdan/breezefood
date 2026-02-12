@@ -17,9 +17,10 @@ class _HomeFiltersState extends State<HomeFilters> {
   @override
   Widget build(BuildContext context) {
     final items = <_HomeFilterItem>[
+      // _HomeFilterItem(id: "stores", titleKey: "home.filters.stores"),
       _HomeFilterItem(id: "closer", titleKey: "home.filters.closer"),
       _HomeFilterItem(id: "breakfast", titleKey: "home.filters.breakfast"),
-      _HomeFilterItem(id: "stores", titleKey: "home.filters.stores"),
+
       _HomeFilterItem(id: "discounts", titleKey: "home.filters.discounts"),
       _HomeFilterItem(id: "delivery", titleKey: "home.filters.delivery"),
       _HomeFilterItem(id: "supermarket", titleKey: "home.filters.supermarket"),
@@ -45,7 +46,8 @@ class _HomeFiltersState extends State<HomeFilters> {
               });
               widget.onFilterTap(it.id);
             },
-            child: Container(
+            child:
+            Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color:  isSelected
@@ -61,9 +63,7 @@ class _HomeFiltersState extends State<HomeFilters> {
                   it.titleKey.tr(),
                   style: TextStyle(
                     color: AppColor.white,
-                    // isSelected
-                    //     ? AppColor.white // ✅ نص أخضر
-                    //     : AppColor.primaryColor,
+
                     fontSize: isSelected ? 14.sp : 10.sp,   // ✅ كبير إذا fixed
                     fontWeight: isSelected
                         ? FontWeight.bold              // ✅ Bold إذا fixed

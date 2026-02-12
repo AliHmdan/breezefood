@@ -229,7 +229,7 @@ class CloserToYou extends StatelessWidget {
       if (hideWhenEmpty) return const SizedBox.shrink();
 
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         child: Container(
           height: 100.h,
           alignment: Alignment.center,
@@ -252,7 +252,7 @@ class CloserToYou extends StatelessWidget {
     return SizedBox(
       height: 160.h,
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 9.w),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: restaurants.length,

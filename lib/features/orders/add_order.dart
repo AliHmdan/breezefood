@@ -28,13 +28,14 @@ Future<void> showAddOrderDialog(
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: false,
     backgroundColor: Colors.transparent,
     barrierColor: Colors.black.withOpacity(0.6),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      borderRadius: BorderRadius.zero,
     ),
     builder: (sheetCtx) {
-      final height = MediaQuery.of(sheetCtx).size.height * 0.75;
+      final height = MediaQuery.of(sheetCtx).size.height * 0.9;
 
       // ✅ خذ CartCubit من سياق الصفحة (context) مو sheetCtx
       final cartCubit = context.read<CartCubit>();
@@ -189,16 +190,16 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
       },
       child: Column(
         children: [
-          SizedBox(height: 10.h),
-          Container(
-            width: 40.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          SizedBox(height: 8.h),
+          // SizedBox(height: 10.h),
+          // Container(
+          //   width: 40.w,
+          //   height: 4.h,
+          //   decoration: BoxDecoration(
+          //     color: Colors.white24,
+          //     borderRadius: BorderRadius.circular(10),
+          //   ),
+          // ),
+          // SizedBox(height: 8.h),
 
           Expanded(
             child: SingleChildScrollView(
@@ -214,7 +215,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                             ? Image.network(
                                 widget.imagePathOrUrl,
                                 width: double.infinity,
-                                height: 220.h,
+                                height: 300.h,
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => _fallbackImage(),
                               )
@@ -306,7 +307,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           fontsize: 10.sp,
                         ),
 
-                        divider(),
+                        // divider(),
 
                         SizedBox(height: 8.h),
 
@@ -330,10 +331,10 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                               });
                             },
                           ),
-                          divider(),
+                          // divider(),
                         ],
 
-
+                        SizedBox(height: 10.h),
                         CustomSubTitle(
                           subtitle: "cart.item_notes_optional".tr(),
                           color: AppColor.white,
@@ -439,30 +440,34 @@ class ExtrasList extends StatelessWidget {
               Expanded(
                 child: Material(
                   color: Colors.transparent,
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: const VisualDensity(
-                          horizontal: -4,
-                          vertical: -4,
+                  child: Padding(
+                    padding:  EdgeInsets.symmetric(vertical: 2.h),
+                    child: Row(
+
+                      children: [
+                        Checkbox(
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: const VisualDensity(
+                            horizontal: -4,
+                            vertical: -4,
+                          ),
+                          activeColor: AppColor.primaryColor,
+                          side: BorderSide(color: AppColor.Lightgry, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          value: checked,
+                          onChanged: (val) => onChanged(e.id, val ?? false),
                         ),
-                        activeColor: AppColor.primaryColor,
-                        side: BorderSide(color: AppColor.white, width: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
+                        Expanded(
+                          child: CustomSubTitle(
+                            subtitle: name,
+                            color: AppColor.Lightgry,
+                            fontsize: 12,
+                          ),
                         ),
-                        value: checked,
-                        onChanged: (val) => onChanged(e.id, val ?? false),
-                      ),
-                      Expanded(
-                        child: CustomSubTitle(
-                          subtitle: name,
-                          color: AppColor.white,
-                          fontsize: 14,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

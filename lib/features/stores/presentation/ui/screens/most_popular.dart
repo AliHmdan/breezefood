@@ -331,7 +331,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
                   child: (imageUrl == null || imageUrl.isEmpty)
                       ? _imageFallback()
-                      : Image.network(
+                      :
+                  Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => _imageFallback(),
@@ -451,7 +452,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                               : 'Inter',
                         ),
                       ),
-                      SizedBox(width: 6.w),
+                      SizedBox(width: 3.w),
                       Text(
                         context.syp(after),
                         style: TextStyle(
@@ -479,7 +480,12 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       color: Colors.grey.shade800,
       alignment: Alignment.center,
-      child: const Icon(Icons.fastfood, color: Colors.white70, size: 26),
+      child:Image.asset(
+        'assets/images/meal_breeze.jpeg',
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.contain,
+      ),
     );
   }
 }

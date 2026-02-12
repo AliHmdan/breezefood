@@ -47,7 +47,7 @@ class DiscountHome extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomTitleSection(
             title: "discount.title".tr(),
             all: "common.all".tr(),
@@ -63,7 +63,7 @@ class DiscountHome extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsetsDirectional.only(top: 10, start: 8, end: 0.2),
+          padding: EdgeInsetsDirectional.only(top: 10, start: 16, end: 0.2),
           child: SizedBox(
             height: 130.h,
             child: LayoutBuilder(
