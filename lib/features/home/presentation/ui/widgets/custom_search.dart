@@ -1,4 +1,5 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -49,7 +50,8 @@ class CustomSearch extends StatelessWidget {
         Expanded(
           child: SizedBox(
             height: height.h,
-            child: TextFormField(
+            child:
+            TextFormField(
               readOnly: readOnly,
               onTap: onTap,
               style: TextStyle(
@@ -61,7 +63,9 @@ class CustomSearch extends StatelessWidget {
                 hintStyle: TextStyle(
                   color: AppColor.LightActive,
                   fontSize: 14.sp,
-                  fontFamily: "Manrope",
+                  fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                      ? 'Cairo'
+                      : 'Inter',
                 ),
                 
                 prefixIcon: Padding(
@@ -82,7 +86,10 @@ class CustomSearch extends StatelessWidget {
                 fillColor: AppColor.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(borderRadius.r),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: AppColor.green, // أخضر عند الفوكس
+                    width: 1.2,
+                  ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(borderRadius.r),
@@ -90,7 +97,11 @@ class CustomSearch extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(borderRadius.r),
-                  borderSide: BorderSide.none,
+
+                  borderSide: BorderSide(
+                    color: AppColor.green, // أخضر عند الفوكس
+                    width: 1.2,
+                  ),
                 ),
               ),
             ),
@@ -112,6 +123,7 @@ class CustomSearch extends StatelessWidget {
       height: 20.w,
     ),
   ),
+
       ],
     );
   }

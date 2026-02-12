@@ -20,7 +20,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
 
   late final Future<void> _bootstrapFuture;
 
-  bool _isMuted = true;
+  bool _isMuted = false;
 
   @override
   void initState() {
@@ -48,7 +48,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
   }
 
   Future<void> _initVideo() async {
-    _controller = VideoPlayerController.asset('assets/video/splachscreen.mp4');
+    _controller = VideoPlayerController.asset('assets/video/splachscreene.mp4');
     _controller.setLooping(false);
     _controller.setVolume(_isMuted ? 0.0 : 1.0);
 

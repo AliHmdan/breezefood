@@ -55,120 +55,169 @@ class _RestaurantCardState extends State<RestaurantCard> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(50.r),
-          child: Stack(
-            children: [
-              _NetImage(url: imageUrl, height: 112.h),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Stack(
+                children: [
+                  _NetImage(url: imageUrl, height: 180.h),
 
-              Positioned.fill(
-                child: Padding(
-                  padding: EdgeInsets.all(10.w),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                    children: [
-                      Row(
+                  Positioned.fill(
+                    child: Padding(
+                      padding: EdgeInsets.all(10.w),
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                         children: [
-                          // ⭐ Rating
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 4.w,
-                              vertical: 2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.25),
-                              borderRadius: BorderRadius.circular(20.r),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 14,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // ⭐ Rating
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 4.w,
+                                  vertical: 2.h,
                                 ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  _rating.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.25),
+                                  borderRadius: BorderRadius.circular(20.r),
                                 ),
-                                SizedBox(width: 6.w),
-                                const Text(
-                                  "|",
-                                  style: TextStyle(color: Colors.white54),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 14,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      _rating.toStringAsFixed(1),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    const Text(
+                                      "|",
+                                      style: TextStyle(color: Colors.white54),
+                                    ),
+                                    SizedBox(width: 6.w),
+                                    CustomSubTitle(
+                                      subtitle: ordersText,
+                                      color: AppColor.white,
+                                      fontsize: 12.sp,
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 6.w),
-                                CustomSubTitle(
-                                  subtitle: ordersText,
-                                  color: AppColor.white,
-                                  fontsize: 12.sp,
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // 🚚 delivery fee chip
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8.w,
-                              vertical: 2.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.25),
-                              borderRadius: BorderRadius.circular(20.r),
-                            ),
-                            child: Row(
-                              children: [
-
-
-
-                                CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
-                                SizedBox(width: 4.w),
-                                SvgPicture.asset(
-                                  color: Colors.white,
-                                  "assets/icons/motor.svg",
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Center(
-                        child: Text(
-                          (r.name).trim(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                         fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                              ? 'Cairo'
-                              : 'Inter',
-                            shadows: [
-                              Shadow(
-                                blurRadius: 8,
-                                color: Colors.black.withOpacity(0.7),
                               ),
+
+                              // 🚚 delivery fee chip
+                              // Container(
+                              //   padding: EdgeInsets.symmetric(
+                              //     horizontal: 8.w,
+                              //     vertical: 2.h,
+                              //   ),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.black.withOpacity(0.25),
+                              //     borderRadius: BorderRadius.circular(20.r),
+                              //   ),
+                              //   child: Row(
+                              //     children: [
+                              //       CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
+                              //       SizedBox(width: 4.w),
+                              //       SvgPicture.asset(
+                              //         color: Colors.white,
+                              //         "assets/icons/motor.svg",
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
                             ],
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          const Spacer(),
+                          //Name Resturant
+                          // Center(
+                          //   child:
+                          //   Text(
+                          //     (r.name).trim(),
+                          //     style: TextStyle(
+                          //       color: Colors.white,
+                          //       fontSize: 15.sp,
+                          //       fontWeight: FontWeight.bold,
+                          //    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                          //         ? 'Cairo'
+                          //         : 'Inter',
+                          //       shadows: [
+                          //         Shadow(
+                          //           blurRadius: 8,
+                          //           color: Colors.black.withOpacity(0.7),
+                          //         ),
+                          //
+                          //       ],
+                          //     ),
+                          //     textAlign: TextAlign.center,
+                          //     maxLines: 2,
+                          //     overflow: TextOverflow.ellipsis,
+                          //   ),
+                          // ),
+                          const Spacer(),
+                        ],
                       ),
-                      const Spacer(),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 5.h,),
+            CustomSubTitle(subtitle: (r.name).trim(), color: AppColor.white, fontsize: 16.sp),
+            // Text(
+            //   (r.name).trim(),
+            //   style: TextStyle(
+            //     color: Colors.white,
+            //     fontSize: 15.sp,
+            //     fontWeight: FontWeight.bold,
+            //     fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+            //         ? 'Cairo'
+            //         : 'Inter',
+            //     shadows: [
+            //       Shadow(
+            //         blurRadius: 8,
+            //         color: Colors.black.withOpacity(0.7),
+            //       ),
+            //
+            //     ],
+            //   ),
+            //   // textAlign: TextAlign.center,
+            //   maxLines: 2,
+            //   overflow: TextOverflow.ellipsis,
+            // ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 8.w,
+                vertical: 2.h,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Row(
+                children: [
+                  CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
+                  SizedBox(width: 4.w),
+                  SvgPicture.asset(
+                    color: Colors.white,
+                    "assets/icons/motor.svg",
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 15.h,),
+          ],
         ),
       ),
     );

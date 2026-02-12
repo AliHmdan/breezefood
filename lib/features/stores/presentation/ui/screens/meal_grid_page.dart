@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -24,7 +25,7 @@ class DiscountGridPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50.h),
         child: CustomAppbarProfile(
-          title: "Discount",
+          title: "discount.title".tr(),
           icon: Icons.arrow_back_ios,
           ontap: () => Navigator.of(context).pop(),
         ),
@@ -36,7 +37,7 @@ class DiscountGridPage extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.2,
+          childAspectRatio: 0.8,
         ),
         itemBuilder: (context, index) {
           final it = items[index];

@@ -396,7 +396,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
   Widget divider({double height = 30}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Divider(color: AppColor.gry, thickness: 0.5, height: height),
+      child: Divider(color: AppColor.gry, thickness: 0.4, height: height),
     );
   }
 

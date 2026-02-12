@@ -10,9 +10,10 @@ class AppColor {
   static const Color gry = Color(0xffCFCFCF);
   static const Color LightActive = Color(0xff757575);
   //  =============================================================
-  static const Color primaryColor = Color(0xff0A9A57);
+  static const Color primaryColor = Color(0xff2ECC71);
   static const Color black = Color(0xff212121);
-  static const Color Dark = Color(0xff181818);
+  static const Color Dark = Color(0xff000201);
   static const Color backfilter = Color(0xff3D3D3D);
-  static const Color grye = Color(0xffaaaaaa);
+  static const Color grye = Color(0xff334155);
+  static const Color Lightgry = Color(0xffCBD5E1);
 }

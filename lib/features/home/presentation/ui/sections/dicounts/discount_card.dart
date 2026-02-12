@@ -93,7 +93,7 @@ class Discount extends StatelessWidget {
           // color: Colors.black.withOpacity(0.15),
           alignment: Alignment.center,
           child: SizedBox(
-            width: 22.w,
+            width:double.infinity,
             height: 22.w,
             child: const CircularProgressIndicator(strokeWidth: 2),
           ),
@@ -130,8 +130,9 @@ class Discount extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
          borderRadius: BorderRadius.circular(5.r),
-        child: SizedBox(
+        child: Container(
           width: 160.w,
+
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,39 +176,40 @@ class Discount extends StatelessWidget {
                   ),
       
                   // ✅ overlay name
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        // gradient: LinearGradient(
-                        //   begin: Alignment.bottomCenter,
-                        //   end: Alignment.topCenter,
-                        //   colors: [
-                        //     Colors.black.withOpacity(0.75),
-                        //     Colors.black.withOpacity(0.45),
-                        //     Colors.black.withOpacity(0.15),
-                        //     Colors.transparent,
-                        //   ],
-                        //   stops: const [0.0, 0.35, 0.65, 1.0],
-                        // ),
-                      ),
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.w),
-                          child: Text(
-                            subtitle,
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned.fill(
+                  //   child: Container(
+                  //     decoration: BoxDecoration(
+                  //       // gradient: LinearGradient(
+                  //       //   begin: Alignment.bottomCenter,
+                  //       //   end: Alignment.topCenter,
+                  //       //   colors: [
+                  //       //     Colors.black.withOpacity(0.75),
+                  //       //     Colors.black.withOpacity(0.45),
+                  //       //     Colors.black.withOpacity(0.15),
+                  //       //     Colors.transparent,
+                  //       //   ],
+                  //       //   stops: const [0.0, 0.35, 0.65, 1.0],
+                  //       // ),
+                  //     ),
+                  //     child: Center(
+                  //       child:
+                  //       Padding(
+                  //         padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  //         child: Text(
+                  //           subtitle,
+                  //           textAlign: TextAlign.center,
+                  //           maxLines: 1,
+                  //           overflow: TextOverflow.ellipsis,
+                  //           style: TextStyle(
+                  //             color: AppColor.white,
+                  //             fontSize: 15.sp,
+                  //             fontWeight: FontWeight.w700,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
       
                   // ✅ discount chip
                   if (discount.trim().isNotEmpty)
@@ -250,7 +252,20 @@ class Discount extends StatelessWidget {
                     ),
                 ],
               ),
-      
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: AppColor.white,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
               SizedBox(height: gapH),
       
               // "assets/icons/motor.svg",
@@ -260,45 +275,41 @@ class Discount extends StatelessWidget {
                   child: Row(
 
                     children: [
-
-
                       Expanded(
-                        child: FittedBox(
-                          alignment: Alignment.centerLeft,
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (deliveryOldPrice != null) ...[
-                                Text(
-                                  context.syp(deliveryOldPrice, decimals: 0),
-                                  style: TextStyle(
-                                    color: AppColor.LightActive,
-                                    decoration: TextDecoration.lineThrough,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(
+                              color: Colors.white,
+                              "assets/icons/motor.svg",
+                            ),
+                            SizedBox(width: 4.w),
+                            if (deliveryOldPrice != null) ...[
+                              Text(
+                                context.syp(deliveryOldPrice, decimals: 0),
+                                style: TextStyle(
+                                  color: AppColor.LightActive,
+                                  decoration: TextDecoration.lineThrough,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w800,
                                 ),
-                                SizedBox(width: 6.w),
-                              ],
-                              if (deliveryNewPrice != null)
-                                Text(
-                                  context.syp(deliveryNewPrice, decimals: 0),
-                                  style: TextStyle(
-                                    color: AppColor.red,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
+                              ),
+                              SizedBox(width: 6.w),
                             ],
-                          ),
+                            if (deliveryNewPrice != null)
+                              Text(
+                                context.syp(deliveryNewPrice, decimals: 0),
+                                style: TextStyle(
+                                  color: AppColor.red,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 4.w),
-                      SvgPicture.asset(
-                        color: Colors.white,
-                        "assets/icons/motor.svg",
-                      ),
+
+
                     ],
                   ),
                 ),

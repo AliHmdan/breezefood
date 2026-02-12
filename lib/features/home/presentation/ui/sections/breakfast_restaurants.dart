@@ -127,7 +127,15 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2), // لو حابب خلفية خفيفة
                     borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -147,59 +155,73 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
               ),
 
               // Name center
-              Positioned.fill(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Text(
-                      widget.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              // "Breakfast" chip
-              PositionedDirectional(
-                bottom: 6,
-                start: 6,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.free_breakfast_rounded,
-                        size: 14.sp,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        "home.breakfast_chip".tr(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Positioned.fill(
+              //   child: Center(
+              //     child:
+              //     Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 8.w),
+              //       child: Text(
+              //         widget.name,
+              //         textAlign: TextAlign.center,
+              //         maxLines: 2,
+              //         overflow: TextOverflow.ellipsis,
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 15.sp,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              //
+              // // "Breakfast" chip
+              // PositionedDirectional(
+              //   bottom: 6,
+              //   start: 6,
+              //   child: Container(
+              //     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+              //     decoration: BoxDecoration(
+              //       color: Colors.black.withOpacity(0.35),
+              //       borderRadius: BorderRadius.circular(10.r),
+              //       border: Border.all(color: Colors.white.withOpacity(0.08)),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         Icon(
+              //           Icons.free_breakfast_rounded,
+              //           size: 14.sp,
+              //           color: Colors.white,
+              //         ),
+              //         SizedBox(width: 4.w),
+              //         Text(
+              //           "home.breakfast_chip".tr(),
+              //           style: TextStyle(
+              //             color: Colors.white,
+              //             fontSize: 11.sp,
+              //             fontWeight: FontWeight.w600,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
-
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Text(
+              widget.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
           SizedBox(height: 6.h),
 
           Row(
@@ -261,7 +283,7 @@ class BreakfastRestaurantsSection extends StatelessWidget {
     final cardWidth = MediaQuery.of(context).size.width / 2.3;
 
     return SizedBox(
-      height: 130.h,
+      height: 160.h,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),

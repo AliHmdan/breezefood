@@ -49,7 +49,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.2,
+          childAspectRatio: 0.8,
         ),
         itemCount: widget.items.length,
         itemBuilder: (context, index) {

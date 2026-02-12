@@ -32,7 +32,7 @@ class Supermarketslider extends StatelessWidget {
 
     return CarouselSlider.builder(
       options: CarouselOptions(
-        height: 160.h,
+        height: 235.h,
         autoPlay: true,
         enlargeCenterPage: true,
         viewportFraction: 0.9,
@@ -89,20 +89,27 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
     final feeText = deliveryFeeText(widget.model);
 
     return InkWell(
-      borderRadius: BorderRadius.circular(11.r),
+      borderRadius: BorderRadius.circular(16.r),
       onTap: widget.onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(11.r),
-        child: Stack(
-          children: [
-            // ✅ صورة حقيقية Network
-            Positioned.fill(
-              child: imageUrl.isEmpty
-                  ? Container(
+      child:
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 🔥 الصورة مع الـ Stack
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16.r),
+            child: SizedBox(
+              height: 145.h, // حدد ارتفاع واضح للصورة
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: imageUrl.isEmpty
+                        ? Container(
                       color: Colors.grey.shade800,
                       child: const Icon(Icons.store, color: Colors.white70),
                     )
-                  : Image.network(
+                        : Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
@@ -112,86 +119,63 @@ class _SliderItemWidgetState extends State<_SliderItemWidget> {
                           color: Colors.white70,
                         ),
                       ),
-                      loadingBuilder: (c, child, p) {
-                        if (p == null) return child;
-                        return Container(
-                          color: Colors.black.withOpacity(0.15),
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        );
-                      },
                     ),
-            ),
-            // ✅ شفافية على كامل الصورة
-            // Positioned.fill(
-            //   child: Container(color: Colors.black.withOpacity(0.25)),
-            // ),
-            // Gradient
-            // Positioned.fill(
-            //   child: Container(
-            //     decoration: BoxDecoration(
-            //       gradient: LinearGradient(
-            //         colors: [Colors.black.withOpacity(0.6), Colors.transparent],
-            //         begin: Alignment.bottomCenter,
-            //         end: Alignment.topCenter,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
-            // Title (نفس التصميم)
-            Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                child: Text(
-                  widget.model.name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+
+                  // // 💰 Delivery chip
+                  // PositionedDirectional(
+                  //   start: 12,
+                  //   top: 12,
+                  //   child:
+                  //   _InfoChip(
+                  //     icon: SvgPicture.asset(
+                  //       "assets/icons/motor.svg",
+                  //       color: Colors.white,
+                  //     ),
+                  //     text: feeText,
+                  //   ),
+                  // ),
+
+                  // ⭐ Rating chip
+                  PositionedDirectional(
+                    end: 12,
+                    top: 12,
+                    child: _InfoChip(
+                      icon: Icon(Icons.star, color: Colors.amber, size: 16.sp),
+                      text: (widget.model.ratingAvg).toStringAsFixed(1),
+                    ),
+                  ),
+                ],
               ),
             ),
+          ),
 
-            // Rating chip (يعرض avg_rating دائمًا + عند الضغط يرسل تقييم)
-            PositionedDirectional(
-              start: 12,
-              top: 12,
-              child: _InfoChip(
-                icon:  SvgPicture.asset(
-                  color: Colors.white,
-                  "assets/icons/motor.svg",
-                ),
-                text: feeText,
+          SizedBox(height: 8.h),
+
+          // ✅ الاسم تحت الصورة
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            child: Text(
+              widget.model.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            PositionedDirectional(
-              end: 12,
-              top: 12,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () async {},
-
-                child: _InfoChip(
-                  icon: Icon(Icons.star, color: Colors.amber, size: 16.sp),
-                  text: (widget.model.ratingAvg).toStringAsFixed(1),
-                ),
-              ),
+          ),
+          _InfoChip(
+            icon: SvgPicture.asset(
+              "assets/icons/motor.svg",
+              color: Colors.white,
             ),
-          ],
-        ),
+            text: feeText,
+          ),
+        ],
       ),
+
     );
   }
 }

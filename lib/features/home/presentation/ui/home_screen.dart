@@ -328,7 +328,7 @@ class _HomeState extends State<Home> with RouteAware {
                       children: [
                         // Top
                         AppbarHome(home: homeData, homeCubit: cubit),
-
+                        SizedBox(height: 12.h),
                         // ✅ اخفي الفلاتر لما المنطقة فاضية
                         if (!(!loading && isEmptyArea))
                           HomeFilters(onFilterTap: _onFilterTap),

@@ -209,16 +209,15 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                               borderRadius: BorderRadius.vertical(
                                 top: Radius.circular(16.r),
                               ),
-                              child: Image.network(
-                                _logoUrl(d),
+                              child: Container(
                                 height: imageH,
                                 width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  height: imageH,
-                                  color: Colors.grey.shade800,
-                                  alignment: Alignment.center,
-                                  child: Icon(
+                                color: Colors.black,
+                                alignment: Alignment.center,
+                                child: Image.network(
+                                  _logoUrl(d),
+                                  fit: BoxFit.contain, // ✅ الصورة كاملة
+                                  errorBuilder: (_, __, ___) => Icon(
                                     Icons.store,
                                     color: Colors.white70,
                                     size: 30.sp,
@@ -226,6 +225,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                 ),
                               ),
                             ),
+
 
                             Expanded(
                               child: Padding(

@@ -740,7 +740,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
+                                        horizontal: 20,
                                       ),
                                       child: CustomTitleSection(
                                         title: category,
@@ -762,12 +762,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     ),
                                     const SizedBox(height: 10),
                                     SizedBox(
-                                      height: 140.h,
-                                      child: ListView.builder(
+                                      height: 200.h,
+
+                                      child:
+                                      ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         padding:
                                             const EdgeInsetsDirectional.only(
-                                              start: 16,
+                                              start: 20,
                                             ),
                                         itemCount: items.length,
                                         itemBuilder: (context, i) {
@@ -830,7 +832,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               }
                                             },
                                             child: Container(
-                                              width: 170.w,
+                                              width: 142.w, //المسافة بين لكاردات
                                               margin:
                                                   EdgeInsetsDirectional.only(
                                                     end: i == items.length - 1
@@ -922,7 +924,7 @@ class DiscountItemCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(11.r),
-        color: AppColor.black,
+        // color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -932,15 +934,24 @@ class DiscountItemCard extends StatelessWidget {
           Stack(
             children: [
               SizedBox(
-                height: 85.h,
-                width: double.infinity,
-                child: imageUrl.isEmpty
-                    ? _fallback()
-                    : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _fallback(),
-                      ),
+                width: 145.h,
+                height: 145.h,
+
+                child: ClipRRect(
+                  borderRadius: BorderRadiusDirectional.only(
+                    topStart: Radius.circular(12.r),
+                    topEnd: Radius.circular(12.r),
+                    bottomStart: Radius.circular(12.r),
+                    bottomEnd: Radius.circular(12.r),
+                  ),
+                  child: imageUrl.isEmpty
+                      ? _fallback()
+                      : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _fallback(),
+                        ),
+                ),
               ),
 
               // overlay (نفس MostPopular)
@@ -979,8 +990,11 @@ class DiscountItemCard extends StatelessWidget {
           // ================= TEXT =================
           Container(
             height: 55.h,
-            padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
-            color: AppColor.black,
+
+            width: 145.h,
+            padding: EdgeInsets.symmetric(vertical: 5),
+            // padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
+            // color: AppColor.black,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

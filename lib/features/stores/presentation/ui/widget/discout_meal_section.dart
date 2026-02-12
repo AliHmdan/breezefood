@@ -68,35 +68,36 @@ class DiscountMealSection extends StatelessWidget {
 
         // ===== LIST =====
         SizedBox(
-          height: 140.h,
-          child: ListView.builder(
+          height: 200.h,
+          child:
+          ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count > 10 ? 10 : count,
             physics: count <= 2
                 ? const NeverScrollableScrollPhysics()
                 : const BouncingScrollPhysics(),
+            padding: const EdgeInsetsDirectional.only(
+              start: 20, // مطابق تمامًا
+            ),
             itemBuilder: (context, index) {
               final it = items[index];
 
-              return Padding(
-                padding: EdgeInsetsDirectional.only(
-                    start: index == 0 ? 16.w : 0,          // 🔥 أول عنصر فقط
-                    end: index == count - 1 ? 16.w : gap),
-                child: SizedBox(
-                  width: cardWidth,
-
-                  child: GestureDetector(
-                    onTap: () => onTap(it),
-                    child:
-                    DiscountItemCard(
-                      item: it,
-                      imageUrl: fullImageUrl(it.image ?? ""),
-                    ),
+              return Container(
+                width: 142.w, // نفس عرض الكارد
+                margin: EdgeInsetsDirectional.only(
+                  end: index == count - 1 ? 0 : 8.w, // نفس المسافة
+                ),
+                child: GestureDetector(
+                  onTap: () => onTap(it),
+                  child: DiscountItemCard(
+                    item: it,
+                    imageUrl: fullImageUrl(it.image ?? ""),
                   ),
                 ),
               );
             },
-          ),
+          )
+
         ),
         const SizedBox(height: 12),
       ],

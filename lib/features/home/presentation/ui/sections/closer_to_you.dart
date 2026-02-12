@@ -25,54 +25,42 @@ String? _restaurantImage(HomeRestaurantModel r) {
 
 Widget _buildImage(String? urlOrAsset, {required double height}) {
   final fallback = Container(
-    height: height,
-    width: double.infinity,
-    color: Colors.grey.shade800,
+    color: Colors.grey.shade900,
     alignment: Alignment.center,
     child: Icon(Icons.restaurant, color: Colors.white, size: 36.sp),
   );
 
   if (urlOrAsset == null || urlOrAsset.trim().isEmpty) {
-    return fallback;
+    return SizedBox(
+      height: height,
+      width: double.infinity,
+      child: fallback,
+    );
   }
 
   final p = urlOrAsset.trim();
 
-  if (_isNetwork(p)) {
-    return Image.network(
-      p,
-      height: height,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Container(
-          height: height,
-          width: double.infinity,
-          color: Colors.grey.shade900,
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: 24.w,
-            height: 24.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppColor.primaryColor,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  return Image.asset(
-    p,
+  return SizedBox(
     height: height,
     width: double.infinity,
-    fit: BoxFit.cover,
-    errorBuilder: (_, __, ___) => fallback,
+    child: _isNetwork(p)
+        ? Image.network(
+      p,
+      fit: BoxFit.cover, // 🔥 تعبئة كاملة للكارد
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => fallback,
+    )
+        : Image.asset(
+      p,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, __, ___) => fallback,
+    ),
   );
 }
+
 
 //////////////////////////////////////////////////////////////
 // 🧩 Card
@@ -129,10 +117,19 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               PositionedDirectional(
                 top: 6,
                 end: 6,
-                child: Container(
+                child:
+                Container(
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2), //   خلفية خفيفة
                     borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -151,27 +148,42 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                 ),
               ),
 
-              // Name center
-              Positioned.fill(
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Text(
-                      widget.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // // Name center
+              // Positioned.fill(
+              //   child: Center(
+              //     child: Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 8.w),
+              //       child: Text(
+              //         widget.name,
+              //         textAlign: TextAlign.center,
+              //         maxLines: 2,
+              //         overflow: TextOverflow.ellipsis,
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 15.sp,
+              //           fontWeight: FontWeight.w600,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
+          // Name center
+         Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              child: Text(
+                widget.name,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
 
           SizedBox(height: 6.h),
 
@@ -238,8 +250,9 @@ class CloserToYou extends StatelessWidget {
     final cardWidth = MediaQuery.of(context).size.width / 2.3;
 
     return SizedBox(
-      height: 130.h,
+      height: 160.h,
       child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 9.w),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: restaurants.length,
@@ -248,10 +261,7 @@ class CloserToYou extends StatelessWidget {
 
           return Container(
             width: cardWidth,
-            margin: EdgeInsets.only(
-              left: index == 0 ? 9.w : 0,
-              right: index == restaurants.length - 1 ? 10.w : gap,
-            ),
+            margin: EdgeInsetsDirectional.only(end: gap),
             child: CloserToYouCard(
               image: _restaurantImage(r),
               name: r.name,

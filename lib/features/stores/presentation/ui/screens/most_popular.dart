@@ -41,7 +41,7 @@ class CustomTitleSection extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 16.sp,
+            fontSize: 18.sp,
             fontWeight: FontWeight.bold,
             color: AppColor.white,
             fontFamily: Localizations.localeOf(context).languageCode == 'ar'
@@ -109,7 +109,7 @@ class MostPopularSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: CustomTitleSection(
             title: "most_popular".tr(),
-            all: "common.all".tr(),
+            all: "common.all".tr().tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
               Navigator.of(context).push(
@@ -122,9 +122,10 @@ class MostPopularSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 140.h,
+          height: 200.h,
           // width: containerWidth,
-          child: ListView.builder(
+          child:
+          ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count,
             physics: count <= 2
@@ -141,7 +142,7 @@ class MostPopularSection extends StatelessWidget {
                   end: index == count - 1 ? 16.w : gap,
                 ),
                 child: SizedBox(
-                  width: cardWidth,
+                  width: 142.w,
 
                   child: GestureDetector(
                     onTap: () async {
@@ -307,8 +308,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(11.r),
-        color: AppColor.black,
+        borderRadius: BorderRadius.circular(14.r),
+        // color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -318,19 +319,29 @@ class _PopularItemCardState extends State<PopularItemCard> {
           Stack(
             children: [
               SizedBox(
-                height: 85.h,
-                width: double.infinity,
-                child: (imageUrl == null || imageUrl.isEmpty)
-                    ? _imageFallback()
-                    : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _imageFallback(),
-                      ),
+                width: 145.h,
+                height: 145.h,
+                child: ClipRRect(
+                  borderRadius: BorderRadiusDirectional.only(
+                    topStart: Radius.circular(12.r),
+                    topEnd: Radius.circular(12.r),
+                    bottomStart: Radius.circular(12.r),
+                    bottomEnd: Radius.circular(12.r),
+                  ),
+
+                  child: (imageUrl == null || imageUrl.isEmpty)
+                      ? _imageFallback()
+                      : Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _imageFallback(),
+                  ),
+                ),
               ),
-              Positioned.fill(
-                child: Container(color: Colors.black.withOpacity(0.25)),
-              ),
+
+              // Positioned.fill(
+              //   child: Container(color: Colors.black.withOpacity(0.25)),
+              // ),
 
               if (hasDiscount)
                 PositionedDirectional(
@@ -344,8 +355,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadiusDirectional.only(
-                        topEnd: Radius.circular(20.r),
-                        bottomEnd: Radius.circular(20.r),
+                        topEnd: Radius.circular(12.r),
+                        bottomEnd: Radius.circular(12.r),
                       ),
                     ),
                     child: Text(
@@ -361,8 +372,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
               // Favorite
               PositionedDirectional(
-                top: 6,
-                end: 6,
+                top: 2,
+                end: 2,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: _toggleFavorite,
@@ -383,9 +394,19 @@ class _PopularItemCardState extends State<PopularItemCard> {
           // ================= TEXT AREA =================
           Container(
             height: 55.h,
-            width: double.infinity,
-            padding: EdgeInsets.fromLTRB(8.w, 6.h, 8.w, 6.h),
-            color: AppColor.black,
+
+            width: 145.h,
+            padding: EdgeInsets.symmetric(vertical: 5),
+
+            // decoration: BoxDecoration(
+            //   color: AppColor.black,
+            //   borderRadius: BorderRadiusDirectional.only(
+            //     topStart: Radius.circular(0),
+            //     topEnd: Radius.circular(0),
+            //     bottomStart: Radius.circular(14.r),
+            //     bottomEnd: Radius.circular(14.r),
+            //   ),
+            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -396,8 +417,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppColor.white,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
 
@@ -407,7 +428,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     style: TextStyle(
                       color: AppColor.white,
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
+                      // fontWeight: FontWeight.bold,
                       fontFamily:
                           Localizations.localeOf(context).languageCode == 'ar'
                           ? 'Cairo'
@@ -436,7 +457,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                         style: TextStyle(
                           color: AppColor.red,
                           fontSize: 12.sp,
-                          fontWeight: FontWeight.w800,
+                          // fontWeight: FontWeight.w800,
                           fontFamily:
                               Localizations.localeOf(context).languageCode ==
                                   'ar'
