@@ -1,3 +1,5 @@
+import 'package:breezefood/core/component/app_image.dart';
+import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class RestaurantDetailsResponse {
@@ -70,7 +72,8 @@ class RestaurantGeneral {
     required this.deliveryCash,
     this.myRating,
   });
-
+  String? get logoUrl => AppImageUrl.toFull(logo);
+  String? get coverUrl => AppImageUrl.toFull(cover);
   factory RestaurantGeneral.fromJson(Map<String, dynamic> json) {
     final ratingJson = json["rating"];
 
@@ -87,7 +90,6 @@ class RestaurantGeneral {
       deliveryTime: (json["delivery_time"] ?? 0) as int,
       deliveryCash: (json["delivery_cash"] ?? 0) as num,
 
-      // ✅ parse delivery object
       delivery: (json["delivery"] is Map)
           ? DeliveryInfo.fromJson(
               (json["delivery"] as Map).cast<String, dynamic>(),
@@ -154,10 +156,8 @@ class RestaurantModel {
 
   final int? deliveryTime;
 
-  // ✅ جديد (من الريسبونس)
   final num deliveryBaseFee;
 
-  // ✅ جديد (من الريسبونس)
   final DeliveryInfo? delivery;
 
   RestaurantModel({
@@ -172,6 +172,8 @@ class RestaurantModel {
     this.delivery,
   });
 
+  String? get logoUrl => AppImageUrl.toFull(logo);
+  String? get coverUrl => AppImageUrl.toFull(coverImage);
   static num _toNum(dynamic v) {
     if (v == null) return 0;
     if (v is num) return v;
@@ -261,7 +263,7 @@ class MenuItem {
     priceAfter: _toDouble(json["price_after"]),
     discountPercent: _toDouble(json["discount_percent"]),
     discountType: json["discount_type"] as String?,
-    image: _parseImage(json["primary_image"] ?? json["image"]),
+    image: AppImageUrl.toFull(_parseImage(json["primary_image"] ?? json["image"])),
 
     isFavorite: (json["is_favorite"] ?? false) as bool,
     nameAr: (json["name_ar"] ?? "") as String,
@@ -289,16 +291,15 @@ class MenuItem {
 String? _parseImage(dynamic v) {
   if (v == null) return null;
 
-  // إذا جاي String مباشرة
-  if (v is String) return v;
+  if (v is String) return v.trim().isEmpty ? null : v.trim();
 
-  // إذا جاي Map مثل primary_image
   if (v is Map) {
     final m = v.cast<String, dynamic>();
-
-    // أشهر مفاتيح ممكنة
     final url = m["image_url"] ?? m["url"] ?? m["path"];
-    if (url is String) return url;
+    if (url is String) {
+      final s = url.trim();
+      return s.isEmpty ? null : s;
+    }
   }
 
   return null;

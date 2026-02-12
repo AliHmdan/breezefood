@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
@@ -12,65 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-bool _isNetwork(String path) =>
-    path.startsWith("http://") || path.startsWith("https://");
-
-String? _restaurantImage(HomeRestaurantModel r) {
-  final cover = r.coverImage?.toString().trim();
-  final logo = r.logo?.toString().trim();
-  final picked = (cover != null && cover.isNotEmpty) ? cover : logo;
-  return UrlHelper.toFullUrl(picked);
-}
-
-Widget _buildImage(String? urlOrAsset, {required double height}) {
-  final fallback = Container(
-    height: height,
-    width: double.infinity,
-    color: Colors.grey.shade800,
-    alignment: Alignment.center,
-    child: Icon(Icons.restaurant, color: Colors.white, size: 36.sp),
-  );
-
-  if (urlOrAsset == null || urlOrAsset.trim().isEmpty) return fallback;
-
-  final p = urlOrAsset.trim();
-
-  if (_isNetwork(p)) {
-    return Image.network(
-      p,
-      height: height,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Container(
-          height: height,
-          width: double.infinity,
-          color: Colors.grey.shade900,
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: 24.w,
-            height: 24.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppColor.primaryColor,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  return Image.asset(
-    p,
-    height: height,
-    width: double.infinity,
-    fit: BoxFit.cover,
-    errorBuilder: (_, __, ___) => fallback,
-  );
-}
 
 class BreakfastRestaurantCard extends StatefulWidget {
   final String? image;
@@ -115,9 +57,10 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
         children: [
           Stack(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: _buildImage(widget.image, height: 100.h),
+              AppNetworkImage(
+                path: widget.image,
+                height: 100.h,
+                radius: BorderRadius.circular(12.r),
               ),
 
               // Rating
@@ -298,7 +241,7 @@ class BreakfastRestaurantsSection extends StatelessWidget {
               right: index == restaurants.length - 1 ? 10.w : gap,
             ),
             child: BreakfastRestaurantCard(
-              image: _restaurantImage(r),
+              image: restaurantImage(r),
               name: r.name,
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,
               deliveryFee: r.deliveryFinalFee?.toDouble(),
@@ -326,4 +269,11 @@ class BreakfastRestaurantsSection extends StatelessWidget {
       ),
     );
   }
+}
+
+String? restaurantImage(HomeRestaurantModel r) {
+  final cover = (r.coverImage ?? "").trim();
+  final logo  = (r.logo ?? "").trim();
+  final picked = cover.isNotEmpty ? cover : logo;
+  return picked.isEmpty ? null : picked; // raw
 }

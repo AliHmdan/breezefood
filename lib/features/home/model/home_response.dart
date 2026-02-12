@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart'
     show OrderInfo;
 
@@ -156,18 +157,6 @@ class HomeResponse {
   }
 }
 
-// =================== URL Helper ===================
-class Urls {
-  static const host = "https://breezefood.cloud/";
-  static String? abs(String? raw) {
-    final v = raw?.trim();
-    if (v == null || v.isEmpty) return null;
-    if (v.startsWith("http://") || v.startsWith("https://")) return v;
-    final cleaned = v.startsWith("/") ? v.substring(1) : v;
-    return "$host$cleaned";
-  }
-}
-
 // =================== Discounts ===================
 
 class DiscountRestaurantModel {
@@ -280,7 +269,7 @@ class StoryModel {
     required this.restaurant,
   });
 
-  String? get imageUrl => Urls.abs(image);
+  String? get imageUrl => AppImageUrl.toFull(image);
 
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     final restMap = HomeResponse._toMap(json["restaurant"]);
@@ -341,7 +330,7 @@ class AdModel {
     required this.priority,
   });
 
-  String? get fullImageUrl => Urls.abs(image);
+  String? get fullImageUrl => AppImageUrl.toFull(image);
 
   factory AdModel.fromJson(Map<String, dynamic> json) => AdModel(
     id: HomeResponse._toInt(json["id"]),
@@ -391,8 +380,8 @@ class HomeRestaurantModel {
     required this.delivery,
   });
 
-  String? get logoUrl => Urls.abs(logo);
-  String? get coverUrl => Urls.abs(coverImage);
+  String? get logoUrl => AppImageUrl.toFull(logo);
+  String? get coverUrl => AppImageUrl.toFull(coverImage);
 
   /// ✅ أهم Getter: السعر النهائي للعرض
   num? get deliveryFinalFee {
@@ -530,19 +519,13 @@ class MenuItemModel {
 }
 
 class PrimaryImageModel {
-  final String imageUrl;
+  final String? imageUrl;
   PrimaryImageModel({required this.imageUrl});
 
-  static String absUrl(String? path) {
-    final p = (path ?? "").trim();
-    if (p.isEmpty) return "";
-    if (p.startsWith("http")) return p;
-    if (p.startsWith("/")) return "https://breezefood.cloud$p";
-    return "https://breezefood.cloud/$p";
-  }
-
   factory PrimaryImageModel.fromJson(Map<String, dynamic> json) =>
-      PrimaryImageModel(imageUrl: absUrl(json["image_url"]?.toString()));
+      PrimaryImageModel(
+        imageUrl: AppImageUrl.toFull(json["image_url"].toString()),
+      );
 }
 
 class MenuItemRestaurant {

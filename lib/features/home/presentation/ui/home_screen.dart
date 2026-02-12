@@ -313,8 +313,7 @@ class _HomeState extends State<Home> with RouteAware {
         final msg = (lang == 'ar')
             ? (homeData?.messageAr?.trim() ?? "")
             : (homeData?.messageEn?.trim() ?? "");
-        return
-          Scaffold(
+        return Scaffold(
           backgroundColor: AppColor.Dark,
           body: Stack(
             children: [
@@ -324,152 +323,150 @@ class _HomeState extends State<Home> with RouteAware {
                   child: SingleChildScrollView(
                     controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
-                    child:Column(
-                    children: [
+                    child: Column(
+                      children: [
+                        /// 1️⃣ AppBar
+                        AppbarHome(home: homeData, homeCubit: cubit),
+                        SizedBox(height: 12.h),
 
-                      /// 1️⃣ AppBar
-                      AppbarHome(home: homeData, homeCubit: cubit),
-                    SizedBox(height: 12.h),
+                        /// 2️⃣ Search
+                        // HomeSearch(
+                        //   onTap: _onSearchTap,
+                        // ),
+                        SizedBox(height: 12.h),
 
-                    /// 2️⃣ Search
-                    // HomeSearch(
-                    //   onTap: _onSearchTap,
-                    // ),
-                    SizedBox(height: 12.h),
+                        /// 3️⃣ Filters
+                        if (!(!loading && isEmptyArea))
+                          HomeFilters(onFilterTap: _onFilterTap),
 
-                    /// 3️⃣ Filters
-                    if (!(!loading && isEmptyArea))
-              HomeFilters(onFilterTap: _onFilterTap),
+                        SizedBox(height: 14.h),
 
-              SizedBox(height: 14.h),
-
-              /// 🔹 Ads (Commented — enable if needed later)
-              /*
+                        /// 🔹 Ads (Commented — enable if needed later)
+                        /*
   _buildAds(state, loading),
   SizedBox(height: 12.h),
   */
 
-              /// 4️⃣ Stores (Stories)
-              _anchor(_storesKey),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16),
-              //   child: CustomTitleSection(title: "story".tr()),
-              // ),
-              SizedBox(height: 10.h),
-              loading
-                  ? _shimmerBox(height: 178.h)
-                  : state.maybeWhen(
-                loaded: (data) => StoriesSlider(
-                  stories: data.stories,
-                  onTap: (story) {},
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 4️⃣ Stores (Stories)
+                        _anchor(_storesKey),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                        //   child: CustomTitleSection(title: "story".tr()),
+                        // ),
+                        SizedBox(height: 10.h),
+                        loading
+                            ? _shimmerBox(height: 178.h)
+                            : state.maybeWhen(
+                                loaded: (data) => StoriesSlider(
+                                  stories: data.stories,
+                                  onTap: (story) {},
+                                ),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+                        SizedBox(height: 14.h),
 
-              /// 5️⃣ Closer To You
-              _anchor(_closerKey),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: CustomTitleSection(
-                  title: "home.closer_to_you".tr(),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              loading
-                  ? _shimmerBox(height: 178.h)
-                  : state.maybeWhen(
-                loaded: (data) => CloserToYou(
-                  restaurants: data.closerToYou,
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 5️⃣ Closer To You
+                        _anchor(_closerKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: CustomTitleSection(
+                            title: "home.closer_to_you".tr(),
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                        loading
+                            ? _shimmerBox(height: 178.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    CloserToYou(restaurants: data.closerToYou),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+                        SizedBox(height: 14.h),
 
-              /// 6️⃣ Breakfast Section
-              _anchor(_breakfastKey),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: CustomTitleSection(
-                  title: "home.breakfast_restaurants".tr(),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              loading
-                  ? _shimmerBox(height: 178.h)
-                  : state.maybeWhen(
-                loaded: (data) => BreakfastRestaurantsSection(
-                  restaurants: data.breakfastRestaurants,
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 6️⃣ Breakfast Section
+                        _anchor(_breakfastKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: CustomTitleSection(
+                            title: "home.breakfast_restaurants".tr(),
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                        loading
+                            ? _shimmerBox(height: 178.h)
+                            : state.maybeWhen(
+                                loaded: (data) => BreakfastRestaurantsSection(
+                                  restaurants: data.breakfastRestaurants,
+                                ),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+                        SizedBox(height: 14.h),
 
-              /// 7️⃣ Discount
-              _anchor(_discountsKey),
-              loading
-                  ? _shimmerBox(height: 130.h)
-                  : state.maybeWhen(
-                loaded: (data) =>
-                    DiscountHome(discounts: data.discounts),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 7️⃣ Discount
+                        _anchor(_discountsKey),
+                        loading
+                            ? _shimmerBox(height: 130.h)
+                            : state.maybeWhen(
+                                loaded: (data) =>
+                                    DiscountHome(discounts: data.discounts),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+                        SizedBox(height: 14.h),
 
-              /// 8️⃣ Discount Delivery
-              _anchor(_deliveryKey),
-              loading
-                  ? _shimmerBox(height: 120.h)
-                  : state.maybeWhen(
-                loaded: (data) => DiscountDeliveryHome(
-                  discountDelivery: data.discountDelivery,
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 8️⃣ Discount Delivery
+                        _anchor(_deliveryKey),
+                        loading
+                            ? _shimmerBox(height: 120.h)
+                            : state.maybeWhen(
+                                loaded: (data) => DiscountDeliveryHome(
+                                  discountDelivery: data.discountDelivery,
+                                ),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
+                        SizedBox(height: 14.h),
 
-              /// 9️⃣ Supermarket
-              _anchor(_supermarketKey),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: CustomTitleSection(
-                  title: "home.super_market".tr(),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              state.maybeWhen(
-                loaded: (data) => Supermarketslider(
-                  restaurants: data.supermarkets,
-                  onTap: _openMarket,
-                  onRateSuccess: () => cubit.load(),
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
-              SizedBox(height: 14.h),
+                        /// 9️⃣ Supermarket
+                        _anchor(_supermarketKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: CustomTitleSection(
+                            title: "home.super_market".tr(),
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                        state.maybeWhen(
+                          loaded: (data) => Supermarketslider(
+                            restaurants: data.supermarkets,
+                            onTap: _openMarket,
+                            onRateSuccess: () => cubit.load(),
+                          ),
+                          orElse: () => const SizedBox.shrink(),
+                        ),
+                        SizedBox(height: 14.h),
 
-              /// 🔟 Open Now
-              _anchor(_openNowKey),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: CustomTitleSection(
-                  title: "home.open_now".tr(),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              loading
-                  ? _shimmerBox(height: 320.h)
-                  : state.maybeWhen(
-                loaded: (data) => OpenNow(
-                  restaurants: data.nearbyRestaurants,
-                  onTap: _openRestaurant,
-                ),
-                orElse: () => const SizedBox.shrink(),
-              ),
+                        /// 🔟 Open Now
+                        _anchor(_openNowKey),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: CustomTitleSection(
+                            title: "home.open_now".tr(),
+                          ),
+                        ),
+                        SizedBox(height: 10.h),
+                        loading
+                            ? _shimmerBox(height: 320.h)
+                            : state.maybeWhen(
+                                loaded: (data) => OpenNow(
+                                  restaurants: data.nearbyRestaurants,
+                                  onTap: _openRestaurant,
+                                ),
+                                orElse: () => const SizedBox.shrink(),
+                              ),
 
-              SizedBox(height: showBottom ? 90.h : 24.h),
-            ],
-
-          )),
+                        SizedBox(height: showBottom ? 90.h : 24.h),
+                      ],
+                    ),
+                  ),
                 ),
               ),
 

@@ -48,7 +48,6 @@ Future<void> main() async {
   );
 
   final fcm = await FirebaseMessaging.instance.getToken();
-  // ignore: avoid_print
   print(fcm);
 }
 
@@ -61,7 +60,6 @@ class MyApp extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        // ✅ LazySingletons → value
         BlocProvider.value(value: getIt<HomeCubit>()),
         BlocProvider.value(value: getIt<ProfileCubit>()),
         BlocProvider.value(value: getIt<CartCubit>()),

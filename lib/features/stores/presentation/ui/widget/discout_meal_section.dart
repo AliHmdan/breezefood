@@ -23,8 +23,6 @@ class DiscountMealSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final gap = 8.w;
-    final cardWidth = MediaQuery.of(context).size.width / 2.3;
     final count = items.length;
 
     return Column(

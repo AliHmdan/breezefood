@@ -1,5 +1,5 @@
 {
-   "الكل": "All",
+  "الكل": "All",
   "stories": {
     "empty": "No stories right now",
     "story_fallback": "Story"
@@ -21,7 +21,7 @@
     "code_sent": "Verification code sent",
     "verifying": "Verifying...",
     "enter_code_title": "Enter verification code",
-    "enter_code_hint": "We sent a code to {0}",
+    "enter_code_hint": "We sent a code to",
     "resend_code": "Resend code",
     "enter_info_title": "Enter your information",
     "first_name": "First name",
@@ -163,6 +163,7 @@
   "tracking.error_missing_locations": "Unable to load tracking data",
   "orders": {
     "cancel_order": "Cancel order",
+    "empty_history": "Your history is empty",
     "cancel_confirm_title": "Cancel order?",
     "cancel_confirm_body": "This will cancel your order. Are you sure?",
     "cancel": "Cancel",
