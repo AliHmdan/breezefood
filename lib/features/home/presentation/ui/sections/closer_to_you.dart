@@ -60,8 +60,17 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               AppNetworkImage(
                 path: widget.image,
                 height: 100.h,
+                width: double.infinity,
+                fit: BoxFit.cover,
                 radius: BorderRadius.circular(12.r),
+                fallback: Image.asset(
+                  "assets/images/meal_breeze.jpeg",
+                  height: 100.h,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
+
 
               PositionedDirectional(
                 top: 6,

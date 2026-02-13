@@ -165,19 +165,22 @@ class DiscountRestaurantModel {
   final String? logo;
   final String? discountType;
   final double? discountValue;
-
+// ✅ جديد — التوصيل
+  final double? deliveryBaseFee;
+  final double? deliveryFinalFee;
   DiscountRestaurantModel({
     this.restaurantId,
     this.restaurantName,
     this.logo,
     this.discountType,
-    this.discountValue,
+    this.discountValue, this.deliveryBaseFee, this.deliveryFinalFee,
   });
 
   factory DiscountRestaurantModel.fromJson(Map<String, dynamic> json) {
     double d(dynamic v) =>
         (v is num) ? v.toDouble() : double.tryParse("$v") ?? 0.0;
     int i(dynamic v) => (v is num) ? v.toInt() : int.tryParse("$v") ?? 0;
+    final delivery = json["delivery"] as Map<String, dynamic>?;
 
     return DiscountRestaurantModel(
       restaurantId: i(json["restaurant_id"]),
@@ -185,6 +188,9 @@ class DiscountRestaurantModel {
       logo: json["logo"]?.toString(),
       discountType: json["discount_type"]?.toString(),
       discountValue: d(json["discount_value"]),
+      // ✅ قراءة التوصيل من JSON
+      deliveryBaseFee: delivery != null ? d(delivery["base_fee"]) : null,
+      deliveryFinalFee: delivery != null ? d(delivery["final_fee"]) : null,
     );
   }
 }
@@ -563,7 +569,8 @@ class RestaurantDiscountModel {
 
   final DiscountInfo? foodDiscount;
   final DeliveryDiscountInfo? deliveryDiscount;
-
+  final double? deliveryBaseFee;
+  final double? deliveryFinalFee;
   RestaurantDiscountModel({
     required this.restaurantId,
     required this.restaurantName,
@@ -571,7 +578,7 @@ class RestaurantDiscountModel {
     required this.ratingAvg,
     required this.ratingCount,
     required this.foodDiscount,
-    required this.deliveryDiscount,
+    required this.deliveryDiscount, this.deliveryBaseFee, this.deliveryFinalFee,
   });
 
   // ✅ لوغو صالح للعرض: إذا جاي مسار ويندوز اعتبره null
@@ -592,7 +599,7 @@ class RestaurantDiscountModel {
 
     final foodMap = m(json["food_discount"]);
     final delMap = m(json["delivery_discount"]);
-
+    final deliveryMap = m(json["delivery"]);
     return RestaurantDiscountModel(
       restaurantId: i(json["restaurant_id"]),
       restaurantName: (json["restaurant_name"] ?? "").toString(),
@@ -603,6 +610,12 @@ class RestaurantDiscountModel {
       deliveryDiscount: delMap == null
           ? null
           : DeliveryDiscountInfo.fromJson(delMap),
+      // ✅ قراءة سعر التوصيل
+      deliveryBaseFee:
+      deliveryMap != null ? d(deliveryMap["base_fee"]) : null,
+
+      deliveryFinalFee:
+      deliveryMap != null ? d(deliveryMap["final_fee"]) : null,
     );
   }
 }

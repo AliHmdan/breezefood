@@ -24,6 +24,7 @@ import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:breezefood/features/stores/presentation/cubit/most_popular_cubit.dart';
 import 'package:breezefood/features/stores/presentation/cubit/restaurant_details_cubit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,13 +57,31 @@ class _ResturantDetailsState extends State<ResturantDetails> {
   final List<GlobalKey> _categoryKeys = [];
   final List<double> _categoryOffsets = [];
   int _activeCategoryIndex = 0;
-
+  bool _headerReady = false;
+  String _headerUrl = "";
+  final Set<String> _preloadedImages = {};
   Future<void> _refreshPage() async {
     await Future.wait([
       cubit.load(widget.restaurant_id),
       mostPopularCubit.load(widget.restaurant_id),
       context.read<CartCubit>().loadCart(),
     ]);
+  }
+  Future<void> _precacheImage(String url) async {
+    if (url.isEmpty) return;
+    if (_preloadedImages.contains(url)) return;
+
+    try {
+      await precacheImage(
+        CachedNetworkImageProvider(
+          url,
+          cacheManager: AppCacheManager.instance,
+        ),
+        context,
+      );
+
+      _preloadedImages.add(url);
+    } catch (_) {}
   }
 
   @override
@@ -236,6 +255,18 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                   // ✅ الغلاف/اللوغو
                   headerImageUrl = _imageUrl(g.cover ?? g.logo);
+                  if (_headerUrl != headerImageUrl) {
+                    _headerUrl = headerImageUrl;
+                    _headerReady = false;
+
+                    _precacheImage(_headerUrl).then((_) {
+                      if (mounted) {
+                        setState(() {
+                          _headerReady = true;
+                        });
+                      }
+                    });
+                  }
 
                   // ✅ delivery
                   if (g.deliveryTime > 0) deliveryTime = "${g.deliveryTime}";
@@ -278,6 +309,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   }).toList();
 
                   itemsByCategory = sections.map((e) => e.items).toList();
+                  for (final section in sections) {
+                    for (final item in section.items.take(4)) { // أول 4 فقط من كل قسم
+                      final img = _imageUrl(item.image);
+                      _precacheImage(img);
+                    }
+                  }
 
                   final allItems = sections.expand((s) => s.items).toList();
                   discountedItems = allItems.where((x) => x.hasDiscount).toList()
@@ -302,7 +339,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           context,
                         ),
                         sliver: SliverAppBar(
-                          expandedHeight: 240.h,
+                          expandedHeight: 180.h,
                           pinned: true,
                           automaticallyImplyLeading: false,
                           toolbarHeight: 0,
@@ -312,14 +349,39 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             background: Stack(
                               fit: StackFit.expand,
                               children: [
-                                AppNetworkImage(
-                                  path: headerImageUrl, // ✅ full url جاهز
-                                  height: 240.h,
+                                _headerReady
+                                    ? AppNetworkImage(
+                                  path: headerImageUrl,
+                                  height: 180.h,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
-                                  fallback: Image.asset(
-                                    "assets/images/shawarma_box.png",
+                                )
+                                    : SizedBox(
+                                  height: 180.h,
+                                  width: double.infinity,
+                                  child: Image.asset(
+                                    "assets/images/meal_breeze.jpeg", // حط صورتك هون
                                     fit: BoxFit.cover,
+                                  ),
+                                ),
+
+
+                                Positioned.fill(
+                                  child: IgnorePointer(
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [
+                                            Color(0xB3000000), // أسفل (70% سواد خفيف)
+                                            Color(0x66000000), // وسط خفيف جداً
+                                            Color(0x00000000), // شفاف بالأعلى
+                                          ],
+                                          stops: [0.0, 0.4, 1.0],
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 PositionedDirectional(
@@ -332,18 +394,143 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     onTap: () => Navigator.pop(context),
                                   ),
                                 ),
-                                Center(
-                                  child: Text(
-                                    restaurantName,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 26.sp,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                    ),
+                                // Center(
+                                //   child: Text(
+                                //     restaurantName,
+                                //     textAlign: TextAlign.center,
+                                //     style: TextStyle(
+                                //       color: Colors.white,
+                                //       fontSize: 26.sp,
+                                //       fontWeight: FontWeight.bold,
+                                //       fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                //     ),
+                                //   ),
+                                // ),
+                                // Name Restaurant + Rating
+                                PositionedDirectional(
+                                  bottom: MediaQuery.of(context).padding.bottom + 10,
+                                  start: 20,
+                                  end: 20,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+
+                                      /// 🔥 اسم المطعم
+                                      Text(
+                                        restaurantName,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 26.sp,
+                                          fontWeight: FontWeight.w900,
+                                          fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 10),
+
+                                      /// ⭐ التقييم (له نقر خاص)
+                                      GestureDetector(
+                                        onTap: () async {
+                                          // 👇 نفس كود showRateDialog الموجود عندك
+                                          final reviewId = myReviewId;
+                                          final hasMyRating =
+                                              (reviewId ?? 0) > 0 && myUserRating > 0;
+
+                                          final res = await showRateDialog(
+                                            context,
+                                            currentRating: hasMyRating
+                                                ? myUserRating
+                                                : 3.0,
+                                            reviewId: hasMyRating ? reviewId : null,
+                                          );
+
+                                          if (res == null) return;
+
+                                          final submitCubit = context.read<RatingSubmitCubit>();
+                                          EasyLoading.show(status: "common.sending".tr());
+
+                                          if (res.delete) {
+                                            if ((reviewId ?? 0) == 0) {
+                                              EasyLoading.showError(
+                                                "reviews.no_review_to_delete".tr(),
+                                              );
+                                              return;
+                                            }
+
+                                            await submitCubit.deleteRestaurantRate(
+                                              reviewId: reviewId!,
+                                            );
+
+                                            if (!mounted) return;
+
+                                            submitCubit.state.maybeWhen(
+                                              deleteSuccess: () async {
+                                                EasyLoading.showSuccess(
+                                                  "reviews.delete_success".tr(),
+                                                );
+                                                await cubit.load(widget.restaurant_id);
+                                              },
+                                              error: (msg) =>
+                                                  EasyLoading.showError(msg.tr()),
+                                              orElse: () => EasyLoading.dismiss(),
+                                            );
+
+                                            return;
+                                          }
+
+                                          if (res.rating == null) {
+                                            EasyLoading.dismiss();
+                                            return;
+                                          }
+
+                                          await submitCubit.submitRestaurantRate(
+                                            restaurantId: widget.restaurant_id,
+                                            rating: res.rating!,
+                                          );
+
+                                          if (!mounted) return;
+
+                                          submitCubit.state.maybeWhen(
+                                            success: () async {
+                                              EasyLoading.showSuccess(
+                                                "reviews.rate_success".tr(),
+                                              );
+                                              await cubit.load(widget.restaurant_id);
+                                            },
+                                            error: (msg) =>
+                                                EasyLoading.showError(msg.tr()),
+                                            orElse: () => EasyLoading.dismiss(),
+                                          );
+                                        },
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                              size: 16,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              avgRatingText,
+                                              style:  TextStyle(
+                                                color: AppColor.Lightgry,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            _divider(),
+                                            CustomSubTitle(
+                                              subtitle: ordersText,
+                                              color: AppColor.Lightgry,
+                                              fontsize: 12,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                )
                               ],
                             ),
                           ),
@@ -354,14 +541,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                         delegate: _StickyHeaderDelegate(
                           child: Container(
                             color: AppColor.Dark,
-                            padding: const EdgeInsets.only(top: 12),
+                            padding: const EdgeInsets.only(top: 9),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
-                                    vertical: 5,
+                                    // vertical: 5,
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -408,7 +595,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 ),
                                 const SizedBox(height: 8),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
                                   child: GestureDetector(
                                     onTap: () {
                                       Navigator.push(
@@ -421,112 +608,87 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       );
                                     },
                                     child: const AbsorbPointer(
-                                      child: CustomSearch(hint: "Search"),
+                                      child: CustomSearch(),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 20),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () async {
-                                      final reviewId = myReviewId;
-                                      final hasMyRating =
-                                          (reviewId ?? 0) > 0 && myUserRating > 0;
-
-                                      final res = await showRateDialog(
-                                        context,
-                                        currentRating: hasMyRating ? myUserRating : 3.0,
-                                        reviewId: hasMyRating ? reviewId : null,
-                                      );
-
-                                      if (res == null) return;
-
-                                      final submitCubit =
-                                          context.read<RatingSubmitCubit>();
-                                      EasyLoading.show(status: "common.sending".tr());
-
-                                      if (res.delete) {
-                                        if ((reviewId ?? 0) == 0) {
-                                          EasyLoading.showError(
-                                            "reviews.no_review_to_delete".tr(),
-                                          );
-                                          return;
-                                        }
-
-                                        await submitCubit.deleteRestaurantRate(
-                                          reviewId: reviewId!,
-                                        );
-
-                                        if (!mounted) return;
-
-                                        submitCubit.state.maybeWhen(
-                                          deleteSuccess: () async {
-                                            EasyLoading.showSuccess(
-                                              "reviews.delete_success".tr(),
-                                            );
-                                            await cubit.load(widget.restaurant_id);
-                                          },
-                                          error: (msg) => EasyLoading.showError(msg.tr()),
-                                          orElse: () => EasyLoading.dismiss(),
-                                        );
-                                        return;
-                                      }
-
-                                      if (res.rating == null) {
-                                        EasyLoading.dismiss();
-                                        return;
-                                      }
-
-                                      await submitCubit.submitRestaurantRate(
-                                        restaurantId: widget.restaurant_id,
-                                        rating: res.rating!,
-                                      );
-
-                                      if (!mounted) return;
-
-                                      submitCubit.state.maybeWhen(
-                                        success: () async {
-                                          EasyLoading.showSuccess(
-                                            "reviews.rate_success".tr(),
-                                          );
-                                          await cubit.load(widget.restaurant_id);
-                                        },
-                                        error: (msg) => EasyLoading.showError(msg.tr()),
-                                        orElse: () => EasyLoading.dismiss(),
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: CustomSubTitle(
-                                            subtitle: description,
-                                            color: AppColor.gry,
-                                            fontsize: 8,
-                                          ),
-                                        ),
-                                        _divider(),
-                                        const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          avgRatingText,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                        _divider(),
-                                        CustomSubTitle(
-                                          subtitle: ordersText,
-                                          color: AppColor.white,
-                                          fontsize: 12,
-                                        ),
-                                      ],
+                                  child:
+                                  GestureDetector(
+                                    // behavior: HitTestBehavior.opaque,
+                                    // onTap: () async {
+                                    //   final reviewId = myReviewId;
+                                    //   final hasMyRating =
+                                    //       (reviewId ?? 0) > 0 && myUserRating > 0;
+                                    //
+                                    //   final res = await showRateDialog(
+                                    //     context,
+                                    //     currentRating: hasMyRating ? myUserRating : 3.0,
+                                    //     reviewId: hasMyRating ? reviewId : null,
+                                    //   );
+                                    //
+                                    //   if (res == null) return;
+                                    //
+                                    //   final submitCubit =
+                                    //       context.read<RatingSubmitCubit>();
+                                    //   EasyLoading.show(status: "common.sending".tr());
+                                    //
+                                    //   if (res.delete) {
+                                    //     if ((reviewId ?? 0) == 0) {
+                                    //       EasyLoading.showError(
+                                    //         "reviews.no_review_to_delete".tr(),
+                                    //       );
+                                    //       return;
+                                    //     }
+                                    //
+                                    //     await submitCubit.deleteRestaurantRate(
+                                    //       reviewId: reviewId!,
+                                    //     );
+                                    //
+                                    //     if (!mounted) return;
+                                    //
+                                    //     submitCubit.state.maybeWhen(
+                                    //       deleteSuccess: () async {
+                                    //         EasyLoading.showSuccess(
+                                    //           "reviews.delete_success".tr(),
+                                    //         );
+                                    //         await cubit.load(widget.restaurant_id);
+                                    //       },
+                                    //       error: (msg) => EasyLoading.showError(msg.tr()),
+                                    //       orElse: () => EasyLoading.dismiss(),
+                                    //     );
+                                    //     return;
+                                    //   }
+                                    //
+                                    //   if (res.rating == null) {
+                                    //     EasyLoading.dismiss();
+                                    //     return;
+                                    //   }
+                                    //
+                                    //   await submitCubit.submitRestaurantRate(
+                                    //     restaurantId: widget.restaurant_id,
+                                    //     rating: res.rating!,
+                                    //   );
+                                    //
+                                    //   if (!mounted) return;
+                                    //
+                                    //   submitCubit.state.maybeWhen(
+                                    //     success: () async {
+                                    //       EasyLoading.showSuccess(
+                                    //         "reviews.rate_success".tr(),
+                                    //       );
+                                    //       await cubit.load(widget.restaurant_id);
+                                    //     },
+                                    //     error: (msg) => EasyLoading.showError(msg.tr()),
+                                    //     orElse: () => EasyLoading.dismiss(),
+                                    //   );
+                                    // },
+                                    child: CustomSubTitle(
+                                      subtitle: description,
+                                      color: AppColor.Lightgry,
+                                      fontsize: 10,
                                     ),
                                   ),
                                 ),
@@ -556,25 +718,50 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               selectedCategoryIndex = index;
                                             });
                                           },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 12.w,
-                                              vertical: 6.h,
-                                            ),
+                                          child:  Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 12.w, ),
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(20),
-                                              color: isSelected
-                                                  ? AppColor.primaryColor
-                                                  : AppColor.black,
+                                              color:  isSelected
+                                                  ? AppColor.primaryColor // ✅ لما يكون محدد → أخضر
+                                                  : Colors.white.withOpacity(0.06),
+                                              borderRadius: BorderRadius.circular(12.r),
+                                              border: Border.all(
+                                                color:  AppColor.primaryColor,
+                                              ),
                                             ),
-                                            child: CustomSubTitle(
-                                              subtitle: categories[index],
-                                              color: isSelected
-                                                  ? AppColor.white
-                                                  : AppColor.LightActive,
-                                              fontsize: 14.sp,
+                                            child: Center(
+                                              child: Text(
+                                                categories[index],
+                                                style: TextStyle(
+                                                  color: AppColor.white,
+
+                                                  fontSize: isSelected ? 14.sp : 10.sp,   // ✅ كبير إذا fixed
+                                                  fontWeight: isSelected
+                                                      ? FontWeight.bold              // ✅ Bold إذا fixed
+                                                      : FontWeight.normal,
+                                                ),
+                                              ),
                                             ),
                                           ),
+                                          // Container(
+                                          //   padding: EdgeInsets.symmetric(
+                                          //     horizontal: 12.w,
+                                          //     vertical: 6.h,
+                                          //   ),
+                                          //   decoration: BoxDecoration(
+                                          //     borderRadius: BorderRadius.circular(20),
+                                          //     color: isSelected
+                                          //         ? AppColor.primaryColor
+                                          //         : AppColor.black,
+                                          //   ),
+                                          //   child: CustomSubTitle(
+                                          //     subtitle: categories[index],
+                                          //     color: isSelected
+                                          //         ? AppColor.white
+                                          //         : AppColor.LightActive,
+                                          //     fontsize: 14.sp,
+                                          //   ),
+                                          // ),
                                         ),
                                       );
                                     },
@@ -641,6 +828,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           /// Most Popular
                           SliverToBoxAdapter(
                             child: BlocBuilder<MostPopularCubit, MostPopularState>(
+
                               bloc: mostPopularCubit,
                               builder: (context, mpState) {
                                 return mpState.maybeWhen(
@@ -653,12 +841,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       horizontal: 16,
                                       vertical: 6,
                                     ),
+
                                     child: CustomSubTitle(
                                       subtitle: msg,
                                       color: AppColor.red,
                                       fontsize: 12,
                                     ),
                                   ),
+
                                   loaded: (items) {
                                     if (items.isEmpty) return const SizedBox.shrink();
                                     return Padding(
@@ -922,7 +1112,7 @@ class DiscountItemCard extends StatelessWidget {
                                   : 'Inter',
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                       CustomSubTitle(
                         subtitle: context.money(after, decimals: 0),
                         color: AppColor.red,

@@ -1,22 +1,16 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/del_price_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
- 
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dio/dio.dart';
-import 'package:breezefood/core/di/di.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // إذا عندك Dio في getIt
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Supermarketslider extends StatelessWidget {
   final List<HomeRestaurantModel> restaurants;
   final void Function(dynamic r)? onTap;
-
-  // ✅ جديد
   final VoidCallback? onRateSuccess;
 
   const Supermarketslider({
@@ -30,210 +24,162 @@ class Supermarketslider extends StatelessWidget {
   Widget build(BuildContext context) {
     if (restaurants.isEmpty) return const SizedBox.shrink();
 
-    return CarouselSlider.builder(
-      options: CarouselOptions(
-        height: 235.h,
-        autoPlay: true,
-        enlargeCenterPage: true,
-        viewportFraction: 0.9,
-        autoPlayInterval: const Duration(seconds: 4),
-        autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        autoPlayCurve: Curves.easeInOut,
+    final gap = 10.w;
+    final cardWidth = MediaQuery.of(context).size.width / 2.3;
+
+    return SizedBox(
+      height: 160.h,
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: restaurants.length,
+        itemBuilder: (context, index) {
+          final r = restaurants[index];
+
+          return Container(
+            width: cardWidth,
+            margin: EdgeInsetsDirectional.only(end: gap),
+            child: _SupermarketCard(
+              model: r,
+              onTap: onTap == null ? null : () => onTap!(r),
+            ),
+          );
+        },
       ),
-      itemCount: restaurants.length,
-      itemBuilder: (context, index, _) {
-        final m = restaurants[index];
-        return _SliderItemWidget(
-          model: m,
-          onTap: onTap == null ? null : () => onTap!(m),
-          onRateSuccess: onRateSuccess,
-        );
-      },
     );
   }
 }
-
-class _SliderItemWidget extends StatefulWidget {
+class _SupermarketCard extends StatefulWidget {
   final HomeRestaurantModel model;
   final VoidCallback? onTap;
 
-  // ✅ جديد
-  final VoidCallback? onRateSuccess;
-
-  const _SliderItemWidget({
+  const _SupermarketCard({
     required this.model,
     this.onTap,
-    this.onRateSuccess,
   });
 
   @override
-  State<_SliderItemWidget> createState() => _SliderItemWidgetState();
+  State<_SupermarketCard> createState() => _SupermarketCardState();
 }
 
-class _SliderItemWidgetState extends State<_SliderItemWidget> {
+class _SupermarketCardState extends State<_SupermarketCard> {
   late double _rating;
 
   @override
   void initState() {
     super.initState();
-    _rating = widget.model.ratingAvg;
+    _rating =
+    widget.model.ratingAvg <= 0 ? 4.0 : widget.model.ratingAvg;
   }
 
   @override
   Widget build(BuildContext context) {
     final imageUrl =
         UrlHelper.toFullUrl(widget.model.coverImage) ??
-        UrlHelper.toFullUrl(widget.model.logo) ??
-        "";
+            UrlHelper.toFullUrl(widget.model.logo);
 
     final feeText = deliveryFeeText(widget.model);
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(16.r),
+    return GestureDetector(
       onTap: widget.onTap,
-      child:
-      Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔥 الصورة مع الـ Stack
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16.r),
-            child: SizedBox(
-              height: 145.h, // حدد ارتفاع واضح للصورة
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: imageUrl.isEmpty
-                        ? Container(
-                      color: Colors.grey.shade800,
-                      child: const Icon(Icons.store, color: Colors.white70),
-                    )
-                        : Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: Colors.grey.shade800,
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.white70,
+
+          /// 🔥 الصورة
+          Stack(
+            children: [
+
+              AppNetworkImage(
+                path: imageUrl,
+                height: 100.h,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                radius: BorderRadius.circular(12.r), // إذا بدك حواف
+                fallback: Image.asset(
+                  "assets/images/meal_breeze.jpeg", // صورتك الافتراضية
+                  height: 100.h,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              PositionedDirectional(
+                top: 6,
+                end: 6,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 6.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 14,
+                      ),
+                      SizedBox(width: 3.w),
+                      Text(
+                        _rating.toStringAsFixed(1),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-
-                  // // 💰 Delivery chip
-                  // PositionedDirectional(
-                  //   start: 12,
-                  //   top: 12,
-                  //   child:
-                  //   _InfoChip(
-                  //     icon: SvgPicture.asset(
-                  //       "assets/icons/motor.svg",
-                  //       color: Colors.white,
-                  //     ),
-                  //     text: feeText,
-                  //   ),
-                  // ),
-
-                  // ⭐ Rating chip
-                  PositionedDirectional(
-                    end: 12,
-                    top: 12,
-                    child: _InfoChip(
-                      icon: Icon(Icons.star, color: Colors.amber, size: 16.sp),
-                      text: (widget.model.ratingAvg).toStringAsFixed(1),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
 
-          // ✅ الاسم تحت الصورة
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: Text(
-              widget.model.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          _InfoChip(
-            icon: SvgPicture.asset(
-              "assets/icons/motor.svg",
+          /// الاسم
+          Text(
+            widget.model.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
               color: Colors.white,
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
             ),
-            text: feeText,
           ),
-        ],
-      ),
 
-    );
-  }
-}
+          SizedBox(height: 6.h),
 
-class _InfoChip extends StatelessWidget {
-  final Widget icon;
-  final String text;
-
-  const _InfoChip({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.25),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          icon,
-          SizedBox(width: 4.w),
-          CustomSubTitle(
-            subtitle: text,
-            color: AppColor.white,
-            fontsize: 12.sp,
+          /// التوصيل
+          Row(
+            children: [
+              SvgPicture.asset(
+                "assets/icons/motor.svg",
+                width: 16.w,
+                height: 16.h,
+                color: Colors.white,
+              ),
+              SizedBox(width: 4.w),
+              CustomSubTitle(
+                subtitle: feeText,
+                color: AppColor.white,
+                fontsize: 12.sp,
+              ),
+            ],
           ),
         ],
       ),
     );
-  }
-}
-
-Future<bool> submitRestaurantRating({
-  required int restaurantId,
-  required double rating,
-}) async {
-  try {
-    final dio = getIt<Dio>(); // أو استخدم dio اللي عندك بالمشروع
-
-    final res = await dio.post(
-      "https://breezefood.cloud/api/reviews",
-      data: {
-        "reviewee_type": "restaurant",
-        "reviewee_id": restaurantId,
-        "rating": rating,
-      },
-      options: Options(
-        headers: {
-          "Content-Type": "application/json",
-          // لا تكتب Authorization هون إذا interceptor موجود
-        },
-      ),
-    );
-
-    return res.statusCode == 200;
-  } catch (_) {
-    return false;
   }
 }

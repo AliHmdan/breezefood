@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -99,34 +100,24 @@ class _NetImage extends StatelessWidget {
       );
     }
 
-    return Image.network(
-      u,
-      height: height,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      loadingBuilder: (context, child, progress) {
-        if (progress == null) return child;
-        return Container(
-          height: height,
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: 22.w,
-            height: 22.w,
-            child: const CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      },
-      errorBuilder: (_, __, ___) => Container(
+    return
+      AppNetworkImage(
+        path: u, // نفس الرابط القادم من الباك بدون أي تعديل
         height: height,
         width: double.infinity,
-        color: Colors.blueGrey.shade900,
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.image_not_supported,
-          color: Colors.white70,
-          size: 26.sp,
+        fit: BoxFit.cover,
+        fallback: Container(
+          height: height,
+          width: double.infinity,
+          color: Colors.blueGrey.shade900,
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.image_not_supported,
+            color: Colors.white70,
+            size: 26.sp,
+          ),
         ),
-      ),
-    );
+      );
+
   }
 }

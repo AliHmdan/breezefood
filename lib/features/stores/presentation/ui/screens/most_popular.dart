@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
+import 'package:like_button/like_button.dart';
 
 /// --------------------------------------------------------------
 /// عنوان القسم "Most Popular"
@@ -318,31 +320,43 @@ class _PopularItemCardState extends State<PopularItemCard> {
           // ================= IMAGE =================
           Stack(
             children: [
-              SizedBox(
-                width: 145.h,
-                height: 145.h,
-                child: ClipRRect(
-                  borderRadius: BorderRadiusDirectional.only(
-                    topStart: Radius.circular(12.r),
-                    topEnd: Radius.circular(12.r),
-                    bottomStart: Radius.circular(12.r),
-                    bottomEnd: Radius.circular(12.r),
-                  ),
-
-                  child: (imageUrl == null || imageUrl.isEmpty)
-                      ? _imageFallback()
-                      :
-                  Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imageFallback(),
-                  ),
-                ),
-              ),
+              // SizedBox(
+              //   width: 145.h,
+              //   height: 145.h,
+              //   child: ClipRRect(
+              //     borderRadius: BorderRadiusDirectional.only(
+              //       topStart: Radius.circular(12.r),
+              //       topEnd: Radius.circular(12.r),
+              //       bottomStart: Radius.circular(12.r),
+              //       bottomEnd: Radius.circular(12.r),
+              //     ),
+              //
+              //     child: (imageUrl == null || imageUrl.isEmpty)
+              //         ? _imageFallback()
+              //         :
+              //     Image.network(
+              //       imageUrl,
+              //       fit: BoxFit.cover,
+              //       errorBuilder: (_, __, ___) => _imageFallback(),
+              //     ),
+              //   ),
+              // ),
 
               // Positioned.fill(
               //   child: Container(color: Colors.black.withOpacity(0.25)),
               // ),
+              SizedBox(
+                width: 145.h,
+                height: 145.h,
+                child: AppNetworkImage(
+                  path: imageUrl,
+                  height: 145.h,
+                  width: 145.h,
+                  fit: BoxFit.cover,
+                  radius: BorderRadius.circular(12.r),
+                  fallback: _imageFallback(),
+                ),
+              ),
 
               if (hasDiscount)
                 PositionedDirectional(
@@ -373,21 +387,38 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
               // Favorite
               PositionedDirectional(
-                top: 2,
-                end: 2,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _toggleFavorite,
-                  child: AnimatedScale(
-                    duration: const Duration(milliseconds: 200),
-                    scale: _isFavorite ? 1.2 : 1.0,
-                    child: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite ? Colors.red : Colors.white,
-                      size: 22,
-                    ),
+                top: 4,
+                end: 4,
+                child:
+                LikeButton(
+                  size: 26,
+                  isLiked: _isFavorite,
+                  animationDuration: const Duration(milliseconds: 500),
+                  circleColor:  CircleColor(
+                    start: Colors.redAccent,
+                    end: Colors.red,
                   ),
+                  bubblesColor: const BubblesColor(
+                    dotPrimaryColor: Colors.red,
+                    dotSecondaryColor: Colors.redAccent,
+                  ),
+                  likeBuilder: (bool isLiked) {
+                    return Icon(
+                      isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: isLiked ? Colors.red : Colors.white,
+                      size: 22,
+                    );
+                  },
+                  onTap: (bool isLiked) async {
+                    if (_sending) return isLiked;
+
+                    await _toggleFavorite();
+
+                    // مهم جداً نرجع الحالة الجديدة الفعلية
+                    return _isFavorite;
+                  },
                 ),
+
               ),
             ],
           ),
@@ -420,6 +451,9 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     color: AppColor.white,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                        ? 'Cairo'
+                        : 'Inter',
                   ),
                 ),
 
@@ -452,7 +486,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                               : 'Inter',
                         ),
                       ),
-                      SizedBox(width: 3.w),
+                      SizedBox(width: 1.w),
                       Text(
                         context.syp(after),
                         style: TextStyle(

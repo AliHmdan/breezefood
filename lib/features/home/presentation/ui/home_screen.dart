@@ -384,14 +384,38 @@ class _HomeState extends State<Home> with RouteAware {
                         SizedBox(height: 14.h),
 
                         /// 6️⃣ Breakfast Section
-                        _anchor(_breakfastKey),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: CustomTitleSection(
-                            title: "home.breakfast_restaurants".tr(),
-                          ),
+                        state.maybeWhen(
+                          loaded: (data) {
+                            final breakfast = data.breakfastRestaurants;
+
+                            if (breakfast.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _anchor(_breakfastKey),
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: CustomTitleSection(
+                                    title: "home.breakfast_restaurants".tr(),
+                                  ),
+                                ),
+
+                                SizedBox(height: 10.h),
+
+                                BreakfastRestaurantsSection(
+                                  restaurants: breakfast,
+                                ),
+                              ],
+                            );
+                          },
+                          orElse: () => const SizedBox.shrink(),
                         ),
-                        SizedBox(height: 10.h),
+
+                        // SizedBox(height: 10.h),
                         loading
                             ? _shimmerBox(height: 178.h)
                             : state.maybeWhen(

@@ -7,8 +7,8 @@ class AppCacheManager {
   static final instance = CacheManager(
     Config(
       'breezfoodCache',
-      stalePeriod: const Duration(days: 7),
-      maxNrOfCacheObjects: 500,
+      stalePeriod: const Duration(days: 30),
+      maxNrOfCacheObjects: 3000,
     ),
   );
 }
@@ -34,7 +34,7 @@ class AppImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fallback = Image.asset(
-      fallbackAsset ?? "assets/images/shawarma_box.png",
+      fallbackAsset ?? "assets/images/meal_breeze.jpeg",
       width: width,
       height: height,
       fit: fit,
@@ -54,6 +54,7 @@ class AppImage extends StatelessWidget {
       fit: fit,
       fadeInDuration: Duration.zero,
       fadeOutDuration: Duration.zero,
+      useOldImageOnUrlChange: true,
       placeholder: (_, __) => fallback,
       errorWidget: (_, __, ___) => fallback,
     );
@@ -156,27 +157,52 @@ class AppNetworkImage extends StatelessWidget {
     if (url == null || url.trim().isEmpty) {
       body = fb;
     } else {
-      body = Image.network(
-        url,
+      body = CachedNetworkImage(
+        imageUrl: url,
+        cacheManager: AppCacheManager.instance,
         height: height,
         width: width ?? double.infinity,
         fit: fit,
-        errorBuilder: (_, __, ___) => fb,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return Container(
-            height: height,
-            width: width ?? double.infinity,
-            color: Colors.grey.shade900,
-            alignment: Alignment.center,
-            child: const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        },
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        useOldImageOnUrlChange: true,
+        // placeholder: (context, _) {
+        //   return Container(
+        //     height: height,
+        //     width: width ?? double.infinity,
+        //     color: Colors.grey.shade900,
+        //     alignment: Alignment.center,
+        //     child: const SizedBox(
+        //       width: 22,
+        //       height: 22,
+        //       child: CircularProgressIndicator(strokeWidth: 2),
+        //     ),
+        //   );
+        // },
+        errorWidget: (context, _, __) => fb,
       );
+
+      //     Image.network(
+      //   url,
+      //   height: height,
+      //   width: width ?? double.infinity,
+      //   fit: fit,
+      //   errorBuilder: (_, __, ___) => fb,
+      //   loadingBuilder: (context, child, progress) {
+      //     if (progress == null) return child;
+      //     return Container(
+      //       height: height,
+      //       width: width ?? double.infinity,
+      //       color: Colors.grey.shade900,
+      //       alignment: Alignment.center,
+      //       child: const SizedBox(
+      //         width: 22,
+      //         height: 22,
+      //         child: CircularProgressIndicator(strokeWidth: 2),
+      //       ),
+      //     );
+      //   },
+      // );
     }
 
     if (radius != null) {

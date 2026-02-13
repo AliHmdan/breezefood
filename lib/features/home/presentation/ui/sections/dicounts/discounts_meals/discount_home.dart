@@ -65,7 +65,7 @@ class DiscountHome extends StatelessWidget {
         Padding(
           padding: EdgeInsetsDirectional.only(top: 10, start: 16, end: 0.2),
           child: SizedBox(
-            height: 130.h,
+            height: 139.h,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final itemWidth = constraints.maxWidth / 2.2;
@@ -76,8 +76,15 @@ class DiscountHome extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
                     final d = discounts[index];
-                    final base = d.deliveryDiscount?.delivery?.baseFee;
-                    final fin = d.deliveryDiscount?.delivery?.finalFee;
+
+                    final base = d.deliveryBaseFee;
+                    final fin  = d.deliveryFinalFee;
+
+// يوجد خصم توصيل فقط إذا deliveryDiscount موجود
+                    final hasDeliveryDiscount =
+                        d.deliveryDiscount != null &&
+                            base != null &&
+                            fin != null;
                     return Container(
                       width: itemWidth,
                       margin: EdgeInsetsDirectional.only(end: 10.w),
@@ -97,7 +104,7 @@ class DiscountHome extends StatelessWidget {
 
                         // ✅ show delivery prices إذا موجودة
                         showDeliveryPrices: true,
-                        deliveryOldPrice: base,
+                        deliveryOldPrice: hasDeliveryDiscount ? base : null,
                         deliveryNewPrice: fin,
                       ),
                     );

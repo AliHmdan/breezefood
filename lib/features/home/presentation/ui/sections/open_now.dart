@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/del_price_helper.dart'
@@ -63,7 +64,20 @@ class _RestaurantCardState extends State<RestaurantCard> {
               borderRadius: BorderRadius.circular(16.r),
               child: Stack(
                 children: [
-                  _NetImage(url: imageUrl, height: 180.h),
+                  AppNetworkImage(
+                    path: imageUrl,
+                    height: 180.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    radius: BorderRadius.circular(12.r), // إذا بدك حواف
+                    fallback: Image.asset(
+                      "assets/images/meal_breeze.jpeg", // صورتك الافتراضية
+                      height: 180.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
 
                   Positioned.fill(
                     child: Padding(

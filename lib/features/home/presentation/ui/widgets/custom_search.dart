@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 
 class CustomSearch extends StatelessWidget {
   final IconData? icon;
-  final String hint;
+  final String? hint;
   final String? boxicon;
   final void Function()? onTap;
   final bool readOnly;
@@ -16,7 +16,7 @@ class CustomSearch extends StatelessWidget {
 
   const CustomSearch({
     super.key,
-    required this.hint,
+     this.hint,
     this.icon,
     this.boxicon,
     this.onTap,
@@ -34,7 +34,7 @@ class CustomSearch extends StatelessWidget {
             width: 40.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: AppColor.white,
+              color: AppColor.Lightgry,
               borderRadius: BorderRadius.circular(50.r),
             ),
             child: IconButton(
@@ -83,7 +83,7 @@ class CustomSearch extends StatelessWidget {
                   horizontal: 12.w,
                 ),
                 filled: true,
-                fillColor: AppColor.white,
+                fillColor: AppColor.search,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(borderRadius.r),
                   borderSide: BorderSide(

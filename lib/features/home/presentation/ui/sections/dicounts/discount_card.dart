@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -81,35 +82,25 @@ class Discount extends StatelessWidget {
       );
     }
 
-    return Image.network(
-      u,
-      height: height,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      loadingBuilder: (c, child, progress) {
-        if (progress == null) return child;
-        return Container(
-          height: height,
-          // color: Colors.black.withOpacity(0.15),
-          alignment: Alignment.center,
-          child: SizedBox(
-            width:double.infinity,
-            height: 22.w,
-            child: const CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      },
-      errorBuilder: (_, __, ___) => Container(
+    return
+      AppNetworkImage(
+        path: u,
         height: height,
-        color: Colors.grey.shade800,
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.image_not_supported,
-          color: AppColor.white,
-          size: 30.sp,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        fallback: Container(
+          height: height,
+          color: Colors.grey.shade800,
+          alignment: Alignment.center,
+          child: Image.asset(
+            "assets/images/meal_breeze.jpeg", // حط صورتك الافتراضية هون
+            height: height,
+            width: double.infinity,
+            fit: BoxFit.contain,
+          ),
         ),
-      ),
-    );
+      );
+
   }
 
   @override
@@ -140,8 +131,21 @@ class Discount extends StatelessWidget {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(5.r),
-                    child: _buildImage(imagePath, height: imageH),
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: AppNetworkImage(
+                      path: imagePath,
+                      height: imageH,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      radius: BorderRadius.vertical(
+                        top: Radius.circular(16.r),
+                      ),
+                      fallback: Image.asset(
+                        "assets/images/meal_breeze.jpeg",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+
                   ),
       
                   // ✅ rating chip
@@ -280,11 +284,16 @@ class Discount extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SvgPicture.asset(
-                              color: Colors.white,
                               "assets/icons/motor.svg",
+                              color: Colors.white,
                             ),
                             SizedBox(width: 4.w),
-                            if (deliveryOldPrice != null) ...[
+
+                            // ✅ إذا يوجد خصم توصيل (سعرين)
+                            if (deliveryOldPrice != null &&
+                                deliveryNewPrice != null &&
+                                deliveryOldPrice != deliveryNewPrice) ...[
+
                               Text(
                                 context.syp(deliveryOldPrice, decimals: 0),
                                 style: TextStyle(
@@ -294,9 +303,9 @@ class Discount extends StatelessWidget {
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
+
                               SizedBox(width: 6.w),
-                            ],
-                            if (deliveryNewPrice != null)
+
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
                                 style: TextStyle(
@@ -305,12 +314,23 @@ class Discount extends StatelessWidget {
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
+                            ]
+
+                            // ✅ إذا يوجد سعر واحد فقط (لا يوجد خصم توصيل)
+                            else if (deliveryNewPrice != null)
+                              Text(
+                                context.syp(deliveryNewPrice, decimals: 0),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                           ],
                         ),
                       ),
-
-
                     ],
+
                   ),
                 ),
             ],

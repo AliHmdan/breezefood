@@ -16,4 +16,6 @@ class AppColor {
   static const Color backfilter = Color(0xff3D3D3D);
   static const Color grye = Color(0xff334155);
   static const Color Lightgry = Color(0xffCBD5E1);
+  static const Color search = Color(0xff1A1A1A);
+
 }
