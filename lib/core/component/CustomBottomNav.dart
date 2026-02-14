@@ -91,7 +91,7 @@ class BottomNavBreeze extends StatelessWidget {
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [

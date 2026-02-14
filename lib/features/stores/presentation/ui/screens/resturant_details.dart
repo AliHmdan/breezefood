@@ -394,23 +394,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     onTap: () => Navigator.pop(context),
                                   ),
                                 ),
-                                // Center(
-                                //   child: Text(
-                                //     restaurantName,
-                                //     textAlign: TextAlign.center,
-                                //     style: TextStyle(
-                                //       color: Colors.white,
-                                //       fontSize: 26.sp,
-                                //       fontWeight: FontWeight.bold,
-                                //       fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                //     ),
-                                //   ),
-                                // ),
+
                                 // Name Restaurant + Rating
                                 PositionedDirectional(
-                                  bottom: MediaQuery.of(context).padding.bottom + 10,
-                                  start: 20,
-                                  end: 20,
+                                  bottom: MediaQuery.of(context).padding.bottom + 5,
+                                  start: 10,
+                                  end: 10,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -547,49 +536,111 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    // vertical: 5,
+                                    horizontal: 5,
+                                    vertical: 20,
                                   ),
                                   child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      if (showTwoPrices) ...[
-                                        Text(
-                                          deliveryBase,
-                                          style: TextStyle(
-                                            color: AppColor.LightActive,
-                                            decoration: TextDecoration.lineThrough,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w800,
-                                            fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                      Spacer(),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SvgPicture.asset(
+                                            "assets/icons/bf.svg",
+                                            color: AppColor.primaryColor,
+                                            width: 30.w,
+                                            height: 30.h,
                                           ),
-                                        ),
-                                        SizedBox(width: 8.w),
-                                        Text(
-                                          deliveryFinal,
-                                          style: TextStyle(
-                                            color: AppColor.red,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w900,
-                                            fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                          ),
-                                        ),
-                                      ] else ...[
-                                        Text(
-                                          deliveryFinal,
-                                          style: TextStyle(
-                                            color: AppColor.white,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w900,
-                                            fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                          ),
-                                        ),
-                                      ],
-                                      SizedBox(width: 6.w),
-                                      SvgPicture.asset(
-                                        "assets/icons/motor.svg",
-                                        color: Colors.white,
+                                          SizedBox(width: 6.w),
+
+                                          if (showTwoPrices) ...[
+                                            Text(
+                                              deliveryBase,
+                                              style: TextStyle(
+                                                color: AppColor.LightActive,
+                                                decoration: TextDecoration.lineThrough,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w800,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              deliveryFinal,
+                                              style: TextStyle(
+                                                color: AppColor.red,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w900,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                          ] else ...[
+                                            Text(
+                                              deliveryFinal,
+                                              style: TextStyle(
+                                                color: AppColor.white,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w900,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                          ],
+
+                                        ],
                                       ),
+                                      SizedBox(width: 45.w,),
+                                      _divider(),
+                                      Spacer(),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SvgPicture.asset(
+                                            "assets/icons/time.svg",
+                                            color: AppColor.primaryColor,
+                                            width: 30.w,
+                                            height: 30.h,
+                                          ),
+                                          SizedBox(width: 6.w),
+
+                                          if (showTwoPrices) ...[
+                                            Text(
+                                              deliveryBase,
+                                              style: TextStyle(
+                                                color: AppColor.LightActive,
+                                                decoration: TextDecoration.lineThrough,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w800,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                            SizedBox(width: 8.w),
+                                            Text(
+                                              deliveryFinal,
+                                              style: TextStyle(
+                                                color: AppColor.red,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w900,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                          ] else ...[
+                                            Text(
+                                              deliveryFinal,
+                                              style: TextStyle(
+                                                color: AppColor.white,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.w900,
+                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                              ),
+                                            ),
+                                          ],
+
+                                        ],
+                                      ),
+                                      SizedBox(width: 15.w,),
+                                      Spacer(),
+
                                     ],
                                   ),
                                 ),
@@ -743,25 +794,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               ),
                                             ),
                                           ),
-                                          // Container(
-                                          //   padding: EdgeInsets.symmetric(
-                                          //     horizontal: 12.w,
-                                          //     vertical: 6.h,
-                                          //   ),
-                                          //   decoration: BoxDecoration(
-                                          //     borderRadius: BorderRadius.circular(20),
-                                          //     color: isSelected
-                                          //         ? AppColor.primaryColor
-                                          //         : AppColor.black,
-                                          //   ),
-                                          //   child: CustomSubTitle(
-                                          //     subtitle: categories[index],
-                                          //     color: isSelected
-                                          //         ? AppColor.white
-                                          //         : AppColor.LightActive,
-                                          //     fontsize: 14.sp,
-                                          //   ),
-                                          // ),
+
                                         ),
                                       );
                                     },
@@ -985,7 +1018,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
   Widget _divider() {
     return Container(
       width: 0.5,
-      height: 20.h,
+      height: 25.h,
       margin: EdgeInsets.symmetric(horizontal: 4.w),
       color: AppColor.LightActive,
     );
@@ -998,10 +1031,10 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   _StickyHeaderDelegate({required this.child});
 
   @override
-  double get minExtent => 190.h;
+  double get minExtent => 280.h;
 
   @override
-  double get maxExtent => 190.h;
+  double get maxExtent => 280.h;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

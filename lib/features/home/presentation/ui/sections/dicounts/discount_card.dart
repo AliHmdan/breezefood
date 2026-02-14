@@ -179,55 +179,21 @@ class Discount extends StatelessWidget {
                     ),
                   ),
       
-                  // ✅ overlay name
-                  // Positioned.fill(
-                  //   child: Container(
-                  //     decoration: BoxDecoration(
-                  //       // gradient: LinearGradient(
-                  //       //   begin: Alignment.bottomCenter,
-                  //       //   end: Alignment.topCenter,
-                  //       //   colors: [
-                  //       //     Colors.black.withOpacity(0.75),
-                  //       //     Colors.black.withOpacity(0.45),
-                  //       //     Colors.black.withOpacity(0.15),
-                  //       //     Colors.transparent,
-                  //       //   ],
-                  //       //   stops: const [0.0, 0.35, 0.65, 1.0],
-                  //       // ),
-                  //     ),
-                  //     child: Center(
-                  //       child:
-                  //       Padding(
-                  //         padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  //         child: Text(
-                  //           subtitle,
-                  //           textAlign: TextAlign.center,
-                  //           maxLines: 1,
-                  //           overflow: TextOverflow.ellipsis,
-                  //           style: TextStyle(
-                  //             color: AppColor.white,
-                  //             fontSize: 15.sp,
-                  //             fontWeight: FontWeight.w700,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-      
-                  // ✅ discount chip
+
                   if (discount.trim().isNotEmpty)
                     PositionedDirectional(
                       bottom: 0,
                       start: 0,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
+                          horizontal: 8.w,
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadiusDirectional.only(
+                            // topStart:  Radius.circular(12.r),
+                            bottomStart: Radius.circular(12.r),
                             topEnd: Radius.circular(20.r),
                             bottomEnd: Radius.circular(20.r),
                           ),
@@ -286,6 +252,8 @@ class Discount extends StatelessWidget {
                             SvgPicture.asset(
                               "assets/icons/motor.svg",
                               color: Colors.white,
+                              width: 16.w,
+                              height: 16.h,
                             ),
                             SizedBox(width: 4.w),
 

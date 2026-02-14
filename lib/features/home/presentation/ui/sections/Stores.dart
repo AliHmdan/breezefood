@@ -39,7 +39,7 @@ class StoriesSlider extends StatelessWidget {
     return RepaintBoundary(
       child: SizedBox(
         height: height,
-        width: 361.w,
+        width: 400.w,
         child: CarouselSlider.builder(
           options: CarouselOptions(
             height: height,

@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg/svg.dart';
 
 class RestaurantCard extends StatelessWidget {
   final String imageUrl;
@@ -41,111 +43,87 @@ class RestaurantCard extends StatelessWidget {
     final url = (UrlHelper.toFullUrl(path) ?? "").trim();
 
     if (url.isEmpty) {
-      return Container(
+      return Image.asset(
+        "assets/images/meal_breeze.jpeg",
         height: 110.h,
-        color: Colors.grey.shade800,
-        child: Center(
-          child: Icon(Icons.restaurant, color: AppColor.white, size: 40.sp),
-        ),
+        width: double.infinity,
+        fit: BoxFit.cover,
       );
+
     }
 
-    return Image.network(
-      url,
+    return AppNetworkImage(
+      path: url, // أو imageUrl إذا هو المتغير عندك
       height: 110.h,
       width: double.infinity,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        height: 110.h,
-        color: Colors.grey.shade800,
-        child: Center(
-          child: Icon(Icons.restaurant, color: AppColor.white, size: 40.sp),
-        ),
-      ),
     );
-  }
 
+  }
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(50.r),
-      child: Stack(
-        children: [
-          ColorFiltered(
-            colorFilter: isClosed
-                ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
-                : const ColorFilter.mode(
-                    Colors.transparent,
-                    BlendMode.multiply,
-                  ),
-            child: _buildImage(imageUrl),
-          ),
-          Container(
-            height: 110.h,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.4),
-                  Colors.black.withOpacity(0.2),
-                  Colors.black.withOpacity(0.4),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w,),
+      child: Container(
 
-          // 3. المحتوى
-          Positioned.fill(
-            child: Padding(
-              padding: EdgeInsets.all(8.w),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            /// 🔹 IMAGE
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16.r),
+              ),
+              child: Stack(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  ColorFiltered(
+                    colorFilter: isClosed
+                        ? const ColorFilter.mode(
+                      Colors.grey,
+                      BlendMode.saturation,
+                    )
+                        : const ColorFilter.mode(
+                      Colors.transparent,
+                      BlendMode.multiply,
+                    ),
+                    child: AppNetworkImage(
+                      path: imageUrl,
+                      height: 170.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
+                  /// Top overlay info
+                  Positioned(
+                    top: 12.h,
+                    left: 12.w,
+                    right: 12.w,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 6.w,
-                            vertical: 2.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(15.r),
-                          ),
+
+                        /// Rating
+                        _iosBadge(
                           child: Row(
                             children: [
-                              RatingBarIndicator(
-                                rating: rating,
-                                itemBuilder: (context, index) => const Icon(
-                                  Icons.star,
-                                  color: Colors.yellow,
-                                ),
-                                itemCount: 1,
-                                itemSize: 14.sp,
-                                direction: Axis.horizontal,
-                              ),
+                              const Icon(Icons.star,
+                                  color: Colors.amber, size: 14),
                               SizedBox(width: 4.w),
                               Text(
                                 rating.toStringAsFixed(1),
                                 style: TextStyle(
-                                  color: AppColor.white,
+                                  color: Colors.white,
                                   fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
                                 ),
-                              ),
-                              SizedBox(width: 4.w),
-                              const Text(
-                                "|",
-                                style: TextStyle(color: Colors.white54),
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 orders,
                                 style: TextStyle(
-                                  color: AppColor.white,
+                                  color: Colors.white70,
                                   fontSize: 12.sp,
                                 ),
                               ),
@@ -153,29 +131,18 @@ class RestaurantCard extends StatelessWidget {
                           ),
                         ),
 
-                        // الوقت
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 2.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(15.r),
-                          ),
+                        /// Delivery
+                        _iosBadge(
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.delivery_dining,
-                                color: Colors.white,
-                                size: 14,
-                              ),
+                              const Icon(Icons.delivery_dining,
+                                  color: Colors.white, size: 14),
                               SizedBox(width: 4.w),
                               Text(
                                 time,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                 ),
                               ),
                             ],
@@ -184,40 +151,66 @@ class RestaurantCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 8.h),
-                    child: Column(
-                      children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (isClosed && closedText != null)
-                          Text(
-                            closedText!,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
-                            ),
-                          ),
-                      ],
+                ],
+              ),
+            ),
+
+            /// 🔹 BOTTOM CONTENT
+            Padding(
+              padding: EdgeInsets.all(5.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  if (isClosed && closedText != null) ...[
+                    SizedBox(height: 4.h),
+                    Text(
+                      closedText!,
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ],
+
+                  SizedBox(height: 4.h),
+
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        "assets/icons/motor.svg",
+                        height: 18.h,
+                        color: Colors.white70,
+                      ),
+                      SizedBox(width: 6.w),
+                      Text(
+                        time,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 }
 
 class MockStore {
@@ -649,4 +642,17 @@ class _StoresNavTabState extends State<StoresNavTab>
       ),
     );
   }
+}
+Widget _iosBadge({required Widget child}) {
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+    decoration: BoxDecoration(
+      color: Colors.black.withOpacity(0.45),
+      borderRadius: BorderRadius.circular(20.r),
+      border: Border.all(
+        color: Colors.white.withOpacity(0.08),
+      ),
+    ),
+    child: child,
+  );
 }

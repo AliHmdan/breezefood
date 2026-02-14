@@ -79,154 +79,81 @@ class _RestaurantCardState extends State<RestaurantCard> {
                   ),
 
 
-                  Positioned.fill(
-                    child: Padding(
-                      padding: EdgeInsets.all(10.w),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  PositionedDirectional(
+                    top: 10,
+                    end: 10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // ⭐ Rating
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Row(
                             children: [
-                              // ⭐ Rating
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 4.w,
-                                  vertical: 2.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.25),
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 14,
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      _rating.toStringAsFixed(1),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    const Text(
-                                      "|",
-                                      style: TextStyle(color: Colors.white54),
-                                    ),
-                                    SizedBox(width: 6.w),
-                                    CustomSubTitle(
-                                      subtitle: ordersText,
-                                      color: AppColor.white,
-                                      fontsize: 12.sp,
-                                    ),
-                                  ],
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                _rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-
-                              // 🚚 delivery fee chip
-                              // Container(
-                              //   padding: EdgeInsets.symmetric(
-                              //     horizontal: 8.w,
-                              //     vertical: 2.h,
-                              //   ),
-                              //   decoration: BoxDecoration(
-                              //     color: Colors.black.withOpacity(0.25),
-                              //     borderRadius: BorderRadius.circular(20.r),
-                              //   ),
-                              //   child: Row(
-                              //     children: [
-                              //       CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
-                              //       SizedBox(width: 4.w),
-                              //       SvgPicture.asset(
-                              //         color: Colors.white,
-                              //         "assets/icons/motor.svg",
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
+                              SizedBox(width: 6.w),
+                              const Text(
+                                "|",
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                              SizedBox(width: 6.w),
+                              CustomSubTitle(
+                                subtitle: ordersText,
+                                color: AppColor.white,
+                                fontsize: 12.sp,
+                              ),
                             ],
                           ),
-                          const Spacer(),
-                          //Name Resturant
-                          // Center(
-                          //   child:
-                          //   Text(
-                          //     (r.name).trim(),
-                          //     style: TextStyle(
-                          //       color: Colors.white,
-                          //       fontSize: 15.sp,
-                          //       fontWeight: FontWeight.bold,
-                          //    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                          //         ? 'Cairo'
-                          //         : 'Inter',
-                          //       shadows: [
-                          //         Shadow(
-                          //           blurRadius: 8,
-                          //           color: Colors.black.withOpacity(0.7),
-                          //         ),
-                          //
-                          //       ],
-                          //     ),
-                          //     textAlign: TextAlign.center,
-                          //     maxLines: 2,
-                          //     overflow: TextOverflow.ellipsis,
-                          //   ),
-                          // ),
-                          const Spacer(),
-                        ],
-                      ),
+                        ),
+
+
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 5.h,),
+            SizedBox(height: 8.h,),
             CustomSubTitle(subtitle: (r.name).trim(), color: AppColor.white, fontsize: 16.sp),
-            // Text(
-            //   (r.name).trim(),
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //     fontSize: 15.sp,
-            //     fontWeight: FontWeight.bold,
-            //     fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-            //         ? 'Cairo'
-            //         : 'Inter',
-            //     shadows: [
-            //       Shadow(
-            //         blurRadius: 8,
-            //         color: Colors.black.withOpacity(0.7),
-            //       ),
-            //
-            //     ],
-            //   ),
-            //   // textAlign: TextAlign.center,
-            //   maxLines: 2,
-            //   overflow: TextOverflow.ellipsis,
-            // ),
+            SizedBox(height: 5.h,),
             Container(
               padding: EdgeInsets.symmetric(
-                horizontal: 8.w,
+
                 vertical: 2.h,
               ),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.25),
-                borderRadius: BorderRadius.circular(20.r),
-              ),
+
               child: Row(
                 children: [
-                  CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
-                  SizedBox(width: 4.w),
                   SvgPicture.asset(
                     color: Colors.white,
                     "assets/icons/motor.svg",
+                    width: 16.w,
+                    height: 16.h,
                   ),
+                  SizedBox(width: 8.w),
+                  CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
+
+
                 ],
               ),
             ),

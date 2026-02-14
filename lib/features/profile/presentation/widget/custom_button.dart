@@ -21,16 +21,19 @@ class CustomButton extends StatelessWidget {
           elevation: 4,
           shadowColor: Colors.black.withOpacity(0.3),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
-        child: Text(
+        child:
+        Text(
           title,
           style: TextStyle(
             fontSize: 14.sp,
             color: AppColor.white,
-            fontFamily: "Manrope",
-            fontWeight: FontWeight.w400,
+            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                ? 'Cairo'
+                : 'Inter',
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
@@ -221,13 +222,15 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                 width: double.infinity,
                                 color: Colors.black,
                                 alignment: Alignment.center,
-                                child: Image.network(
-                                  _logoUrl(d),
-                                  fit: BoxFit.contain, // ✅ الصورة كاملة
-                                  errorBuilder: (_, __, ___) => Icon(
-                                    Icons.store,
-                                    color: Colors.white70,
-                                    size: 30.sp,
+                                child:
+                                AppNetworkImage(
+                                  path: _logoUrl(d),
+                                  height: imageH, // حدد حسب حجم الكونتينر عندك
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  fallback: Image.asset(
+                                    "assets/images/store_placeholder.png", // 👈 صورة بدل الأيقونة
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
