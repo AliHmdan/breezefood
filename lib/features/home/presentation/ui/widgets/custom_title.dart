@@ -16,7 +16,9 @@ class CustomTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: 14.sp,
         fontWeight: FontWeight.bold,
-        fontFamily: 'Inter',
+        fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+            ? 'Cairo'
+            : 'Inter',
         color: color,
       ),
     );

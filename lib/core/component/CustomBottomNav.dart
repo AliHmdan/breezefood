@@ -47,101 +47,93 @@ class BottomNavBreeze extends StatelessWidget {
   Widget build(BuildContext context) {
     final maxLabelWidth = 72.w; // عدّلها إذا بدك، بس هي غالباً ممتازة
 
-    return SafeArea(
+    return
+     SafeArea(
       top: false,
-      child: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            height: _barHeight,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
-              border: Border(
-                top: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(_svgIcons.length, (index) {
-                final isSelected = currentIndex == index;
-
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onChanged(index),
-                  child: SizedBox(
-                    width: 95.w, // ✅ عرض ثابت = لا رجفة
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOutCubic,
-                      height: 40.h,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, // ✅ ثابت
-                        vertical: 8.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColor.primaryColor
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _icon(
-                            _svgIcons[index],
-                            selected: isSelected,
-                            size: 22.sp,
-                          ),
-
-                          // ✅ الأنيميشن صار داخلي فقط
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutCubic,
-                            alignment: Alignment.centerLeft,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: isSelected ? 1 : 0,
-                              child: isSelected
-                                  ? Padding(
-                                      padding: EdgeInsets.only(left: 4.w),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: maxLabelWidth,
-                                        ),
-                                        child: Text(
-                                          _labelKeys[index].tr(),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: "Manrope",
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
+      child: Container(
+        height: 60.h, // 👈 ارتفاع متوازن
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          border: Border(
+            top: BorderSide(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
             ),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(_svgIcons.length, (index) {
+            final isSelected = currentIndex == index;
+
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onChanged(index),
+              child: SizedBox(
+                width: 85.w, // 👈 عرض ثابت = ما في رجفة
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutCubic,
+                  // padding: EdgeInsets.symmetric(vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColor.primaryColor
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _icon(
+                        _svgIcons[index],
+                        selected: isSelected,
+                        size: 22.sp,
+                      ),
+
+                      // 👇 أنيميشن ظهور/اختفاء النص
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: isSelected ? 1 : 0,
+                          child: isSelected
+                              ? Padding(
+                            padding: EdgeInsets.only(top: 4.h),
+                            child: Text(
+                              _labelKeys[index].tr(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColor.white,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
+                              ),
+                            ),
+                          )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
+
   }
 }
