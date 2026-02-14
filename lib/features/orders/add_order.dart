@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/share_icon.dart';
 import 'package:breezefood/core/services/money.dart';
@@ -190,16 +191,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
       },
       child: Column(
         children: [
-          // SizedBox(height: 10.h),
-          // Container(
-          //   width: 40.w,
-          //   height: 4.h,
-          //   decoration: BoxDecoration(
-          //     color: Colors.white24,
-          //     borderRadius: BorderRadius.circular(10),
-          //   ),
-          // ),
-          // SizedBox(height: 8.h),
+
 
           Expanded(
             child: SingleChildScrollView(
@@ -211,26 +203,20 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(24.r),
                         ),
-                        child: _isNetworkImage
-                            ? Image.network(
-                                widget.imagePathOrUrl,
-                                width: double.infinity,
-                                height: 300.h,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _fallbackImage(),
-                              )
-                            : Image.asset(
-                                widget.imagePathOrUrl,
-                                width: double.infinity,
-                                height: 220.h,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _fallbackImage(),
-                              ),
+                        child:AppNetworkImage(
+                          path: widget.imagePathOrUrl,
+                          width: double.infinity,
+                          height: 400.h,
+                          fit: BoxFit.cover,
+                          // useOldImageOnUrlChange: true,
+                        )
+
+
                       ),
 
-                      Positioned(
+                      PositionedDirectional(
                         top: 10,
-                        right: 10,
+                        end:10 ,
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.close, color: Colors.white),
@@ -242,9 +228,9 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                         ),
                       ),
 
-                      Positioned(
+                      PositionedDirectional(
                         bottom: 10,
-                        right: 10,
+                        start: 10,
                         child: AppShareFab(
                           text: _buildShareText(),
                           subject: "BreezeFood",
@@ -298,13 +284,17 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                             ),
                           ],
                         ),
-
-                        CustomSubTitle(
-                          subtitle: widget.description.isEmpty
-                              ? "Empty"
-                              : widget.description,
-                          color: AppColor.gry,
-                          fontsize: 10.sp,
+SizedBox(height: 15,),
+                        SizedBox(
+                          width: 300.w, // 👈 حدد العرض اللي بدك ياه
+                          child: CustomSubTitle(
+                            subtitle: widget.description.isEmpty
+                                ? "Empty"
+                                : widget.description,
+                            color: AppColor.gry,
+                            fontsize: 10.sp,
+                           // اختياري
+                          ),
                         ),
 
                         // divider(),
@@ -340,7 +330,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           color: AppColor.white,
                           fontsize: 14.sp,
                         ),
-                        SizedBox(height: 6.h),
+                        SizedBox(height: 16.h),
 
                         TextField(
                           controller: _noteCtrl,
@@ -360,7 +350,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                             ),
                           ),
                         ),
-
+               SizedBox(height: 40,),
                         CounterSheet(
                           basePrice: widget.price,
                           extrasTotal: _extrasTotal,

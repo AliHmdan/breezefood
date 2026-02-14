@@ -547,7 +547,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           SvgPicture.asset(
-                                            "assets/icons/bf.svg",
+                                            "assets/icons/motor.svg",
                                             color: AppColor.primaryColor,
                                             width: 30.w,
                                             height: 30.h,
@@ -600,6 +600,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             color: AppColor.primaryColor,
                                             width: 30.w,
                                             height: 30.h,
+
                                           ),
                                           SizedBox(width: 6.w),
 
@@ -668,74 +669,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child:
                                   GestureDetector(
-                                    // behavior: HitTestBehavior.opaque,
-                                    // onTap: () async {
-                                    //   final reviewId = myReviewId;
-                                    //   final hasMyRating =
-                                    //       (reviewId ?? 0) > 0 && myUserRating > 0;
-                                    //
-                                    //   final res = await showRateDialog(
-                                    //     context,
-                                    //     currentRating: hasMyRating ? myUserRating : 3.0,
-                                    //     reviewId: hasMyRating ? reviewId : null,
-                                    //   );
-                                    //
-                                    //   if (res == null) return;
-                                    //
-                                    //   final submitCubit =
-                                    //       context.read<RatingSubmitCubit>();
-                                    //   EasyLoading.show(status: "common.sending".tr());
-                                    //
-                                    //   if (res.delete) {
-                                    //     if ((reviewId ?? 0) == 0) {
-                                    //       EasyLoading.showError(
-                                    //         "reviews.no_review_to_delete".tr(),
-                                    //       );
-                                    //       return;
-                                    //     }
-                                    //
-                                    //     await submitCubit.deleteRestaurantRate(
-                                    //       reviewId: reviewId!,
-                                    //     );
-                                    //
-                                    //     if (!mounted) return;
-                                    //
-                                    //     submitCubit.state.maybeWhen(
-                                    //       deleteSuccess: () async {
-                                    //         EasyLoading.showSuccess(
-                                    //           "reviews.delete_success".tr(),
-                                    //         );
-                                    //         await cubit.load(widget.restaurant_id);
-                                    //       },
-                                    //       error: (msg) => EasyLoading.showError(msg.tr()),
-                                    //       orElse: () => EasyLoading.dismiss(),
-                                    //     );
-                                    //     return;
-                                    //   }
-                                    //
-                                    //   if (res.rating == null) {
-                                    //     EasyLoading.dismiss();
-                                    //     return;
-                                    //   }
-                                    //
-                                    //   await submitCubit.submitRestaurantRate(
-                                    //     restaurantId: widget.restaurant_id,
-                                    //     rating: res.rating!,
-                                    //   );
-                                    //
-                                    //   if (!mounted) return;
-                                    //
-                                    //   submitCubit.state.maybeWhen(
-                                    //     success: () async {
-                                    //       EasyLoading.showSuccess(
-                                    //         "reviews.rate_success".tr(),
-                                    //       );
-                                    //       await cubit.load(widget.restaurant_id);
-                                    //     },
-                                    //     error: (msg) => EasyLoading.showError(msg.tr()),
-                                    //     orElse: () => EasyLoading.dismiss(),
-                                    //   );
-                                    // },
+
                                     child: CustomSubTitle(
                                       subtitle: description,
                                       color: AppColor.Lightgry,
