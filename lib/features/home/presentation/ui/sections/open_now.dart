@@ -4,6 +4,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/del_price_helper.dart'
     show deliveryFeeText;
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,6 +65,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
               borderRadius: BorderRadius.circular(16.r),
               child: Stack(
                 children: [
+                  // ✅ Open/Closed badge
                   AppNetworkImage(
                     path: imageUrl,
                     height: 180.h,
@@ -77,7 +79,11 @@ class _RestaurantCardState extends State<RestaurantCard> {
                       fit: BoxFit.cover,
                     ),
                   ),
-
+                  PositionedDirectional(
+                    top: 6,
+                    start: 6,
+                    child: OpenStatusBadge(isOpen: r.isOpen),
+                  ),
 
                   PositionedDirectional(
                     top: 10,
@@ -125,22 +131,21 @@ class _RestaurantCardState extends State<RestaurantCard> {
                             ],
                           ),
                         ),
-
-
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 8.h,),
-            CustomSubTitle(subtitle: (r.name).trim(), color: AppColor.white, fontsize: 16.sp),
-            SizedBox(height: 5.h,),
+            SizedBox(height: 8.h),
+            CustomSubTitle(
+              subtitle: (r.name).trim(),
+              color: AppColor.white,
+              fontsize: 16.sp,
+            ),
+            SizedBox(height: 5.h),
             Container(
-              padding: EdgeInsets.symmetric(
-
-                vertical: 2.h,
-              ),
+              padding: EdgeInsets.symmetric(vertical: 2.h),
 
               child: Row(
                 children: [
@@ -151,13 +156,15 @@ class _RestaurantCardState extends State<RestaurantCard> {
                     height: 16.h,
                   ),
                   SizedBox(width: 8.w),
-                  CustomSubTitle(subtitle:  feeText, color: AppColor.white, fontsize: 12),
-
-
+                  CustomSubTitle(
+                    subtitle: feeText,
+                    color: AppColor.white,
+                    fontsize: 12,
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 15.h,),
+            SizedBox(height: 15.h),
           ],
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_c
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/breakfast_restaurants.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +19,8 @@ class CloserToYouCard extends StatefulWidget {
   final String? image;
   final String name;
   final double rating;
-
-  final double? deliveryFee; // ✅ قيمة التوصيل بدل وقت التوصيل
+  final double? deliveryFee;
+  final bool isOpen; // ✅ NEW
   final VoidCallback? onTap;
 
   const CloserToYouCard({
@@ -28,6 +29,7 @@ class CloserToYouCard extends StatefulWidget {
     required this.name,
     required this.rating,
     required this.deliveryFee,
+    required this.isOpen, // ✅
     this.onTap,
   });
 
@@ -57,6 +59,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
         children: [
           Stack(
             children: [
+              // ✅ Open/Closed badge
               AppNetworkImage(
                 path: widget.image,
                 height: 100.h,
@@ -70,7 +73,11 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   fit: BoxFit.cover,
                 ),
               ),
-
+              PositionedDirectional(
+                top: 6,
+                start: 6,
+                child: OpenStatusBadge(isOpen: widget.isOpen),
+              ),
 
               PositionedDirectional(
                 top: 6,
@@ -220,6 +227,7 @@ class CloserToYou extends StatelessWidget {
             width: cardWidth,
             margin: EdgeInsetsDirectional.only(end: gap),
             child: CloserToYouCard(
+              isOpen: r.isOpen, // ✅ هون
               image: restaurantImage(r),
               name: r.name,
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,

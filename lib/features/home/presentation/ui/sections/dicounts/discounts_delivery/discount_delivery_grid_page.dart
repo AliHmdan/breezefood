@@ -83,7 +83,6 @@ class DiscountDeliveryGridPage extends StatelessWidget {
                       border: Border.all(color: Colors.white.withOpacity(0.06)),
                     ),
 
-                    // ✅ أهم شي: نتحكم بحجم الصورة حسب ارتفاع الكرت
                     child: LayoutBuilder(
                       builder: (context, tile) {
                         final tileH = tile.maxHeight;

@@ -4,6 +4,7 @@ import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/del_price_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -50,14 +51,12 @@ class Supermarketslider extends StatelessWidget {
     );
   }
 }
+
 class _SupermarketCard extends StatefulWidget {
   final HomeRestaurantModel model;
   final VoidCallback? onTap;
 
-  const _SupermarketCard({
-    required this.model,
-    this.onTap,
-  });
+  const _SupermarketCard({required this.model, this.onTap});
 
   @override
   State<_SupermarketCard> createState() => _SupermarketCardState();
@@ -69,15 +68,14 @@ class _SupermarketCardState extends State<_SupermarketCard> {
   @override
   void initState() {
     super.initState();
-    _rating =
-    widget.model.ratingAvg <= 0 ? 4.0 : widget.model.ratingAvg;
+    _rating = widget.model.ratingAvg <= 0 ? 4.0 : widget.model.ratingAvg;
   }
 
   @override
   Widget build(BuildContext context) {
     final imageUrl =
         UrlHelper.toFullUrl(widget.model.coverImage) ??
-            UrlHelper.toFullUrl(widget.model.logo);
+        UrlHelper.toFullUrl(widget.model.logo);
 
     final feeText = deliveryFeeText(widget.model);
 
@@ -86,11 +84,10 @@ class _SupermarketCardState extends State<_SupermarketCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// 🔥 الصورة
           Stack(
             children: [
-
+              // ✅ Open/Closed badge
               AppNetworkImage(
                 path: imageUrl,
                 height: 100.h,
@@ -104,13 +101,17 @@ class _SupermarketCardState extends State<_SupermarketCard> {
                   fit: BoxFit.cover,
                 ),
               ),
+              PositionedDirectional(
+                top: 6,
+                start: 6,
+                child: OpenStatusBadge(isOpen: widget.model.isOpen),
+              ),
 
               PositionedDirectional(
                 top: 6,
                 end: 6,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 6.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10.r),
@@ -124,11 +125,7 @@ class _SupermarketCardState extends State<_SupermarketCard> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 14,
-                      ),
+                      const Icon(Icons.star, color: Colors.amber, size: 14),
                       SizedBox(width: 3.w),
                       Text(
                         _rating.toStringAsFixed(1),

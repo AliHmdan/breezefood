@@ -187,6 +187,10 @@
     "no_current_orders": "لا توجد طلبات حالية"
   },
   "restaurant": {
+    "open": "مفتوح",
+    "closed": "مغلق",
+     "closed_browse_only": "المطعم مغلق حالياً، يمكنك التصفح فقط",
+    "closed_cannot_checkout": "المطعم مغلق حالياً، لا يمكن إتمام الطلب.",
     "menu": "المنيو",
     "details": {
       "fallback_name": "مطعم"
@@ -225,7 +229,7 @@
     "discounts": "الخصومات",
     "menu": "القائمة",
     "view_cart_loading": "عرض السلة ...",
-    "view_cart": "عرض السلة • {count} • {total}"
+   "view_cart": "عرض السلة • الكمية: {count} • {total}"
   },
   "notifications": {
     "title": "الإشعارات",

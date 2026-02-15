@@ -165,7 +165,7 @@ class DiscountRestaurantModel {
   final String? logo;
   final String? discountType;
   final double? discountValue;
-// ✅ جديد — التوصيل
+  // ✅ جديد — التوصيل
   final double? deliveryBaseFee;
   final double? deliveryFinalFee;
   DiscountRestaurantModel({
@@ -173,7 +173,9 @@ class DiscountRestaurantModel {
     this.restaurantName,
     this.logo,
     this.discountType,
-    this.discountValue, this.deliveryBaseFee, this.deliveryFinalFee,
+    this.discountValue,
+    this.deliveryBaseFee,
+    this.deliveryFinalFee,
   });
 
   factory DiscountRestaurantModel.fromJson(Map<String, dynamic> json) {
@@ -298,18 +300,30 @@ class StoryModel {
 class StoryRestaurantMini {
   final int id;
   final String name;
+  final bool isOpen;
 
-  StoryRestaurantMini({required this.id, required this.name});
+  StoryRestaurantMini({
+    required this.id,
+    required this.name,
+    required this.isOpen,
+  });
 
   factory StoryRestaurantMini.fromJson(Map<String, dynamic> json) {
     return StoryRestaurantMini(
       id: HomeResponse._toInt(json["id"]),
       name: HomeResponse._toStringSafe(json["name"]),
+      isOpen: HomeResponse._toBool(json["is_open"]),
     );
   }
 }
 
-// =================== Existing Models (keep yours) ===================
+extension RestaurantOpenX on HomeRestaurantModel {
+  String openLabel(BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    return isOpen ? (isAr ? "مفتوح" : "Open") : (isAr ? "مغلق" : "Closed");
+  }
+}
+
 
 class AdModel {
   final int id;
@@ -368,11 +382,11 @@ class HomeRestaurantModel {
 
   final int? deliveryTime;
 
-  /// ✅ موجود بالـ /home و /super-markets/all
   final num deliveryBaseFee;
 
-  /// ✅ موجود بالـ /home فقط
   final DeliveryPreview? delivery;
+
+  final bool isOpen;
 
   HomeRestaurantModel({
     required this.id,
@@ -384,12 +398,12 @@ class HomeRestaurantModel {
     this.deliveryTime,
     required this.deliveryBaseFee,
     required this.delivery,
+    required this.isOpen,
   });
 
   String? get logoUrl => AppImageUrl.toFull(logo);
   String? get coverUrl => AppImageUrl.toFull(coverImage);
 
-  /// ✅ أهم Getter: السعر النهائي للعرض
   num? get deliveryFinalFee {
     final f = delivery?.finalFee;
     if (f != null && f > 0) return f;
@@ -414,15 +428,16 @@ class HomeRestaurantModel {
           ? null
           : HomeResponse._toInt(json["delivery_time"]),
 
-      /// ✅ هذا هو المهم
       deliveryBaseFee: (json["delivery_base_fee"] == null)
           ? 0
           : HomeResponse._toDouble(json["delivery_base_fee"]),
 
-      /// ✅ /home
       delivery: deliveryMap == null
           ? null
           : DeliveryPreview.fromJson(deliveryMap),
+
+      /// ✅ أهم سطر: هندلة is_open مهما كان نوعه (bool / 0-1 / "true")
+      isOpen: HomeResponse._toBool(json["is_open"]),
     );
   }
 }
@@ -563,6 +578,7 @@ class RestaurantDiscountModel {
   final int restaurantId;
   final String restaurantName;
   final String? logo;
+  final bool isOpen;
 
   final double ratingAvg;
   final int ratingCount;
@@ -572,13 +588,16 @@ class RestaurantDiscountModel {
   final double? deliveryBaseFee;
   final double? deliveryFinalFee;
   RestaurantDiscountModel({
+    required this.isOpen, // ✅ جديد
     required this.restaurantId,
     required this.restaurantName,
     required this.logo,
     required this.ratingAvg,
     required this.ratingCount,
     required this.foodDiscount,
-    required this.deliveryDiscount, this.deliveryBaseFee, this.deliveryFinalFee,
+    required this.deliveryDiscount,
+    this.deliveryBaseFee,
+    this.deliveryFinalFee,
   });
 
   // ✅ لوغو صالح للعرض: إذا جاي مسار ويندوز اعتبره null
@@ -600,6 +619,7 @@ class RestaurantDiscountModel {
     final foodMap = m(json["food_discount"]);
     final delMap = m(json["delivery_discount"]);
     final deliveryMap = m(json["delivery"]);
+
     return RestaurantDiscountModel(
       restaurantId: i(json["restaurant_id"]),
       restaurantName: (json["restaurant_name"] ?? "").toString(),
@@ -610,14 +630,20 @@ class RestaurantDiscountModel {
       deliveryDiscount: delMap == null
           ? null
           : DeliveryDiscountInfo.fromJson(delMap),
-      // ✅ قراءة سعر التوصيل
-      deliveryBaseFee:
-      deliveryMap != null ? d(deliveryMap["base_fee"]) : null,
+      deliveryBaseFee: deliveryMap != null ? d(deliveryMap["base_fee"]) : null,
+      deliveryFinalFee: deliveryMap != null
+          ? d(deliveryMap["final_fee"])
+          : null,
 
-      deliveryFinalFee:
-      deliveryMap != null ? d(deliveryMap["final_fee"]) : null,
+      // ✅ أهم سطر
+      isOpen: HomeResponse._toBool(json["is_open"]),
     );
   }
+}
+
+extension DiscountOpenX on RestaurantDiscountModel {
+  String openLabel(BuildContext context) =>
+      isOpen ? "restaurant.open".tr() : "restaurant.closed".tr();
 }
 
 class DiscountInfo {

@@ -17,7 +17,6 @@ import 'package:breezefood/features/orders/add_order.dart';
 import 'package:breezefood/features/orders/cart/request_order_screen.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
-import 'package:breezefood/features/orders/request_order/tiem_price.dart';
 import 'package:breezefood/features/ratings/presentation/cubit/rating_submit_cubit.dart';
 import 'package:breezefood/features/ratings/presentation/ui/rate_dialog.dart';
 import 'package:breezefood/features/search/presentation/ui/search_screen.dart';
@@ -48,12 +47,11 @@ class ResturantDetails extends StatefulWidget {
 
 class _ResturantDetailsState extends State<ResturantDetails> {
   int selectedCategoryIndex = 0;
-  bool _openedInitial = false;
 
   late final ScrollController _scrollController = ScrollController();
   late final RestaurantDetailsCubit cubit;
   late final MostPopularCubit mostPopularCubit;
-
+  bool _isRestaurantOpen = true; // ✅ هنا
   final List<GlobalKey> _categoryKeys = [];
   final List<double> _categoryOffsets = [];
   int _activeCategoryIndex = 0;
@@ -67,16 +65,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       context.read<CartCubit>().loadCart(),
     ]);
   }
+
   Future<void> _precacheImage(String url) async {
     if (url.isEmpty) return;
     if (_preloadedImages.contains(url)) return;
 
     try {
       await precacheImage(
-        CachedNetworkImageProvider(
-          url,
-          cacheManager: AppCacheManager.instance,
-        ),
+        CachedNetworkImageProvider(url, cacheManager: AppCacheManager.instance),
         context,
       );
 
@@ -151,7 +147,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     if (v.isEmpty) return "";
 
     // 🚫 ignore local server temp paths
-    if (v.startsWith("C:/") || v.startsWith("C:\\") || v.contains("xampp/tmp")) {
+    if (v.startsWith("C:/") ||
+        v.startsWith("C:\\") ||
+        v.contains("xampp/tmp")) {
       return "";
     }
 
@@ -173,6 +171,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     }
 
     return UrlHelper.toFullUrl(v) ?? "";
+  }
+
+  bool _guardIfClosed(bool isOpen) {
+    if (isOpen) return true;
+    EasyLoading.showInfo("restaurant.closed_browse_only".tr());
+    return false;
   }
 
   String _pickSingleLangFromMixed(String s, BuildContext context) {
@@ -208,6 +212,13 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               usePrimaryButton: true,
               showCountAndTotal: true,
               onViewCart: () async {
+                if (!_isRestaurantOpen) {
+                  EasyLoading.showInfo(
+                    "restaurant.closed_cannot_checkout".tr(),
+                  );
+                  return;
+                }
+
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -244,14 +255,23 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               List<String> categories = [];
               List<List<MenuItem>> itemsByCategory = [];
               List<MenuItem> discountedItems = [];
-
               state.maybeWhen(
                 loaded: (data) {
                   final g = data.general;
 
+                  final newIsOpen = g.isOpen;
+                  if (_isRestaurantOpen != newIsOpen) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (!mounted) return;
+                      setState(() => _isRestaurantOpen = newIsOpen);
+                    });
+                  }
+
                   restaurantName = _pickSingleLangFromMixed(g.name, context);
-                  description =
-                      _pickSingleLangFromMixed(g.description ?? "", context);
+                  description = _pickSingleLangFromMixed(
+                    g.description ?? "",
+                    context,
+                  );
 
                   // ✅ الغلاف/اللوغو
                   headerImageUrl = _imageUrl(g.cover ?? g.logo);
@@ -295,7 +315,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                   if (_categoryKeys.length != sections.length) {
                     _categoryKeys
                       ..clear()
-                      ..addAll(List.generate(sections.length, (_) => GlobalKey()));
+                      ..addAll(
+                        List.generate(sections.length, (_) => GlobalKey()),
+                      );
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) _calculateCategoryOffsets();
                     });
@@ -310,15 +332,19 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                   itemsByCategory = sections.map((e) => e.items).toList();
                   for (final section in sections) {
-                    for (final item in section.items.take(4)) { // أول 4 فقط من كل قسم
+                    for (final item in section.items.take(4)) {
+                      // أول 4 فقط من كل قسم
                       final img = _imageUrl(item.image);
                       _precacheImage(img);
                     }
                   }
 
                   final allItems = sections.expand((s) => s.items).toList();
-                  discountedItems = allItems.where((x) => x.hasDiscount).toList()
-                    ..sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
+                  discountedItems =
+                      allItems.where((x) => x.hasDiscount).toList()..sort(
+                        (a, b) =>
+                            b.discountPercent.compareTo(a.discountPercent),
+                      );
 
                   myReviewId = data.myRating?.id;
                   myUserRating = data.myRating?.rating ?? 0.0;
@@ -351,20 +377,19 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                               children: [
                                 _headerReady
                                     ? AppNetworkImage(
-                                  path: headerImageUrl,
-                                  height: 180.h,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                )
+                                        path: headerImageUrl,
+                                        height: 180.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      )
                                     : SizedBox(
-                                  height: 180.h,
-                                  width: double.infinity,
-                                  child: Image.asset(
-                                    "assets/images/meal_breeze.jpeg", // حط صورتك هون
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-
+                                        height: 180.h,
+                                        width: double.infinity,
+                                        child: Image.asset(
+                                          "assets/images/meal_breeze.jpeg", // حط صورتك هون
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
 
                                 Positioned.fill(
                                   child: IgnorePointer(
@@ -374,7 +399,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           begin: Alignment.bottomCenter,
                                           end: Alignment.topCenter,
                                           colors: [
-                                            Color(0xB3000000), // أسفل (70% سواد خفيف)
+                                            Color(
+                                              0xB3000000,
+                                            ), // أسفل (70% سواد خفيف)
                                             Color(0x66000000), // وسط خفيف جداً
                                             Color(0x00000000), // شفاف بالأعلى
                                           ],
@@ -397,13 +424,14 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                                 // Name Restaurant + Rating
                                 PositionedDirectional(
-                                  bottom: MediaQuery.of(context).padding.bottom + 5,
+                                  bottom:
+                                      MediaQuery.of(context).padding.bottom + 5,
                                   start: 10,
                                   end: 10,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-
                                       /// 🔥 اسم المطعم
                                       Text(
                                         restaurantName,
@@ -411,7 +439,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           color: Colors.white,
                                           fontSize: 26.sp,
                                           fontWeight: FontWeight.w900,
-                                          fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                          fontFamily: context.isAr
+                                              ? 'Cairo'
+                                              : 'Inter',
                                         ),
                                       ),
 
@@ -423,32 +453,40 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           // 👇 نفس كود showRateDialog الموجود عندك
                                           final reviewId = myReviewId;
                                           final hasMyRating =
-                                              (reviewId ?? 0) > 0 && myUserRating > 0;
+                                              (reviewId ?? 0) > 0 &&
+                                              myUserRating > 0;
 
                                           final res = await showRateDialog(
                                             context,
                                             currentRating: hasMyRating
                                                 ? myUserRating
                                                 : 3.0,
-                                            reviewId: hasMyRating ? reviewId : null,
+                                            reviewId: hasMyRating
+                                                ? reviewId
+                                                : null,
                                           );
 
                                           if (res == null) return;
 
-                                          final submitCubit = context.read<RatingSubmitCubit>();
-                                          EasyLoading.show(status: "common.sending".tr());
+                                          final submitCubit = context
+                                              .read<RatingSubmitCubit>();
+                                          EasyLoading.show(
+                                            status: "common.sending".tr(),
+                                          );
 
                                           if (res.delete) {
                                             if ((reviewId ?? 0) == 0) {
                                               EasyLoading.showError(
-                                                "reviews.no_review_to_delete".tr(),
+                                                "reviews.no_review_to_delete"
+                                                    .tr(),
                                               );
                                               return;
                                             }
 
-                                            await submitCubit.deleteRestaurantRate(
-                                              reviewId: reviewId!,
-                                            );
+                                            await submitCubit
+                                                .deleteRestaurantRate(
+                                                  reviewId: reviewId!,
+                                                );
 
                                             if (!mounted) return;
 
@@ -457,11 +495,16 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 EasyLoading.showSuccess(
                                                   "reviews.delete_success".tr(),
                                                 );
-                                                await cubit.load(widget.restaurant_id);
+                                                await cubit.load(
+                                                  widget.restaurant_id,
+                                                );
                                               },
                                               error: (msg) =>
-                                                  EasyLoading.showError(msg.tr()),
-                                              orElse: () => EasyLoading.dismiss(),
+                                                  EasyLoading.showError(
+                                                    msg.tr(),
+                                                  ),
+                                              orElse: () =>
+                                                  EasyLoading.dismiss(),
                                             );
 
                                             return;
@@ -472,10 +515,12 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             return;
                                           }
 
-                                          await submitCubit.submitRestaurantRate(
-                                            restaurantId: widget.restaurant_id,
-                                            rating: res.rating!,
-                                          );
+                                          await submitCubit
+                                              .submitRestaurantRate(
+                                                restaurantId:
+                                                    widget.restaurant_id,
+                                                rating: res.rating!,
+                                              );
 
                                           if (!mounted) return;
 
@@ -484,7 +529,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               EasyLoading.showSuccess(
                                                 "reviews.rate_success".tr(),
                                               );
-                                              await cubit.load(widget.restaurant_id);
+                                              await cubit.load(
+                                                widget.restaurant_id,
+                                              );
                                             },
                                             error: (msg) =>
                                                 EasyLoading.showError(msg.tr()),
@@ -502,7 +549,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             const SizedBox(width: 4),
                                             Text(
                                               avgRatingText,
-                                              style:  TextStyle(
+                                              style: TextStyle(
                                                 color: AppColor.Lightgry,
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.bold,
@@ -519,7 +566,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       ),
                                     ],
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           ),
@@ -540,8 +587,38 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     vertical: 20,
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
+                                      Spacer(),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SvgPicture.asset(
+                                            "assets/icons/time.svg",
+                                            color: AppColor.primaryColor,
+                                            width: 30.w,
+                                            height: 30.h,
+                                          ),
+                                          SizedBox(width: 6.w),
+
+                                          Text(
+                                            deliveryTime == "--"
+                                                ? "--"
+                                                : "$deliveryTime ${"common.min".tr()}",
+                                            style: TextStyle(
+                                              color: AppColor.white,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w900,
+                                              fontFamily: context.isAr
+                                                  ? 'Cairo'
+                                                  : 'Inter',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(width: 45.w),
+                                      _divider(),
                                       Spacer(),
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
@@ -559,10 +636,13 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               deliveryBase,
                                               style: TextStyle(
                                                 color: AppColor.LightActive,
-                                                decoration: TextDecoration.lineThrough,
+                                                decoration:
+                                                    TextDecoration.lineThrough,
                                                 fontSize: 12.sp,
                                                 fontWeight: FontWeight.w800,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                                fontFamily: context.isAr
+                                                    ? 'Cairo'
+                                                    : 'Inter',
                                               ),
                                             ),
                                             SizedBox(width: 8.w),
@@ -572,7 +652,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 color: AppColor.red,
                                                 fontSize: 12.sp,
                                                 fontWeight: FontWeight.w900,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                                fontFamily: context.isAr
+                                                    ? 'Cairo'
+                                                    : 'Inter',
                                               ),
                                             ),
                                           ] else ...[
@@ -582,72 +664,24 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 color: AppColor.white,
                                                 fontSize: 12.sp,
                                                 fontWeight: FontWeight.w900,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
+                                                fontFamily: context.isAr
+                                                    ? 'Cairo'
+                                                    : 'Inter',
                                               ),
                                             ),
                                           ],
-
                                         ],
                                       ),
-                                      SizedBox(width: 45.w,),
-                                      _divider(),
+                                      SizedBox(width: 15.w),
                                       Spacer(),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SvgPicture.asset(
-                                            "assets/icons/time.svg",
-                                            color: AppColor.primaryColor,
-                                            width: 30.w,
-                                            height: 30.h,
-
-                                          ),
-                                          SizedBox(width: 6.w),
-
-                                          if (showTwoPrices) ...[
-                                            Text(
-                                              deliveryBase,
-                                              style: TextStyle(
-                                                color: AppColor.LightActive,
-                                                decoration: TextDecoration.lineThrough,
-                                                fontSize: 12.sp,
-                                                fontWeight: FontWeight.w800,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                              ),
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              deliveryFinal,
-                                              style: TextStyle(
-                                                color: AppColor.red,
-                                                fontSize: 12.sp,
-                                                fontWeight: FontWeight.w900,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                              ),
-                                            ),
-                                          ] else ...[
-                                            Text(
-                                              deliveryFinal,
-                                              style: TextStyle(
-                                                color: AppColor.white,
-                                                fontSize: 12.sp,
-                                                fontWeight: FontWeight.w900,
-                                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                                              ),
-                                            ),
-                                          ],
-
-                                        ],
-                                      ),
-                                      SizedBox(width: 15.w,),
-                                      Spacer(),
-
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
                                   child: GestureDetector(
                                     onTap: () {
                                       Navigator.push(
@@ -666,10 +700,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                 ),
                                 const SizedBox(height: 20),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child:
-                                  GestureDetector(
-
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: GestureDetector(
                                     child: CustomSubTitle(
                                       subtitle: description,
                                       color: AppColor.Lightgry,
@@ -682,20 +716,28 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   height: 35.h,
                                   child: ListView.builder(
                                     scrollDirection: Axis.horizontal,
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                    ),
                                     itemCount: categories.length,
                                     itemBuilder: (context, index) {
-                                      final isSelected = selectedCategoryIndex == index;
+                                      final isSelected =
+                                          selectedCategoryIndex == index;
                                       return Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 4.w,
+                                        ),
                                         child: GestureDetector(
                                           onTap: () {
                                             final keyContext =
-                                                _categoryKeys[index].currentContext;
+                                                _categoryKeys[index]
+                                                    .currentContext;
                                             if (keyContext != null) {
                                               Scrollable.ensureVisible(
                                                 keyContext,
-                                                duration: const Duration(milliseconds: 400),
+                                                duration: const Duration(
+                                                  milliseconds: 400,
+                                                ),
                                                 curve: Curves.easeInOut,
                                               );
                                             }
@@ -703,15 +745,21 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               selectedCategoryIndex = index;
                                             });
                                           },
-                                          child:  Container(
-                                            padding: EdgeInsets.symmetric(horizontal: 12.w, ),
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 12.w,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color:  isSelected
-                                                  ? AppColor.primaryColor // ✅ لما يكون محدد → أخضر
-                                                  : Colors.white.withOpacity(0.06),
-                                              borderRadius: BorderRadius.circular(12.r),
+                                              color: isSelected
+                                                  ? AppColor
+                                                        .primaryColor // ✅ لما يكون محدد → أخضر
+                                                  : Colors.white.withOpacity(
+                                                      0.06,
+                                                    ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12.r),
                                               border: Border.all(
-                                                color:  AppColor.primaryColor,
+                                                color: AppColor.primaryColor,
                                               ),
                                             ),
                                             child: Center(
@@ -720,15 +768,17 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 style: TextStyle(
                                                   color: AppColor.white,
 
-                                                  fontSize: isSelected ? 14.sp : 10.sp,   // ✅ كبير إذا fixed
+                                                  fontSize: isSelected
+                                                      ? 14.sp
+                                                      : 10.sp, // ✅ كبير إذا fixed
                                                   fontWeight: isSelected
-                                                      ? FontWeight.bold              // ✅ Bold إذا fixed
+                                                      ? FontWeight
+                                                            .bold // ✅ Bold إذا fixed
                                                       : FontWeight.normal,
                                                 ),
                                               ),
                                             ),
                                           ),
-
                                         ),
                                       );
                                     },
@@ -749,8 +799,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                           SliverOverlapInjector(
                             handle:
                                 NestedScrollView.sliverOverlapAbsorberHandleFor(
-                              context,
-                            ),
+                                  context,
+                                ),
                           ),
 
                           if (discountedItems.isNotEmpty)
@@ -768,6 +818,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     en: it.descriptionEn ?? "",
                                   );
                                   final img = _imageUrl(it.image);
+                                  if (!_guardIfClosed(_isRestaurantOpen))
+                                    return;
 
                                   await showAddOrderDialog(
                                     context,
@@ -794,45 +846,54 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                           /// Most Popular
                           SliverToBoxAdapter(
-                            child: BlocBuilder<MostPopularCubit, MostPopularState>(
+                            child:
+                                BlocBuilder<MostPopularCubit, MostPopularState>(
+                                  bloc: mostPopularCubit,
+                                  builder: (context, mpState) {
+                                    return mpState.maybeWhen(
+                                      loading: () => const Padding(
+                                        padding: EdgeInsets.only(bottom: 12),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                      error: (msg) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 6,
+                                        ),
 
-                              bloc: mostPopularCubit,
-                              builder: (context, mpState) {
-                                return mpState.maybeWhen(
-                                  loading: () => const Padding(
-                                    padding: EdgeInsets.only(bottom: 12),
-                                    child: Center(child: CircularProgressIndicator()),
-                                  ),
-                                  error: (msg) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 6,
-                                    ),
+                                        child: CustomSubTitle(
+                                          subtitle: msg,
+                                          color: AppColor.red,
+                                          fontsize: 12,
+                                        ),
+                                      ),
 
-                                    child: CustomSubTitle(
-                                      subtitle: msg,
-                                      color: AppColor.red,
-                                      fontsize: 12,
-                                    ),
-                                  ),
-
-                                  loaded: (items) {
-                                    if (items.isEmpty) return const SizedBox.shrink();
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 12),
-                                      child: MostPopularSection(items: items),
+                                      loaded: (items) {
+                                        if (items.isEmpty)
+                                          return const SizedBox.shrink();
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 12,
+                                          ),
+                                          child: MostPopularSection(
+                                            items: items,
+                                          ),
+                                        );
+                                      },
+                                      orElse: () => const SizedBox.shrink(),
                                     );
                                   },
-                                  orElse: () => const SizedBox.shrink(),
-                                );
-                              },
-                            ),
+                                ),
                           ),
 
                           /// Menu Sections
                           SliverToBoxAdapter(
                             child: Column(
-                              children: List.generate(categories.length, (index) {
+                              children: List.generate(categories.length, (
+                                index,
+                              ) {
                                 final category = categories[index];
                                 final items = itemsByCategory[index];
 
@@ -841,7 +902,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                      ),
                                       child: CustomTitleSection(
                                         title: category,
                                         all: "common.all".tr(),
@@ -850,11 +913,13 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => CategoryItemsGridPage(
-                                                restaurant_id: widget.restaurant_id,
-                                                title: category,
-                                                items: items,
-                                              ),
+                                              builder: (context) =>
+                                                  CategoryItemsGridPage(
+                                                    restaurant_id:
+                                                        widget.restaurant_id,
+                                                    title: category,
+                                                    items: items,
+                                                  ),
                                             ),
                                           );
                                         },
@@ -865,7 +930,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       height: 200.h,
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
-                                        padding: const EdgeInsetsDirectional.only(start: 20),
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              start: 20,
+                                            ),
                                         itemCount: items.length,
                                         itemBuilder: (context, i) {
                                           final it = items[i];
@@ -876,8 +944,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             id: it.id,
                                             nameAr: it.nameAr,
                                             nameEn: it.nameEn,
-                                            priceBefore:
-                                                (it.priceBefore > 0 ? it.priceBefore : it.price),
+                                            priceBefore: (it.priceBefore > 0
+                                                ? it.priceBefore
+                                                : it.price),
                                             priceAfter: it.effectivePrice,
                                             hasDiscount: it.hasDiscount,
                                             discountType: it.discountType,
@@ -885,15 +954,23 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                             isFavorite: it.isFavorite,
                                             primaryImage: imageUrl.isEmpty
                                                 ? null
-                                                : PrimaryImageModel(imageUrl: imageUrl),
+                                                : PrimaryImageModel(
+                                                    imageUrl: imageUrl,
+                                                  ),
                                             restaurant: null,
                                           );
 
                                           return GestureDetector(
                                             onTap: () async {
+                                              if (!_guardIfClosed(
+                                                _isRestaurantOpen,
+                                              ))
+                                                return;
+
                                               await showAddOrderDialog(
                                                 context,
-                                                restaurantId: widget.restaurant_id,
+                                                restaurantId:
+                                                    widget.restaurant_id,
                                                 menuItemId: it.id,
                                                 title: context.pick(
                                                   ar: it.nameAr,
@@ -903,7 +980,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 oldPrice: (it.priceBefore > 0
                                                     ? it.priceBefore
                                                     : it.price),
-                                                imagePathOrUrl: imageUrl.isNotEmpty
+                                                imagePathOrUrl:
+                                                    imageUrl.isNotEmpty
                                                     ? imageUrl
                                                     : "assets/images/shawarma_box.png",
                                                 description: context.pick(
@@ -914,15 +992,22 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                               );
 
                                               if (mounted) {
-                                                context.read<CartCubit>().loadCart();
+                                                context
+                                                    .read<CartCubit>()
+                                                    .loadCart();
                                               }
                                             },
                                             child: Container(
                                               width: 142.w,
-                                              margin: EdgeInsetsDirectional.only(
-                                                end: i == items.length - 1 ? 0 : 8.w,
+                                              margin:
+                                                  EdgeInsetsDirectional.only(
+                                                    end: i == items.length - 1
+                                                        ? 0
+                                                        : 8.w,
+                                                  ),
+                                              child: PopularItemCard(
+                                                item: mapped,
                                               ),
-                                              child: PopularItemCard(item: mapped),
                                             ),
                                           );
                                         },
@@ -971,7 +1056,11 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 280.h;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return child;
   }
 
@@ -999,9 +1088,7 @@ class DiscountItemCard extends StatelessWidget {
     final hasDiscount = item.hasDiscount && after < before;
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(11.r),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(11.r)),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1025,7 +1112,10 @@ class DiscountItemCard extends StatelessWidget {
                   bottom: 0,
                   start: 0,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadiusDirectional.only(
@@ -1060,8 +1150,8 @@ class DiscountItemCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     fontFamily:
                         Localizations.localeOf(context).languageCode == 'ar'
-                            ? 'Cairo'
-                            : 'Inter',
+                        ? 'Cairo'
+                        : 'Inter',
                   ),
                 ),
                 Row(
@@ -1074,9 +1164,10 @@ class DiscountItemCard extends StatelessWidget {
                           fontSize: 11.sp,
                           decoration: TextDecoration.lineThrough,
                           fontFamily:
-                              Localizations.localeOf(context).languageCode == 'ar'
-                                  ? 'Cairo'
-                                  : 'Inter',
+                              Localizations.localeOf(context).languageCode ==
+                                  'ar'
+                              ? 'Cairo'
+                              : 'Inter',
                         ),
                       ),
                       const SizedBox(width: 4),

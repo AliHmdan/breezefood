@@ -49,12 +49,13 @@ class RestaurantGeneral {
   final String? address;
   final String? phone;
 
+  final bool isOpen; // ✅ أضفها
+
   final double avgRating;
   final int totalCompletedOrders;
   final int deliveryTime;
   final num deliveryCash;
 
-  // ✅ هذا اللي جاي من السيرفر: "rating": {...}
   final MyRating? myRating;
 
   RestaurantGeneral({
@@ -66,16 +67,23 @@ class RestaurantGeneral {
     this.cover,
     this.address,
     this.phone,
+    required this.isOpen, // ✅
     required this.avgRating,
     required this.totalCompletedOrders,
     required this.deliveryTime,
     required this.deliveryCash,
     this.myRating,
   });
-  String? get logoUrl => AppImageUrl.toFull(logo);
-  String? get coverUrl => AppImageUrl.toFull(cover);
+
   factory RestaurantGeneral.fromJson(Map<String, dynamic> json) {
     final ratingJson = json["rating"];
+
+    bool _toBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is num) return v != 0;
+      final s = v?.toString().toLowerCase().trim();
+      return s == "true" || s == "1" || s == "yes";
+    }
 
     return RestaurantGeneral(
       id: (json["id"] ?? 0) as int,
@@ -85,17 +93,14 @@ class RestaurantGeneral {
       cover: json["cover"] as String?,
       address: json["address"] as String?,
       phone: json["phone"] as String?,
+      isOpen: _toBool(json["is_open"]), // ✅ هون المهم
       avgRating: _toDouble(json["avg_rating"]),
       totalCompletedOrders: (json["total_completed_orders"] ?? 0) as int,
       deliveryTime: (json["delivery_time"] ?? 0) as int,
       deliveryCash: (json["delivery_cash"] ?? 0) as num,
-
       delivery: (json["delivery"] is Map)
-          ? DeliveryInfo.fromJson(
-              (json["delivery"] as Map).cast<String, dynamic>(),
-            )
+          ? DeliveryInfo.fromJson((json["delivery"] as Map).cast<String, dynamic>())
           : null,
-
       myRating: (ratingJson is Map)
           ? MyRating.fromJson(ratingJson.cast<String, dynamic>())
           : null,

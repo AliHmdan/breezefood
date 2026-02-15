@@ -184,6 +184,10 @@
     "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
   },
   "restaurant": {
+    "open": "Open",
+    "closed": "Closed",
+    "closed_browse_only": "This restaurant is currently closed — you can browse only",
+    "closed_cannot_checkout": "This restaurant is currently closed — you can't place an order.",
     "menu": "Menu",
     "details": {
       "fallback_name": "Restaurant"
@@ -219,7 +223,7 @@
     "menu": "Menu",
     "discounts": "Discounts",
     "view_cart_loading": "View Cart ...",
-    "view_cart": "View Cart • {count} • {total}",
+    "view_cart": "View Cart • Qty: {count} • {total}",
     "min": "min",
     "search": "Search",
     "AddToCart": "Add to cart"

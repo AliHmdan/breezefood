@@ -1,6 +1,7 @@
 import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/prices_helper.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,7 @@ class Discount extends StatelessWidget {
   final dynamic
   price; // main price (meal price OR delivery final fee حسب استخدامك)
   final String discount;
+  final bool? isOpen; // null => ما نعرض شي
 
   // ✅ Delivery prices (optional)
   final dynamic deliveryOldPrice; // base_fee
@@ -34,15 +36,15 @@ class Discount extends StatelessWidget {
     required this.price,
     required this.discount,
     required this.rating,
+    required this.isOpen,
     this.ratingCount = 0,
     this.onTap,
-
     this.deliveryOldPrice,
     this.deliveryNewPrice,
     this.showDeliveryPrices = false,
-
     this.hasFoodDiscount = false,
     this.hasDeliveryDiscount = false,
+    // ✅ جديد
   });
 
   bool _hasDeliveryPrices() {
@@ -82,25 +84,23 @@ class Discount extends StatelessWidget {
       );
     }
 
-    return
-      AppNetworkImage(
-        path: u,
+    return AppNetworkImage(
+      path: u,
+      height: height,
+      width: double.infinity,
+      fit: BoxFit.cover,
+      fallback: Container(
         height: height,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        fallback: Container(
+        color: Colors.grey.shade800,
+        alignment: Alignment.center,
+        child: Image.asset(
+          "assets/images/meal_breeze.jpeg", // حط صورتك الافتراضية هون
           height: height,
-          color: Colors.grey.shade800,
-          alignment: Alignment.center,
-          child: Image.asset(
-            "assets/images/meal_breeze.jpeg", // حط صورتك الافتراضية هون
-            height: height,
-            width: double.infinity,
-            fit: BoxFit.contain,
-          ),
+          width: double.infinity,
+          fit: BoxFit.contain,
         ),
-      );
-
+      ),
+    );
   }
 
   @override
@@ -108,6 +108,11 @@ class Discount extends StatelessWidget {
     final ratingText = (rating <= 0)
         ? "no_ratings_yet".tr()
         : rating.toStringAsFixed(1);
+    final openText = (isOpen == true)
+        ? "restaurant.open".tr()
+        : "restaurant.closed".tr();
+
+    final openColor = (isOpen == true) ? Colors.green : Colors.red;
 
     final showDelPrices = showDeliveryPrices && _hasDeliveryPrices();
     final badge = _badgeText();
@@ -120,7 +125,7 @@ class Discount extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-         borderRadius: BorderRadius.circular(5.r),
+        borderRadius: BorderRadius.circular(5.r),
         child: Container(
           width: 160.w,
 
@@ -137,17 +142,14 @@ class Discount extends StatelessWidget {
                       height: imageH,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      radius: BorderRadius.vertical(
-                        top: Radius.circular(16.r),
-                      ),
+                      radius: BorderRadius.vertical(top: Radius.circular(16.r)),
                       fallback: Image.asset(
                         "assets/images/meal_breeze.jpeg",
                         fit: BoxFit.cover,
                       ),
                     ),
-
                   ),
-      
+
                   // ✅ rating chip
                   PositionedDirectional(
                     top: 6,
@@ -178,7 +180,12 @@ class Discount extends StatelessWidget {
                       ),
                     ),
                   ),
-      
+                  if (isOpen != null)
+                    PositionedDirectional(
+                      top: 6,
+                      start: 6,
+                      child: OpenStatusBadge(isOpen: isOpen!),
+                    ),
 
                   if (discount.trim().isNotEmpty)
                     PositionedDirectional(
@@ -237,13 +244,12 @@ class Discount extends StatelessWidget {
                 ),
               ),
               SizedBox(height: gapH),
-      
+
               // "assets/icons/motor.svg",
               if (showDelPrices)
                 Padding(
                   padding: EdgeInsetsDirectional.only(start: 2.w, top: 2.h),
                   child: Row(
-
                     children: [
                       Expanded(
                         child: Row(
@@ -261,7 +267,6 @@ class Discount extends StatelessWidget {
                             if (deliveryOldPrice != null &&
                                 deliveryNewPrice != null &&
                                 deliveryOldPrice != deliveryNewPrice) ...[
-
                               Text(
                                 context.syp(deliveryOldPrice, decimals: 0),
                                 style: TextStyle(
@@ -283,7 +288,6 @@ class Discount extends StatelessWidget {
                                 ),
                               ),
                             ]
-
                             // ✅ إذا يوجد سعر واحد فقط (لا يوجد خصم توصيل)
                             else if (deliveryNewPrice != null)
                               Text(
@@ -298,7 +302,6 @@ class Discount extends StatelessWidget {
                         ),
                       ),
                     ],
-
                   ),
                 ),
             ],

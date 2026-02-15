@@ -87,6 +87,7 @@ class DiscountDeliveryHome extends StatelessWidget {
                       width: itemWidth,
                       margin: EdgeInsetsDirectional.only(end: 10.w),
                       child: Discount(
+                        isOpen: d.isOpen,
                         onTap: () =>
                             openRestaurantById(context, d.restaurantId),
                         imagePath: _logoUrl(d),
