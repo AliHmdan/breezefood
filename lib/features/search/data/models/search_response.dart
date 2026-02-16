@@ -33,12 +33,16 @@ class SearchRestaurant with _$SearchRestaurant {
     required int id,
     required String name,
     String? logo,
+
+    @JsonKey(name: 'is_open') @Default(true) bool isOpen, // ✅ جديد
+
     SearchRating? rating,
   }) = _SearchRestaurant;
 
   factory SearchRestaurant.fromJson(Map<String, dynamic> json) =>
       _$SearchRestaurantFromJson(json);
 }
+
 
 @freezed
 class SearchRating with _$SearchRating {

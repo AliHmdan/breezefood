@@ -6,6 +6,7 @@ import 'package:breezefood/core/services/del_price_helper.dart'
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -79,11 +80,36 @@ class _RestaurantCardState extends State<RestaurantCard> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  PositionedDirectional(
-                    top: 6,
-                    start: 6,
-                    child: OpenStatusBadge(isOpen: r.isOpen),
-                  ),
+                  if (!r.isOpen)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Center(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(999.r),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child: Text(
+                              "restaurant.closed".tr(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                   PositionedDirectional(
                     top: 10,

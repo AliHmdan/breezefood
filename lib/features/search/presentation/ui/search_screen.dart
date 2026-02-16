@@ -184,6 +184,8 @@ class _SearchState extends State<Search> {
   /// ✅ بلوك مطعم + items (من API)
   Widget _apiRestaurantBlock(SearchBlock block) {
     final r = block.restaurant;
+    final isOpen = block.restaurant.isOpen;
+
     final ratingAvg = (r.rating?.avg ?? 0).toDouble();
     final ratingCount = r.rating?.count ?? 0;
 
@@ -306,6 +308,7 @@ class _SearchState extends State<Search> {
                                 : "assets/images/shawarma_box.png",
                             description: "",
                             extraMeals: const [],
+                            isRestaurantOpen: isOpen, // ✅ من الداتا
                           );
                         },
                         child: _SearchApiItemCard(

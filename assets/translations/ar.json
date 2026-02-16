@@ -187,6 +187,7 @@
     "no_current_orders": "لا توجد طلبات حالية"
   },
   "restaurant": {
+      "closed_cannot_add_to_cart": "المطعم مغلق حالياً",
     "open": "مفتوح",
     "closed": "مغلق",
      "closed_browse_only": "المطعم مغلق حالياً، يمكنك التصفح فقط",

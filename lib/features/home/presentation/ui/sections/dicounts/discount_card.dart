@@ -180,12 +180,36 @@ class Discount extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // if (isOpen != null)
-                  //   PositionedDirectional(
-                  //     top: 6,
-                  //     start: 6,
-                  //     child: OpenStatusBadge(isOpen: isOpen!),
-                  //   ),
+                  if (isOpen!)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Center(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(999.r),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child: Text(
+                              "restaurant.closed".tr(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                   if (discount.trim().isNotEmpty)
                     PositionedDirectional(

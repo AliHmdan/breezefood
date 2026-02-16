@@ -74,7 +74,6 @@ class AppImageUrl {
     return p.startsWith("http://") || p.startsWith("https://");
   }
 
-  /// يرجع null إذا path سيء (ويندوز/فايل)
   static String? toFull(String? path) {
     if (path == null) return null;
     var p = path.trim();

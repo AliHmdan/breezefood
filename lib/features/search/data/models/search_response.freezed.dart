@@ -418,6 +418,8 @@ mixin _$SearchRestaurant {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get logo => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_open')
+  bool get isOpen => throw _privateConstructorUsedError; // ✅ جديد
   SearchRating? get rating => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -432,7 +434,12 @@ abstract class $SearchRestaurantCopyWith<$Res> {
           SearchRestaurant value, $Res Function(SearchRestaurant) then) =
       _$SearchRestaurantCopyWithImpl<$Res, SearchRestaurant>;
   @useResult
-  $Res call({int id, String name, String? logo, SearchRating? rating});
+  $Res call(
+      {int id,
+      String name,
+      String? logo,
+      @JsonKey(name: 'is_open') bool isOpen,
+      SearchRating? rating});
 
   $SearchRatingCopyWith<$Res>? get rating;
 }
@@ -453,6 +460,7 @@ class _$SearchRestaurantCopyWithImpl<$Res, $Val extends SearchRestaurant>
     Object? id = null,
     Object? name = null,
     Object? logo = freezed,
+    Object? isOpen = null,
     Object? rating = freezed,
   }) {
     return _then(_value.copyWith(
@@ -468,6 +476,10 @@ class _$SearchRestaurantCopyWithImpl<$Res, $Val extends SearchRestaurant>
           ? _value.logo
           : logo // ignore: cast_nullable_to_non_nullable
               as String?,
+      isOpen: null == isOpen
+          ? _value.isOpen
+          : isOpen // ignore: cast_nullable_to_non_nullable
+              as bool,
       rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
@@ -496,7 +508,12 @@ abstract class _$$SearchRestaurantImplCopyWith<$Res>
       __$$SearchRestaurantImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int id, String name, String? logo, SearchRating? rating});
+  $Res call(
+      {int id,
+      String name,
+      String? logo,
+      @JsonKey(name: 'is_open') bool isOpen,
+      SearchRating? rating});
 
   @override
   $SearchRatingCopyWith<$Res>? get rating;
@@ -516,6 +533,7 @@ class __$$SearchRestaurantImplCopyWithImpl<$Res>
     Object? id = null,
     Object? name = null,
     Object? logo = freezed,
+    Object? isOpen = null,
     Object? rating = freezed,
   }) {
     return _then(_$SearchRestaurantImpl(
@@ -531,6 +549,10 @@ class __$$SearchRestaurantImplCopyWithImpl<$Res>
           ? _value.logo
           : logo // ignore: cast_nullable_to_non_nullable
               as String?,
+      isOpen: null == isOpen
+          ? _value.isOpen
+          : isOpen // ignore: cast_nullable_to_non_nullable
+              as bool,
       rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
@@ -543,7 +565,11 @@ class __$$SearchRestaurantImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SearchRestaurantImpl implements _SearchRestaurant {
   const _$SearchRestaurantImpl(
-      {required this.id, required this.name, this.logo, this.rating});
+      {required this.id,
+      required this.name,
+      this.logo,
+      @JsonKey(name: 'is_open') this.isOpen = true,
+      this.rating});
 
   factory _$SearchRestaurantImpl.fromJson(Map<String, dynamic> json) =>
       _$$SearchRestaurantImplFromJson(json);
@@ -555,11 +581,15 @@ class _$SearchRestaurantImpl implements _SearchRestaurant {
   @override
   final String? logo;
   @override
+  @JsonKey(name: 'is_open')
+  final bool isOpen;
+// ✅ جديد
+  @override
   final SearchRating? rating;
 
   @override
   String toString() {
-    return 'SearchRestaurant(id: $id, name: $name, logo: $logo, rating: $rating)';
+    return 'SearchRestaurant(id: $id, name: $name, logo: $logo, isOpen: $isOpen, rating: $rating)';
   }
 
   @override
@@ -570,12 +600,13 @@ class _$SearchRestaurantImpl implements _SearchRestaurant {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.logo, logo) || other.logo == logo) &&
+            (identical(other.isOpen, isOpen) || other.isOpen == isOpen) &&
             (identical(other.rating, rating) || other.rating == rating));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, logo, rating);
+  int get hashCode => Object.hash(runtimeType, id, name, logo, isOpen, rating);
 
   @JsonKey(ignore: true)
   @override
@@ -597,6 +628,7 @@ abstract class _SearchRestaurant implements SearchRestaurant {
       {required final int id,
       required final String name,
       final String? logo,
+      @JsonKey(name: 'is_open') final bool isOpen,
       final SearchRating? rating}) = _$SearchRestaurantImpl;
 
   factory _SearchRestaurant.fromJson(Map<String, dynamic> json) =
@@ -609,6 +641,9 @@ abstract class _SearchRestaurant implements SearchRestaurant {
   @override
   String? get logo;
   @override
+  @JsonKey(name: 'is_open')
+  bool get isOpen;
+  @override // ✅ جديد
   SearchRating? get rating;
   @override
   @JsonKey(ignore: true)

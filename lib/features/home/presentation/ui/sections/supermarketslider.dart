@@ -5,6 +5,7 @@ import 'package:breezefood/core/services/del_price_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -101,11 +102,36 @@ class _SupermarketCardState extends State<_SupermarketCard> {
                   fit: BoxFit.cover,
                 ),
               ),
-              // PositionedDirectional(
-              //   top: 6,
-              //   start: 6,
-              //   child: OpenStatusBadge(isOpen: widget.model.isOpen),
-              // ),
+              if (!widget.model.isOpen)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.45),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 6.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.35),
+                          borderRadius: BorderRadius.circular(999.r),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Text(
+                          "restaurant.closed".tr(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
               PositionedDirectional(
                 top: 6,

@@ -11,7 +11,6 @@ import 'package:breezefood/features/stores/presentation/ui/widget/CategoryItemsG
 import 'package:breezefood/features/stores/presentation/ui/widget/discout_meal_section.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_arrow.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_search.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/add_order.dart';
 import 'package:breezefood/features/orders/cart/request_order_screen.dart';
@@ -173,12 +172,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     return UrlHelper.toFullUrl(v) ?? "";
   }
 
-  bool _guardIfClosed(bool isOpen) {
-    if (isOpen) return true;
-    EasyLoading.showInfo("restaurant.closed_browse_only".tr());
-    return false;
-  }
-
   String _pickSingleLangFromMixed(String s, BuildContext context) {
     final v = s.trim();
     if (v.isEmpty) return "";
@@ -241,6 +234,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               String headerImageUrl = "";
               String restaurantName = "";
               String description = "";
+              String reviewsCountText = "0";
 
               String deliveryTime = "--";
               String deliveryBase = "--";
@@ -288,6 +282,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       }
                     });
                   }
+                  final rc = g.reviewsCount;
+                  reviewsCountText = "$rc";
 
                   // ✅ delivery
                   if (g.deliveryTime > 0) deliveryTime = "${g.deliveryTime}";
@@ -556,11 +552,17 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            _divider(),
-                                            CustomSubTitle(
-                                              subtitle: ordersText,
-                                              color: AppColor.Lightgry,
-                                              fontsize: 12,
+                                            SizedBox(width: 6.w),
+
+                                            // ✅ (2)
+                                            Text(
+                                              "($reviewsCountText)",
+                                              style: TextStyle(
+                                                color: AppColor
+                                                    .Lightgry.withOpacity(0.9),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -569,39 +571,44 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   ),
                                 ),
 
-                          PositionedDirectional(   top: MediaQuery.of(context).padding.top + 12,
-                            end: 12,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => Search(
-                                        restaurantId: widget.restaurant_id,
+                                PositionedDirectional(
+                                  top: MediaQuery.of(context).padding.top + 12,
+                                  end: 12,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => Search(
+                                              restaurantId:
+                                                  widget.restaurant_id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(
+                                            0.08,
+                                          ), // شفافية
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.search,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
                                       ),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.08), // شفافية
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                    size: 22,
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-
-                          ],
+                              ],
                             ),
                           ),
                         ),
@@ -725,106 +732,108 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                   ),
                                 ),
 
-
                                 const SizedBox(height: 12),
                                 SizedBox(
                                   height: 45.h,
 
-                                  child: Stack(children: [
-                                    /// ✅ الخط الرمادي الكامل
-                                    PositionedDirectional(
-                                      bottom: 7,
-                                      end: 0,
-                                      start:0,
-                                      child: Container(
-                                        height: 3.h,
-                                        color: AppColor.white
-                                            .withOpacity(
-                                          0.3,
+                                  child: Stack(
+                                    children: [
+                                      /// ✅ الخط الرمادي الكامل
+                                      PositionedDirectional(
+                                        bottom: 7,
+                                        end: 0,
+                                        start: 0,
+                                        child: Container(
+                                          height: 3.h,
+                                          color: AppColor.white.withOpacity(
+                                            0.3,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    /// ✅ ليست العناصر
-                                    ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                      ),
-                                      itemCount: categories.length,
-                                      itemBuilder: (context, index) {
-                                        final isSelected =
-                                            selectedCategoryIndex == index;
 
-                                        return GestureDetector(
-                                          onTap: () {
-                                            final keyContext =
-                                                _categoryKeys[index]
-                                                    .currentContext;
-                                            if (keyContext != null) {
-                                              Scrollable.ensureVisible(
-                                                keyContext,
-                                                duration: const Duration(
-                                                  milliseconds: 400,
-                                                ),
-                                                curve: Curves.easeInOut,
-                                              );
-                                            }
+                                      /// ✅ ليست العناصر
+                                      ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w,
+                                        ),
+                                        itemCount: categories.length,
+                                        itemBuilder: (context, index) {
+                                          final isSelected =
+                                              selectedCategoryIndex == index;
 
-                                            setState(() {
-                                              selectedCategoryIndex = index;
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 14.w,
-                                            ),
-                                            child: IntrinsicWidth(
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    categories[index],
-                                                    style: TextStyle(
-                                                      color: isSelected?AppColor.white:AppColor.gry,
-                                                      fontSize: 14.sp,
-                                                      fontWeight: isSelected
-                                                          ? FontWeight.w700
-                                                          : FontWeight.w100,
-                                                    ),
+                                          return GestureDetector(
+                                            onTap: () {
+                                              final keyContext =
+                                                  _categoryKeys[index]
+                                                      .currentContext;
+                                              if (keyContext != null) {
+                                                Scrollable.ensureVisible(
+                                                  keyContext,
+                                                  duration: const Duration(
+                                                    milliseconds: 400,
                                                   ),
+                                                  curve: Curves.easeInOut,
+                                                );
+                                              }
 
-                                                  SizedBox(height: 6.h),
-
-                                                  // ✅ underline ثابت لكل العناصر
-                                                  AnimatedContainer(
-                                                    duration: const Duration(
-                                                      milliseconds: 250,
-                                                    ),
-                                                    height: 3.h,
-                                                    width:  double.infinity, // ثابت
-                                                    decoration: BoxDecoration(
-                                                      color: isSelected
-                                                          ? AppColor.white
-                                                          :   AppColor.white
-                                                      .withOpacity(
-                                                      0.1,
-                                                    ),// رمادي خفيف
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                        10.r,
+                                              setState(() {
+                                                selectedCategoryIndex = index;
+                                              });
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 14.w,
+                                              ),
+                                              child: IntrinsicWidth(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      categories[index],
+                                                      style: TextStyle(
+                                                        color: isSelected
+                                                            ? AppColor.white
+                                                            : AppColor.gry,
+                                                        fontSize: 14.sp,
+                                                        fontWeight: isSelected
+                                                            ? FontWeight.w700
+                                                            : FontWeight.w100,
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+
+                                                    SizedBox(height: 6.h),
+
+                                                    // ✅ underline ثابت لكل العناصر
+                                                    AnimatedContainer(
+                                                      duration: const Duration(
+                                                        milliseconds: 250,
+                                                      ),
+                                                      height: 3.h,
+                                                      width: double
+                                                          .infinity, // ثابت
+                                                      decoration: BoxDecoration(
+                                                        color: isSelected
+                                                            ? AppColor.white
+                                                            : AppColor.white
+                                                                  .withOpacity(
+                                                                    0.1,
+                                                                  ), // رمادي خفيف
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              10.r,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ),
 
@@ -934,10 +943,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     en: it.descriptionEn ?? "",
                                   );
                                   final img = _imageUrl(it.image);
-                                  if (!_guardIfClosed(_isRestaurantOpen))
-                                    return;
 
                                   await showAddOrderDialog(
+                                    isRestaurantOpen: _isRestaurantOpen,
                                     context,
                                     restaurantId: widget.restaurant_id,
                                     menuItemId: it.id,
@@ -962,46 +970,49 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                           /// Most Popular
                           SliverToBoxAdapter(
-                            child:
-                                BlocBuilder<MostPopularCubit, MostPopularState>(
-                                  bloc: mostPopularCubit,
-                                  builder: (context, mpState) {
-                                    return mpState.maybeWhen(
-                                      loading: () => const Padding(
-                                        padding: EdgeInsets.only(bottom: 12),
-                                        child: Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      ),
-                                      error: (msg) => Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 6,
-                                        ),
+                            child: BlocBuilder<MostPopularCubit, MostPopularState>(
+                              bloc: mostPopularCubit,
+                              builder: (context, mpState) {
+                                return mpState.maybeWhen(
+                                  loading: () => const Padding(
+                                    padding: EdgeInsets.only(bottom: 12),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  ),
+                                  error: (msg) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 6,
+                                    ),
 
-                                        child: CustomSubTitle(
-                                          subtitle: msg,
-                                          color: AppColor.red,
-                                          fontsize: 12,
-                                        ),
-                                      ),
+                                    child: CustomSubTitle(
+                                      subtitle: msg,
+                                      color: AppColor.red,
+                                      fontsize: 12,
+                                    ),
+                                  ),
 
-                                      loaded: (items) {
-                                        if (items.isEmpty)
-                                          return const SizedBox.shrink();
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 12,
-                                          ),
-                                          child: MostPopularSection(
-                                            items: items,
-                                          ),
-                                        );
-                                      },
-                                      orElse: () => const SizedBox.shrink(),
+                                  loaded: (items) {
+                                    if (items.isEmpty)
+                                      return const SizedBox.shrink();
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child: MostPopularSection(
+                                        items: items,
+                                        restaurantId: widget
+                                            .restaurant_id, // (اختياري إذا عندك)
+                                        isRestaurantOpen:
+                                            _isRestaurantOpen, // ✅
+                                      ),
                                     );
                                   },
-                                ),
+                                  orElse: () => const SizedBox.shrink(),
+                                );
+                              },
+                            ),
                           ),
 
                           /// Menu Sections
@@ -1035,6 +1046,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                         widget.restaurant_id,
                                                     title: category,
                                                     items: items,
+                                                    isRestaurantOpen:
+                                                        _isRestaurantOpen, // ✅
                                                   ),
                                             ),
                                           );
@@ -1078,11 +1091,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                                           return GestureDetector(
                                             onTap: () async {
-                                              if (!_guardIfClosed(
-                                                _isRestaurantOpen,
-                                              ))
-                                                return;
-
                                               await showAddOrderDialog(
                                                 context,
                                                 restaurantId:
@@ -1105,6 +1113,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                   en: it.descriptionEn ?? "",
                                                 ),
                                                 extraMeals: it.mealExtras,
+                                                isRestaurantOpen:
+                                                    _isRestaurantOpen,
                                               );
 
                                               if (mounted) {
@@ -1123,6 +1133,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                   ),
                                               child: PopularItemCard(
                                                 item: mapped,
+                                                isRestaurantOpen:
+                                                    _isRestaurantOpen, // ✅ أضفها
                                               ),
                                             ),
                                           );

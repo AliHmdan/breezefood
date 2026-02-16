@@ -49,9 +49,13 @@ class RestaurantGeneral {
   final String? address;
   final String? phone;
 
-  final bool isOpen; // ✅ أضفها
+  final bool isOpen;
 
   final double avgRating;
+
+  // ✅ جديد
+  final int reviewsCount;
+
   final int totalCompletedOrders;
   final int deliveryTime;
   final num deliveryCash;
@@ -67,8 +71,9 @@ class RestaurantGeneral {
     this.cover,
     this.address,
     this.phone,
-    required this.isOpen, // ✅
+    required this.isOpen,
     required this.avgRating,
+    required this.reviewsCount, // ✅
     required this.totalCompletedOrders,
     required this.deliveryTime,
     required this.deliveryCash,
@@ -76,8 +81,6 @@ class RestaurantGeneral {
   });
 
   factory RestaurantGeneral.fromJson(Map<String, dynamic> json) {
-    final ratingJson = json["rating"];
-
     bool _toBool(dynamic v) {
       if (v is bool) return v;
       if (v is num) return v != 0;
@@ -93,16 +96,20 @@ class RestaurantGeneral {
       cover: json["cover"] as String?,
       address: json["address"] as String?,
       phone: json["phone"] as String?,
-      isOpen: _toBool(json["is_open"]), // ✅ هون المهم
+      isOpen: _toBool(json["is_open"]),
       avgRating: _toDouble(json["avg_rating"]),
+
+      // ✅ هون
+      reviewsCount: (json["reviews_count"] ?? 0) as int,
+
       totalCompletedOrders: (json["total_completed_orders"] ?? 0) as int,
       deliveryTime: (json["delivery_time"] ?? 0) as int,
       deliveryCash: (json["delivery_cash"] ?? 0) as num,
       delivery: (json["delivery"] is Map)
           ? DeliveryInfo.fromJson((json["delivery"] as Map).cast<String, dynamic>())
           : null,
-      myRating: (ratingJson is Map)
-          ? MyRating.fromJson(ratingJson.cast<String, dynamic>())
+      myRating: (json["rating"] is Map)
+          ? MyRating.fromJson((json["rating"] as Map).cast<String, dynamic>())
           : null,
     );
   }

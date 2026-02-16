@@ -61,7 +61,8 @@ class CustomTitleSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: AppColor.white,
-                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                    fontFamily:
+                        Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -82,8 +83,15 @@ class CustomTitleSection extends StatelessWidget {
 /// --------------------------------------------------------------
 class MostPopularSection extends StatelessWidget {
   final List<MenuItemModel> items;
-  final int? restaurantId; // ✅ جديد اختياري
-  const MostPopularSection({super.key, required this.items, this.restaurantId});
+  final int? restaurantId;
+  final bool isRestaurantOpen; // ✅ جديد
+
+  const MostPopularSection({
+    super.key,
+    required this.items,
+    this.restaurantId,
+    required this.isRestaurantOpen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +124,11 @@ class MostPopularSection extends StatelessWidget {
             ontap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => PopularGridPage(items: items),
+                  builder: (_) => PopularGridPage(
+                    items: items,
+                    restaurantId: restaurantId,
+                    isRestaurantOpen: isRestaurantOpen, // ✅ مهم
+                  ),
                 ),
               );
             },
@@ -126,8 +138,7 @@ class MostPopularSection extends StatelessWidget {
         SizedBox(
           height: 200.h,
           // width: containerWidth,
-          child:
-          ListView.builder(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count,
             physics: count <= 2
@@ -149,8 +160,7 @@ class MostPopularSection extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () async {
                       final menuItemId = item.id;
-                      final resolvedRestaurantId =
-                          restaurantId ?? (item.restaurant?.id ?? 0);
+                      final resolvedRestaurantId = restaurantId ?? 0;
 
                       if (resolvedRestaurantId == 0 || menuItemId == 0) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -158,7 +168,6 @@ class MostPopularSection extends StatelessWidget {
                             content: Text("لا يمكن تحديد المطعم أو الوجبة"),
                           ),
                         );
-
                         return;
                       }
 
@@ -176,14 +185,15 @@ class MostPopularSection extends StatelessWidget {
                             "assets/images/shawarma_box.png",
                         description: "",
                         extraMeals: const <MenuExtra>[],
+                        isRestaurantOpen: isRestaurantOpen, // ✅ المصدر الوحيد
                       );
 
-                      if (context.mounted) {
-                        context.read<CartCubit>().loadCart();
-                      }
+                      if (context.mounted) context.read<CartCubit>().loadCart();
                     },
-
-                    child: PopularItemCard(item: item), // ✅ MenuItemModel
+                    child: PopularItemCard(
+                      item: item,
+                      isRestaurantOpen: isRestaurantOpen, // ✅ نفس الفلاج
+                    ),
                   ),
                 ),
               );
@@ -201,8 +211,13 @@ class MostPopularSection extends StatelessWidget {
 /// --------------------------------------------------------------
 class PopularItemCard extends StatefulWidget {
   final MenuItemModel item;
+  final bool isRestaurantOpen;
 
-  const PopularItemCard({super.key, required this.item});
+  const PopularItemCard({
+    super.key,
+    required this.item,
+    required this.isRestaurantOpen,
+  });
 
   @override
   State<PopularItemCard> createState() => _PopularItemCardState();
@@ -358,6 +373,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   fallback: _imageFallback(),
                 ),
               ),
+           
 
               if (hasDiscount)
                 PositionedDirectional(
@@ -390,12 +406,11 @@ class _PopularItemCardState extends State<PopularItemCard> {
               PositionedDirectional(
                 top: 4,
                 end: 4,
-                child:
-                LikeButton(
+                child: LikeButton(
                   size: 26,
                   isLiked: _isFavorite,
                   animationDuration: const Duration(milliseconds: 500),
-                  circleColor:  CircleColor(
+                  circleColor: CircleColor(
                     start: Colors.redAccent,
                     end: Colors.red,
                   ),
@@ -419,7 +434,6 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     return _isFavorite;
                   },
                 ),
-
               ),
             ],
           ),
@@ -443,7 +457,8 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     color: AppColor.white,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
-                    fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                    fontFamily:
+                        Localizations.localeOf(context).languageCode == 'ar'
                         ? 'Cairo'
                         : 'Inter',
                   ),
@@ -506,7 +521,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       color: Colors.grey.shade800,
       alignment: Alignment.center,
-      child:Image.asset(
+      child: Image.asset(
         'assets/images/meal_breeze.jpeg',
         width: double.infinity,
         height: double.infinity,

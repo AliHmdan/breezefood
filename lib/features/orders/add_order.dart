@@ -25,7 +25,7 @@ Future<void> showAddOrderDialog(
   required String imagePathOrUrl,
   required String description,
   required List<MenuExtra> extraMeals,
-
+  required bool isRestaurantOpen, // ✅ جديد
 }) async {
   return showModalBottomSheet(
     context: context,
@@ -33,9 +33,7 @@ Future<void> showAddOrderDialog(
     useSafeArea: false,
     backgroundColor: Colors.transparent,
     barrierColor: Colors.black.withOpacity(0.6),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.zero,
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     builder: (sheetCtx) {
       final height = MediaQuery.of(sheetCtx).size.height * 0.9;
 
@@ -69,6 +67,7 @@ Future<void> showAddOrderDialog(
                 imagePathOrUrl: imagePathOrUrl,
                 description: description,
                 extras: extraMeals,
+                isRestaurantOpen: isRestaurantOpen, // ✅ جديد
               ),
             ),
           ),
@@ -87,8 +86,11 @@ class AddOrderBody extends StatefulWidget {
   final List<MenuExtra> extras;
   final int restaurantId;
   final int menuItemId;
+  final bool isRestaurantOpen;
 
   const AddOrderBody({
+    required this.isRestaurantOpen,
+
     super.key,
     required this.restaurantId,
     required this.menuItemId,
@@ -192,8 +194,6 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
       },
       child: Column(
         children: [
-
-
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -204,36 +204,43 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(24.r),
                         ),
-                        child:AppNetworkImage(
+                        child: AppNetworkImage(
                           path: widget.imagePathOrUrl,
                           width: double.infinity,
                           height: 400.h,
                           fit: BoxFit.cover,
                           // useOldImageOnUrlChange: true,
-                        )
-
-
+                        ),
                       ),
 
                       PositionedDirectional(
-                        top:5,
-                        end:1 ,
+                        top: 5,
+                        end: 1,
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, color: Colors.white, size: 16),
+                          icon: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                           style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(Colors.black54),
+                            backgroundColor: WidgetStateProperty.all(
+                              Colors.black54,
+                            ),
                             padding: WidgetStateProperty.all(EdgeInsets.zero),
-                            minimumSize: WidgetStateProperty.all(const Size(30, 30)),
-                            fixedSize: WidgetStateProperty.all(const Size(30, 30)),
+                            minimumSize: WidgetStateProperty.all(
+                              const Size(30, 30),
+                            ),
+                            fixedSize: WidgetStateProperty.all(
+                              const Size(30, 30),
+                            ),
                           ),
                         ),
-
                       ),
 
                       PositionedDirectional(
-                        bottom:5,
-                        end:10 ,
+                        bottom: 5,
+                        end: 10,
                         child: AppShareFab(
                           text: _buildShareText(),
                           subject: "BreezeFood",
@@ -287,7 +294,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                             ),
                           ],
                         ),
-SizedBox(height: 15,),
+                        SizedBox(height: 15),
                         SizedBox(
                           width: 300.w, // 👈 حدد العرض اللي بدك ياه
                           child: CustomSubTitle(
@@ -296,12 +303,11 @@ SizedBox(height: 15,),
                                 : widget.description,
                             color: AppColor.gry,
                             fontsize: 10.sp,
-                           // اختياري
+                            // اختياري
                           ),
                         ),
 
                         // divider(),
-
                         SizedBox(height: 8.h),
 
                         if (widget.extras.isNotEmpty) ...[
@@ -357,8 +363,9 @@ SizedBox(height: 15,),
                             ),
                           ),
                         ),
-               SizedBox(height: 10,),
+                        SizedBox(height: 10),
                         CounterSheet(
+                          isRestaurantOpen: widget.isRestaurantOpen, // ✅
                           basePrice: widget.price,
                           extrasTotal: _extrasTotal,
                           onAdd: (qty) {
@@ -377,7 +384,6 @@ SizedBox(height: 15,),
                             cartCubit.add(req);
                           },
                         ),
-
 
                         SizedBox(height: 8.h),
                       ],
@@ -439,18 +445,21 @@ class ExtrasList extends StatelessWidget {
                 child: Material(
                   color: Colors.transparent,
                   child: Padding(
-                    padding:  EdgeInsets.symmetric(vertical: 2.h),
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
                     child: Row(
-
                       children: [
                         Checkbox(
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
                           visualDensity: const VisualDensity(
                             horizontal: -4,
                             vertical: -4,
                           ),
                           activeColor: AppColor.primaryColor,
-                          side: BorderSide(color: AppColor.Lightgry, width: 1.5),
+                          side: BorderSide(
+                            color: AppColor.Lightgry,
+                            width: 1.5,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(6),
                           ),
@@ -486,12 +495,14 @@ class CounterSheet extends StatefulWidget {
   final double basePrice;
   final double extrasTotal;
   final ValueChanged<int> onAdd;
+  final bool isRestaurantOpen; // ✅
 
   const CounterSheet({
     super.key,
     required this.onAdd,
     required this.basePrice,
     required this.extrasTotal,
+    required this.isRestaurantOpen,
   });
 
   @override
@@ -509,117 +520,133 @@ class _CounterSheetState extends State<CounterSheet> {
       loading: () => true,
       orElse: () => false,
     );
+    final disabled = isLoading || !widget.isRestaurantOpen;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 10),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColor.black,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: isLoading
-                        ? null
-                        : () => setState(() {
-                            if (count > 1) count--;
-                          }),
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 16,
-                      child: Icon(Icons.remove, color: Colors.black),
-                    ),
-                  ),
+          Row(
+            children: [
+              // counter
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
                 ),
-                const SizedBox(width: 10),
-                CustomSubTitle(
-                  subtitle: "$count",
-                  color: AppColor.white,
-                  fontsize: 18,
+                decoration: BoxDecoration(
+                  color: AppColor.black,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-
-                const SizedBox(width: 10),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: isLoading ? null : () => setState(() => count++),
-                    child: const CircleAvatar(
-                      backgroundColor: AppColor.primaryColor,
-                      radius: 16,
-                      child: Icon(Icons.add, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 5),
-
-          Expanded(
-            child: SizedBox(
-              height: 50.h,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primaryColor,
-
-                  // 🔑 الحل هنا
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                onPressed: isLoading ? null : () => widget.onAdd(count),
-
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Flexible(
-                      child: Text(
-                        "common.AddToCart".tr(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: AppColor.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.4,
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: isLoading
+                            ? null
+                            : () => setState(() {
+                                if (count > 1) count--;
+                              }),
+                        child: const CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 16,
+                          child: Icon(Icons.remove, color: Colors.black),
                         ),
                       ),
                     ),
-
-                    SizedBox(width: 6.w),
-
-                    Container(
-                      width: 1,
-                      height: 16,
-                      color: Colors.white.withOpacity(0.5),
+                    const SizedBox(width: 10),
+                    CustomSubTitle(
+                      subtitle: "$count",
+                      color: AppColor.white,
+                      fontsize: 18,
                     ),
-
-                    SizedBox(width: 6.w),
-
-                    Text(
-                      context.money(total),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColor.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(width: 10),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: isLoading ? null : () => setState(() => count++),
+                        child: const CircleAvatar(
+                          backgroundColor: AppColor.primaryColor,
+                          radius: 16,
+                          child: Icon(Icons.add, color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+
+              const SizedBox(width: 8),
+
+              // button
+              Expanded(
+                child: SizedBox(
+                  height: 50.h,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primaryColor,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                    ),
+                    onPressed: disabled ? null : () => widget.onAdd(count),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            "common.AddToCart".tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AppColor.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: Colors.white.withOpacity(0.5),
+                        ),
+                        SizedBox(width: 6.w),
+                        Text(
+                          context.money(total),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: AppColor.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+
+          if (!widget.isRestaurantOpen) ...[
+            SizedBox(height: 8.h),
+            Text(
+              "restaurant.closed_cannot_add_to_cart".tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColor.red,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ],
       ),
     );

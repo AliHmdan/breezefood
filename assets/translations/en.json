@@ -184,6 +184,7 @@
     "cannot_identify_meal_or_restaurant": "Cannot identify meal or restaurant"
   },
   "restaurant": {
+    "closed_cannot_add_to_cart": "Restaurant is currently closed",
     "open": "Open",
     "closed": "Closed",
     "closed_browse_only": "This restaurant is currently closed — you can browse only",

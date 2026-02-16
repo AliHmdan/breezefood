@@ -17,12 +17,14 @@ class CategoryItemsGridPage extends StatefulWidget {
   final int? initialMenuItemId;
   final String title;
   final List<MenuItem> items;
+  final bool isRestaurantOpen; // ✅ جديد
 
   const CategoryItemsGridPage({
     super.key,
     required this.restaurant_id,
     required this.title,
     required this.items,
+    required this.isRestaurantOpen, // ✅
     this.initialMenuItemId,
   });
 
@@ -56,8 +58,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
           final it = widget.items[index];
 
           // ✅ الحل هنا
-          final imageUrl =
-              UrlHelper.toFullUrl(it.image ?? "") ?? "";
+          final imageUrl = UrlHelper.toFullUrl(it.image ?? "") ?? "";
 
           return GestureDetector(
             onTap: () async {
@@ -65,13 +66,9 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                 context,
                 restaurantId: widget.restaurant_id,
                 menuItemId: it.id,
-                title: context.pick(
-                  ar: it.nameAr,
-                  en: it.nameEn,
-                ),
+                title: context.pick(ar: it.nameAr, en: it.nameEn),
                 price: it.effectivePrice,
-                oldPrice:
-                it.priceBefore > 0 ? it.priceBefore : it.price,
+                oldPrice: it.priceBefore > 0 ? it.priceBefore : it.price,
                 imagePathOrUrl: imageUrl.isNotEmpty
                     ? imageUrl
                     : "assets/images/shawarma_box.png",
@@ -80,6 +77,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                   en: it.descriptionEn ?? "",
                 ),
                 extraMeals: it.mealExtras,
+                isRestaurantOpen: widget.isRestaurantOpen, // ✅ هون
               );
 
               if (mounted) {
@@ -91,8 +89,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                 id: it.id,
                 nameAr: it.nameAr,
                 nameEn: it.nameEn,
-                priceBefore:
-                it.priceBefore > 0 ? it.priceBefore : it.price,
+                priceBefore: it.priceBefore > 0 ? it.priceBefore : it.price,
                 priceAfter: it.effectivePrice,
                 hasDiscount: it.hasDiscount,
                 discountType: it.discountType,
@@ -103,6 +100,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                     : null,
                 restaurant: null,
               ),
+              isRestaurantOpen: widget.isRestaurantOpen, // ✅ هون
             ),
           );
         },

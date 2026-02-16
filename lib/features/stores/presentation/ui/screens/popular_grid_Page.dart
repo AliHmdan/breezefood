@@ -11,11 +11,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class PopularGridPage extends StatelessWidget {
   final List<MenuItemModel> items;
   final int? restaurantId;
+  final bool isRestaurantOpen; // ✅ جديد
 
   const PopularGridPage({
     super.key,
     required this.items,
     this.restaurantId,
+    required this.isRestaurantOpen,
   });
 
   int _getCrossAxisCount(double width) {
@@ -50,8 +52,7 @@ class PopularGridPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final item = items[index];
 
-          final title =
-          item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
+          final title = item.nameAr.isNotEmpty ? item.nameAr : item.nameEn;
 
           return InkWell(
             onTap: () {
@@ -73,18 +74,20 @@ class PopularGridPage extends StatelessWidget {
                 restaurantId: resolvedRestaurantId,
                 menuItemId: menuItemId,
                 title: title,
-                price: item.priceAfter > 0
-                    ? item.priceAfter
-                    : item.priceBefore,
+                price: item.priceAfter > 0 ? item.priceAfter : item.priceBefore,
                 oldPrice: item.priceBefore,
                 imagePathOrUrl:
-                item.primaryImage?.imageUrl ??
+                    item.primaryImage?.imageUrl ??
                     "assets/images/shawarma_box.png",
                 description: "",
                 extraMeals: const <MenuExtra>[],
+                isRestaurantOpen: isRestaurantOpen, // ✅
               );
             },
-            child: PopularItemCard(item: item),
+            child: PopularItemCard(
+              item: item,
+              isRestaurantOpen: isRestaurantOpen, // ✅
+            ),
           );
         },
       ),

@@ -73,12 +73,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   fit: BoxFit.cover,
                 ),
               ),
-              PositionedDirectional(
-                top: 6,
-                start: 6,
-                child: OpenStatusBadge(isOpen: widget.isOpen),
-              ),
-
+               if (!widget.isOpen) const ClosedOverlay(),
               PositionedDirectional(
                 top: 6,
                 end: 6,

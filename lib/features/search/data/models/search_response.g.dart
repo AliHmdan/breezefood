@@ -48,6 +48,7 @@ _$SearchRestaurantImpl _$$SearchRestaurantImplFromJson(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       logo: json['logo'] as String?,
+      isOpen: json['is_open'] as bool? ?? true,
       rating: json['rating'] == null
           ? null
           : SearchRating.fromJson(json['rating'] as Map<String, dynamic>),
@@ -59,6 +60,7 @@ Map<String, dynamic> _$$SearchRestaurantImplToJson(
       'id': instance.id,
       'name': instance.name,
       'logo': instance.logo,
+      'is_open': instance.isOpen,
       'rating': instance.rating,
     };
 
