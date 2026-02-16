@@ -547,6 +547,13 @@ class _HomeBottomAction extends StatelessWidget {
         );
 
         if (summary.hasCart || loading) {
+          // final title = loading
+          //     ? "cart.view_cart_loading".tr()
+          //     : "cart.view_cart".tr(namedArgs: {
+          //   "count": summary.count.toString(),
+          //   "total": context.money(summary.total, decimals: 0),
+          // });
+
           final title = loading
               ? "cart.view_cart_loading".tr()
               : "${'cart.view_cart'.tr()} • ${summary.count} • ${context.money(summary.total, decimals: 0)}";

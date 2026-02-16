@@ -115,19 +115,9 @@ class _SupermarketCardState extends State<_SupermarketCard> {
                           horizontal: 12.w,
                           vertical: 6.h,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.35),
-                          borderRadius: BorderRadius.circular(999.r),
-                          border: Border.all(color: Colors.white24),
-                        ),
-                        child: Text(
-                          "restaurant.closed".tr(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+
+                        child: CustomSubTitle(subtitle:  "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp)
+
                       ),
                     ),
                   ),

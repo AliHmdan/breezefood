@@ -123,9 +123,9 @@ class Discount extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(5.r),
+
         child: Container(
           width: 160.w,
 
@@ -193,11 +193,7 @@ class Discount extends StatelessWidget {
                               horizontal: 12.w,
                               vertical: 6.h,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.35),
-                              borderRadius: BorderRadius.circular(999.r),
-                              border: Border.all(color: Colors.white24),
-                            ),
+
                             child: Text(
                               "restaurant.closed".tr(),
                               style: TextStyle(
@@ -211,7 +207,7 @@ class Discount extends StatelessWidget {
                       ),
                     ),
 
-                  if (discount.trim().isNotEmpty)
+                  if (hasFoodDiscount && discount.trim().isNotEmpty)
                     PositionedDirectional(
                       bottom: 0,
                       start: 0,
