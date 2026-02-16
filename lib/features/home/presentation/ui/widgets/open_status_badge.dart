@@ -32,7 +32,8 @@ class OpenStatusBadge extends StatelessWidget {
     final double fs = fontSize ?? 11.sp;
     final double ds = dotSize ?? 7.5.sp;
 
-    return ClipRRect(
+    return
+      ClipRRect(
       borderRadius: BorderRadius.circular(999.r),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),

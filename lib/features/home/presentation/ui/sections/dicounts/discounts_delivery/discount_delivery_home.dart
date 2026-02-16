@@ -68,7 +68,7 @@ class DiscountDeliveryHome extends StatelessWidget {
         Padding(
           padding: EdgeInsetsDirectional.only(top: 10, start: 8, end: 0.2),
           child: SizedBox(
-            height: 130.h,
+            height: 140.h,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final itemWidth = constraints.maxWidth / 2.2;

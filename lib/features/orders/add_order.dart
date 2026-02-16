@@ -25,6 +25,7 @@ Future<void> showAddOrderDialog(
   required String imagePathOrUrl,
   required String description,
   required List<MenuExtra> extraMeals,
+
 }) async {
   return showModalBottomSheet(
     context: context,
@@ -215,22 +216,24 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                       ),
 
                       PositionedDirectional(
-                        top: 10,
-                        end:10 ,
+                        top:5,
+                        end:1 ,
                         child: IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close, color: Colors.white, size: 16),
                           style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              Colors.black54,
-                            ),
+                            backgroundColor: WidgetStateProperty.all(Colors.black54),
+                            padding: WidgetStateProperty.all(EdgeInsets.zero),
+                            minimumSize: WidgetStateProperty.all(const Size(30, 30)),
+                            fixedSize: WidgetStateProperty.all(const Size(30, 30)),
                           ),
                         ),
+
                       ),
 
                       PositionedDirectional(
-                        bottom: 10,
-                        start: 10,
+                        bottom:5,
+                        end:10 ,
                         child: AppShareFab(
                           text: _buildShareText(),
                           subject: "BreezeFood",
@@ -344,13 +347,17 @@ SizedBox(height: 15,),
                             ),
                             filled: true,
                             fillColor: Colors.white10,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 28.h, // زيدها حسب ما بدك
+                              horizontal: 12.w,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.r),
                               borderSide: BorderSide.none,
                             ),
                           ),
                         ),
-               SizedBox(height: 40,),
+               SizedBox(height: 10,),
                         CounterSheet(
                           basePrice: widget.price,
                           extrasTotal: _extrasTotal,
@@ -370,6 +377,7 @@ SizedBox(height: 15,),
                             cartCubit.add(req);
                           },
                         ),
+
 
                         SizedBox(height: 8.h),
                       ],

@@ -158,6 +158,7 @@ class MostPopularSection extends StatelessWidget {
                             content: Text("لا يمكن تحديد المطعم أو الوجبة"),
                           ),
                         );
+
                         return;
                       }
 
@@ -310,7 +311,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(12.r),
         // color: AppColor.black,
       ),
       clipBehavior: Clip.antiAlias,
@@ -353,7 +354,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   height: 145.h,
                   width: 145.h,
                   fit: BoxFit.cover,
-                  radius: BorderRadius.circular(12.r),
+                  radius: BorderRadius.circular(16.r),
                   fallback: _imageFallback(),
                 ),
               ),
@@ -430,15 +431,6 @@ class _PopularItemCardState extends State<PopularItemCard> {
             width: 145.h,
             padding: EdgeInsets.symmetric(vertical: 5),
 
-            // decoration: BoxDecoration(
-            //   color: AppColor.black,
-            //   borderRadius: BorderRadiusDirectional.only(
-            //     topStart: Radius.circular(0),
-            //     topEnd: Radius.circular(0),
-            //     bottomStart: Radius.circular(14.r),
-            //     bottomEnd: Radius.circular(14.r),
-            //   ),
-            // ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

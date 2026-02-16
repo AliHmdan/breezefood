@@ -464,7 +464,8 @@ class _StoresNavTabState extends State<StoresNavTab>
                           ),
                           loaded: (restaurants) {
                             if (restaurants.isEmpty) {
-                              return ListView(
+                              return
+                                ListView(
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 children: [
                                   SizedBox(height: 200.h),
@@ -480,12 +481,13 @@ class _StoresNavTabState extends State<StoresNavTab>
                               );
                             }
 
-                            return ListView.separated(
+                            return
+                              ListView.separated(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 6,
                                 horizontal: 5,
-                              ),
-                              physics: const AlwaysScrollableScrollPhysics(),
+                              ).copyWith(bottom: 80),
+                                physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: restaurants.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 12),

@@ -267,7 +267,8 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     });
                   }
 
-                  restaurantName = _pickSingleLangFromMixed(g.name, context);
+                  // restaurantName = _pickSingleLangFromMixed(g.name, context);
+                  restaurantName = g.name ?? '';
                   description = _pickSingleLangFromMixed(
                     g.description ?? "",
                     context,
@@ -567,7 +568,40 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                     ],
                                   ),
                                 ),
-                              ],
+
+                          PositionedDirectional(   top: MediaQuery.of(context).padding.top + 12,
+                            end: 12,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Search(
+                                        restaurantId: widget.restaurant_id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.08), // شفافية
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                    size: 22,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          ],
                             ),
                           ),
                         ),
@@ -581,6 +615,19 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: GestureDetector(
+                                    child: CustomSubTitle(
+                                      subtitle: description,
+                                      color: AppColor.Lightgry,
+                                      fontsize: 10,
+                                    ),
+                                  ),
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 5,
@@ -594,40 +641,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                       Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          SvgPicture.asset(
-                                            "assets/icons/time.svg",
-                                            color: AppColor.primaryColor,
-                                            width: 30.w,
-                                            height: 30.h,
-                                          ),
-                                          SizedBox(width: 6.w),
-
-                                          Text(
-                                            deliveryTime == "--"
-                                                ? "--"
-                                                : "$deliveryTime ${"common.min".tr()}",
-                                            style: TextStyle(
-                                              color: AppColor.white,
-                                              fontSize: 12.sp,
-                                              fontWeight: FontWeight.w900,
-                                              fontFamily: context.isAr
-                                                  ? 'Cairo'
-                                                  : 'Inter',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(width: 45.w),
-                                      _divider(),
-                                      Spacer(),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SvgPicture.asset(
-                                            "assets/icons/motor.svg",
-                                            color: AppColor.primaryColor,
-                                            width: 30.w,
-                                            height: 30.h,
+                                          Image.asset(
+                                            "assets/icons/motor.png",
+                                            width: 40.w,
+                                            height: 40.w,
                                           ),
                                           SizedBox(width: 6.w),
 
@@ -672,62 +689,73 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                           ],
                                         ],
                                       ),
+
+                                      SizedBox(width: 45.w),
+                                      _divider(),
+                                      Spacer(),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Image.asset(
+                                            "assets/icons/time.png",
+                                            width: 40.w,
+                                            height: 40.w,
+                                          ),
+
+                                          SizedBox(width: 6.w),
+
+                                          Text(
+                                            deliveryTime == "--"
+                                                ? "--"
+                                                : "$deliveryTime ${"common.min".tr()}",
+                                            style: TextStyle(
+                                              color: AppColor.white,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w900,
+                                              fontFamily: context.isAr
+                                                  ? 'Cairo'
+                                                  : 'Inter',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                       SizedBox(width: 15.w),
                                       Spacer(),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => Search(
-                                            restaurantId: widget.restaurant_id,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: const AbsorbPointer(
-                                      child: CustomSearch(),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: GestureDetector(
-                                    child: CustomSubTitle(
-                                      subtitle: description,
-                                      color: AppColor.Lightgry,
-                                      fontsize: 10,
-                                    ),
-                                  ),
-                                ),
+
+
                                 const SizedBox(height: 12),
                                 SizedBox(
-                                  height: 35.h,
-                                  child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10.w,
-                                    ),
-                                    itemCount: categories.length,
-                                    itemBuilder: (context, index) {
-                                      final isSelected =
-                                          selectedCategoryIndex == index;
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 4.w,
+                                  height: 45.h,
+
+                                  child: Stack(children: [
+                                    /// ✅ الخط الرمادي الكامل
+                                    PositionedDirectional(
+                                      bottom: 7,
+                                      end: 0,
+                                      start:0,
+                                      child: Container(
+                                        height: 3.h,
+                                        color: AppColor.white
+                                            .withOpacity(
+                                          0.3,
                                         ),
-                                        child: GestureDetector(
+                                      ),
+                                    ),
+                                    /// ✅ ليست العناصر
+                                    ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                      ),
+                                      itemCount: categories.length,
+                                      itemBuilder: (context, index) {
+                                        final isSelected =
+                                            selectedCategoryIndex == index;
+
+                                        return GestureDetector(
                                           onTap: () {
                                             final keyContext =
                                                 _categoryKeys[index]
@@ -741,49 +769,137 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                                                 curve: Curves.easeInOut,
                                               );
                                             }
+
                                             setState(() {
                                               selectedCategoryIndex = index;
                                             });
                                           },
-                                          child: Container(
+                                          child: Padding(
                                             padding: EdgeInsets.symmetric(
-                                              horizontal: 12.w,
+                                              horizontal: 14.w,
                                             ),
-                                            decoration: BoxDecoration(
-                                              color: isSelected
-                                                  ? AppColor
-                                                        .primaryColor // ✅ لما يكون محدد → أخضر
-                                                  : Colors.white.withOpacity(
-                                                      0.06,
+                                            child: IntrinsicWidth(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    categories[index],
+                                                    style: TextStyle(
+                                                      color: isSelected?AppColor.white:AppColor.gry,
+                                                      fontSize: 14.sp,
+                                                      fontWeight: isSelected
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w100,
                                                     ),
-                                              borderRadius:
-                                                  BorderRadius.circular(12.r),
-                                              border: Border.all(
-                                                color: AppColor.primaryColor,
-                                              ),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                categories[index],
-                                                style: TextStyle(
-                                                  color: AppColor.white,
+                                                  ),
 
-                                                  fontSize: isSelected
-                                                      ? 14.sp
-                                                      : 10.sp, // ✅ كبير إذا fixed
-                                                  fontWeight: isSelected
-                                                      ? FontWeight
-                                                            .bold // ✅ Bold إذا fixed
-                                                      : FontWeight.normal,
-                                                ),
+                                                  SizedBox(height: 6.h),
+
+                                                  // ✅ underline ثابت لكل العناصر
+                                                  AnimatedContainer(
+                                                    duration: const Duration(
+                                                      milliseconds: 250,
+                                                    ),
+                                                    height: 3.h,
+                                                    width:  double.infinity, // ثابت
+                                                    decoration: BoxDecoration(
+                                                      color: isSelected
+                                                          ? AppColor.white
+                                                          :   AppColor.white
+                                                      .withOpacity(
+                                                      0.1,
+                                                    ),// رمادي خفيف
+                                                      borderRadius:
+                                                      BorderRadius.circular(
+                                                        10.r,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
+                                        );
+                                      },
+                                    ),
+                                  ],
+
                                   ),
                                 ),
+
+                                // SizedBox(
+                                //   height: 35.h,
+                                //   child: ListView.builder(
+                                //     scrollDirection: Axis.horizontal,
+                                //     padding: EdgeInsets.symmetric(
+                                //       horizontal: 10.w,
+                                //     ),
+                                //     itemCount: categories.length,
+                                //     itemBuilder: (context, index) {
+                                //       final isSelected =
+                                //           selectedCategoryIndex == index;
+                                //       return Padding(
+                                //         padding: EdgeInsets.symmetric(
+                                //           horizontal: 4.w,
+                                //         ),
+                                //         child: GestureDetector(
+                                //           onTap: () {
+                                //             final keyContext =
+                                //                 _categoryKeys[index]
+                                //                     .currentContext;
+                                //             if (keyContext != null) {
+                                //               Scrollable.ensureVisible(
+                                //                 keyContext,
+                                //                 duration: const Duration(
+                                //                   milliseconds: 400,
+                                //                 ),
+                                //                 curve: Curves.easeInOut,
+                                //               );
+                                //             }
+                                //             setState(() {
+                                //               selectedCategoryIndex = index;
+                                //             });
+                                //           },
+                                //           child: Container(
+                                //             padding: EdgeInsets.symmetric(
+                                //               horizontal: 12.w,
+                                //             ),
+                                //             decoration: BoxDecoration(
+                                //               color: isSelected
+                                //                   ? AppColor
+                                //                         .primaryColor // ✅ لما يكون محدد → أخضر
+                                //                   : Colors.white.withOpacity(
+                                //                       0.06,
+                                //                     ),
+                                //               borderRadius:
+                                //                   BorderRadius.circular(12.r),
+                                //               border: Border.all(
+                                //                 color: AppColor.primaryColor,
+                                //               ),
+                                //             ),
+                                //             child: Center(
+                                //               child: Text(
+                                //                 categories[index],
+                                //                 style: TextStyle(
+                                //                   color: AppColor.white,
+                                //
+                                //                   fontSize: isSelected
+                                //                       ? 14.sp
+                                //                       : 10.sp, // ✅ كبير إذا fixed
+                                //                   fontWeight: isSelected
+                                //                       ? FontWeight
+                                //                             .bold // ✅ Bold إذا fixed
+                                //                       : FontWeight.normal,
+                                //                 ),
+                                //               ),
+                                //             ),
+                                //           ),
+                                //         ),
+                                //       );
+                                //     },
+                                //   ),
+                                // ),
                                 const SizedBox(height: 8),
                               ],
                             ),
@@ -1103,7 +1219,7 @@ class DiscountItemCard extends StatelessWidget {
                   height: 145.h,
                   width: 145.h,
                   fit: BoxFit.cover,
-                  radius: BorderRadius.circular(12.r),
+                  radius: BorderRadius.circular(16.r),
                   fallback: _fallback(),
                 ),
               ),

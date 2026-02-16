@@ -180,12 +180,12 @@ class Discount extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (isOpen != null)
-                    PositionedDirectional(
-                      top: 6,
-                      start: 6,
-                      child: OpenStatusBadge(isOpen: isOpen!),
-                    ),
+                  // if (isOpen != null)
+                  //   PositionedDirectional(
+                  //     top: 6,
+                  //     start: 6,
+                  //     child: OpenStatusBadge(isOpen: isOpen!),
+                  //   ),
 
                   if (discount.trim().isNotEmpty)
                     PositionedDirectional(
@@ -272,19 +272,19 @@ class Discount extends StatelessWidget {
                                 style: TextStyle(
                                   color: AppColor.LightActive,
                                   decoration: TextDecoration.lineThrough,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
 
-                              SizedBox(width: 6.w),
+                              SizedBox(width: 4.w),
 
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
                                 style: TextStyle(
                                   color: AppColor.red,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ]

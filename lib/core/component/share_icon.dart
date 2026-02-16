@@ -18,7 +18,7 @@ class AppShareFab extends StatelessWidget {
     required this.text,
     this.subject,
     this.sharePosition,
-    this.radius = 20,
+    this.radius = 18,
     this.padding = const EdgeInsets.all(0),
     this.iconAsset = "assets/icons/share.svg",
   });
@@ -47,8 +47,8 @@ class AppShareFab extends StatelessWidget {
           backgroundColor: AppColor.white,
           child: SvgPicture.asset(
             iconAsset,
-            width: 25.w,
-            height: 25.h,
+            width: 20.w,
+            height: 20.h,
           ),
         ),
       ),

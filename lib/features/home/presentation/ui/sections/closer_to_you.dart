@@ -112,25 +112,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                 ),
               ),
 
-              // // Name center
-              // Positioned.fill(
-              //   child: Center(
-              //     child: Padding(
-              //       padding: EdgeInsets.symmetric(horizontal: 8.w),
-              //       child: Text(
-              //         widget.name,
-              //         textAlign: TextAlign.center,
-              //         maxLines: 2,
-              //         overflow: TextOverflow.ellipsis,
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 15.sp,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+
             ],
           ),
           // Name center

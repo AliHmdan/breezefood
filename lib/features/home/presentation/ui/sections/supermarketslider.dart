@@ -101,11 +101,11 @@ class _SupermarketCardState extends State<_SupermarketCard> {
                   fit: BoxFit.cover,
                 ),
               ),
-              PositionedDirectional(
-                top: 6,
-                start: 6,
-                child: OpenStatusBadge(isOpen: widget.model.isOpen),
-              ),
+              // PositionedDirectional(
+              //   top: 6,
+              //   start: 6,
+              //   child: OpenStatusBadge(isOpen: widget.model.isOpen),
+              // ),
 
               PositionedDirectional(
                 top: 6,
