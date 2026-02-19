@@ -10,57 +10,69 @@ part 'cart_cubit.freezed.dart';
 class CartCubit extends Cubit<CartState> {
   final CartRepository repo;
   CartCubit(this.repo) : super(const CartState.initial());
+void _safeEmit(CartState s) {
+  if (isClosed) return;
+  emit(s);
+}
 
-  Future<void> add(AddToCartRequest req) async {
-    emit(const CartState.loading());
+ Future<void> add(AddToCartRequest req) async {
+  if (isClosed) return;
+  _safeEmit(const CartState.loading());
 
-    final res = await repo.addToCart(req);
+  final res = await repo.addToCart(req);
 
-    if (!res.ok) {
-      emit(CartState.error(res.message ?? "فشل إضافة المنتج للسلة"));
-      return;
-    }
+  if (isClosed) return;
 
-    final data = (res.data as Map?)?.cast<String, dynamic>() ?? {};
-    final msg = (data["message"]?.toString().trim().isNotEmpty ?? false)
-        ? data["message"].toString()
-        : "Added to cart";
-
-    emit(CartState.addedSuccess(message: msg));
+  if (!res.ok) {
+    _safeEmit(CartState.error(res.message ?? "فشل إضافة المنتج للسلة"));
+    return;
   }
 
-  Future<void> loadCart() async {
-    emit(const CartState.loading());
+  final data = (res.data as Map?)?.cast<String, dynamic>() ?? {};
+  final msg = (data["message"]?.toString().trim().isNotEmpty ?? false)
+      ? data["message"].toString()
+      : "Added to cart";
 
-    final res = await repo.getCart();
-    if (!res.ok) {
-      emit(CartState.error(res.message ?? "فشل تحميل السلة"));
-      return;
-    }
+  _safeEmit(CartState.addedSuccess(message: msg));
+}
 
-    final map = (res.data as Map?)?.cast<String, dynamic>() ?? {};
-    final cart = CartResponse.fromJson(map);
+Future<void> loadCart() async {
+  if (isClosed) return;
+  _safeEmit(const CartState.loading());
 
-    emit(CartState.cartLoaded(cart: cart, updatingIds: <int>{}, toast: null));
+  final res = await repo.getCart();
+
+  if (isClosed) return;
+
+  if (!res.ok) {
+    _safeEmit(CartState.error(res.message ?? "فشل تحميل السلة"));
+    return;
   }
+
+  final map = (res.data as Map?)?.cast<String, dynamic>() ?? {};
+  final cart = CartResponse.fromJson(map);
+
+  _safeEmit(CartState.cartLoaded(cart: cart, updatingIds: <int>{}, toast: null));
+}
+
 
   // Helper: ensure we are in loaded state
   _CartLoaded? _loaded() => state is _CartLoaded ? state as _CartLoaded : null;
 
-  void _emitLoadedPatch({
-    required _CartLoaded st,
-    CartResponse? cart,
-    Set<int>? updatingIds,
-    String? toast,
-  }) {
-    emit(
-      st.copyWith(
-        cart: cart ?? st.cart,
-        updatingIds: updatingIds ?? st.updatingIds,
-        toast: toast,
-      ),
-    );
-  }
+void _emitLoadedPatch({
+  required _CartLoaded st,
+  CartResponse? cart,
+  Set<int>? updatingIds,
+  String? toast,
+}) {
+  _safeEmit(
+    st.copyWith(
+      cart: cart ?? st.cart,
+      updatingIds: updatingIds ?? st.updatingIds,
+      toast: toast,
+    ),
+  );
+}
 
   // ===========================================================
   // ✅ Update Qty

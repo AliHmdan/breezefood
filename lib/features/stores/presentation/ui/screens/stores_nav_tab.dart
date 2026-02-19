@@ -10,6 +10,7 @@ import 'package:breezefood/features/stores/model/all_resturants.dart'
     show RestaurantModel;
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
 import 'package:breezefood/features/stores/presentation/cubit/super_markets_list_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,7 +50,6 @@ class RestaurantCard extends StatelessWidget {
         width: double.infinity,
         fit: BoxFit.cover,
       );
-
     }
 
     return AppNetworkImage(
@@ -58,35 +58,31 @@ class RestaurantCard extends StatelessWidget {
       width: double.infinity,
       fit: BoxFit.cover,
     );
-
   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w,),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Container(
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             /// 🔹 IMAGE
             ClipRRect(
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(16.r),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
               child: Stack(
                 children: [
                   ColorFiltered(
                     colorFilter: isClosed
                         ? const ColorFilter.mode(
-                      Colors.grey,
-                      BlendMode.saturation,
-                    )
+                            Colors.grey,
+                            BlendMode.saturation,
+                          )
                         : const ColorFilter.mode(
-                      Colors.transparent,
-                      BlendMode.multiply,
-                    ),
+                            Colors.transparent,
+                            BlendMode.multiply,
+                          ),
                     child: AppNetworkImage(
                       path: imageUrl,
                       height: 170.h,
@@ -103,13 +99,15 @@ class RestaurantCard extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         /// Rating
                         _iosBadge(
                           child: Row(
                             children: [
-                              const Icon(Icons.star,
-                                  color: Colors.amber, size: 14),
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
                               SizedBox(width: 4.w),
                               Text(
                                 rating.toStringAsFixed(1),
@@ -135,8 +133,11 @@ class RestaurantCard extends StatelessWidget {
                         _iosBadge(
                           child: Row(
                             children: [
-                              const Icon(Icons.delivery_dining,
-                                  color: Colors.white, size: 14),
+                              const Icon(
+                                Icons.delivery_dining,
+                                color: Colors.white,
+                                size: 14,
+                              ),
                               SizedBox(width: 4.w),
                               Text(
                                 time,
@@ -210,7 +211,6 @@ class RestaurantCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class MockStore {
@@ -315,14 +315,13 @@ class StoresNavTab extends StatefulWidget {
 class _StoresNavTabState extends State<StoresNavTab>
     with SingleTickerProviderStateMixin {
   String _deliveryFeeText(RestaurantModel r) {
-  final fee = r.deliveryBaseFee;
-  if (fee <= 0) return "common.dash".tr();
+    final fee = r.deliveryBaseFee;
+    if (fee <= 0) return "common.dash".tr();
 
-  return "stores.delivery_fee_short".tr(
-    namedArgs: {"fee": fee.toStringAsFixed(0)},
-  );
-}
-
+    return "stores.delivery_fee_short".tr(
+      namedArgs: {"fee": fee.toStringAsFixed(0)},
+    );
+  }
 
   late final TabController _tabController;
   final List<String> _titlesKeys = const [
@@ -355,12 +354,6 @@ class _StoresNavTabState extends State<StoresNavTab>
     cubit.close();
     superMarketsCubit.close();
     super.dispose();
-  }
-
-  String _timeText(RestaurantModel r) {
-    final t = r.deliveryTime ?? 0;
-    if (t <= 0) return "common.dash".tr();
-    return "common.minutes_short".tr(namedArgs: {"min": t.toString()});
   }
 
   String _ordersText(RestaurantModel r) {
@@ -464,8 +457,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                           ),
                           loaded: (restaurants) {
                             if (restaurants.isEmpty) {
-                              return
-                                ListView(
+                              return ListView(
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 children: [
                                   SizedBox(height: 200.h),
@@ -481,13 +473,12 @@ class _StoresNavTabState extends State<StoresNavTab>
                               );
                             }
 
-                            return
-                              ListView.separated(
+                            return ListView.separated(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 6,
                                 horizontal: 5,
                               ).copyWith(bottom: 80),
-                                physics: const AlwaysScrollableScrollPhysics(),
+                              physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: restaurants.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 12),
@@ -513,7 +504,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                                     name: r.name,
                                     rating: r.ratingAvg,
                                     orders: _ordersText(r),
-                                  time: _deliveryFeeText(r),
+                                    time: _deliveryFeeText(r),
 
                                     isClosed: false,
                                   ),
@@ -645,15 +636,14 @@ class _StoresNavTabState extends State<StoresNavTab>
     );
   }
 }
+
 Widget _iosBadge({required Widget child}) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
     decoration: BoxDecoration(
       color: Colors.black.withOpacity(0.45),
       borderRadius: BorderRadius.circular(20.r),
-      border: Border.all(
-        color: Colors.white.withOpacity(0.08),
-      ),
+      border: Border.all(color: Colors.white.withOpacity(0.08)),
     ),
     child: child,
   );

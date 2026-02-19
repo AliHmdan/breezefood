@@ -57,12 +57,12 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
         itemBuilder: (context, index) {
           final it = widget.items[index];
 
-          // ✅ الحل هنا
           final imageUrl = UrlHelper.toFullUrl(it.image ?? "") ?? "";
 
           return GestureDetector(
             onTap: () async {
               await showAddOrderDialog(
+                
                 context,
                 restaurantId: widget.restaurant_id,
                 menuItemId: it.id,
@@ -77,7 +77,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                   en: it.descriptionEn ?? "",
                 ),
                 extraMeals: it.mealExtras,
-                isRestaurantOpen: widget.isRestaurantOpen, // ✅ هون
+                isRestaurantOpen: widget.isRestaurantOpen, extraGroups: it.extrasGrouped,  
               );
 
               if (mounted) {
@@ -100,7 +100,7 @@ class _CategoryItemsGridPageState extends State<CategoryItemsGridPage> {
                     : null,
                 restaurant: null,
               ),
-              isRestaurantOpen: widget.isRestaurantOpen, // ✅ هون
+              isRestaurantOpen: widget.isRestaurantOpen,  
             ),
           );
         },

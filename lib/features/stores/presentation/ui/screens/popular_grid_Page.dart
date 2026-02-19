@@ -81,7 +81,8 @@ class PopularGridPage extends StatelessWidget {
                     "assets/images/shawarma_box.png",
                 description: "",
                 extraMeals: const <MenuExtra>[],
-                isRestaurantOpen: isRestaurantOpen, // ✅
+                isRestaurantOpen: isRestaurantOpen,
+                extraGroups: <ExtraGrouped>[], // ✅
               );
             },
             child: PopularItemCard(

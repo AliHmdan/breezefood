@@ -180,32 +180,7 @@ class Discount extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (isOpen!)
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Center(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 6.h,
-                            ),
-
-                            child: Text(
-                              "restaurant.closed".tr(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  if (isOpen == false) const ClosedOverlay(),
 
                   if (hasFoodDiscount && discount.trim().isNotEmpty)
                     PositionedDirectional(

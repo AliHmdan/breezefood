@@ -32,7 +32,6 @@ import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubi
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_tracking_state.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders_details_cubit.dart';
 
-// ========== STORES ==========
 import 'package:breezefood/features/stores/data/api/stores_api_service.dart';
 import 'package:breezefood/features/stores/data/repo/stores_repo.dart';
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
@@ -43,7 +42,6 @@ import 'package:breezefood/features/stores/presentation/cubit/restaurant_details
 
 import 'package:breezefood/features/stores/data/api/most_popular_api_service.dart';
 import 'package:breezefood/features/stores/data/repo/most_popular_repo.dart';
-import 'package:breezefood/features/stores/presentation/cubit/most_popular_cubit.dart';
 
 import 'package:breezefood/features/stores/data/api/super_market_api_service.dart';
 import 'package:breezefood/features/stores/data/repo/super_market_repo.dart';
@@ -144,9 +142,6 @@ Future<void> setupDi() async {
   getIt.registerFactory<MostPopularRepository>(
     () => MostPopularRepository(getIt<MostPopularApiService>()),
   );
-  getIt.registerFactory<MostPopularCubit>(
-    () => MostPopularCubit(getIt<MostPopularRepository>()),
-  );
 
   // Restaurant Details
   getIt.registerLazySingleton<RestaurantDetailsApiService>(
@@ -223,9 +218,7 @@ Future<void> setupDi() async {
   getIt.registerLazySingleton<TermsRepository>(
     () => TermsRepository(getIt<TermsApiService>()),
   );
-  getIt.registerFactory<TermsCubit>(
-    () => TermsCubit(getIt<TermsRepository>()),
-  );
+  getIt.registerFactory<TermsCubit>(() => TermsCubit(getIt<TermsRepository>()));
 
   // =========================
   // PROFILE
@@ -295,9 +288,7 @@ Future<void> setupDi() async {
   getIt.registerLazySingleton<SearchRepo>(
     () => SearchRepo(getIt<SearchApiService>()),
   );
-  getIt.registerFactory<SearchCubit>(
-    () => SearchCubit(getIt<SearchRepo>()),
-  );
+  getIt.registerFactory<SearchCubit>(() => SearchCubit(getIt<SearchRepo>()));
 
   // =========================
   // NOTIFICATIONS

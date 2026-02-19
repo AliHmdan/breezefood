@@ -9,6 +9,7 @@ import 'package:breezefood/features/home/presentation/ui/sections/breakfast_rest
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,7 +74,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   fit: BoxFit.cover,
                 ),
               ),
-               if (!widget.isOpen) const ClosedOverlay(),
+              if (!widget.isOpen) const ClosedOverlay(),
               PositionedDirectional(
                 top: 6,
                 end: 6,
@@ -106,8 +107,6 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   ),
                 ),
               ),
-
-
             ],
           ),
           // Name center
@@ -217,7 +216,7 @@ class CloserToYou extends StatelessWidget {
                     builder: (_) => MultiBlocProvider(
                       providers: [
                         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
-                        BlocProvider.value(value: context.read<CartCubit>()),
+                        BlocProvider(create: (_) => getIt<CartCubit>()),
                       ],
                       child: ResturantDetails(restaurant_id: r.id),
                     ),

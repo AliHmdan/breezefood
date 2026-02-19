@@ -187,10 +187,10 @@
     "no_current_orders": "لا توجد طلبات حالية"
   },
   "restaurant": {
-      "closed_cannot_add_to_cart": "المطعم مغلق حالياً",
+    "closed_cannot_add_to_cart": "المطعم مغلق حالياً",
     "open": "مفتوح",
     "closed": "مغلق",
-     "closed_browse_only": "المطعم مغلق حالياً، يمكنك التصفح فقط",
+    "closed_browse_only": "المطعم مغلق حالياً، يمكنك التصفح فقط",
     "closed_cannot_checkout": "المطعم مغلق حالياً، لا يمكن إتمام الطلب.",
     "menu": "المنيو",
     "details": {
@@ -204,6 +204,7 @@
     "add_to_cart_with_total": "إضافة إلى السلة  {total}"
   },
   "common": {
+    "closed": "مغلق",
     "error": "خطأ",
     "loading": "جارٍ التحميل...",
     "saving": "جارٍ الحفظ...",
@@ -230,7 +231,7 @@
     "discounts": "الخصومات",
     "menu": "القائمة",
     "view_cart_loading": "عرض السلة ...",
-   "view_cart": "عرض السلة • الكمية: {count} • {total}"
+    "view_cart": "عرض السلة • الكمية: {count} • {total}"
   },
   "notifications": {
     "title": "الإشعارات",
@@ -305,5 +306,7 @@
     "share_invite_link": "مشاركة رابط الدعوة",
     "share_try_app": "جرّب تطبيقنا: {url}",
     "share_invite_ready": "دعوتك جاهزة! استخدم هذا الرابط: {url}"
-  }
+  },
+  "All": "الكل",
+  "Size": "الحجم"
 }

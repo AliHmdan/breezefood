@@ -6,7 +6,9 @@ import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -65,46 +67,7 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
                 radius: BorderRadius.circular(12.r),
               ),
               // ✅ Open/Closed badge
-              PositionedDirectional(
-                top: 6,
-                start: 6,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                  decoration: BoxDecoration(
-                    color: widget.isOpen
-                        ? Colors.green.withOpacity(0.25)
-                        : Colors.red.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(10.r),
-                    border: Border.all(
-                      color: widget.isOpen
-                          ? Colors.green.withOpacity(0.6)
-                          : Colors.red.withOpacity(0.6),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.circle,
-                        size: 10,
-                        color: widget.isOpen ? Colors.green : Colors.red,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        widget.isOpen
-                            ? "common.open".tr()
-                            : "common.closed".tr(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                  if (!widget.isOpen) const ClosedOverlay(),
 
               // Rating
               PositionedDirectional(

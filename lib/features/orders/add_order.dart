@@ -25,7 +25,8 @@ Future<void> showAddOrderDialog(
   required String imagePathOrUrl,
   required String description,
   required List<MenuExtra> extraMeals,
-  required bool isRestaurantOpen, // ✅ جديد
+  required List<ExtraGrouped> extraGroups, // ✅ NEW
+  required bool isRestaurantOpen,
 }) async {
   return showModalBottomSheet(
     context: context,
@@ -67,7 +68,8 @@ Future<void> showAddOrderDialog(
                 imagePathOrUrl: imagePathOrUrl,
                 description: description,
                 extras: extraMeals,
-                isRestaurantOpen: isRestaurantOpen, // ✅ جديد
+                extraGroups: extraGroups, // ✅ NEW
+                isRestaurantOpen: isRestaurantOpen,
               ),
             ),
           ),
@@ -87,11 +89,12 @@ class AddOrderBody extends StatefulWidget {
   final int restaurantId;
   final int menuItemId;
   final bool isRestaurantOpen;
-
+  final List<ExtraGrouped> extraGroups; // ✅ NEW
   const AddOrderBody({
     required this.isRestaurantOpen,
 
     super.key,
+    required this.extraGroups, // ✅ NEW
     required this.restaurantId,
     required this.menuItemId,
     required this.title,
@@ -108,20 +111,31 @@ class AddOrderBody extends StatefulWidget {
 
 class _AddOrderBodyState extends State<AddOrderBody> {
   bool _withSpicy = false;
+  final Map<int, int> _selectedGroupChoice = {};
+
+  // ✅ NEW: groupId -> selected extraIds (إذا بدك multi لاحقاً)
   final TextEditingController _noteCtrl = TextEditingController();
   String _buildShareText() {
     final price = context.money(widget.price);
     final old = context.money(widget.oldPrice);
 
-    final extrasNames = widget.extras
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+
+    final legacyNames = widget.extras
         .where((e) => _selectedExtrasIds.contains(e.id))
-        .map(
-          (e) => (Directionality.of(context) == mt.TextDirection.rtl
-              ? e.nameAr
-              : e.nameEn),
-        )
+        .map((e) => isRTL ? e.nameAr : e.nameEn)
         .where((s) => s.trim().isNotEmpty)
         .toList();
+
+    final groupedSelectedIds = _selectedGroupChoice.values.toSet();
+    final groupedNames = widget.extraGroups
+        .expand((g) => g.items)
+        .where((e) => groupedSelectedIds.contains(e.id))
+        .map((e) => isRTL ? e.nameAr : e.nameEn)
+        .where((s) => s.trim().isNotEmpty)
+        .toList();
+
+    final extrasNames = [...groupedNames, ...legacyNames];
 
     final extrasLine = extrasNames.isEmpty
         ? ""
@@ -156,7 +170,15 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
   final Set<int> _selectedExtrasIds = {};
 
   List<AddToCartExtraRequest> _selectedExtrasPayload() {
-    return _selectedExtrasIds
+    final ids = <int>{};
+
+    // legacy
+    ids.addAll(_selectedExtrasIds);
+
+    // grouped (radio choice)
+    ids.addAll(_selectedGroupChoice.values);
+
+    return ids
         .map((id) => AddToCartExtraRequest(extraId: id, quantity: 1))
         .toList();
   }
@@ -171,9 +193,20 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
 
   double get _extrasTotal {
     double sum = 0;
+
+    // legacy
     for (final e in widget.extras) {
       if (_selectedExtrasIds.contains(e.id)) sum += e.price;
     }
+
+    // grouped
+    final selectedGroupedIds = _selectedGroupChoice.values.toSet();
+    for (final g in widget.extraGroups) {
+      for (final it in g.items) {
+        if (selectedGroupedIds.contains(it.id)) sum += it.price;
+      }
+    }
+
     return sum;
   }
 
@@ -310,9 +343,24 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                         // divider(),
                         SizedBox(height: 8.h),
 
+                        // ✅ NEW: grouped extras
+                        if (widget.extraGroups.isNotEmpty) ...[
+                          SizedBox(height: 8.h),
+                          ExtraGroupsList(
+                            groups: widget.extraGroups,
+                            selectedChoice: _selectedGroupChoice,
+                            onChanged: (groupId, extraId) {
+                              setState(() {
+                                _selectedGroupChoice[groupId] = extraId;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+
                         if (widget.extras.isNotEmpty) ...[
                           CustomSubTitle(
-                            subtitle: "Extras",
+                            subtitle: "Size".tr(),
                             color: AppColor.white,
                             fontsize: 14.sp,
                           ),
@@ -330,7 +378,6 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                               });
                             },
                           ),
-                          // divider(),
                         ],
 
                         SizedBox(height: 10.h),
@@ -411,6 +458,129 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
       width: double.infinity,
       height: 220.h,
       fit: BoxFit.cover,
+    );
+  }
+}
+
+class ExtraGroupsList extends StatelessWidget {
+  final List<ExtraGrouped> groups;
+  final Map<int, int> selectedChoice; // groupId -> extraId
+  final void Function(int groupId, int extraId) onChanged;
+
+  const ExtraGroupsList({
+    super.key,
+    required this.groups,
+    required this.selectedChoice,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+
+    String groupTitle(ExtraGrouped g) {
+      final t = isRTL ? (g.nameAr ?? "") : (g.nameEn ?? "");
+      return t.trim().isEmpty ? (isRTL ? "إضافات" : "Extras") : t;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: groups.map((g) {
+        final title = groupTitle(g);
+        final chosenId = selectedChoice[g.groupId];
+
+        final useRadio = g.items.length > 1; // ✅ assumption
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: 10.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomSubTitle(
+                subtitle: title,
+                color: AppColor.Lightgry,
+                fontsize: 13,
+              ),
+              SizedBox(height: 6.h),
+
+              ...g.items.map((it) {
+                final name = isRTL ? it.nameAr : it.nameEn;
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 3.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Row(
+                            children: [
+                              if (useRadio)
+                                Radio<int>(
+                                  value: it.id,
+                                  groupValue: chosenId,
+                                  activeColor: AppColor.primaryColor,
+                                  visualDensity: const VisualDensity(
+                                    horizontal: -4,
+                                    vertical: -4,
+                                  ),
+                                  onChanged: (val) {
+                                    if (val == null) return;
+                                    onChanged(g.groupId, val);
+                                  },
+                                )
+                              else
+                                Checkbox(
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: const VisualDensity(
+                                    horizontal: -4,
+                                    vertical: -4,
+                                  ),
+                                  activeColor: AppColor.primaryColor,
+                                  side: BorderSide(
+                                    color: AppColor.Lightgry,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  value: chosenId == it.id,
+                                  onChanged: (val) {
+                                    if (val == true) {
+                                      onChanged(g.groupId, it.id);
+                                    } else {
+                                      // إلغاء اختيار checkbox الوحيد
+                                      selectedChoice.remove(g.groupId);
+                                    }
+                                  },
+                                ),
+
+                              Expanded(
+                                child: CustomSubTitle(
+                                  subtitle: name,
+                                  color: AppColor.Lightgry,
+                                  fontsize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      CustomSubTitle(
+                        subtitle: context.money(it.price),
+                        color: AppColor.yellow,
+                        fontsize: 14,
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

@@ -185,7 +185,8 @@ class MostPopularSection extends StatelessWidget {
                             "assets/images/shawarma_box.png",
                         description: "",
                         extraMeals: const <MenuExtra>[],
-                        isRestaurantOpen: isRestaurantOpen, // ✅ المصدر الوحيد
+                        isRestaurantOpen: isRestaurantOpen,
+                        extraGroups: <ExtraGrouped>[], // ✅ المصدر الوحيد
                       );
 
                       if (context.mounted) context.read<CartCubit>().loadCart();
@@ -373,7 +374,6 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   fallback: _imageFallback(),
                 ),
               ),
-           
 
               if (hasDiscount)
                 PositionedDirectional(

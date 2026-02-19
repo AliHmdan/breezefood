@@ -201,6 +201,7 @@
     "add_to_cart_with_total": "ADD TO CART  {total}"
   },
   "common": {
+    "closed": "Closed",
     "error": "Error",
     "loading": "Loading...",
     "saving": "Saving...",
@@ -302,5 +303,7 @@
     "share_invite_link": "Share invite link",
     "share_try_app": "Try our app: {url}",
     "share_invite_ready": "Your invite is ready! Use this link: {url}"
-  }
+  },
+  "All": "All",
+  "Size": "Size"
 }

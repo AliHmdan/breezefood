@@ -9,6 +9,8 @@ import 'package:breezefood/features/orders/add_order.dart';
 import 'package:breezefood/features/search/data/models/search_response.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_cubit.dart';
 import 'package:breezefood/features/search/presentation/cubit/search_state.dart';
+import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -307,8 +309,9 @@ class _SearchState extends State<Search> {
                                 ? fullImg
                                 : "assets/images/shawarma_box.png",
                             description: "",
-                            extraMeals: const [],
-                            isRestaurantOpen: isOpen, // ✅ من الداتا
+                            extraMeals: const <MenuExtra>[],
+                            isRestaurantOpen: isOpen,
+                            extraGroups: const <ExtraGrouped>[], // ✅ من الداتا
                           );
                         },
                         child: _SearchApiItemCard(
