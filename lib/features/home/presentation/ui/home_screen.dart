@@ -10,7 +10,7 @@ import 'package:breezefood/features/home/presentation/ui/sections/breakfast_rest
 import 'package:breezefood/features/home/presentation/ui/sections/closer_to_you.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_delivery/discount_delivery_home.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discounts_meals/discount_home.dart';
-import 'package:breezefood/features/home/presentation/ui/sections/home_filter.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/home_tabs_bar.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/open_now.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/supermarketslider.dart';
@@ -35,8 +35,6 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-
-import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/widgets/rd_tabs_bar.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -417,7 +415,7 @@ class _HomeState extends State<Home> with RouteAware {
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _StickyTabsHeader(
-                          height: 45.h,
+                          height: 50.h,
                           child: SizedBox.expand(
                             child: Container(
                               key: homeScroll.tabsKey,
@@ -428,8 +426,8 @@ class _HomeState extends State<Home> with RouteAware {
                               child: ValueListenableBuilder<int>(
                                 valueListenable: homeScroll.activeIndex,
                                 builder: (_, active, __) {
-                                  return RDTabsBar(
-                                    categories: tabTitles,
+                                  return HomeTabsBar(
+                                    titles: tabTitles,
                                     activeIndex: active,
                                     onTap: (i) => homeScroll.scrollToSection(i),
                                   );

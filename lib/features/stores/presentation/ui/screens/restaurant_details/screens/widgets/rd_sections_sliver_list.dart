@@ -18,9 +18,9 @@ class RDSectionsSliverList extends StatelessWidget {
     super.key,
     required this.restaurantId,
     required this.isRestaurantOpen,
-    required this.categories, // ✅ includes offers/most popular if exists
-    required this.itemsByCategory, // ✅ same length as categories
-    required this.categoryKeys, // ✅ same length as categories
+    required this.categories,
+    required this.itemsByCategory,
+    required this.categoryKeys,
     required this.imageUrl,
     required this.onContentSizeMayChange,
   });
@@ -66,11 +66,6 @@ class RDSectionsSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => onContentSizeMayChange(),
-    );
-
-    // ✅ حماية: لازم الأطوال متطابقة
     final count = [
       categories.length,
       itemsByCategory.length,
@@ -98,7 +93,6 @@ class RDSectionsSliverList extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ✅ Anchor الوحيد للمفتاح (لا تستخدمه بأي مكان تاني)
                   SizedBox(key: categoryKeys[i], height: 1),
 
                   if (_isOffersTitle(title))

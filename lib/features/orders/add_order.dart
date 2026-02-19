@@ -110,6 +110,17 @@ class AddOrderBody extends StatefulWidget {
 }
 
 class _AddOrderBodyState extends State<AddOrderBody> {
+  @override
+  void initState() {
+    super.initState();
+    final sg = _sizeGroup;
+    if (sg != null && sg.items.isNotEmpty) {
+      _selectedSizeExtraId ??= sg.items.first.id;
+    }
+  }
+
+  int? _selectedSizeId; // ✅ Size واحد
+
   bool _withSpicy = false;
   final Map<int, int> _selectedGroupChoice = {};
 
@@ -167,20 +178,66 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
     super.dispose();
   }
 
-  final Set<int> _selectedExtrasIds = {};
+  ExtraGrouped? get _sizeGroup {
+    bool isSizeGroup(ExtraGrouped g) {
+      final ar = (g.nameAr ?? "").toLowerCase().trim();
+      final en = (g.nameEn ?? "").toLowerCase().trim();
 
+      // group_id أحياناً 0 وعنوانه null، فنعتمد على الاسم إذا موجود
+      return en.contains("size") || ar.contains("حجم") || ar.contains("الحجم");
+    }
+
+    for (final g in widget.extraGroups) {
+      if (isSizeGroup(g)) return g;
+    }
+    return null;
+  }
+
+  List<ExtraGrouped> get _otherGroups {
+    final sg = _sizeGroup;
+    if (sg == null) return widget.extraGroups;
+    return widget.extraGroups.where((g) => g.groupId != sg.groupId).toList();
+  }
+
+  int? _selectedSizeExtraId; // ✅ extraId تبع الحجم (من grouped)
+
+  final Set<int> _selectedExtrasIds = {};
   List<AddToCartExtraRequest> _selectedExtrasPayload() {
     final ids = <int>{};
 
-    // legacy
-    ids.addAll(_selectedExtrasIds);
+    // ✅ size من grouped
+    if (_selectedSizeExtraId != null) ids.add(_selectedSizeExtraId!);
 
-    // grouped (radio choice)
+    // ✅ باقي الـ grouped
     ids.addAll(_selectedGroupChoice.values);
 
     return ids
         .map((id) => AddToCartExtraRequest(extraId: id, quantity: 1))
         .toList();
+  }
+
+  double get _extrasTotal {
+    double sum = 0;
+
+    // ✅ size grouped
+    final sg = _sizeGroup;
+    if (sg != null && _selectedSizeExtraId != null) {
+      final it = sg.items.firstWhere(
+        (x) => x.id == _selectedSizeExtraId,
+        orElse: () => sg.items.first,
+      );
+      sum += it.price;
+    }
+
+    // ✅ باقي الـ grouped
+    final selectedGroupedIds = _selectedGroupChoice.values.toSet();
+    for (final g in _otherGroups) {
+      for (final it in g.items) {
+        if (selectedGroupedIds.contains(it.id)) sum += it.price;
+      }
+    }
+
+    return sum;
   }
 
   bool get _hasDiscount =>
@@ -191,27 +248,9 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
     return s.startsWith("http://") || s.startsWith("https://");
   }
 
-  double get _extrasTotal {
-    double sum = 0;
-
-    // legacy
-    for (final e in widget.extras) {
-      if (_selectedExtrasIds.contains(e.id)) sum += e.price;
-    }
-
-    // grouped
-    final selectedGroupedIds = _selectedGroupChoice.values.toSet();
-    for (final g in widget.extraGroups) {
-      for (final it in g.items) {
-        if (selectedGroupedIds.contains(it.id)) sum += it.price;
-      }
-    }
-
-    return sum;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final sg = _sizeGroup;
     return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
         state.whenOrNull(
@@ -358,24 +397,30 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           SizedBox(height: 8.h),
                         ],
 
-                        if (widget.extras.isNotEmpty) ...[
+                        if (sg != null && sg.items.isNotEmpty) ...[
                           CustomSubTitle(
                             subtitle: "Size".tr(),
                             color: AppColor.white,
                             fontsize: 14.sp,
                           ),
-                          SizedBox(height: 6.h),
-                          ExtrasList(
-                            extras: widget.extras,
-                            selectedIds: _selectedExtrasIds,
-                            onChanged: (id, selected) {
-                              setState(() {
-                                if (selected) {
-                                  _selectedExtrasIds.add(id);
-                                } else {
-                                  _selectedExtrasIds.remove(id);
-                                }
-                              });
+                          SizedBox(height: 10.h),
+                          SizeChipsRowGrouped(
+                            items: sg.items,
+                            selectedId: _selectedSizeExtraId,
+                            onSelect: (id) =>
+                                setState(() => _selectedSizeExtraId = id),
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
+
+                        if (_otherGroups.isNotEmpty) ...[
+                          ExtraGroupsList(
+                            groups: _otherGroups,
+                            selectedChoice: _selectedGroupChoice,
+                            onChanged: (groupId, extraId) {
+                              setState(
+                                () => _selectedGroupChoice[groupId] = extraId,
+                              );
                             },
                           ),
                         ],
@@ -818,6 +863,84 @@ class _CounterSheetState extends State<CounterSheet> {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+
+
+class SizeChipsRowGrouped extends StatelessWidget {
+  final List<MenuExtra>
+  items; // نفس type تبع items عندك (إذا اسمها مختلف عدّلها)
+  final int? selectedId;
+  final ValueChanged<int> onSelect;
+
+  const SizeChipsRowGrouped({
+    super.key,
+    required this.items,
+    required this.selectedId,
+    required this.onSelect,
+  });
+
+  String _chipLabel(BuildContext context, MenuExtra e) {
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final name = (isRTL ? e.nameAr : e.nameEn).toLowerCase().trim();
+
+    // ✅ mapping ذكي S/M/L
+    if (name.contains("small") || name.contains("صغير")) return "S";
+    if (name.contains("medium") || name.contains("وسط")) return "M";
+    if (name.contains("large") || name.contains("كبير")) return "L";
+
+    // fallback: أول حرف
+    final raw = (isRTL ? e.nameAr : e.nameEn).trim();
+    if (raw.isEmpty) return "?";
+    return raw.characters.first.toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = 44.r;
+
+    return SizedBox(
+      height: d,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        separatorBuilder: (_, __) => SizedBox(width: 10.w),
+        itemBuilder: (context, i) {
+          final e = items[i];
+          final isSelected = e.id == selectedId;
+
+          return Material(
+            color: Colors.transparent,
+            child: InkResponse(
+              onTap: () => onSelect(e.id),
+              containedInkWell: true,
+              highlightShape: BoxShape.circle,
+              customBorder: const CircleBorder(),
+              child: SizedBox.square(
+                dimension: d,
+                child: DecoratedBox(
+                  decoration: ShapeDecoration(
+                    shape: const CircleBorder(),
+                    color: isSelected ? AppColor.primaryColor : Colors.white,
+                  ),
+                  child: Center(
+                    child: Text(
+                      _chipLabel(context, e),
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black87,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

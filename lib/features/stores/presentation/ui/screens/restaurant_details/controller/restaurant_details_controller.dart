@@ -4,7 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RestaurantDetailsScrollController {
-  RestaurantDetailsScrollController({this.debugEnabled = kDebugMode});
+  RestaurantDetailsScrollController({
+    this.debugEnabled = kDebugMode,
+    double? stickyExtent,
+  }) : stickyHeaderExtent = stickyExtent ?? 130.h;
 
   bool debugEnabled;
 
@@ -12,15 +15,17 @@ class RestaurantDetailsScrollController {
   final outer = ScrollController();
   ScrollController? inner;
 
+  double stickyHeaderExtent;
+
+  double titleTopPadding = 12.0;
+
   final activeIndex = ValueNotifier<int>(0);
 
   final categoryKeys = <GlobalKey>[];
-  final categoryOffsets = <double>[]; // للـ scrollToCategory فقط
+  final categoryOffsets = <double>[]; 
 
   bool isProgrammatic = false;
   int _dbgTick = 0;
-
-  double get _stickyHeight => 140.h;
 
   void init() {
     outer.addListener(_onAnyScroll);
@@ -33,6 +38,16 @@ class RestaurantDetailsScrollController {
     outer.removeListener(_debugScroll);
     outer.dispose();
     activeIndex.dispose();
+  }
+
+  /// إذا تغير ارتفاع الستكي حسب التصميم
+  void setStickyExtent(double v) {
+    if ((stickyHeaderExtent - v).abs() < 0.1) return;
+    stickyHeaderExtent = v;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      recalcOffsets();
+      _onAnyScroll();
+    });
   }
 
   void attachInner() {
@@ -72,12 +87,13 @@ class RestaurantDetailsScrollController {
 
   void recalcOffsets() {
     final innerCtl = inner;
-    if (innerCtl == null) return;
+    if (innerCtl == null || !innerCtl.hasClients) return;
 
     bool anyInfinity = false;
 
     for (int i = 0; i < categoryKeys.length; i++) {
       categoryOffsets[i] = double.infinity;
+
       final ctx = categoryKeys[i].currentContext;
       final ro = ctx?.findRenderObject();
       if (ro == null) {
@@ -86,10 +102,6 @@ class RestaurantDetailsScrollController {
       }
 
       final viewport = RenderAbstractViewport.of(ro);
-      if (viewport == null) {
-        anyInfinity = true;
-        continue;
-      }
 
       categoryOffsets[i] = viewport.getOffsetToReveal(ro, 0.0).offset;
     }
@@ -112,9 +124,10 @@ class RestaurantDetailsScrollController {
     final innerCtl = inner;
     if (innerCtl == null || !innerCtl.hasClients) return;
 
+    final pos = innerCtl.position;
+
     // ✅ آخر الصفحة -> فعّل آخر tab
     const double endEps = 2.0;
-    final pos = innerCtl.position;
     if (pos.pixels >= (pos.maxScrollExtent - endEps)) {
       final last = categoryKeys.length - 1;
       if (last >= 0 && activeIndex.value != last) {
@@ -123,16 +136,13 @@ class RestaurantDetailsScrollController {
       return;
     }
 
-    // ✅ إذا offsets لسا ما جاهزة
     if (categoryOffsets.isEmpty || categoryOffsets.any((x) => x.isInfinite)) {
       recalcOffsets();
     }
-  
 
-    final double probe = innerCtl.offset + _stickyHeight + 38.0.h; // 16 + 10
+    final double probe = innerCtl.offset + stickyHeaderExtent + 34.h;
 
     int newIndex = 0;
-
     for (int i = 0; i < categoryOffsets.length; i++) {
       final off = categoryOffsets[i];
       if (off.isInfinite) continue;
@@ -152,11 +162,9 @@ class RestaurantDetailsScrollController {
   Future<void> scrollToCategory(int index) async {
     attachInner();
     final innerCtl = inner;
-    if (innerCtl == null) return;
-    if (!innerCtl.hasClients) return;
+    if (innerCtl == null || !innerCtl.hasClients) return;
     if (index < 0 || index >= categoryKeys.length) return;
 
-    // ✅ 1) بدّل الاكتف اندكس فوراً لحظة التاب
     if (activeIndex.value != index) {
       activeIndex.value = index;
     }
@@ -164,29 +172,12 @@ class RestaurantDetailsScrollController {
     isProgrammatic = true;
 
     try {
-      if (index == 0) {
-        await innerCtl.animateTo(
-          0.0,
-          duration: const Duration(milliseconds: 320),
-          curve: Curves.easeOutCubic,
-        );
-
-        if (outer.hasClients) {
-          await outer.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 360),
-            curve: Curves.easeOutCubic,
-          );
-        }
-        return;
-      }
-
       if (outer.hasClients) {
         final maxOuter = outer.position.maxScrollExtent;
         if ((maxOuter - outer.offset) > 0.5) {
           await outer.animateTo(
             maxOuter,
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(milliseconds: 220),
             curve: Curves.easeOut,
           );
           await Future.delayed(const Duration(milliseconds: 16));
@@ -196,17 +187,12 @@ class RestaurantDetailsScrollController {
       recalcOffsets();
       if (index >= categoryOffsets.length) return;
 
-      const double titleTopPadding = 12.0;
-
       final max = innerCtl.position.maxScrollExtent;
       final bool isLast = index == categoryKeys.length - 1;
 
-      final target = isLast
-          ? max
-          : (categoryOffsets[index] - _stickyHeight - titleTopPadding).clamp(
-              0.0,
-              max,
-            );
+      final raw = categoryOffsets[index] - stickyHeaderExtent - titleTopPadding;
+
+      final target = isLast ? max : raw.clamp(0.0, max);
 
       await innerCtl.animateTo(
         target,
@@ -226,7 +212,9 @@ class RestaurantDetailsScrollController {
 
     final o = outer.hasClients ? outer.offset : -1;
     final i = inner?.hasClients == true ? inner!.offset : -1;
-    debugPrint("🧭 [RD] outer=$o | inner=$i | active=${activeIndex.value}");
+    debugPrint(
+      "🧭 [RD] outer=$o | inner=$i | sticky=$stickyHeaderExtent | active=${activeIndex.value}",
+    );
   }
 
   void _debugPrintOffsets() {

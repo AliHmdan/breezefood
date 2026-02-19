@@ -41,7 +41,6 @@ class ResturantDetails extends StatefulWidget {
 }
 
 class _ResturantDetailsState extends State<ResturantDetails> {
-  final GlobalKey _stickyKey = GlobalKey(); // ✅ NEW
   late final RestaurantDetailsScrollController scrollCtl =
       RestaurantDetailsScrollController()..init();
 
@@ -119,7 +118,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       cubit.load(widget.restaurant_id);
 
-      // ✅ ما تكسر التطبيق إذا CartCubit مش جاهز/مغلق
       try {
         context.read<CartCubit>().loadCart();
       } catch (_) {}
@@ -137,10 +135,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
     scrollCtl.dispose();
     _tabsController.dispose();
-
-    // ⚠️ لا تسكر cubit إذا جاي من getIt Singleton/LazySingleton
-    // cubit.close();
-
     super.dispose();
   }
 
@@ -186,12 +180,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
   }
 
   Widget _buildLoaded(BuildContext context, RestaurantDetailsResponse data) {
-    // ✅ most popular
     final mostPopularItems = data.mostPopular;
 
     String headerImageUrl = "";
     String restaurantName = "";
-    String description = "";
     String reviewsCountText = "0";
 
     String deliveryTime = "--";
@@ -218,11 +210,6 @@ class _ResturantDetailsState extends State<ResturantDetails> {
         setState(() => _isRestaurantOpen = newIsOpen);
       });
     }
-
-    description = RestaurantDetailsMapper.pickSingleLangFromMixed(
-      g.description ?? "",
-      context,
-    );
 
     headerImageUrl = RestaurantDetailsMapper.imageUrl(g.cover ?? g.logo);
 
@@ -258,14 +245,11 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     final sections = data.restaurantMenuItems;
     final hasMostPopular = mostPopularItems.isNotEmpty;
 
-    // ✅ discounted
     final allItems = sections.expand((s) => s.items).toList();
     discountedItems = allItems.where((x) => x.hasDiscount).toList()
       ..sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
-
     final hasDiscountSection = discountedItems.isNotEmpty;
 
-    // ✅ keys count = (discount?) + (mostPopular?) + عدد الأقسام
     final totalCount =
         sections.length +
         (hasMostPopular ? 1 : 0) +
@@ -273,36 +257,28 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
     scrollCtl.setCategoryKeys(totalCount);
 
-    // ✅ keys للـ tabs (نفس العدد تماماً)
     if (_tabKeys.length != totalCount) {
       _tabKeys
         ..clear()
         ..addAll(List.generate(totalCount, (_) => GlobalKey()));
     }
 
-    // ✅ titles تبع منيو الأقسام
     final menuCats = sections.map((e) {
       return context.pick(ar: e.category.nameAr, en: e.category.nameEn);
     }).toList();
 
-    // ✅ categories صار فيها: Discount ثم MostPopular ثم باقي الأقسام
     categories = [
       if (hasDiscountSection) context.pick(ar: "الخصومات", en: "Discounts"),
       if (hasMostPopular) context.pick(ar: "الأكثر طلباً", en: "Most Popular"),
       ...menuCats,
     ];
 
-    // ✅ itemsByCategory لازم يطابق categories 1:1
     itemsByCategory = [
       if (hasDiscountSection) discountedItems,
       if (hasMostPopular) mostPopularItems,
       ...sections.map((e) => e.items),
     ];
 
-    discountedItems = allItems.where((x) => x.hasDiscount).toList()
-      ..sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
-
-    // precache few images
     for (final section in sections) {
       for (final item in section.items.take(4)) {
         final img = RestaurantDetailsMapper.imageUrl(item.image);
@@ -320,18 +296,42 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
     return Stack(
       children: [
+        Positioned.fill(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 260.h,
+                child: _headerReady
+                    ? AppNetworkImage(
+                        height: 260,
+                        path: headerImageUrl,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        "assets/images/meal_breeze.jpeg",
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+              Expanded(child: Container(color: AppColor.Dark)),
+            ],
+          ),
+        ),
+
         NestedScrollView(
           key: scrollCtl.nestedKey,
           controller: scrollCtl.outer,
           headerSliverBuilder: (context, innerBoxIsScrolled) {
+            scrollCtl.setStickyExtent(130.h); // نفس minExtent/maxExtent تبع RDStickyInfoTabsSliver
+
             return [
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                   context,
                 ),
                 sliver: RDHeaderSliver(
-                  headerImageUrl: headerImageUrl,
-                  headerReady: _headerReady,
+                  innerBoxIsScrolled: innerBoxIsScrolled,  
                   restaurantName: restaurantName,
                   avgRatingText: avgRatingText,
                   reviewsCountText: reviewsCountText,
@@ -345,89 +345,91 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                       ),
                     );
                   },
-                  onRateTap: () async {
-                    final reviewId = myReviewId;
-                    final hasMyRating = (reviewId ?? 0) > 0 && myUserRating > 0;
-
-                    final res = await showRateDialog(
-                      context,
-                      currentRating: hasMyRating ? myUserRating : 3.0,
-                      reviewId: hasMyRating ? reviewId : null,
-                    );
-                    if (res == null) return;
-
-                    final submitCubit = context.read<RatingSubmitCubit>();
-                    EasyLoading.show(status: "common.sending".tr());
-
-                    if (res.delete) {
-                      if ((reviewId ?? 0) == 0) {
-                        EasyLoading.showError(
-                          "reviews.no_review_to_delete".tr(),
-                        );
-                        return;
-                      }
-
-                      await submitCubit.deleteRestaurantRate(
-                        reviewId: reviewId!,
-                      );
-                      if (!mounted) return;
-
-                      submitCubit.state.maybeWhen(
-                        deleteSuccess: () async {
-                          EasyLoading.showSuccess(
-                            "reviews.delete_success".tr(),
-                          );
-                          await cubit.load(widget.restaurant_id);
-                        },
-                        error: (msg) => EasyLoading.showError(msg.tr()),
-                        orElse: () => EasyLoading.dismiss(),
-                      );
-                      return;
-                    }
-
-                    if (res.rating == null) {
-                      EasyLoading.dismiss();
-                      return;
-                    }
-
-                    await submitCubit.submitRestaurantRate(
-                      restaurantId: widget.restaurant_id,
-                      rating: res.rating!,
-                    );
-
-                    if (!mounted) return;
-
-                    submitCubit.state.maybeWhen(
-                      success: () async {
-                        EasyLoading.showSuccess("reviews.rate_success".tr());
-                        await cubit.load(widget.restaurant_id);
-                      },
-                      error: (msg) => EasyLoading.showError(msg.tr()),
-                      orElse: () => EasyLoading.dismiss(),
-                    );
-                  },
                 ),
               ),
+
               ValueListenableBuilder<int>(
                 valueListenable: scrollCtl.activeIndex,
                 builder: (_, activeIdx, __) {
                   return RDStickyInfoTabsSliver(
-                    tabsController: _tabsController,
-                    tabKeys: _tabKeys,
-                    onTapCategory: (i) {
-                      if (scrollCtl.activeIndex.value != i) {
-                        scrollCtl.activeIndex.value = i;
-                      }
-                      scrollCtl.scrollToCategory(i);
-                    },
+                    roundedTop: !innerBoxIsScrolled,
                     divider: _divider(),
-                    description: description,
                     deliveryTimeText: deliveryTime,
                     deliveryBaseText: deliveryBase,
                     deliveryFinalText: deliveryFinal,
                     showTwoPrices: showTwoPrices,
                     categories: categories,
                     activeIndex: activeIdx,
+                    onTapCategory: (i) {
+                      if (scrollCtl.activeIndex.value != i) {
+                        scrollCtl.activeIndex.value = i;
+                      }
+                      scrollCtl.scrollToCategory(i);
+                    },
+                    avgRatingText: avgRatingText,
+                    reviewsCountText: reviewsCountText,
+                    onRateTap: () async {
+                      final reviewId = myReviewId;
+                      final hasMyRating =
+                          (reviewId ?? 0) > 0 && myUserRating > 0;
+
+                      final res = await showRateDialog(
+                        context,
+                        currentRating: hasMyRating ? myUserRating : 3.0,
+                        reviewId: hasMyRating ? reviewId : null,
+                      );
+                      if (res == null) return;
+
+                      final submitCubit = context.read<RatingSubmitCubit>();
+                      EasyLoading.show(status: "common.sending".tr());
+
+                      if (res.delete) {
+                        if ((reviewId ?? 0) == 0) {
+                          EasyLoading.showError(
+                            "reviews.no_review_to_delete".tr(),
+                          );
+                          return;
+                        }
+
+                        await submitCubit.deleteRestaurantRate(
+                          reviewId: reviewId!,
+                        );
+                        if (!mounted) return;
+
+                        submitCubit.state.maybeWhen(
+                          deleteSuccess: () async {
+                            EasyLoading.showSuccess(
+                              "reviews.delete_success".tr(),
+                            );
+                            await cubit.load(widget.restaurant_id);
+                          },
+                          error: (msg) => EasyLoading.showError(msg.tr()),
+                          orElse: () => EasyLoading.dismiss(),
+                        );
+                        return;
+                      }
+
+                      if (res.rating == null) {
+                        EasyLoading.dismiss();
+                        return;
+                      }
+
+                      await submitCubit.submitRestaurantRate(
+                        restaurantId: widget.restaurant_id,
+                        rating: res.rating!,
+                      );
+
+                      if (!mounted) return;
+
+                      submitCubit.state.maybeWhen(
+                        success: () async {
+                          EasyLoading.showSuccess("reviews.rate_success".tr());
+                          await cubit.load(widget.restaurant_id);
+                        },
+                        error: (msg) => EasyLoading.showError(msg.tr()),
+                        orElse: () => EasyLoading.dismiss(),
+                      );
+                    },
                   );
                 },
               ),
@@ -439,17 +441,20 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                 (_) => scrollCtl.attachInner(),
               );
 
-              return RDSectionsSliverList(
-                restaurantId: widget.restaurant_id,
-                isRestaurantOpen: _isRestaurantOpen,
-                categories: categories,
-                itemsByCategory: itemsByCategory,
-                categoryKeys: scrollCtl.categoryKeys,
-                imageUrl: RestaurantDetailsMapper.imageUrl,
-                onContentSizeMayChange: () {
-                  scrollCtl.attachInner();
-                  scrollCtl.recalcOffsets();
-                },
+              return Container(
+                 color: AppColor.Dark, // ✅ أهم سطر: يمنع ظهور الغلاف ورا الوجبات
+                child: RDSectionsSliverList(
+                  restaurantId: widget.restaurant_id,
+                  isRestaurantOpen: _isRestaurantOpen,
+                  categories: categories,
+                  itemsByCategory: itemsByCategory,
+                  categoryKeys: scrollCtl.categoryKeys,
+                  imageUrl: RestaurantDetailsMapper.imageUrl,
+                  onContentSizeMayChange: () {
+                    scrollCtl.attachInner();
+                    scrollCtl.recalcOffsets();
+                  },
+                ),
               );
             },
           ),
@@ -464,6 +469,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       providers: [BlocProvider(create: (_) => getIt<RatingSubmitCubit>())],
       child: AndroidSwipeBack(
         child: Scaffold(
+          backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
           bottomNavigationBar: SafeArea(
             child: BottomCartAction(

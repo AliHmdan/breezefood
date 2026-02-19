@@ -2,24 +2,24 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class RDTabsBar extends StatefulWidget {
-  const RDTabsBar({
+class HomeTabsBar extends StatefulWidget {
+  const HomeTabsBar({
     super.key,
-    required this.categories,
+    required this.titles,
     required this.activeIndex,
     required this.onTap,
   });
 
-  final List<String> categories;
+  final List<String> titles;
   final int activeIndex;
   final ValueChanged<int> onTap;
 
   @override
-  State<RDTabsBar> createState() => _RDTabsBarState();
+  State<HomeTabsBar> createState() => _HomeTabsBarState();
 }
 
-class _RDTabsBarState extends State<RDTabsBar> {
-  int _safeIndex(int i, int len) {
+class _HomeTabsBarState extends State<HomeTabsBar> {
+  int _safe(int i, int len) {
     if (len <= 0) return 0;
     if (i < 0) return 0;
     if (i >= len) return len - 1;
@@ -28,16 +28,16 @@ class _RDTabsBarState extends State<RDTabsBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.categories.isEmpty) return const SizedBox.shrink();
+    if (widget.titles.isEmpty) return const SizedBox.shrink();
 
-    final safe = _safeIndex(widget.activeIndex, widget.categories.length);
+    final safe = _safe(widget.activeIndex, widget.titles.length);
 
     return DefaultTabController(
-      key: const ValueKey<String>("rd_tabs_controller"),
-      length: widget.categories.length,
+      key: const ValueKey<String>("home_tabs_controller"),
+      length: widget.titles.length,
       initialIndex: safe,
-      child: _RDTabsBarInner(
-        categories: widget.categories,
+      child: _HomeTabsBarInner(
+        titles: widget.titles,
         activeIndex: safe,
         onTap: widget.onTap,
       ),
@@ -45,32 +45,33 @@ class _RDTabsBarState extends State<RDTabsBar> {
   }
 }
 
-class _RDTabsBarInner extends StatefulWidget {
-  const _RDTabsBarInner({
-    required this.categories,
+class _HomeTabsBarInner extends StatefulWidget {
+  const _HomeTabsBarInner({
+    required this.titles,
     required this.activeIndex,
     required this.onTap,
   });
 
-  final List<String> categories;
+  final List<String> titles;
   final int activeIndex;
   final ValueChanged<int> onTap;
 
   @override
-  State<_RDTabsBarInner> createState() => _RDTabsBarInnerState();
+  State<_HomeTabsBarInner> createState() => _HomeTabsBarInnerState();
 }
 
-class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
+class _HomeTabsBarInnerState extends State<_HomeTabsBarInner> {
   static const _anim = Duration(milliseconds: 220);
 
   @override
-  void didUpdateWidget(covariant _RDTabsBarInner oldWidget) {
+  void didUpdateWidget(covariant _HomeTabsBarInner oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final ctl = DefaultTabController.of(context);
 
+      // ✅ sync من برا -> جوّا
       if (ctl.index != widget.activeIndex && !ctl.indexIsChanging) {
         ctl.animateTo(
           widget.activeIndex,
@@ -86,7 +87,6 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
     final ctl = DefaultTabController.of(context);
 
     return SizedBox(
-      
       height: 45.h,
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -101,8 +101,8 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
             ),
           ),
           TabBar(
-            tabAlignment: TabAlignment.center,
             controller: ctl,
+            tabAlignment: TabAlignment.center,
             isScrollable: true,
             padding: EdgeInsets.zero,
             onTap: widget.onTap,
@@ -122,7 +122,7 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
               borderSide: BorderSide(width: 2.h, color: AppColor.white),
               insets: EdgeInsets.symmetric(horizontal: 10.w),
             ),
-            tabs: widget.categories
+            tabs: widget.titles
                 .map(
                   (t) => Tab(
                     child: Text(

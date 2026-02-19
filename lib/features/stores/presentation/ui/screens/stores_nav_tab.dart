@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
@@ -11,22 +12,59 @@ import 'package:breezefood/features/stores/model/all_resturants.dart'
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
 import 'package:breezefood/features/stores/presentation/cubit/super_markets_list_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
-import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:breezefood/features/super_market/categories_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 
+/// ===============================================
+/// ✅ Closed Overlay (نفس الستايل اللي عندك)
+/// ===============================================
+class ClosedOverlay extends StatelessWidget {
+  const ClosedOverlay({super.key, this.radius = 16, this.text});
+
+  final double radius;
+  final String? text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.45),
+          borderRadius: BorderRadius.circular(radius.r),
+        ),
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+            child: CustomSubTitle(
+              subtitle: text ?? "restaurant.closed".tr(),
+              color: AppColor.white,
+              fontsize: 13.sp,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ===============================================
+/// ✅ Restaurant Card
+/// ===============================================
 class RestaurantCard extends StatelessWidget {
   final String imageUrl;
   final String name;
   final double rating;
   final String orders;
   final String time;
+
+  /// ✅ true => Overlay + grayscale
   final bool isClosed;
+
+  /// ✅ optional subtitle تحت الاسم (إذا بدك)
   final String? closedText;
 
   const RestaurantCard({
@@ -40,26 +78,6 @@ class RestaurantCard extends StatelessWidget {
     this.closedText,
   });
 
-  Widget _buildImage(String path) {
-    final url = (UrlHelper.toFullUrl(path) ?? "").trim();
-
-    if (url.isEmpty) {
-      return Image.asset(
-        "assets/images/meal_breeze.jpeg",
-        height: 110.h,
-        width: double.infinity,
-        fit: BoxFit.cover,
-      );
-    }
-
-    return AppNetworkImage(
-      path: url, // أو imageUrl إذا هو المتغير عندك
-      height: 110.h,
-      width: double.infinity,
-      fit: BoxFit.cover,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -68,11 +86,12 @@ class RestaurantCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔹 IMAGE
+            /// IMAGE
             ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
               child: Stack(
                 children: [
+                  // ✅ optional grayscale
                   ColorFiltered(
                     colorFilter: isClosed
                         ? const ColorFilter.mode(
@@ -90,6 +109,13 @@ class RestaurantCard extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
+
+                  // ✅ Closed Overlay (نفس ستايل Breakfast)
+                  if (isClosed)
+                    ClosedOverlay(
+                      radius: 16,
+                      text: closedText ?? "restaurant.closed".tr(),
+                    ),
 
                   /// Top overlay info
                   Positioned(
@@ -156,7 +182,7 @@ class RestaurantCard extends StatelessWidget {
               ),
             ),
 
-            /// 🔹 BOTTOM CONTENT
+            /// BOTTOM CONTENT
             Padding(
               padding: EdgeInsets.all(5.w),
               child: Column(
@@ -173,6 +199,7 @@ class RestaurantCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
 
+                  // ✅ إذا بدك كمان سطر أحمر تحت الاسم (اختياري)
                   if (isClosed && closedText != null) ...[
                     SizedBox(height: 4.h),
                     Text(
@@ -295,6 +322,7 @@ class _StoresTabListState extends State<_StoresTabList>
 
 class _NoGlowBehavior extends ScrollBehavior {
   const _NoGlowBehavior();
+
   @override
   Widget buildOverscrollIndicator(
     BuildContext context,
@@ -330,6 +358,7 @@ class _StoresNavTabState extends State<StoresNavTab>
   ];
 
   late final StoresCubit cubit;
+  late final SuperMarketsListCubit superMarketsCubit;
 
   @override
   void initState() {
@@ -368,7 +397,6 @@ class _StoresNavTabState extends State<StoresNavTab>
     return UrlHelper.toFullUrl(picked);
   }
 
-  late final SuperMarketsListCubit superMarketsCubit;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -419,6 +447,7 @@ class _StoresNavTabState extends State<StoresNavTab>
               );
             }),
           ),
+
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15.r),
@@ -426,6 +455,9 @@ class _StoresNavTabState extends State<StoresNavTab>
                 controller: _tabController,
                 physics: const BouncingScrollPhysics(),
                 children: [
+                  /// ============================
+                  /// Restaurants
+                  /// ============================
                   BlocBuilder<StoresCubit, StoresState>(
                     bloc: cubit,
                     builder: (context, state) {
@@ -484,8 +516,24 @@ class _StoresNavTabState extends State<StoresNavTab>
                                   const SizedBox(height: 12),
                               itemBuilder: (context, i) {
                                 final r = restaurants[i];
+                                final isClosed = !r.isOpen;
+
                                 return GestureDetector(
                                   onTap: () {
+                                    // ✅ (اختياري) امنع فتح التفاصيل إذا مسكر
+                                    if (isClosed) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "restaurant.closed".tr(),
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => BlocProvider(
@@ -505,8 +553,8 @@ class _StoresNavTabState extends State<StoresNavTab>
                                     rating: r.ratingAvg,
                                     orders: _ordersText(r),
                                     time: _deliveryFeeText(r),
-
-                                    isClosed: false,
+                                    isClosed: isClosed,
+                                    closedText: "restaurant.closed".tr(),
                                   ),
                                 );
                               },
@@ -517,6 +565,9 @@ class _StoresNavTabState extends State<StoresNavTab>
                     },
                   ),
 
+                  /// ============================
+                  /// Supermarkets
+                  /// ============================
                   BlocBuilder<SuperMarketsListCubit, SuperMarketsListState>(
                     bloc: superMarketsCubit,
                     builder: (context, state) {
