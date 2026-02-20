@@ -106,7 +106,7 @@ class _HomeState extends State<Home> with RouteAware {
 
   @override
   void didPopNext() {
-    _refreshHomeAndCart();
+    context.read<CartCubit>().loadCart();
   }
 
   // ===== Helpers =====
@@ -179,7 +179,7 @@ class _HomeState extends State<Home> with RouteAware {
       ),
     );
 
-    await _refreshHomeAndCart();
+    context.read<CartCubit>().loadCart();
   }
 
   Future<void> _openMarket(dynamic m) async {
@@ -203,7 +203,7 @@ class _HomeState extends State<Home> with RouteAware {
       ),
     );
 
-    await _refreshHomeAndCart();
+    context.read<CartCubit>().loadCart();
   }
 
   Widget _shimmerBox({
