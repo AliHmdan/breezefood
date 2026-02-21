@@ -2,9 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-/// ✅ Cache Manager مخصص
+/// =======================================================
+/// ✅ Custom Cache Manager
+/// =======================================================
 class AppCacheManager {
-  static final instance = CacheManager(
+  static final CacheManager instance = CacheManager(
     Config(
       'breezfoodCache',
       stalePeriod: const Duration(days: 30),
@@ -13,6 +15,126 @@ class AppCacheManager {
   );
 }
 
+/// =======================================================
+/// ✅ Helper: Convert Backend Path → Full URL
+/// =======================================================
+class AppImageUrl {
+  static const String base = "https://breezefood.cloud";
+
+  static String? toFull(String? path) {
+    if (path == null) return null;
+
+    var p = path.trim();
+    if (p.isEmpty) return null;
+
+    // already full url
+    if (p.startsWith("http://") || p.startsWith("https://")) {
+      return p;
+    }
+
+    // block local paths
+    if (p.contains(r":\") || p.startsWith("file:")) return null;
+
+    // normalize slashes
+    p = p.replaceAll("\\", "/");
+    p = p.replaceAll(RegExp(r'/{2,}'), '/');
+
+    // remove public prefix
+    if (p.startsWith("/public/")) {
+      p = p.replaceFirst("/public/", "/");
+    }
+    if (p.startsWith("public/")) {
+      p = p.replaceFirst("public/", "/");
+    }
+
+    // ensure leading slash
+    if (!p.startsWith("/")) {
+      p = "/$p";
+    }
+
+    // restaurants logos fix
+    if (p.startsWith("/restaurants/logos/")) {
+      p = "/uploads$p";
+    }
+
+    // restaurants covers fix
+    if (RegExp(r'^/restaurants/\d+/covers/').hasMatch(p)) {
+      p = "/uploads$p";
+    }
+
+    return "$base$p";
+  }
+}
+
+/// =======================================================
+/// ✅ Generic Network Image (No Flicker Version)
+/// =======================================================
+class AppNetworkImage extends StatelessWidget {
+  final String? path;
+  final double height;
+  final double? width;
+  final BoxFit fit;
+  final BorderRadius? radius;
+  final Widget? fallback;
+
+  const AppNetworkImage({
+    super.key,
+    required this.path,
+    required this.height,
+    this.width,
+    this.fit = BoxFit.cover,
+    this.radius,
+    this.fallback,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final url = AppImageUrl.toFull(path);
+
+    final fb = fallback ??
+        Container(
+          height: height,
+          width: width ?? double.infinity,
+          color: Colors.grey.shade800,
+          alignment: Alignment.center,
+          child: const Icon(Icons.restaurant, color: Colors.white),
+        );
+
+    if (url == null || url.trim().isEmpty) {
+      return fb;
+    }
+
+    Widget image = CachedNetworkImage(
+      imageUrl: url,
+      cacheManager: AppCacheManager.instance,
+      height: height,
+      width: width ?? double.infinity,
+      fit: fit,
+
+      /// 🚀 Prevent flicker
+      fadeInDuration: Duration.zero,
+      fadeOutDuration: Duration.zero,
+      useOldImageOnUrlChange: true,
+
+      /// 🚀 Improve memory caching
+      memCacheWidth: 1200,
+      memCacheHeight: 1200,
+
+      /// ❌ No placeholder to avoid flash
+      errorWidget: (_, __, ___) => fb,
+    );
+
+    if (radius != null) {
+      return ClipRRect(borderRadius: radius!, child: image);
+    }
+
+    return image;
+  }
+}
+
+/// =======================================================
+/// ✅ Simple AppImage (Direct URL Usage)
+/// =======================================================
 class AppImage extends StatelessWidget {
   final String url;
   final double? width;
@@ -46,7 +168,7 @@ class AppImage extends StatelessWidget {
           : fallback;
     }
 
-    final image = CachedNetworkImage(
+    Widget image = CachedNetworkImage(
       imageUrl: url,
       cacheManager: AppCacheManager.instance,
       width: width,
@@ -55,158 +177,13 @@ class AppImage extends StatelessWidget {
       fadeInDuration: Duration.zero,
       fadeOutDuration: Duration.zero,
       useOldImageOnUrlChange: true,
-      placeholder: (_, __) => fallback,
+      memCacheWidth: 1200,
+      memCacheHeight: 1200,
       errorWidget: (_, __, ___) => fallback,
     );
 
     return borderRadius != null
         ? ClipRRect(borderRadius: borderRadius!, child: image)
         : image;
-  }
-}
-
-class AppImageUrl {
-  static const String base = "https://breezefood.cloud";
-
-  static bool isNetwork(String? s) {
-    if (s == null) return false;
-    final p = s.trim().toLowerCase();
-    return p.startsWith("http://") || p.startsWith("https://");
-  }
-
-  static String? toFull(String? path) {
-    if (path == null) return null;
-    var p = path.trim();
-    if (p.isEmpty) return null;
-
-    // already full
-    if (p.startsWith("http://") || p.startsWith("https://")) return p;
-
-    // block local paths
-    if (p.contains(r":\") || p.startsWith("file:")) return null;
-
-    // normalize slashes
-    p = p.replaceAll("\\", "/");
-    p = p.replaceAll(RegExp(r'/{2,}'), '/');
-
-    // remove public prefix if exists
-    if (p.startsWith("/public/")) p = p.replaceFirst("/public/", "/");
-    if (p.startsWith("public/")) p = p.replaceFirst("public/", "/");
-
-    // ensure leading slash
-    if (!p.startsWith("/")) p = "/$p";
-
-    // ✅ critical fix: restaurants/logos => /uploads/restaurants/logos
-    if (p.startsWith("/restaurants/logos/")) {
-      p = "/uploads$p";
-    }
-    // ✅ critical fix: restaurants/logos => /uploads/restaurants/logos
-    if (p.startsWith("/restaurants/logos/")) {
-      p = "/uploads$p";
-    }
-
-    // ✅ NEW: restaurants/{id}/covers => /uploads/restaurants/{id}/covers
-    if (RegExp(r'^/restaurants/\d+/covers/').hasMatch(p)) {
-      p = "/uploads$p";
-    }
-
-    // ✅ optional: some backends send logos/... directly
-    if (p.startsWith("/logos/")) {
-      p = "/public/uploads$p"; // إذا عندكم هذا المسار فعلاً
-      // إذا ما عندكم public/uploads احذف هالسطر
-    }
-
-    return "$base$p";
-  }
-}
-
-class AppNetworkImage extends StatelessWidget {
-  final String? path; // raw or full
-  final double height;
-  final double? width;
-  final BoxFit fit;
-  final BorderRadius? radius;
-  final Widget? fallback;
-
-  const AppNetworkImage({
-    super.key,
-    required this.path,
-    required this.height,
-    this.width,
-    this.fit = BoxFit.cover,
-    this.radius,
-    this.fallback,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final url = AppImageUrl.toFull(path);
-
-    final fb =
-        fallback ??
-        Container(
-          height: height,
-          width: width ?? double.infinity,
-          color: Colors.grey.shade800,
-          alignment: Alignment.center,
-          child: const Icon(Icons.restaurant, color: Colors.white),
-        );
-
-    Widget body;
-    if (url == null || url.trim().isEmpty) {
-      body = fb;
-    } else {
-      body = CachedNetworkImage(
-        imageUrl: url,
-        cacheManager: AppCacheManager.instance,
-        height: height,
-        width: width ?? double.infinity,
-        fit: fit,
-        fadeInDuration: Duration.zero,
-        fadeOutDuration: Duration.zero,
-        useOldImageOnUrlChange: true,
-        // placeholder: (context, _) {
-        //   return Container(
-        //     height: height,
-        //     width: width ?? double.infinity,
-        //     color: Colors.grey.shade900,
-        //     alignment: Alignment.center,
-        //     child: const SizedBox(
-        //       width: 22,
-        //       height: 22,
-        //       child: CircularProgressIndicator(strokeWidth: 2),
-        //     ),
-        //   );
-        // },
-        errorWidget: (context, _, __) => fb,
-      );
-
-      //     Image.network(
-      //   url,
-      //   height: height,
-      //   width: width ?? double.infinity,
-      //   fit: fit,
-      //   errorBuilder: (_, __, ___) => fb,
-      //   loadingBuilder: (context, child, progress) {
-      //     if (progress == null) return child;
-      //     return Container(
-      //       height: height,
-      //       width: width ?? double.infinity,
-      //       color: Colors.grey.shade900,
-      //       alignment: Alignment.center,
-      //       child: const SizedBox(
-      //         width: 22,
-      //         height: 22,
-      //         child: CircularProgressIndicator(strokeWidth: 2),
-      //       ),
-      //     );
-      //   },
-      // );
-    }
-
-    if (radius != null) {
-      return ClipRRect(borderRadius: radius!, child: body);
-    }
-    return body;
   }
 }

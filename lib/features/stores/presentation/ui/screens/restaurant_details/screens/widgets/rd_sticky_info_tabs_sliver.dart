@@ -2,6 +2,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/services/pick_by_langu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'rd_tabs_bar.dart';
 
@@ -48,11 +49,12 @@ class RDStickyInfoTabsSliver extends StatelessWidget {
         child: Transform.translate(
           offset: Offset(0, roundedTop ? 0 : 0),
           child: Material(
+
             clipBehavior: Clip.antiAlias,
             borderRadius: roundedTop
                 ? BorderRadius.only(
-                    topLeft: Radius.circular(20.r),
-                    topRight: Radius.circular(20.r),
+                    topLeft: Radius.circular(25.r),
+                    topRight: Radius.circular(25.r),
                   )
                 : BorderRadius.zero,
             child: Container(
@@ -64,12 +66,12 @@ class RDStickyInfoTabsSliver extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.w,
-                      vertical: 10.h,
+                      vertical: 8.h,
                     ),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 14.w,
-                        vertical: 12.h,
+                        vertical: 8.h,
                       ),
                       decoration: BoxDecoration(
                         color: AppColor.Dark,
@@ -124,12 +126,12 @@ class RDStickyInfoTabsSliver extends StatelessWidget {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.local_shipping_outlined,
-                                  color: Colors.white,
-                                  size: 18,
+                                Image.asset(
+                                  "assets/icons/brezee_motor.png",
+                                  width: 70.w,
+                                  height: 70.h,
                                 ),
-                                SizedBox(height: 4.h),
+                                // SizedBox(height: 4.h),
                                 if (showTwoPrices) ...[
                                   Text(
                                     deliveryBaseText,
@@ -177,12 +179,13 @@ class RDStickyInfoTabsSliver extends StatelessWidget {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.timer_outlined,
-                                  color: Colors.white,
-                                  size: 18,
+                                Image.asset(
+                                  "assets/icons/brezee_time.png",
+                                  width: 70.w,
+                                  height: 70.h,
+
                                 ),
-                                SizedBox(height: 4.h),
+                                // SizedBox(height: 4.h),
                                 Text(
                                   deliveryTimeText,
                                   style: TextStyle(
@@ -233,10 +236,10 @@ class _RDStickyDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get minExtent => 130.h;
+  double get minExtent => 165.h;
 
   @override
-  double get maxExtent => 130.h;
+  double get maxExtent => 165.h;
 
   @override
   Widget build(

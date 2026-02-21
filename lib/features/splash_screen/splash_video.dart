@@ -40,11 +40,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
     } catch (_) {}
 
     // load كلاتهم سوا
-    await Future.wait([
-      home.load(),
-      profile.load(),
-      cart.loadCart(),
-    ]);
+    await Future.wait([home.load(), profile.load(), cart.loadCart()]);
   }
 
   Future<void> _initVideo() async {
@@ -73,9 +69,9 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const MainShell()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const MainShell()));
   }
 
   Future<void> _toggleMute() async {
@@ -100,16 +96,19 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          Center(
-            child: initialized
-                ? AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                : const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-          ),
+          if (initialized)
+            SizedBox.expand(
+              child: FittedBox(
+                fit: BoxFit.cover, // 👈 هذا المهم
+                child: SizedBox(
+                  width: _controller.value.size.width,
+                  height: _controller.value.size.height,
+                  child: VideoPlayer(_controller),
+                ),
+              ),
+            )
+          else
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
 
           // ✅ مؤشر صغير فقط إذا الفيديو شغال ولسا اللود ما خلص
           Positioned(
@@ -145,9 +144,7 @@ class _SplashVideoScreenState extends State<SplashVideoScreen> {
                     shape: const CircleBorder(),
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
-                      icon: Icon(
-                        _isMuted ? Icons.volume_off : Icons.volume_up,
-                      ),
+                      icon: Icon(_isMuted ? Icons.volume_off : Icons.volume_up),
                       color: Colors.white,
                       onPressed: _toggleMute,
                     ),
