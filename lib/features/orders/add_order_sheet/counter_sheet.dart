@@ -74,7 +74,7 @@ class CounterSheet extends StatelessWidget {
                   children: [
                     Material(
                       color: Colors.transparent,
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: (isLoading || count <= 1) ? null : onDec,
                         child: const CircleAvatar(
                           backgroundColor: Colors.white,
@@ -93,7 +93,7 @@ class CounterSheet extends StatelessWidget {
                     const SizedBox(width: 10),
                     Material(
                       color: Colors.transparent,
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: isLoading ? null : onInc,
                         child: const CircleAvatar(
                           backgroundColor: AppColor.primaryColor,
@@ -134,10 +134,10 @@ class CounterSheet extends StatelessWidget {
                           onAdd(count);
                         },
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
+                          padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 3),
+                          child: Column(
+                            // mainAxisAlignment: MainAxisAlignment.center,
+                            // mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
                                 child: AnimatedSwitcher(
@@ -159,12 +159,8 @@ class CounterSheet extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(width: 6.w),
-                              Container(
-                                width: 1,
-                                height: 16,
-                                color: Colors.white.withOpacity(0.5),
-                              ),
-                              SizedBox(width: 6.w),
+
+
                               Text(
                                 context.money(total),
                                 maxLines: 1,

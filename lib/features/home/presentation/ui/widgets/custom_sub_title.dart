@@ -25,7 +25,7 @@ class CustomSubTitle extends StatelessWidget {
               ? 'Cairo'
               : 'Inter',
 
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
         ),
         maxLines: 2, // 👈 سطرين فقط
         overflow: TextOverflow.ellipsis, // 👈 يظهر ...

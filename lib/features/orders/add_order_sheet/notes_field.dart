@@ -33,11 +33,11 @@ class NotesField extends StatelessWidget {
             filled: true,
             fillColor: Colors.white10,
             contentPadding: EdgeInsets.symmetric(
-              vertical: 28.h,
+              vertical: 10.h,
               horizontal: 12.w,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(16.r),
               borderSide: BorderSide.none,
             ),
           ),

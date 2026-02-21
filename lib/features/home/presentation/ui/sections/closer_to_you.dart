@@ -61,17 +61,21 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
           Stack(
             children: [
               // ✅ Open/Closed badge
-              AppNetworkImage(
-                path: widget.image,
-                height: 100.h,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                radius: BorderRadius.circular(12.r),
-                fallback: Image.asset(
-                  "assets/images/meal_breeze.jpeg",
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child:
+                AppNetworkImage(
+                  path: widget.image,
                   height: 100.h,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                 
+                  fallback: Image.asset(
+                    "assets/images/meal_breeze.jpeg",
+                    height: 100.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               if (!widget.isOpen) const ClosedOverlay(),
@@ -82,7 +86,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2), //   خلفية خفيفة
-                    borderRadius: BorderRadius.circular(10.r),
+                    borderRadius: BorderRadius.circular(12.r),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.15),

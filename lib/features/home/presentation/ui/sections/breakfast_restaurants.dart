@@ -61,10 +61,22 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
         children: [
           Stack(
             children: [
-              AppNetworkImage(
-                path: widget.image,
-                height: 100.h,
-                radius: BorderRadius.circular(12.r),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child:
+                AppNetworkImage(
+                  path: widget.image,
+                  height: 100.h,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+
+                  fallback: Image.asset(
+                    "assets/images/meal_breeze.jpeg",
+                    height: 100.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
               // ✅ Open/Closed badge
                   if (!widget.isOpen) const ClosedOverlay(),
@@ -103,58 +115,7 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
                 ),
               ),
 
-              // Name center
-              // Positioned.fill(
-              //   child: Center(
-              //     child:
-              //     Padding(
-              //       padding: EdgeInsets.symmetric(horizontal: 8.w),
-              //       child: Text(
-              //         widget.name,
-              //         textAlign: TextAlign.center,
-              //         maxLines: 2,
-              //         overflow: TextOverflow.ellipsis,
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 15.sp,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              //
-              // // "Breakfast" chip
-              // PositionedDirectional(
-              //   bottom: 6,
-              //   start: 6,
-              //   child: Container(
-              //     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-              //     decoration: BoxDecoration(
-              //       color: Colors.black.withOpacity(0.35),
-              //       borderRadius: BorderRadius.circular(10.r),
-              //       border: Border.all(color: Colors.white.withOpacity(0.08)),
-              //     ),
-              //     child: Row(
-              //       children: [
-              //         Icon(
-              //           Icons.free_breakfast_rounded,
-              //           size: 14.sp,
-              //           color: Colors.white,
-              //         ),
-              //         SizedBox(width: 4.w),
-              //         Text(
-              //           "home.breakfast_chip".tr(),
-              //           style: TextStyle(
-              //             color: Colors.white,
-              //             fontSize: 11.sp,
-              //             fontWeight: FontWeight.w600,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
+
             ],
           ),
           Padding(

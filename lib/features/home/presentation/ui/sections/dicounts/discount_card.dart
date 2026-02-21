@@ -192,7 +192,7 @@ class Discount extends StatelessWidget {
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: AppColor.red,
                           borderRadius: BorderRadiusDirectional.only(
                             // topStart:  Radius.circular(12.r),
                             bottomStart: Radius.circular(12.r),

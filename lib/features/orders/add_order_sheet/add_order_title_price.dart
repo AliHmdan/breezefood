@@ -20,40 +20,44 @@ class AddOrderTitlePrice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: CustomSubTitle(
+    return
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          CustomSubTitle(
             subtitle: title.isEmpty ? "Empty" : title,
             color: AppColor.white,
-            fontsize: 16.sp,
+            fontsize: 22.sp,
+
           ),
-        ),
-        Row(
-          children: [
-            if (hasDiscount) ...[
+
+          SizedBox(height: 8.h),
+
+          Row(
+            children: [
+              if (hasDiscount) ...[
+                Text(
+                  context.money(oldPrice),
+                  style: TextStyle(
+                    color: AppColor.gry,
+                    fontSize: 14.sp,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+              ],
               Text(
-                context.money(oldPrice),
+                context.money(price),
                 style: TextStyle(
-                  color: AppColor.red,
-                  fontSize: 12.sp,
-                  decoration: TextDecoration.lineThrough,
+                  color: hasDiscount ? AppColor.red : AppColor.white,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(width: 8.w),
             ],
-            Text(
-              context.money(price),
-              style: TextStyle(
-                color: AppColor.yellow,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+          ),
+        ],
+      );
   }
 }

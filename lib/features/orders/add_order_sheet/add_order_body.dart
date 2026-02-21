@@ -46,9 +46,10 @@ class AddOrderBody extends StatefulWidget {
   State<AddOrderBody> createState() => _AddOrderBodyState();
 }
 
-int _qty = 1;
+
 
 class _AddOrderBodyState extends State<AddOrderBody> {
+  int _qty = 1;
   bool _withSpicy = false;
 
   // ✅ REQUIRED animation trigger
@@ -191,7 +192,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
 
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 16,
                       vertical: 12,
                     ),
                     child: Column(
