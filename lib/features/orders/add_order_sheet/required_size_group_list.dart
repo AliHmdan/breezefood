@@ -4,6 +4,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_titl
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as mt;
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'required_badge_animated.dart';
@@ -72,6 +73,7 @@ class RequiredSizeGroupList extends StatelessWidget {
                         ),
                         onChanged: (val) {
                           if (val == null) return;
+                          HapticFeedback.vibrate();
                           onSelect(val);
                         },
                       ),

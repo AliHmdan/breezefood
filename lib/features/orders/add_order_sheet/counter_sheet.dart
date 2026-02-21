@@ -45,17 +45,17 @@ class CounterSheet extends StatelessWidget {
         );
 
     final baseDisabled = isLoading || !isRestaurantOpen;
-    final sizeBlocked = isSizeRequired && !isSizeSelected;
-    final canAdd = !baseDisabled && !sizeBlocked;
+    // final sizeBlocked = isSizeRequired && !isSizeSelected;
+    // final canAdd = !baseDisabled && !sizeBlocked;
 
-    final btnColor = canAdd ? AppColor.primaryColor : AppColor.red;
-
-    final btnText = sizeBlocked
-        ? (context.locale.languageCode == "ar"
-            ? "اختر الحجم (مطلوب)"
-            : "Select size (required)")
-        : "common.AddToCart".tr();
-
+    // final btnColor = canAdd ? AppColor.primaryColor : AppColor.red;
+    final canAdd = !baseDisabled;
+    // final btnText = sizeBlocked
+    //     ? (context.locale.languageCode == "ar"
+    //         ? "اختر الحجم (مطلوب)"
+    //         : "Select size (required)")
+    //     : "common.AddToCart".tr();
+    final btnText = "common.AddToCart".tr();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
       child: Column(
@@ -116,7 +116,7 @@ class CounterSheet extends StatelessWidget {
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOutCubic,
                     decoration: BoxDecoration(
-                      color: btnColor,
+                      color: AppColor.primaryColor,
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Material(
@@ -126,18 +126,17 @@ class CounterSheet extends StatelessWidget {
                         onTap: () {
                           if (baseDisabled) return;
 
-                          if (sizeBlocked) {
-                            onMissingSize?.call();
-                            return;
-                          }
+                          // if (sizeBlocked) {
+                          //   onMissingSize?.call();
+                          //   return;
+                          // }
 
                           onAdd(count);
                         },
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 3),
                           child: Column(
-                            // mainAxisAlignment: MainAxisAlignment.center,
-                            // mainAxisSize: MainAxisSize.min,
+
                             children: [
                               Flexible(
                                 child: AnimatedSwitcher(

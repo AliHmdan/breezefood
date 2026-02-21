@@ -158,7 +158,13 @@ class _ResturantDetailsState extends State<ResturantDetails> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, color: AppColor.red, size: 42.sp),
+
+            Image.asset(
+              'assets/images/wifi.png',
+              width: 450.w,
+              height: 450.h,
+              fit: BoxFit.cover,   // طريقة تمدد الصورة
+            ),
             SizedBox(height: 10.h),
             Text(
               msg,
