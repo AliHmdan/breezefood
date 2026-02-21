@@ -23,7 +23,7 @@ import 'package:flutter_svg/svg.dart';
 /// ✅ Closed Overlay (نفس الستايل اللي عندك)
 /// ===============================================
 class ClosedOverlay extends StatelessWidget {
-  const ClosedOverlay({super.key, this.radius = 16, this.text});
+  const ClosedOverlay({super.key, this.radius = 1, this.text});
 
   final double radius;
   final String? text;
@@ -32,10 +32,7 @@ class ClosedOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.45),
-          borderRadius: BorderRadius.circular(radius.r),
-        ),
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.45)),
         child: Center(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -400,12 +397,9 @@ class _StoresNavTabState extends State<StoresNavTab>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.Dark,
       body: Column(
         children: [
           CustomAppbarProfile(ontap: () {}, title: "stores.title".tr()),
-
-          // Tabs
           Row(
             children: List.generate(_titlesKeys.length, (index) {
               final bool isSelected = _tabController.index == index;
@@ -520,20 +514,6 @@ class _StoresNavTabState extends State<StoresNavTab>
 
                                 return GestureDetector(
                                   onTap: () {
-                                    // ✅ (اختياري) امنع فتح التفاصيل إذا مسكر
-                                    if (isClosed) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "restaurant.closed".tr(),
-                                          ),
-                                        ),
-                                      );
-                                      return;
-                                    }
-
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => BlocProvider(

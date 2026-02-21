@@ -27,21 +27,20 @@ class _MainShellState extends State<MainShell> {
 
   late final FavoritesCubit _favoritesCubit;
 
-final _pages = <Widget>[
-  MultiBlocProvider(
-    providers: [
-      BlocProvider.value(value: getIt<HomeCubit>()),
-      BlocProvider.value(value: getIt<ProfileCubit>()),
-      BlocProvider.value(value: getIt<CartCubit>()),
-      BlocProvider(create: (_) => getIt<OrderFlowCubit>()), // هاد عادي
-    ],
-    child: const Home(),
-  ),
-  StoresNavTab(),
-  FavoritePage(),
-  BlocProvider(create: (_) => getIt<OrdersCubit>(), child: Orders()),
-];
-
+  final _pages = <Widget>[
+    MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: getIt<HomeCubit>()),
+        BlocProvider.value(value: getIt<ProfileCubit>()),
+        BlocProvider.value(value: getIt<CartCubit>()),
+        BlocProvider(create: (_) => getIt<OrderFlowCubit>()), // هاد عادي
+      ],
+      child: const Home(),
+    ),
+    StoresNavTab(),
+    FavoritePage(),
+    BlocProvider(create: (_) => getIt<OrdersCubit>(), child: Orders()),
+  ];
 
   @override
   void initState() {
@@ -76,8 +75,6 @@ final _pages = <Widget>[
     return BlocProvider.value(
       value: _favoritesCubit,
       child: Scaffold(
-        backgroundColor: AppColor.Dark,
-        extendBody: true,
         body: IndexedStack(index: _index, children: _pages),
         bottomNavigationBar: BottomNavBreeze(
           currentIndex: _index,

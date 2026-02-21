@@ -26,7 +26,6 @@ class RDHeaderSliver extends StatelessWidget {
   final bool innerBoxIsScrolled;
 
   static double get _overlap => 24.0;
-
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;

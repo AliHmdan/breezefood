@@ -45,7 +45,6 @@ class BottomNavBreeze extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxLabelWidth = 72.w; // عدّلها إذا بدك، بس هي غالباً ممتازة
 
     return
      SafeArea(

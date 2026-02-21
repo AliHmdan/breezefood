@@ -22,7 +22,7 @@ class RestaurantDetailsScrollController {
   final activeIndex = ValueNotifier<int>(0);
 
   final categoryKeys = <GlobalKey>[];
-  final categoryOffsets = <double>[]; 
+  final categoryOffsets = <double>[];
 
   bool isProgrammatic = false;
   int _dbgTick = 0;
@@ -172,27 +172,23 @@ class RestaurantDetailsScrollController {
     isProgrammatic = true;
 
     try {
-      if (outer.hasClients) {
-        final maxOuter = outer.position.maxScrollExtent;
-        if ((maxOuter - outer.offset) > 0.5) {
-          await outer.animateTo(
-            maxOuter,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-          );
-          await Future.delayed(const Duration(milliseconds: 16));
-        }
-      }
-
       recalcOffsets();
       if (index >= categoryOffsets.length) return;
 
       final max = innerCtl.position.maxScrollExtent;
       final bool isLast = index == categoryKeys.length - 1;
 
-      final raw = categoryOffsets[index] - stickyHeaderExtent - titleTopPadding;
-
-      final target = isLast ? max : raw.clamp(0.0, max);
+      double target;
+      if (index == 0) {
+        target = -100; // العودة إلى أعلى الصفحة مباشرة
+      } else {
+        final raw =
+            categoryOffsets[index] -
+            stickyHeaderExtent -
+            titleTopPadding -
+            23.h;
+        target = isLast ? max : raw.clamp(0.0, max); // التمرير لبقية الفئات
+      }
 
       await innerCtl.animateTo(
         target,
