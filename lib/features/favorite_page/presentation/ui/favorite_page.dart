@@ -69,10 +69,7 @@ class FavoritePageState extends State<FavoritePage> {
               child: Center(
                 child: SvgPicture.asset(
                   "assets/icons/delete.svg",
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   width: 30.w,
                   height: 30.h,
                 ),
@@ -84,28 +81,18 @@ class FavoritePageState extends State<FavoritePage> {
           padding: const EdgeInsetsDirectional.only(end: 8),
           child: Container(
             padding: const EdgeInsetsDirectional.only(start: 1, end: 10),
-            decoration: BoxDecoration(
-              color: AppColor.black,
-              borderRadius: BorderRadius.circular(15),
-            ),
+            decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(15)),
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadiusDirectional.only(
-                    topEnd: Radius.circular(40),
-                    bottomEnd: Radius.circular(40),
-                  ),
+                  borderRadius: const BorderRadiusDirectional.only(topEnd: Radius.circular(40), bottomEnd: Radius.circular(40)),
                   child: (imageUrl ?? "").trim().isEmpty
                       ? Container(
                           width: 120.w,
                           height: 100.h,
                           color: AppColor.Dark,
                           child: Center(
-                            child: Icon(
-                              Icons.fastfood,
-                              color: AppColor.white,
-                              size: 30.sp,
-                            ),
+                            child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
                           ),
                         )
                       : Image.network(
@@ -118,11 +105,7 @@ class FavoritePageState extends State<FavoritePage> {
                             height: 100.h,
                             color: AppColor.Dark,
                             child: Center(
-                              child: Icon(
-                                Icons.fastfood,
-                                color: AppColor.white,
-                                size: 30.sp,
-                              ),
+                              child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
                             ),
                           ),
                         ),
@@ -133,17 +116,9 @@ class FavoritePageState extends State<FavoritePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomSubTitle(
-                        subtitle: item.nameAr,
-                        color: AppColor.white,
-                        fontsize: 14.sp,
-                      ),
+                      CustomSubTitle(subtitle: item.nameAr, color: AppColor.white, fontsize: 14.sp),
                       const SizedBox(height: 4),
-                      CustomSubTitle(
-                        subtitle: item.restaurantName,
-                        color: AppColor.white,
-                        fontsize: 12.sp,
-                      ),
+                      CustomSubTitle(subtitle: item.restaurantName, color: AppColor.white, fontsize: 12.sp),
                       const SizedBox(height: 4),
                       RichText(
                         text: TextSpan(
@@ -153,13 +128,7 @@ class FavoritePageState extends State<FavoritePage> {
 
                               style: TextStyle(
                                 color: AppColor.white,
-                                fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
-                                    ? 'Cairo'
-                                    : 'Inter',
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -167,13 +136,7 @@ class FavoritePageState extends State<FavoritePage> {
                               text: context.syp(item.price),
                               style: TextStyle(
                                 color: AppColor.yellow,
-                                fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
-                                    ? 'Cairo'
-                                    : 'Inter',
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.sp,
                               ),
@@ -221,16 +184,10 @@ class FavoritePageState extends State<FavoritePage> {
         },
         child: BlocBuilder<FavoritesCubit, FavoritesState>(
           builder: (context, state) {
-            final items = state.maybeWhen(
-              loaded: (items) => items,
-              orElse: () => const <FavoriteItem>[],
-            );
+            final items = state.maybeWhen(loaded: (items) => items, orElse: () => const <FavoriteItem>[]);
 
             // ✅ لا نعرض spinner إلا لو فعلاً state=loading (وهذا بيصير فقط بالـ load العادي)
-            final isLoading = state.maybeWhen(
-              loading: () => true,
-              orElse: () => false,
-            );
+            final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
             return RefreshIndicator(
               onRefresh: _handleRefresh,
@@ -238,10 +195,7 @@ class FavoritePageState extends State<FavoritePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    CustomAppbarProfile(
-                      ontap: () {},
-                      title: "favorites.title".tr(),
-                    ),
+                    CustomAppbarProfile(ontap: () {}, title: "favorites.title".tr()),
 
                     Expanded(
                       child: isLoading
@@ -251,23 +205,13 @@ class FavoritePageState extends State<FavoritePage> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.favorite_border,
-                                    color: AppColor.white,
-                                    size: 50,
-                                  ),
+                                  Icon(Icons.favorite_border, color: AppColor.white, size: 50),
                                   SizedBox(height: 10.h),
                                   Text(
                                     "favorites.empty".tr(),
                                     style: TextStyle(
                                       color: Colors.white70,
-                                      fontFamily:
-                                          Localizations.localeOf(
-                                                context,
-                                              ).languageCode ==
-                                              'ar'
-                                          ? 'Cairo'
-                                          : 'Inter',
+                                      fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                                     ),
                                   ),
                                 ],
@@ -275,10 +219,7 @@ class FavoritePageState extends State<FavoritePage> {
                             )
                           : ListView(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              children: [
-                                for (final f in items) _buildOrderCard(f),
-                                const SizedBox(height: 40),
-                              ],
+                              children: [for (final f in items) _buildOrderCard(f), const SizedBox(height: 40)],
                             ),
                     ),
                   ],

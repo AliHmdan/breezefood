@@ -27,13 +27,7 @@ class CustomTitleSection extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? ontap;
 
-  const CustomTitleSection({
-    required this.title,
-    this.all,
-    this.icon,
-    this.ontap,
-    super.key,
-  });
+  const CustomTitleSection({required this.title, this.all, this.icon, this.ontap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +40,7 @@ class CustomTitleSection extends StatelessWidget {
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
             color: AppColor.white,
-            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                ? 'Cairo'
-                : 'Inter',
+            fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
           ),
         ),
         if (all != null && ontap != null)
@@ -61,10 +53,7 @@ class CustomTitleSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: AppColor.white,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                   ),
                 ),
                 SizedBox(width: 4.w),
@@ -86,12 +75,7 @@ class MostPopularSection extends StatelessWidget {
   final int? restaurantId;
   final bool isRestaurantOpen; // ✅ جديد
 
-  const MostPopularSection({
-    super.key,
-    required this.items,
-    this.restaurantId,
-    required this.isRestaurantOpen,
-  });
+  const MostPopularSection({super.key, required this.items, this.restaurantId, required this.isRestaurantOpen});
 
   @override
   Widget build(BuildContext context) {
@@ -108,10 +92,7 @@ class MostPopularSection extends StatelessWidget {
       _ => MediaQuery.of(context).size.width - 20,
     };
 
-    containerWidth = containerWidth.clamp(
-      0.0,
-      MediaQuery.of(context).size.width - 20,
-    );
+    containerWidth = containerWidth.clamp(0.0, MediaQuery.of(context).size.width - 20);
 
     return Column(
       children: [
@@ -141,9 +122,7 @@ class MostPopularSection extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count,
-            physics: count <= 2
-                ? const NeverScrollableScrollPhysics()
-                : const BouncingScrollPhysics(),
+            physics: count <= 2 ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               final item = items[index];
 
@@ -163,11 +142,7 @@ class MostPopularSection extends StatelessWidget {
                       final resolvedRestaurantId = restaurantId ?? 0;
 
                       if (resolvedRestaurantId == 0 || menuItemId == 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("لا يمكن تحديد المطعم أو الوجبة"),
-                          ),
-                        );
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("لا يمكن تحديد المطعم أو الوجبة")));
                         return;
                       }
 
@@ -176,13 +151,9 @@ class MostPopularSection extends StatelessWidget {
                         restaurantId: resolvedRestaurantId,
                         menuItemId: menuItemId,
                         title: title,
-                        price: (item.priceAfter > 0
-                            ? item.priceAfter
-                            : item.priceBefore),
+                        price: (item.priceAfter > 0 ? item.priceAfter : item.priceBefore),
                         oldPrice: item.priceBefore,
-                        imagePathOrUrl:
-                            item.primaryImage?.imageUrl ??
-                            "assets/images/shawarma_box.png",
+                        imagePathOrUrl: item.primaryImage?.imageUrl ?? "assets/images/shawarma_box.png",
                         description: "",
                         extraMeals: const <MenuExtra>[],
                         isRestaurantOpen: isRestaurantOpen,
@@ -214,11 +185,7 @@ class PopularItemCard extends StatefulWidget {
   final MenuItemModel item;
   final bool isRestaurantOpen;
 
-  const PopularItemCard({
-    super.key,
-    required this.item,
-    required this.isRestaurantOpen,
-  });
+  const PopularItemCard({super.key, required this.item, required this.isRestaurantOpen});
 
   @override
   State<PopularItemCard> createState() => _PopularItemCardState();
@@ -238,8 +205,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
   void didUpdateWidget(covariant PopularItemCard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.item.id != widget.item.id ||
-        oldWidget.item.isFavorite != widget.item.isFavorite) {
+    if (oldWidget.item.id != widget.item.id || oldWidget.item.isFavorite != widget.item.isFavorite) {
       _isFavorite = widget.item.isFavorite;
     }
   }
@@ -283,19 +249,13 @@ class _PopularItemCardState extends State<PopularItemCard> {
     final title = context.pick(ar: widget.item.nameAr, en: widget.item.nameEn);
 
     // ✅ منطق الخصم الموحد
-    final hasDiscount =
-        widget.item.hasDiscount == true && (widget.item.discountValue ?? 0) > 0;
+    final hasDiscount = widget.item.hasDiscount == true && (widget.item.discountValue ?? 0) > 0;
 
-    final before = (widget.item.priceBefore > 0)
-        ? widget.item.priceBefore
-        : (widget.item.priceAfter > 0 ? widget.item.priceAfter : 0);
+    final before = (widget.item.priceBefore > 0) ? widget.item.priceBefore : (widget.item.priceAfter > 0 ? widget.item.priceAfter : 0);
 
-    final after = (widget.item.priceAfter > 0)
-        ? widget.item.priceAfter
-        : (widget.item.priceBefore > 0 ? widget.item.priceBefore : 0);
+    final after = (widget.item.priceAfter > 0) ? widget.item.priceAfter : (widget.item.priceBefore > 0 ? widget.item.priceBefore : 0);
 
-    final discountType = (widget.item.discountType ?? "percentage")
-        .toLowerCase();
+    final discountType = (widget.item.discountType ?? "percentage").toLowerCase();
     final discountValue = (widget.item.discountValue ?? 0).toDouble();
 
     String _discountBadgeText(BuildContext context) {
@@ -380,24 +340,14 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   bottom: 0,
                   start: 0,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.w,
-                      vertical: 2.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadiusDirectional.only(
-                        topEnd: Radius.circular(12.r),
-                        bottomEnd: Radius.circular(12.r),
-                      ),
+                      borderRadius: BorderRadiusDirectional.only(topEnd: Radius.circular(12.r), bottomEnd: Radius.circular(12.r)),
                     ),
                     child: Text(
                       _discountBadgeText(context),
-                      style: TextStyle(
-                        color: AppColor.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: TextStyle(color: AppColor.white, fontSize: 11.sp, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),
@@ -410,20 +360,10 @@ class _PopularItemCardState extends State<PopularItemCard> {
                   size: 26,
                   isLiked: _isFavorite,
                   animationDuration: const Duration(milliseconds: 500),
-                  circleColor: CircleColor(
-                    start: Colors.redAccent,
-                    end: Colors.red,
-                  ),
-                  bubblesColor: const BubblesColor(
-                    dotPrimaryColor: Colors.red,
-                    dotSecondaryColor: Colors.redAccent,
-                  ),
+                  circleColor: CircleColor(start: Colors.redAccent, end: Colors.red),
+                  bubblesColor: const BubblesColor(dotPrimaryColor: Colors.red, dotSecondaryColor: Colors.redAccent),
                   likeBuilder: (bool isLiked) {
-                    return Icon(
-                      isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: isLiked ? Colors.red : Colors.white,
-                      size: 22,
-                    );
+                    return Icon(isLiked ? Icons.favorite : Icons.favorite_border, color: isLiked ? Colors.red : Colors.white, size: 22);
                   },
                   onTap: (bool isLiked) async {
                     if (_sending) return isLiked;
@@ -457,10 +397,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                     color: AppColor.white,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.bold,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                   ),
                 ),
 
@@ -471,10 +408,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                       color: AppColor.white,
                       fontSize: 12.sp,
                       // fontWeight: FontWeight.bold,
-                      fontFamily:
-                          Localizations.localeOf(context).languageCode == 'ar'
-                          ? 'Cairo'
-                          : 'Inter',
+                      fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                     ),
                   )
                 else
@@ -486,11 +420,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                           color: AppColor.LightActive,
                           fontSize: 11.sp,
                           decoration: TextDecoration.lineThrough,
-                          fontFamily:
-                              Localizations.localeOf(context).languageCode ==
-                                  'ar'
-                              ? 'Cairo'
-                              : 'Inter',
+                          fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                         ),
                       ),
                       SizedBox(width: 1.w),
@@ -500,11 +430,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
                           color: AppColor.red,
                           fontSize: 12.sp,
                           // fontWeight: FontWeight.w800,
-                          fontFamily:
-                              Localizations.localeOf(context).languageCode ==
-                                  'ar'
-                              ? 'Cairo'
-                              : 'Inter',
+                          fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                         ),
                       ),
                     ],
@@ -521,12 +447,7 @@ class _PopularItemCardState extends State<PopularItemCard> {
     return Container(
       color: Colors.grey.shade800,
       alignment: Alignment.center,
-      child: Image.asset(
-        'assets/images/meal_breeze.jpeg',
-        width: double.infinity,
-        height: double.infinity,
-        fit: BoxFit.contain,
-      ),
+      child: Image.asset('assets/images/meal_breeze.jpeg', width: double.infinity, height: double.infinity, fit: BoxFit.contain),
     );
   }
 }

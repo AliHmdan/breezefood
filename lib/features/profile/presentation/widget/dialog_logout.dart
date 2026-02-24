@@ -31,18 +31,12 @@ void showLogoutDialog(BuildContext context) {
 
               Navigator.pop(dialogCtx);
 
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const Login()),
-                (_) => false,
-              );
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const Login()), (_) => false);
             },
           );
         },
         child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           backgroundColor: AppColor.Dark,
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -53,17 +47,10 @@ void showLogoutDialog(BuildContext context) {
                   "assets/icons/logout.svg",
                   width: 35.sp,
                   height: 35.sp,
-                  colorFilter: const ColorFilter.mode(
-                    AppColor.white,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(AppColor.white, BlendMode.srcIn),
                 ),
                 const SizedBox(height: 12),
-                CustomSubTitle(
-                  subtitle: "logout.confirm".tr(),
-                  color: AppColor.white,
-                  fontsize: 14.sp,
-                ),
+                CustomSubTitle(subtitle: "logout.confirm".tr(), color: AppColor.white, fontsize: 14.sp),
 
                 const SizedBox(height: 20),
                 Row(
@@ -71,43 +58,25 @@ void showLogoutDialog(BuildContext context) {
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 40.w,
-                          vertical: 25.h,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 25.h),
                         backgroundColor: AppColor.black,
                         foregroundColor: AppColor.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11.r),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11.r)),
                       ),
                       onPressed: () {
                         cubit.logout();
                       },
-                      child: CustomSubTitle(
-                        subtitle: "common.yes".tr(),
-                        color: AppColor.white,
-                        fontsize: 14.sp,
-                      ),
+                      child: CustomSubTitle(subtitle: "common.yes".tr(), color: AppColor.white, fontsize: 14.sp),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 40.w,
-                          vertical: 25.h,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 25.h),
                         backgroundColor: AppColor.primaryColor,
                         foregroundColor: AppColor.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11.r),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11.r)),
                       ),
                       onPressed: () => Navigator.pop(dialogCtx),
-                      child: CustomSubTitle(
-                        subtitle: "common.cancel".tr(),
-                        color: AppColor.white,
-                        fontsize: 14.sp,
-                      ),
+                      child: CustomSubTitle(subtitle: "common.cancel".tr(), color: AppColor.white, fontsize: 14.sp),
                     ),
                   ],
                 ),

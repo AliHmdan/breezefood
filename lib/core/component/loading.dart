@@ -10,9 +10,7 @@ void configEasyLoading() {
     ..indicatorColor = AppColor.primaryColor
     ..backgroundColor = AppColor.white
     ..textColor = AppColor.black.withOpacity(0.85)
-    ..boxShadow = const [
-      BoxShadow(blurRadius: 18, offset: Offset(0, 10), color: Colors.black12),
-    ]
+    ..boxShadow = const [BoxShadow(blurRadius: 18, offset: Offset(0, 10), color: Colors.black12)]
     // Mask
     ..maskType = EasyLoadingMaskType.custom
     ..maskColor = Colors.black.withOpacity(0.25)
@@ -23,12 +21,7 @@ void configEasyLoading() {
     ..contentPadding = const EdgeInsets.symmetric(horizontal: 22, vertical: 18)
     // نص
     ..fontSize = 14.5
-    ..textStyle = TextStyle(
-      fontFamily: "Almarai",
-      fontWeight: FontWeight.w600,
-      color: AppColor.black.withOpacity(0.85),
-      height: 1.3,
-    )
+    ..textStyle = TextStyle(fontFamily: "Almarai", fontWeight: FontWeight.w600, color: AppColor.black.withOpacity(0.85), height: 1.3)
     // Indicator مخصص
     ..indicatorWidget = const _BreezeLoadingIndicator()
     ..indicatorSize = 0
@@ -40,7 +33,7 @@ class _BreezeLoadingIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       width: 56,
       height: 56,
       child: CircularProgressIndicator(

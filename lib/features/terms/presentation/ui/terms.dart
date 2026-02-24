@@ -37,15 +37,12 @@ class _TermsState extends State<Terms> {
       bloc: cubit,
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColor.black,
+          backgroundColor: AppColor.Dark,
           appBar: PreferredSize(
             preferredSize: Size.fromHeight(60.h),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CustomAppbarProfile(
-                icon: Icons.arrow_back_ios,
-                ontap: () => Navigator.pop(context),
-              ),
+              child: CustomAppbarProfile(icon: Icons.arrow_back_ios, ontap: () => Navigator.pop(context)),
             ),
           ),
           body: state.when(
@@ -63,31 +60,23 @@ class _TermsState extends State<Terms> {
             ),
             loaded: (data) {
               final locale = context.locale.languageCode; // ar / en
-              final text = data
-                  .byLocale(locale)
-                  .replaceAll('\r\n', '\n')
-                  .trim();
+              final text = data.byLocale(locale).replaceAll('\r\n', '\n').trim();
 
               return Padding(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(0.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    HeaderForProfileWidget(text: "profile.terms".tr()),
+
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.all(14.w),
-                        decoration: BoxDecoration(
-                          color: AppColor.black,
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 40.w),
+                        decoration: BoxDecoration(color: AppColor.Dark, borderRadius: BorderRadius.circular(12.r)),
                         child: SingleChildScrollView(
                           child: Text(
                             text.isEmpty ? "—" : text,
-                            style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 14.sp,
-                              height: 1.65,
-                            ),
+                            style: TextStyle(color: AppColor.white, fontSize: 14.sp, height: 1.65),
                           ),
                         ),
                       ),
@@ -99,6 +88,30 @@ class _TermsState extends State<Terms> {
           ),
         );
       },
+    );
+  }
+}
+
+class HeaderForProfileWidget extends StatelessWidget {
+  final String text;
+  const HeaderForProfileWidget({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsetsDirectional.only(start: 15.w, bottom: 12.w),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.arrow_back_ios, color: AppColor.white),
+          ),
+          SizedBox(width: 5.w),
+          Text(text, style: TextStyle(color: AppColor.white)),
+        ],
+      ),
     );
   }
 }

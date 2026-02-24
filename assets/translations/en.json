@@ -140,7 +140,8 @@
     "home": "Home",
     "stores": "Stores",
     "favorites": "Favorites",
-    "orders": "Orders"
+    "orders": "Orders",
+    "Profile": "Profile"
   },
   "cart": {
     "item_notes_optional": "Item notes (optional)",
@@ -187,6 +188,7 @@
   "restaurant": {
     "closed_cannot_add_to_cart": "Restaurant is currently closed",
     "open": "Open",
+    "rate_us": "Rate us",
     "closed": "Closed",
     "closed_browse_only": "This restaurant is currently closed — you can browse only",
     "closed_cannot_checkout": "This restaurant is currently closed — you can't place an order.",

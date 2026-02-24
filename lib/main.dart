@@ -17,8 +17,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
+import 'features/app/bloc/app_cubit.dart';
+
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,11 +28,7 @@ Future<void> main() async {
   configEasyLoading();
 
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness: Brightness.dark,
-    ),
+    const SystemUiOverlayStyle(statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light, statusBarBrightness: Brightness.dark),
   );
 
   await setupDi();
@@ -66,53 +63,47 @@ class MyApp extends StatelessWidget {
 
         // ✅ Factory → create مرة وحدة هون
         BlocProvider(create: (_) => getIt<FavoritesCubit>()),
+        BlocProvider(create: (_) => AppCubit()..getThem()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 852),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (_, __) {
-          return MaterialApp(
-            navigatorObservers: [routeObserver],
-            navigatorKey: NavigationKey.navigatorKey,
-            debugShowCheckedModeBanner: false,
-            title: 'breeze food UI',
+          return BlocConsumer<AppCubit, AppState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return MaterialApp(
+                navigatorObservers: [routeObserver],
+                navigatorKey: NavigationKey.navigatorKey,
+                debugShowCheckedModeBanner: false,
+                title: 'breeze food UI',
 
-            home: const LaunchScreen(),
+                home: const LaunchScreen(),
 
-            locale: context.locale,
-            supportedLocales: context.supportedLocales,
-            localizationsDelegates: context.localizationDelegates,
+                locale: context.locale,
+                supportedLocales: context.supportedLocales,
+                localizationsDelegates: context.localizationDelegates,
 
-            theme: ThemeData(
-              scaffoldBackgroundColor: AppColor.Dark,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: AppColor.primaryColor,
-                brightness: Brightness.dark,
-              ),
-              progressIndicatorTheme: const ProgressIndicatorThemeData(
-                color: AppColor.primaryColor,
-                circularTrackColor: AppColor.backfilter,
-              ),
-            ),
-
-            builder: (context, widget) {
-              final wrapped = MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: const TextScaler.linear(1.0)),
-                child: widget ?? const SizedBox.shrink(),
-              );
-
-              final isArabic =
-                  Localizations.localeOf(context).languageCode == 'ar';
-
-              return Theme(
-                data: Theme.of(context).copyWith(
-                  textTheme: Theme.of(context).textTheme.apply(
-                        fontFamily: isArabic ? 'Cairo' : 'Inter',
-                      ),
+                theme: ThemeData(
+                  scaffoldBackgroundColor: AppColor.Dark,
+                  colorScheme: ColorScheme.fromSeed(seedColor: AppColor.primaryColor, brightness: Brightness.dark),
+                  progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColor.primaryColor, circularTrackColor: AppColor.backfilter),
                 ),
-                child: EasyLoading.init()(context, wrapped),
+
+                builder: (context, widget) {
+                  final wrapped = MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                    child: widget ?? const SizedBox.shrink(),
+                  );
+
+                  final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+                  return Theme(
+                    data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(fontFamily: isArabic ? 'Cairo' : 'Inter')),
+                    child: EasyLoading.init()(context, wrapped),
+                  );
+                },
               );
             },
           );

@@ -42,12 +42,7 @@ class RDMenuCategorySection extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => CategoryItemsGridPage(
-                    restaurant_id: restaurantId,
-                    title: title,
-                    items: items,
-                    isRestaurantOpen: isRestaurantOpen,
-                  ),
+                  builder: (_) => CategoryItemsGridPage(restaurant_id: restaurantId, title: title, items: items, isRestaurantOpen: isRestaurantOpen),
                 ),
               );
             },
@@ -68,13 +63,8 @@ class RDMenuCategorySection extends StatelessWidget {
                 onTap: () => onTapItem(it),
                 child: Container(
                   width: 142.w,
-                  margin: EdgeInsetsDirectional.only(
-                    end: i == items.length - 1 ? 0 : 8.w,
-                  ),
-                  child: _RDItemCardBridge(
-                    it: it,
-                    isRestaurantOpen: isRestaurantOpen,
-                  ),
+                  margin: EdgeInsetsDirectional.only(end: i == items.length - 1 ? 0 : 8.w),
+                  child: _RDItemCardBridge(it: it, isRestaurantOpen: isRestaurantOpen),
                 ),
               );
             },
@@ -95,10 +85,7 @@ class _RDItemCardBridge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.06), borderRadius: BorderRadius.circular(12.r)),
       alignment: Alignment.center,
       child: CustomSubTitle(
         subtitle: context.pick(ar: it.nameAr, en: it.nameEn),

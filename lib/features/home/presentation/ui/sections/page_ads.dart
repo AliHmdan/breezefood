@@ -15,10 +15,7 @@ class ActionPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.primaryColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(30),
-      ),
+      decoration: BoxDecoration(color: AppColor.primaryColor.withOpacity(0.2), borderRadius: BorderRadius.circular(30)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -39,11 +36,7 @@ class ActionPill extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             text,
-            style: const TextStyle(
-              color: AppColor.Dark,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColor.Dark, fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],
       ),
@@ -67,13 +60,7 @@ class CircleIconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.8),
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 5, offset: const Offset(0, 2))],
         ),
         child: Icon(icon, size: 20, color: AppColor.Dark),
       ),
@@ -91,15 +78,8 @@ class GradientBackground extends StatelessWidget {
     return Container(
       height: height * 0.45,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColor.primaryColor, Color(0xFFFEE7B6)],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(50),
-          bottomRight: Radius.circular(50),
-        ),
+        gradient: LinearGradient(colors: [AppColor.primaryColor, Color(0xFFFEE7B6)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(50), bottomRight: Radius.circular(50)),
       ),
     );
   }
@@ -116,10 +96,7 @@ class ReferralCodeBox extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColor.primaryColor.withOpacity(0.1),
-        border: Border.all(
-          color: AppColor.primaryColor.withOpacity(0.5),
-          width: 1.5,
-        ),
+        border: Border.all(color: AppColor.primaryColor.withOpacity(0.5), width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -127,11 +104,7 @@ class ReferralCodeBox extends StatelessWidget {
         children: [
           Text(
             'referral.your_referral_link'.tr(),
-            style: const TextStyle(
-              color: AppColor.Dark,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: AppColor.Dark, fontSize: 12, fontWeight: FontWeight.w600),
           ),
 
           const SizedBox(height: 8),
@@ -139,19 +112,13 @@ class ReferralCodeBox extends StatelessWidget {
             url,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppColor.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(color: AppColor.black, fontSize: 16, fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
 }
-
-
 
 class ReferralAdPage extends StatelessWidget {
   final AdModel ad;
@@ -183,19 +150,14 @@ class ReferralAdPage extends StatelessWidget {
                     titleSpanChildren.add(
                       TextSpan(
                         text: '${titleParts[0]}\n',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ), // تخفيف وزن السطر الأول
+                        style: const TextStyle(fontWeight: FontWeight.normal), // تخفيف وزن السطر الأول
                       ),
                     );
                     if (titleParts.length > 1) {
                       titleSpanChildren.add(
                         TextSpan(
                           text: titleParts.sublist(1).join('\n'),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: AppColor.red,
-                          ), // تمييز السطر الثاني
+                          style: const TextStyle(fontWeight: FontWeight.w900, color: AppColor.red), // تمييز السطر الثاني
                         ),
                       );
                     }
@@ -222,25 +184,13 @@ class ReferralAdPage extends StatelessWidget {
                       // العنوان
                       RichText(
                         text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.w800,
-                            color: AppColor.Dark,
-                            height: 1.2,
-                          ),
+                          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppColor.Dark, height: 1.2),
                           children: titleSpanChildren,
                         ),
                       ),
 
                       const SizedBox(height: 12),
-                      Text(
-                        description,
-                        style: const TextStyle(
-                          color: AppColor.black,
-                          fontSize: 15,
-                          height: 1.5,
-                        ),
-                      ),
+                      Text(description, style: const TextStyle(color: AppColor.black, fontSize: 15, height: 1.5)),
 
                       SizedBox(height: h * 0.035),
 
@@ -252,16 +202,9 @@ class ReferralAdPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: AppColor.primaryColor.withOpacity(.15),
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColor.primaryColor.withOpacity(.35),
-                              width: 2,
-                            ),
+                            border: Border.all(color: AppColor.primaryColor.withOpacity(.35), width: 2),
                           ),
-                          child: const Icon(
-                            Icons.card_giftcard_rounded,
-                            size: 38,
-                            color: AppColor.Dark,
-                          ),
+                          child: Icon(Icons.card_giftcard_rounded, size: 38, color: AppColor.Dark),
                         ),
                       ),
 
@@ -287,11 +230,7 @@ class ReferralAdPage extends StatelessWidget {
                           },
                           onShare: () async {
                             if (url.isEmpty) return;
-                            await Share.share(
-                              'referral.share_try_app'.tr(
-                                namedArgs: {'url': url},
-                              ),
-                            );
+                            await Share.share('referral.share_try_app'.tr(namedArgs: {'url': url}));
                           },
                         ),
                       ),
@@ -304,32 +243,19 @@ class ReferralAdPage extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () async {
                             if (url.isEmpty) return;
-                            await Share.share(
-                              'referral.share_invite_ready'.tr(
-                                namedArgs: {'url': url},
-                              ),
-                            );
+                            await Share.share('referral.share_invite_ready'.tr(namedArgs: {'url': url}));
                           },
 
                           icon: const Icon(Icons.share_rounded),
                           label: Padding(
                             padding: EdgeInsets.symmetric(vertical: 14.0),
-                            child: Text(
-                              'referral.share_invite_link'.tr(),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                            child: Text('referral.share_invite_link'.tr(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                           ),
                           style: ElevatedButton.styleFrom(
                             elevation: 0,
                             foregroundColor: AppColor.red, // لون النص والأيقونة
-                            backgroundColor:
-                                AppColor.primaryColor, // لون الخلفية
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
+                            backgroundColor: AppColor.primaryColor, // لون الخلفية
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
                         ),
                       ),

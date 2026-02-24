@@ -7,8 +7,7 @@ import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_c
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
-import 'package:breezefood/features/stores/model/all_resturants.dart'
-    show RestaurantModel;
+import 'package:breezefood/features/stores/model/all_resturants.dart' show RestaurantModel;
 import 'package:breezefood/features/stores/presentation/cubit/stores_cubit.dart';
 import 'package:breezefood/features/stores/presentation/cubit/super_markets_list_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
@@ -23,7 +22,7 @@ import 'package:flutter_svg/svg.dart';
 /// ✅ Closed Overlay (نفس الستايل اللي عندك)
 /// ===============================================
 class ClosedOverlay extends StatelessWidget {
-  const ClosedOverlay({super.key, this.radius = 1, this.text});
+  const ClosedOverlay({super.key, this.radius = 16, this.text});
 
   final double radius;
   final String? text;
@@ -32,15 +31,11 @@ class ClosedOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned.fill(
       child: Container(
-        decoration: BoxDecoration(color: Colors.black.withOpacity(0.45)),
+        decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(radius.r)),
         child: Center(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            child: CustomSubTitle(
-              subtitle: text ?? "restaurant.closed".tr(),
-              color: AppColor.white,
-              fontsize: 13.sp,
-            ),
+            child: CustomSubTitle(subtitle: text ?? "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp),
           ),
         ),
       ),
@@ -91,28 +86,13 @@ class RestaurantCard extends StatelessWidget {
                   // ✅ optional grayscale
                   ColorFiltered(
                     colorFilter: isClosed
-                        ? const ColorFilter.mode(
-                            Colors.grey,
-                            BlendMode.saturation,
-                          )
-                        : const ColorFilter.mode(
-                            Colors.transparent,
-                            BlendMode.multiply,
-                          ),
-                    child: AppNetworkImage(
-                      path: imageUrl,
-                      height: 170.h,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                        ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
+                        : const ColorFilter.mode(Colors.transparent, BlendMode.multiply),
+                    child: AppNetworkImage(path: imageUrl, height: 170.h, width: double.infinity, fit: BoxFit.cover),
                   ),
 
                   // ✅ Closed Overlay (نفس ستايل Breakfast)
-                  if (isClosed)
-                    ClosedOverlay(
-                      radius: 16,
-                      text: closedText ?? "restaurant.closed".tr(),
-                    ),
+                  if (isClosed) ClosedOverlay(radius: 16, text: closedText ?? "restaurant.closed".tr()),
 
                   /// Top overlay info
                   Positioned(
@@ -126,27 +106,16 @@ class RestaurantCard extends StatelessWidget {
                         _iosBadge(
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 14,
-                              ),
+                              const Icon(Icons.star, color: Colors.amber, size: 14),
                               SizedBox(width: 4.w),
                               Text(
                                 rating.toStringAsFixed(1),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w500),
                               ),
                               SizedBox(width: 4.w),
                               Text(
                                 orders,
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12.sp,
-                                ),
+                                style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                               ),
                             ],
                           ),
@@ -156,18 +125,11 @@ class RestaurantCard extends StatelessWidget {
                         _iosBadge(
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.delivery_dining,
-                                color: Colors.white,
-                                size: 14,
-                              ),
+                              const Icon(Icons.delivery_dining, color: Colors.white, size: 14),
                               SizedBox(width: 4.w),
                               Text(
                                 time,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12.sp,
-                                ),
+                                style: TextStyle(color: Colors.white, fontSize: 12.sp),
                               ),
                             ],
                           ),
@@ -187,11 +149,7 @@ class RestaurantCard extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -201,10 +159,7 @@ class RestaurantCard extends StatelessWidget {
                     SizedBox(height: 4.h),
                     Text(
                       closedText!,
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontSize: 12.sp,
-                      ),
+                      style: TextStyle(color: Colors.redAccent, fontSize: 12.sp),
                     ),
                   ],
 
@@ -212,18 +167,11 @@ class RestaurantCard extends StatelessWidget {
 
                   Row(
                     children: [
-                      SvgPicture.asset(
-                        "assets/icons/motor.svg",
-                        height: 18.h,
-                        color: Colors.white70,
-                      ),
+                      SvgPicture.asset("assets/icons/motor.svg", height: 18.h, color: Colors.white70),
                       SizedBox(width: 6.w),
                       Text(
                         time,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12.sp,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                       ),
                     ],
                   ),
@@ -269,8 +217,7 @@ class _StoresTabList extends StatefulWidget {
   State<_StoresTabList> createState() => _StoresTabListState();
 }
 
-class _StoresTabListState extends State<_StoresTabList>
-    with AutomaticKeepAliveClientMixin {
+class _StoresTabListState extends State<_StoresTabList> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -292,13 +239,7 @@ class _StoresTabListState extends State<_StoresTabList>
               if (widget.onItemTap != null) {
                 widget.onItemTap!(context, r);
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "stores.mock_navigate".tr(namedArgs: {"name": r.name}),
-                    ),
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("stores.mock_navigate".tr(namedArgs: {"name": r.name}))));
               }
             },
             child: RestaurantCard(
@@ -321,11 +262,7 @@ class _NoGlowBehavior extends ScrollBehavior {
   const _NoGlowBehavior();
 
   @override
-  Widget buildOverscrollIndicator(
-    BuildContext context,
-    Widget child,
-    ScrollableDetails details,
-  ) {
+  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
     return child;
   }
 }
@@ -337,22 +274,16 @@ class StoresNavTab extends StatefulWidget {
   State<StoresNavTab> createState() => _StoresNavTabState();
 }
 
-class _StoresNavTabState extends State<StoresNavTab>
-    with SingleTickerProviderStateMixin {
+class _StoresNavTabState extends State<StoresNavTab> with SingleTickerProviderStateMixin {
   String _deliveryFeeText(RestaurantModel r) {
     final fee = r.deliveryBaseFee;
     if (fee <= 0) return "common.dash".tr();
 
-    return "stores.delivery_fee_short".tr(
-      namedArgs: {"fee": fee.toStringAsFixed(0)},
-    );
+    return "stores.delivery_fee_short".tr(namedArgs: {"fee": fee.toStringAsFixed(0)});
   }
 
   late final TabController _tabController;
-  final List<String> _titlesKeys = const [
-    "stores.tabs.restaurants",
-    "stores.tabs.supermarkets",
-  ];
+  final List<String> _titlesKeys = const ["stores.tabs.restaurants", "stores.tabs.supermarkets"];
 
   late final StoresCubit cubit;
   late final SuperMarketsListCubit superMarketsCubit;
@@ -397,28 +328,25 @@ class _StoresNavTabState extends State<StoresNavTab>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.Dark,
       body: Column(
         children: [
           CustomAppbarProfile(ontap: () {}, title: "stores.title".tr()),
+
+          // Tabs
           Row(
             children: List.generate(_titlesKeys.length, (index) {
               final bool isSelected = _tabController.index == index;
               return Expanded(
                 child: GestureDetector(
-                  onTap: () => _tabController.animateTo(
-                    index,
-                    duration: const Duration(milliseconds: 320),
-                    curve: Curves.easeInOutCubic,
-                  ),
+                  onTap: () => _tabController.animateTo(index, duration: const Duration(milliseconds: 320), curve: Curves.easeInOutCubic),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CustomSubTitle(
                           subtitle: _titlesKeys[index].tr(),
-                          color: isSelected
-                              ? AppColor.primaryColor
-                              : AppColor.white,
+                          color: isSelected ? AppColor.primaryColor : AppColor.white,
                           fontsize: 14.sp,
                         ),
                         AnimatedContainer(
@@ -428,9 +356,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                           height: 3,
                           width: isSelected ? 130.w : 0,
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColor.primaryColor
-                                : Colors.transparent,
+                            color: isSelected ? AppColor.primaryColor : Colors.transparent,
                             borderRadius: BorderRadius.circular(2.r),
                           ),
                         ),
@@ -458,10 +384,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                       return RefreshIndicator(
                         onRefresh: () async => cubit.loadRestaurants(),
                         child: state.when(
-                          initial: () => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [SizedBox(height: 200)],
-                          ),
+                          initial: () => ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 200)]),
                           loading: () => ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             children: const [
@@ -474,10 +397,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                             children: [
                               SizedBox(height: 200.h),
                               Center(
-                                child: Text(
-                                  msg,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
+                                child: Text(msg, style: const TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),
@@ -488,40 +408,34 @@ class _StoresNavTabState extends State<StoresNavTab>
                                 children: [
                                   SizedBox(height: 200.h),
                                   Center(
-                                    child: Text(
-                                      "stores.empty_restaurants".tr(),
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                    ),
+                                    child: Text("stores.empty_restaurants".tr(), style: const TextStyle(color: Colors.white70)),
                                   ),
                                 ],
                               );
                             }
 
                             return ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 5,
-                              ).copyWith(bottom: 80),
+                              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 5).copyWith(bottom: 80),
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: restaurants.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 12),
+                              separatorBuilder: (_, __) => const SizedBox(height: 12),
                               itemBuilder: (context, i) {
                                 final r = restaurants[i];
                                 final isClosed = !r.isOpen;
 
                                 return GestureDetector(
                                   onTap: () {
+                                    // ✅ (اختياري) امنع فتح التفاصيل إذا مسكر
+                                    if (isClosed) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("restaurant.closed".tr())));
+                                      return;
+                                    }
+
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) => BlocProvider(
-                                          create: (context) =>
-                                              getIt<FavoritesCubit>(),
-                                          child: ResturantDetails(
-                                            restaurant_id: r.id,
-                                          ),
+                                          create: (context) => getIt<FavoritesCubit>(),
+                                          child: ResturantDetails(restaurant_id: r.id),
                                         ),
                                       ),
                                     );
@@ -570,10 +484,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                               children: [
                                 SizedBox(height: 200.h),
                                 Center(
-                                  child: Text(
-                                    state.msg,
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
+                                  child: Text(state.msg, style: const TextStyle(color: Colors.red)),
                                 ),
                               ],
                             );
@@ -586,12 +497,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                                 children: [
                                   SizedBox(height: 200.h),
                                   Center(
-                                    child: Text(
-                                      "stores.empty_supermarkets".tr(),
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                    ),
+                                    child: Text("stores.empty_supermarkets".tr(), style: const TextStyle(color: Colors.white70)),
                                   ),
                                 ],
                               );
@@ -601,32 +507,20 @@ class _StoresNavTabState extends State<StoresNavTab>
                               behavior: const _NoGlowBehavior(),
                               child: ListView.separated(
                                 key: const PageStorageKey('tab_supermarkets'),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 5,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 5),
                                 physics: const AlwaysScrollableScrollPhysics(),
                                 itemCount: state.markets.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
+                                separatorBuilder: (_, __) => const SizedBox(height: 12),
                                 itemBuilder: (context, index) {
                                   final m = state.markets[index];
 
-                                  final img =
-                                      (m.logo != null &&
-                                          m.logo!.trim().isNotEmpty)
-                                      ? (UrlHelper.toFullUrl(m.logo) ?? "")
-                                      : "";
+                                  final img = (m.logo != null && m.logo!.trim().isNotEmpty) ? (UrlHelper.toFullUrl(m.logo) ?? "") : "";
 
                                   return GestureDetector(
                                     onTap: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              MarketCategoriesScreen(
-                                                marketId: m.id,
-                                                title: m.name,
-                                              ),
+                                          builder: (_) => MarketCategoriesScreen(marketId: m.id, title: m.name),
                                         ),
                                       );
                                     },
@@ -634,14 +528,8 @@ class _StoresNavTabState extends State<StoresNavTab>
                                       imageUrl: img,
                                       name: m.name,
                                       rating: 0.0,
-                                      orders: "stores.orders_count".tr(
-                                        namedArgs: {"count": "0"},
-                                      ),
-                                      time: "stores.delivery_fee_short".tr(
-                                        namedArgs: {
-                                          "fee": m.deliveryBaseFee.toString(),
-                                        },
-                                      ),
+                                      orders: "stores.orders_count".tr(namedArgs: {"count": "0"}),
+                                      time: "stores.delivery_fee_short".tr(namedArgs: {"fee": m.deliveryBaseFee.toString()}),
                                       isClosed: false,
                                     ),
                                   );
@@ -650,10 +538,7 @@ class _StoresNavTabState extends State<StoresNavTab>
                             );
                           }
 
-                          return ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: const [SizedBox(height: 200)],
-                          );
+                          return ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 200)]);
                         }(),
                       );
                     },

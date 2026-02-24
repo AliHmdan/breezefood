@@ -1,8 +1,8 @@
 import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
-import 'package:breezefood/core/services/del_price_helper.dart'
-    show deliveryFeeText;
+import 'package:breezefood/core/services/del_price_helper.dart' show deliveryFeeText;
+import 'package:breezefood/core/services/detect_language.dart' show extractLocalizedText;
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
@@ -35,8 +35,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
   @override
   void didUpdateWidget(covariant RestaurantCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.restaurant.id != widget.restaurant.id ||
-        oldWidget.restaurant.ratingAvg != widget.restaurant.ratingAvg) {
+    if (oldWidget.restaurant.id != widget.restaurant.id || oldWidget.restaurant.ratingAvg != widget.restaurant.ratingAvg) {
       _rating = (widget.restaurant.ratingAvg).toDouble();
     }
   }
@@ -83,19 +82,12 @@ class _RestaurantCardState extends State<RestaurantCard> {
                   if (!r.isOpen)
                     Positioned.fill(
                       child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
+                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.45), borderRadius: BorderRadius.circular(12.r)),
                         child: Center(
                           child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 6.h,
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
 
-                            child:CustomSubTitle(subtitle:   "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp)
-
+                            child: CustomSubTitle(subtitle: "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp),
                           ),
                         ),
                       ),
@@ -109,41 +101,20 @@ class _RestaurantCardState extends State<RestaurantCard> {
                       children: [
                         // ⭐ Rating
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 2.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.25), borderRadius: BorderRadius.circular(20.r)),
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 14,
-                              ),
+                              const Icon(Icons.star, color: Colors.amber, size: 14),
                               SizedBox(width: 4.w),
                               Text(
                                 _rating.toStringAsFixed(1),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(width: 6.w),
-                              const Text(
-                                "|",
-                                style: TextStyle(color: Colors.white54),
-                              ),
+                              const Text("|", style: TextStyle(color: Colors.white54)),
                               SizedBox(width: 6.w),
-                              CustomSubTitle(
-                                subtitle: ordersText,
-                                color: AppColor.white,
-                                fontsize: 12.sp,
-                              ),
+                              CustomSubTitle(subtitle: ordersText, color: AppColor.white, fontsize: 12.sp),
                             ],
                           ),
                         ),
@@ -155,8 +126,10 @@ class _RestaurantCardState extends State<RestaurantCard> {
             ),
             SizedBox(height: 8.h),
             CustomSubTitle(
-              subtitle: (r.name).trim(),
-              color: AppColor.white,
+              subtitle:
+                  // (r.name).trim(),
+                  extractLocalizedText((r.name).trim(), context.locale),
+              color: AppColor.light,
               fontsize: 16.sp,
             ),
             SizedBox(height: 5.h),
@@ -165,18 +138,10 @@ class _RestaurantCardState extends State<RestaurantCard> {
 
               child: Row(
                 children: [
-                  SvgPicture.asset(
-                    color: Colors.white,
-                    "assets/icons/motor.svg",
-                    width: 16.w,
-                    height: 16.h,
-                  ),
+                  Image.asset("assets/icons/new_del.png", width: 15.w, height: 15.h, color: AppColor.white),
+                  // SvgPicture.asset(color: Colors.white, "assets/icons/motor.svg", width: 16.w, height: 16.h),
                   SizedBox(width: 8.w),
-                  CustomSubTitle(
-                    subtitle: feeText,
-                    color: AppColor.white,
-                    fontsize: 12,
-                  ),
+                  CustomSubTitle(subtitle: feeText, color: AppColor.white, fontsize: 12),
                 ],
               ),
             ),
@@ -215,10 +180,7 @@ class OpenNow extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final r = restaurants[index];
-        return RestaurantCard(
-          restaurant: r,
-          onTap: onTap == null ? null : () => onTap!(r),
-        );
+        return RestaurantCard(restaurant: r, onTap: onTap == null ? null : () => onTap!(r));
       },
     );
   }
@@ -229,11 +191,7 @@ class _NetImage extends StatelessWidget {
   final double height;
   final bool grayscale;
 
-  const _NetImage({
-    required this.url,
-    required this.height,
-    this.grayscale = false,
-  });
+  const _NetImage({required this.url, required this.height, this.grayscale = false});
 
   @override
   Widget build(BuildContext context) {
@@ -261,11 +219,7 @@ class _NetImage extends StatelessWidget {
             height: height,
             color: Colors.black.withOpacity(0.2),
             alignment: Alignment.center,
-            child: SizedBox(
-              width: 22.w,
-              height: 22.w,
-              child: const CircularProgressIndicator(strokeWidth: 2),
-            ),
+            child: SizedBox(width: 22.w, height: 22.w, child: const CircularProgressIndicator(strokeWidth: 2)),
           );
         },
         errorBuilder: (_, __, ___) => Container(
@@ -273,11 +227,7 @@ class _NetImage extends StatelessWidget {
           width: double.infinity,
           color: Colors.grey.shade800,
           child: Center(
-            child: Icon(
-              Icons.image_not_supported,
-              color: AppColor.white,
-              size: 34.sp,
-            ),
+            child: Icon(Icons.image_not_supported, color: AppColor.white, size: 34.sp),
           ),
         ),
       );
@@ -285,9 +235,6 @@ class _NetImage extends StatelessWidget {
 
     if (!grayscale) return child;
 
-    return ColorFiltered(
-      colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-      child: child,
-    );
+    return ColorFiltered(colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation), child: child);
   }
 }

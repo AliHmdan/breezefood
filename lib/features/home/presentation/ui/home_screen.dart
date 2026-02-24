@@ -18,8 +18,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/appbar_home.dar
 import 'package:breezefood/features/home/presentation/ui/widgets/cart_summary_model.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_button_order.dart';
 import 'package:breezefood/features/orders/cart/request_order_screen.dart';
-import 'package:breezefood/features/orders/model/active_orders_response.dart'
-    show OrderInfo;
+import 'package:breezefood/features/orders/model/active_orders_response.dart' show OrderInfo;
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_button.dart';
@@ -49,9 +48,7 @@ class _HomeState extends State<Home> with RouteAware {
   bool _subscribed = false;
 
   // ✅ Controller تبع السكرول + tabs sync
-  late final HomeScrollController homeScroll = HomeScrollController(
-    debugEnabled: kDebugMode,
-  )..init();
+  late final HomeScrollController homeScroll = HomeScrollController(debugEnabled: kDebugMode)..init();
 
   @override
   void initState() {
@@ -62,11 +59,7 @@ class _HomeState extends State<Home> with RouteAware {
       await cubit.sendMyLocationOnce();
       if (!mounted) return;
 
-      final isLoadedOrLoading = cubit.state.maybeWhen(
-        loading: () => true,
-        loaded: (_) => true,
-        orElse: () => false,
-      );
+      final isLoadedOrLoading = cubit.state.maybeWhen(loading: () => true, loaded: (_) => true, orElse: () => false);
       if (!isLoadedOrLoading) {
         await cubit.load();
       }
@@ -187,29 +180,19 @@ class _HomeState extends State<Home> with RouteAware {
     if (id == 0) return;
 
     final title = _extractTitle(m).trim();
-    final homeData = cubit.state.maybeWhen(
-      loaded: (d) => d,
-      orElse: () => null,
-    );
+    final homeData = cubit.state.maybeWhen(loaded: (d) => d, orElse: () => null);
 
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MarketPagePrice(
-          marketId: id,
-          title: title.isEmpty ? "Market" : title,
-          haveOrder: homeData?.haveOrder,
-        ),
+        builder: (_) => MarketPagePrice(marketId: id, title: title.isEmpty ? "Market" : title, haveOrder: homeData?.haveOrder),
       ),
     );
 
     context.read<CartCubit>().loadCart();
   }
 
-  Widget _shimmerBox({
-    required double height,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 10),
-  }) {
+  Widget _shimmerBox({required double height, EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 10)}) {
     return Padding(
       padding: padding,
       child: Shimmer.fromColors(
@@ -233,15 +216,9 @@ class _HomeState extends State<Home> with RouteAware {
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: cubit,
       builder: (context, state) {
-        final loading = state.maybeWhen(
-          loading: () => true,
-          orElse: () => false,
-        );
+        final loading = state.maybeWhen(loading: () => true, orElse: () => false);
 
-        final homeData = state.maybeWhen(
-          loaded: (data) => data,
-          orElse: () => null,
-        );
+        final homeData = state.maybeWhen(loaded: (data) => data, orElse: () => null);
         final haveOrder = homeData?.haveOrder;
         final showBottom = haveOrder != null;
 
@@ -252,8 +229,10 @@ class _HomeState extends State<Home> with RouteAware {
             builder: () => loading
                 ? _shimmerBox(height: 178.h)
                 : state.maybeWhen(
-                    loaded: (data) =>
-                        StoriesSlider(stories: data.stories, onTap: (story) {}),
+                    loaded: (data) => Padding(
+                      padding: EdgeInsetsDirectional.only(top: 16.h),
+                      child: StoriesSlider(stories: data.stories, onTap: (story) {}),
+                    ),
                     orElse: () => const SizedBox.shrink(),
                   ),
           ),
@@ -271,8 +250,7 @@ class _HomeState extends State<Home> with RouteAware {
                 loading
                     ? _shimmerBox(height: 178.h)
                     : state.maybeWhen(
-                        loaded: (data) =>
-                            CloserToYou(restaurants: data.closerToYou),
+                        loaded: (data) => CloserToYou(restaurants: data.closerToYou),
                         orElse: () => const SizedBox.shrink(),
                       ),
               ],
@@ -291,13 +269,14 @@ class _HomeState extends State<Home> with RouteAware {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: CustomTitleSection(
-                      title: "home.breakfast_restaurants".tr(),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: CustomTitleSection(title: "home.breakfast_restaurants".tr()),
                   ),
                   SizedBox(height: 10.h),
-                  BreakfastRestaurantsSection(restaurants: breakfastList),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: BreakfastRestaurantsSection(restaurants: breakfastList),
+                  ),
                 ],
               ),
             ),
@@ -322,8 +301,9 @@ class _HomeState extends State<Home> with RouteAware {
             builder: () => loading
                 ? _shimmerBox(height: 120.h)
                 : state.maybeWhen(
-                    loaded: (data) => DiscountDeliveryHome(
-                      discountDelivery: data.discountDelivery,
+                    loaded: (data) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                      child: DiscountDeliveryHome(discountDelivery: data.discountDelivery),
                     ),
                     orElse: () => const SizedBox.shrink(),
                   ),
@@ -340,10 +320,9 @@ class _HomeState extends State<Home> with RouteAware {
                 ),
                 SizedBox(height: 10.h),
                 state.maybeWhen(
-                  loaded: (data) => Supermarketslider(
-                    restaurants: data.supermarkets,
-                    onTap: _openMarket,
-                    onRateSuccess: () => cubit.load(),
+                  loaded: (data) => Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2.w),
+                    child: Supermarketslider(restaurants: data.supermarkets, onTap: _openMarket, onRateSuccess: () => cubit.load()),
                   ),
                   orElse: () => const SizedBox.shrink(),
                 ),
@@ -364,10 +343,7 @@ class _HomeState extends State<Home> with RouteAware {
                 loading
                     ? _shimmerBox(height: 320.h)
                     : state.maybeWhen(
-                        loaded: (data) => OpenNow(
-                          restaurants: data.nearbyRestaurants,
-                          onTap: _openRestaurant,
-                        ),
+                        loaded: (data) => OpenNow(restaurants: data.nearbyRestaurants, onTap: _openRestaurant),
                         orElse: () => const SizedBox.shrink(),
                       ),
               ],
@@ -379,10 +355,7 @@ class _HomeState extends State<Home> with RouteAware {
 
         final tabTitles = sections.map((s) => s.title).toList();
 
-        final safeActive = homeScroll.activeIndex.value.clamp(
-          0,
-          (tabTitles.isEmpty ? 0 : tabTitles.length - 1),
-        );
+        final safeActive = homeScroll.activeIndex.value.clamp(0, (tabTitles.isEmpty ? 0 : tabTitles.length - 1));
 
         if (safeActive != homeScroll.activeIndex.value) {
           homeScroll.activeIndex.value = safeActive;
@@ -412,25 +385,21 @@ class _HomeState extends State<Home> with RouteAware {
                         ),
                       ),
 
+                      ///
+                      ///here story and slider choose bar
+                      ///
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _StickyTabsHeader(
-                          height: 50.h,
+                          height: 55.h,
                           child: SizedBox.expand(
                             child: Container(
                               key: homeScroll.tabsKey,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 5.w,
-                                vertical: 7,
-                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7.h),
                               child: ValueListenableBuilder<int>(
                                 valueListenable: homeScroll.activeIndex,
                                 builder: (_, active, __) {
-                                  return HomeTabsBar(
-                                    titles: tabTitles,
-                                    activeIndex: active,
-                                    onTap: (i) => homeScroll.scrollToSection(i),
-                                  );
+                                  return HomeTabsBar(titles: tabTitles, activeIndex: active, onTap: (i) => homeScroll.scrollToSection(i));
                                 },
                               ),
                             ),
@@ -444,10 +413,7 @@ class _HomeState extends State<Home> with RouteAware {
                           children: List.generate(sections.length, (i) {
                             return Column(
                               children: [
-                                SizedBox(
-                                  key: homeScroll.sectionKeys[i],
-                                  height: 1,
-                                ), // ✅ فقط هون
+                                SizedBox(key: homeScroll.sectionKeys[i], height: 1), // ✅ فقط هون
                                 sections[i].builder(),
                                 SizedBox(height: 14.h),
                               ],
@@ -456,9 +422,7 @@ class _HomeState extends State<Home> with RouteAware {
                         ),
                       ),
 
-                      SliverToBoxAdapter(
-                        child: SizedBox(height: showBottom ? 90.h : 24.h),
-                      ),
+                      SliverToBoxAdapter(child: SizedBox(height: showBottom ? 90.h : 24.h)),
                     ],
                   ),
                 ),
@@ -472,18 +436,12 @@ class _HomeState extends State<Home> with RouteAware {
                   child: BlocBuilder<HomeCubit, HomeState>(
                     bloc: cubit,
                     builder: (context, st) {
-                      final haveOrder = st.maybeWhen(
-                        loaded: (d) => d.haveOrder,
-                        orElse: () => null,
-                      );
+                      final haveOrder = st.maybeWhen(loaded: (d) => d.haveOrder, orElse: () => null);
                       if (haveOrder == null) return const SizedBox.shrink();
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: _HomeBottomAction(
-                          homeCubit: cubit,
-                          haveOrder: haveOrder,
-                        ),
+                        child: _HomeBottomAction(homeCubit: cubit, haveOrder: haveOrder),
                       );
                     },
                   ),
@@ -509,11 +467,7 @@ class _HomeBottomAction extends StatelessWidget {
         bool loading = false;
         CartSummary summary = CartSummary.empty;
 
-        st.maybeWhen(
-          loading: () => loading = true,
-          cartLoaded: (cart, __, ___) => summary = CartSummary.from(cart),
-          orElse: () {},
-        );
+        st.maybeWhen(loading: () => loading = true, cartLoaded: (cart, __, ___) => summary = CartSummary.from(cart), orElse: () {});
 
         if (summary.hasCart || loading) {
           final title = loading
@@ -530,12 +484,8 @@ class _HomeBottomAction extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (_) => MultiBlocProvider(
                           providers: [
-                            BlocProvider.value(
-                              value: context.read<CartCubit>(),
-                            ),
-                            BlocProvider(
-                              create: (_) => getIt<OrderFlowCubit>(),
-                            ),
+                            BlocProvider.value(value: context.read<CartCubit>()),
+                            BlocProvider(create: (_) => getIt<OrderFlowCubit>()),
                           ],
                           child: const RequestOrderScreen(),
                         ),
@@ -578,11 +528,7 @@ class _StickyTabsHeader extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SizedBox.expand(
       child: Container(
         color: AppColor.Dark,
@@ -602,9 +548,5 @@ class _HomeSectionDef {
   final String title; // للـ tabs
   final Widget Function() builder;
 
-  _HomeSectionDef({
-    required this.id,
-    required this.title,
-    required this.builder,
-  });
+  _HomeSectionDef({required this.id, required this.title, required this.builder});
 }

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RDHeaderSliver extends StatelessWidget {
-  const RDHeaderSliver({
+  RDHeaderSliver({
     super.key,
     required this.restaurantName,
     required this.avgRatingText,
@@ -14,6 +14,9 @@ class RDHeaderSliver extends StatelessWidget {
     required this.onBack,
     required this.onSearch,
     required this.innerBoxIsScrolled,
+    // required this.reviewsCountText,
+    // required this.avgRatingText,
+    // required this.avgRatingText,
   });
 
   final String restaurantName;
@@ -24,6 +27,9 @@ class RDHeaderSliver extends StatelessWidget {
   final VoidCallback onSearch;
 
   final bool innerBoxIsScrolled;
+  // final String reviewsCountText;
+  // final String avgRatingText;
+  // final VoidCallback onRateTap;
 
   static double get _overlap => 24.0;
   @override
@@ -55,47 +61,115 @@ class RDHeaderSliver extends StatelessWidget {
               child: Container(color: AppColor.Dark.withOpacity(0.72)),
             ),
 
+            ///
+            /// here shadow
+            ///
+            // Container(
+            //   width: MediaQuery.of(context).size.width,
+            //   height: MediaQuery.of(context).size.height,
+            //   decoration: BoxDecoration(
+            //     gradient: LinearGradient(
+            //       colors: [Colors.black.withOpacity(0.2), Colors.black.withOpacity(0.9)],
+            //       begin: Alignment.topCenter,
+            //       end: Alignment.bottomCenter,
+            //     ),
+            //   ),
+            // ),
+
+            ///
+            /// back
+            ///
             PositionedDirectional(
               top: topPad + 12,
               start: 12,
-              child: _GlassCircleButton(
-                onTap: onBack,
-                child: CustomArrow(
-                  color: AppColor.white,
-                  background: Colors.transparent,
-                  colorborder: Colors.transparent,
-                  onTap: onBack,
-                ),
+              child: Stack(
+                children: [
+                  InkWell(
+                    onTap: onBack,
+                    child: Container(width: 42.w, height: 42.w, color: Colors.transparent),
+                  ),
+                  _GlassCircleButton(
+                    onTap: onBack,
+                    height: 32.w,
+                    width: 32.w,
+                    child: CustomArrow(color: Colors.white, background: Colors.transparent, colorborder: Colors.transparent, onTap: onBack),
+                  ),
+                ],
               ),
             ),
 
+            ///
+            /// search
+            ///
             PositionedDirectional(
               top: topPad + 12,
               end: 12,
-              child: _GlassCircleButton(
-                onTap: onSearch,
-                child: const Icon(Icons.search, color: Colors.white, size: 22),
+              child: Stack(
+                children: [
+                  InkWell(
+                    onTap: onSearch,
+                    child: Container(width: 42.w, height: 42.w, color: Colors.transparent),
+                  ),
+                  _GlassCircleButton(
+                    onTap: onSearch,
+                    width: 32.w,
+                    height: 32.w,
+                    child: const Icon(Icons.search, color: Colors.white, size: 22),
+                  ),
+                ],
               ),
             ),
-
             PositionedDirectional(
               bottom: 8 + _overlap,
               start: 12,
               end: 12,
-              child: _TitleBlock(
-                restaurantName: restaurantName,
-                avgRatingText: avgRatingText,
-                reviewsCountText: reviewsCountText,
-              ),
+              child: _TitleBlock(restaurantName: restaurantName, avgRatingText: avgRatingText, reviewsCountText: reviewsCountText),
             ),
 
+            // ///
+            // /// here new rating
+            // ///
+            // PositionedDirectional(
+            //   bottom: 0,
+            //   start: 12,
+            //   end: 12,
+            //   child: GestureDetector(
+            //     behavior: HitTestBehavior.opaque,
+            //     onTap: () {
+            //       print('sdasadadadsad');
+            //     },
+            //     // onTap: onRateTap,
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         const Icon(Icons.star, color: Colors.amber, size: 16),
+            //         SizedBox(width: 4.w),
+            //         Text(
+            //           avgRatingText,
+            //           style: TextStyle(
+            //             color: Colors.white,
+            //             fontSize: 12.sp,
+            //             fontWeight: FontWeight.w900,
+            //             fontFamily: context.isAr ? 'Cairo' : 'Inter',
+            //           ),
+            //         ),
+            //         SizedBox(width: 6.w),
+            //         Text(
+            //           "($reviewsCountText)",
+            //           style: TextStyle(
+            //             color: Colors.white.withOpacity(0.65),
+            //             fontSize: 11.sp,
+            //             fontWeight: FontWeight.w600,
+            //             fontFamily: context.isAr ? 'Cairo' : 'Inter',
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+
             // overlap spacer
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: SizedBox(height: _overlap.h),
-            ),
+            Positioned(left: 0, right: 0, bottom: 0, child: SizedBox(height: _overlap.h)),
           ],
         ),
       ),
@@ -106,11 +180,7 @@ class RDHeaderSliver extends StatelessWidget {
 /// ======= UI helpers =======
 
 class _TitleBlock extends StatelessWidget {
-  const _TitleBlock({
-    required this.restaurantName,
-    required this.avgRatingText,
-    required this.reviewsCountText,
-  });
+  const _TitleBlock({required this.restaurantName, required this.avgRatingText, required this.reviewsCountText});
 
   final String restaurantName;
   final String avgRatingText;
@@ -134,16 +204,8 @@ class _TitleBlock extends StatelessWidget {
             fontWeight: FontWeight.w900,
             fontFamily: font,
             shadows: [
-              Shadow(
-                color: Colors.black.withOpacity(0.65),
-                offset: const Offset(0, 3),
-                blurRadius: 14,
-              ),
-              Shadow(
-                color: Colors.black.withOpacity(0.35),
-                offset: const Offset(0, 1),
-                blurRadius: 4,
-              ),
+              Shadow(color: Colors.black.withOpacity(0.65), offset: const Offset(0, 3), blurRadius: 14),
+              Shadow(color: Colors.black.withOpacity(0.35), offset: const Offset(0, 1), blurRadius: 4),
             ],
           ),
         ),
@@ -153,10 +215,12 @@ class _TitleBlock extends StatelessWidget {
 }
 
 class _GlassCircleButton extends StatelessWidget {
-  const _GlassCircleButton({required this.child, required this.onTap});
+  _GlassCircleButton({required this.child, required this.onTap, this.width, this.height});
 
   final Widget child;
   final VoidCallback onTap;
+  double? width;
+  double? height;
 
   @override
   Widget build(BuildContext context) {
@@ -170,15 +234,12 @@ class _GlassCircleButton extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              width: 42,
-              height: 42,
+              width: width ?? 42.w,
+              height: height ?? 42.w,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.10),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.12),
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.white.withOpacity(0.12), width: 1),
                 shape: BoxShape.circle,
               ),
               child: child,

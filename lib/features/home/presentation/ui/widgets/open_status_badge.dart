@@ -4,26 +4,38 @@ import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_titl
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
- 
+
 class ClosedOverlay extends StatelessWidget {
-  const ClosedOverlay({super.key});
+  ClosedOverlay({super.key, required this.opensAtLabel});
+  String opensAtLabel;
 
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.45), // رمادي/أسود شفاف
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.45), // رمادي/أسود شفاف
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
 
-            child:CustomSubTitle(subtitle:  "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp)
-
+                child: CustomSubTitle(subtitle: "restaurant.closed".tr(), color: Colors.white, fontsize: 13.sp),
+              ),
+            ),
           ),
-        ),
+          PositionedDirectional(
+            bottom: 6.h,
+
+            end: 18.w,
+            child: Center(
+              child: CustomSubTitle(subtitle: opensAtLabel, color: AppColor.red, fontsize: 13.sp),
+            ),
+          ),
+        ],
       ),
     );
   }

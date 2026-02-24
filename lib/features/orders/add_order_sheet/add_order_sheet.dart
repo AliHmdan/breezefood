@@ -37,12 +37,10 @@ Future<void> showAddOrderDialog(
         removeTop: true,
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 600),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(sheetCtx).viewInsets.bottom,
-          ),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(sheetCtx).viewInsets.bottom),
           child: Container(
             height: height,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColor.Dark,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),

@@ -39,8 +39,7 @@ class DiscountHome extends StatelessWidget {
     return "";
   }
 
-  String _logoUrl(RestaurantDiscountModel d) =>
-      UrlHelper.toFullUrl(d.logoSafe) ?? "";
+  String _logoUrl(RestaurantDiscountModel d) => UrlHelper.toFullUrl(d.logoSafe) ?? "";
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +54,7 @@ class DiscountHome extends StatelessWidget {
             all: "common.all".tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      DiscountRestaurantsGridPage(discounts: discounts),
-                ),
-              );
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => DiscountRestaurantsGridPage(discounts: discounts)));
             },
           ),
         ),
@@ -80,23 +74,19 @@ class DiscountHome extends StatelessWidget {
                     final d = discounts[index];
 
                     final base = d.deliveryBaseFee;
-                    final fin  = d.deliveryFinalFee;
+                    final fin = d.deliveryFinalFee;
 
-// يوجد خصم توصيل فقط إذا deliveryDiscount موجود
-                    final hasDeliveryDiscount =
-                        d.deliveryDiscount != null &&
-                            base != null &&
-                            fin != null;
+                    // يوجد خصم توصيل فقط إذا deliveryDiscount موجود
+                    final hasDeliveryDiscount = d.deliveryDiscount != null && base != null && fin != null;
                     return Container(
                       width: itemWidth,
                       margin: EdgeInsetsDirectional.only(end: 10.w),
                       child: Discount(
-                        
-  isOpen: d.isOpen, // ✅ هون
-                        onTap: () =>
-                            openRestaurantById(context, d.restaurantId),
+                        isOpen: d.isOpen, // ✅ هون
+                        onTap: () => openRestaurantById(context, d.restaurantId),
                         imagePath: _logoUrl(d),
                         subtitle: d.restaurantName,
+                        opensAtLabel: d.opensAtLabel ?? '',
                         price: 0,
                         discount: _discountText(d),
                         rating: d.ratingAvg,
@@ -134,8 +124,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
     return 4;
   }
 
-  String _logoUrl(RestaurantDiscountModel d) =>
-      UrlHelper.toFullUrl(d.logoSafe) ?? "";
+  String _logoUrl(RestaurantDiscountModel d) => UrlHelper.toFullUrl(d.logoSafe) ?? "";
 
   String _discountText(RestaurantDiscountModel d) {
     final food = d.foodDiscount;
@@ -167,11 +156,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
         preferredSize: Size.fromHeight(50.h),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: CustomAppbarProfile(
-            title: "Discounts",
-            icon: Icons.arrow_back_ios,
-            ontap: () => Navigator.of(context).pop(),
-          ),
+          child: CustomAppbarProfile(title: "Discounts", icon: Icons.arrow_back_ios, ontap: () => Navigator.of(context).pop()),
         ),
       ),
       body: Padding(
@@ -217,16 +202,13 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(16.r),
-                              ),
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
                               child: Container(
                                 height: imageH,
                                 width: double.infinity,
                                 color: Colors.black,
                                 alignment: Alignment.center,
-                                child:
-                                AppNetworkImage(
+                                child: AppNetworkImage(
                                   path: _logoUrl(d),
                                   height: imageH, // حدد حسب حجم الكونتينر عندك
                                   width: double.infinity,
@@ -238,7 +220,6 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-
 
                             Expanded(
                               child: Padding(
@@ -255,13 +236,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                         color: Colors.white,
                                         fontSize: 13.sp,
                                         fontWeight: FontWeight.w800,
-                                        fontFamily:
-                                            Localizations.localeOf(
-                                                  context,
-                                                ).languageCode ==
-                                                'ar'
-                                            ? 'Cairo'
-                                            : 'Inter',
+                                        fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                                       ),
                                     ),
 
@@ -269,20 +244,11 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
 
                                     if (discount.trim().isNotEmpty)
                                       Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 4.h,
-                                        ),
+                                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                                         decoration: BoxDecoration(
                                           color: Colors.black.withOpacity(0.55),
-                                          borderRadius: BorderRadius.circular(
-                                            12.r,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.white.withOpacity(
-                                              0.10,
-                                            ),
-                                          ),
+                                          borderRadius: BorderRadius.circular(12.r),
+                                          border: Border.all(color: Colors.white.withOpacity(0.10)),
                                         ),
 
                                         // ✅ هون كان يصير overflow: خليه يكمّش نفسه
@@ -295,13 +261,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                               color: Colors.white,
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w800,
-                                              fontFamily:
-                                                  Localizations.localeOf(
-                                                        context,
-                                                      ).languageCode ==
-                                                      'ar'
-                                                  ? 'Cairo'
-                                                  : 'Inter',
+                                              fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                                             ),
                                           ),
                                         ),
@@ -327,10 +287,5 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
 
 Future<void> openRestaurantById(BuildContext context, int restaurantId) async {
   if (restaurantId == 0) return;
-  await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => ResturantDetails(restaurant_id: restaurantId),
-    ),
-  );
+  await Navigator.push(context, MaterialPageRoute(builder: (_) => ResturantDetails(restaurant_id: restaurantId)));
 }

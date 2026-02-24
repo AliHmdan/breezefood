@@ -35,30 +35,19 @@ class _InformationScreenState extends State<InformationScreen> {
     final last = lastnameController.text.trim();
 
     if (first.isEmpty || last.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('auth.enter_first_last'.tr())));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('auth.enter_first_last'.tr())));
       return;
     }
 
     cubit.updateProfile(firstName: first, lastName: last);
   }
 
-  Widget _buildTextField({
-    required String hint,
-    required TextEditingController controller,
-  }) {
+  Widget _buildTextField({required String hint, required TextEditingController controller}) {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.Dark.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: AppColor.Dark.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))],
       ),
       child: TextFormField(
         controller: controller,
@@ -67,18 +56,12 @@ class _InformationScreenState extends State<InformationScreen> {
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: AppColor.gry, fontSize: 16.sp),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 20.w,
-            vertical: 15.h,
-          ),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.r),
-            borderSide: const BorderSide(
-              color: AppColor.primaryColor,
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: AppColor.primaryColor, width: 2),
           ),
         ),
       ),
@@ -94,15 +77,11 @@ class _InformationScreenState extends State<InformationScreen> {
           loading: () => EasyLoading.show(status: "common.saving".tr()),
           error: (msg) {
             EasyLoading.dismiss();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(msg.tr()), backgroundColor: Colors.red),
-            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg.tr()), backgroundColor: Colors.red));
           },
           profileUpdated: (_) {
             EasyLoading.dismiss();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const UpdateAddressScreen()),
-            );
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const UpdateAddressScreen()));
           },
         );
       },
@@ -117,10 +96,7 @@ class _InformationScreenState extends State<InformationScreen> {
               errorBuilder: (_, __, ___) => Container(
                 color: AppColor.Dark,
                 alignment: Alignment.center,
-                child: Text(
-                  "common.placeholder".tr(),
-                  style: const TextStyle(color: AppColor.white),
-                ),
+                child: Text("common.placeholder".tr(), style: TextStyle(color: AppColor.white)),
               ),
             ),
             SafeArea(
@@ -134,40 +110,22 @@ class _InformationScreenState extends State<InformationScreen> {
                       child: Container(
                         width: 40.w,
                         height: 40.h,
-                        decoration: BoxDecoration(
-                          color: AppColor.white,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: BoxDecoration(color: AppColor.white, shape: BoxShape.circle),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            color: AppColor.Dark,
-                            size: 16.sp,
-                          ),
+                          child: Icon(Icons.arrow_back_ios, color: AppColor.Dark, size: 16.sp),
                         ),
                       ),
                     ),
                     SizedBox(height: 16.h),
                     Text(
                       "auth.enter_info_title".tr(),
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        color: AppColor.white,
-                        fontFamily: "Manrope",
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18.sp, color: AppColor.white, fontFamily: "Manrope", fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 35.h),
-                    _buildTextField(
-                      hint: "auth.first_name".tr(),
-                      controller: firstnameController,
-                    ),
+                    _buildTextField(hint: "auth.first_name".tr(), controller: firstnameController),
                     SizedBox(height: 20.h),
-                    _buildTextField(
-                      hint: "auth.last_name".tr(),
-                      controller: lastnameController,
-                    ),
+                    _buildTextField(hint: "auth.last_name".tr(), controller: lastnameController),
                     SizedBox(height: 30.h),
                     InkWell(
                       onTap: _isLoading ? null : _saveInformation,
@@ -175,24 +133,15 @@ class _InformationScreenState extends State<InformationScreen> {
                         width: double.infinity,
                         height: 55.h,
                         decoration: BoxDecoration(
-                          color: _isLoading
-                              ? AppColor.gry
-                              : AppColor.primaryColor,
+                          color: _isLoading ? AppColor.gry : AppColor.primaryColor,
                           borderRadius: BorderRadius.circular(15.r),
                         ),
                         alignment: Alignment.center,
                         child: _isLoading
-                            ? const CircularProgressIndicator(
-                                color: AppColor.white,
-                              )
+                            ? CircularProgressIndicator(color: AppColor.white)
                             : Text(
                                 "common.save".tr(),
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  color: AppColor.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Manrope',
-                                ),
+                                style: TextStyle(fontSize: 16.sp, color: AppColor.white, fontWeight: FontWeight.bold, fontFamily: 'Manrope'),
                               ),
                       ),
                     ),

@@ -9,12 +9,7 @@ class LocationChip extends StatelessWidget {
   final String iconPath;
   final VoidCallback? onTap; // دالة عند الضغط
 
-  const LocationChip({
-    super.key,
-    required this.text,
-    required this.iconPath,
-    this.onTap,
-  });
+  const LocationChip({super.key, required this.text, required this.iconPath, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +21,7 @@ class LocationChip extends StatelessWidget {
         child: Container(
           margin: EdgeInsets.only(top: 12.h), // مسافة من الأعلى واليسار
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: AppColor.black,
-            borderRadius: BorderRadius.circular(30.r),
-          ),
+          decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(30.r)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -37,27 +29,15 @@ class LocationChip extends StatelessWidget {
               Container(
                 width: 28.w,
                 height: 28.h,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColor.white,
-                ),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: AppColor.white),
                 child: Center(
-                  child: SvgPicture.asset(
-                    iconPath,
-                    width: 16.w,
-                    height: 16.h,
-                    color: AppColor.black,
-                  ),
+                  child: SvgPicture.asset(iconPath, width: 16.w, height: 16.h, color: AppColor.black),
                 ),
               ),
               SizedBox(width: 3.w),
 
               // النص
-              CustomSubTitle(
-                subtitle: text,
-                color: AppColor.white,
-                fontsize: 12.sp,
-              ),
+              CustomSubTitle(subtitle: text, color: AppColor.white, fontsize: 12.sp),
             ],
           ),
         ),

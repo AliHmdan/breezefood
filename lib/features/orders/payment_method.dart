@@ -24,10 +24,7 @@ class PaymentMethod {
     this.imageWidth = 40,
     this.imageHeight = 24,
     this.fit = BoxFit.contain,
-  }) : assert(
-         trailingIcon != null || imageAsset != null,
-         'PaymentMethod يحتاج إما trailingIcon أو imageAsset',
-       );
+  }) : assert(trailingIcon != null || imageAsset != null, 'PaymentMethod يحتاج إما trailingIcon أو imageAsset');
 }
 
 /// ويدجت اختيار طريقة الدفع + زر الطلب
@@ -42,13 +39,13 @@ class PaymentMethodSection extends StatefulWidget {
   // ألوان قابلة للتخصيص عند الحاجة
   final Color tileColor;
   final Color radioActive;
-  final Color radioInactive;
+  Color? radioInactive = AppColor.white;
   final Color headerColor;
   final Color amountColor;
   final Color orderBtnColor;
   final Color orderTextColor;
 
-  const PaymentMethodSection({
+  PaymentMethodSection({
     super.key,
     this.headerTitle = "Payment method",
     required this.amountText,
@@ -58,7 +55,7 @@ class PaymentMethodSection extends StatefulWidget {
     this.onOrder,
     this.tileColor = AppColor.black,
     this.radioActive = AppColor.primaryColor,
-    this.radioInactive = AppColor.white,
+    this.radioInactive,
     this.headerColor = Colors.white,
     this.amountColor = AppColor.yellow,
     this.orderBtnColor = AppColor.primaryColor,
@@ -75,9 +72,7 @@ class _PaymentMethodSectionState extends State<PaymentMethodSection> {
   @override
   void initState() {
     super.initState();
-    _selectedId =
-        widget.initialSelectedId ??
-        (widget.methods.isNotEmpty ? widget.methods.first.id : "");
+    _selectedId = widget.initialSelectedId ?? (widget.methods.isNotEmpty ? widget.methods.first.id : "");
   }
 
   @override
@@ -141,7 +136,7 @@ class _PaymentMethodSectionState extends State<PaymentMethodSection> {
                 radius: radius,
                 tileColor: widget.tileColor,
                 radioActive: widget.radioActive,
-                radioInactive: widget.radioInactive,
+                radioInactive: widget.radioInactive ??= AppColor.white,
               );
             }),
 
@@ -156,18 +151,12 @@ class _PaymentMethodSectionState extends State<PaymentMethodSection> {
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.orderBtnColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14.r),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                 elevation: 0,
               ),
               child: Text(
                 "Order",
-                style: TextStyle(
-                  color: widget.orderTextColor,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: widget.orderTextColor, fontWeight: FontWeight.w700, fontSize: 14),
               ),
             ),
           ),
@@ -200,8 +189,7 @@ class _PaymentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dpr = MediaQuery.of(context).devicePixelRatio;
-    final targetW = (method.imageWidth.w * dpr)
-        .round(); // حجم فعلي مناسب للجهاز
+    final targetW = (method.imageWidth.w * dpr).round(); // حجم فعلي مناسب للجهاز
     final targetH = (method.imageHeight.h * dpr).round();
 
     final Widget trailing =
@@ -225,10 +213,7 @@ class _PaymentTile extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 6.h),
-      decoration: BoxDecoration(
-        color: tileColor,
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      decoration: BoxDecoration(color: tileColor, borderRadius: BorderRadius.circular(radius)),
       child: InkWell(
         borderRadius: BorderRadius.circular(radius),
         onTap: onTap,
@@ -236,20 +221,12 @@ class _PaymentTile extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
           child: Row(
             children: [
-              _RadioVisual(
-                activeColor: radioActive,
-                inactiveColor: radioInactive,
-                selected: selected,
-              ),
+              _RadioVisual(activeColor: radioActive, inactiveColor: radioInactive, selected: selected),
               SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   method.title,
-                  style: TextStyle(
-                    color: AppColor.light,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(color: AppColor.light, fontSize: 14.sp, fontWeight: FontWeight.w600),
                 ),
               ),
               trailing,
@@ -267,11 +244,7 @@ class _RadioVisual extends StatelessWidget {
   final Color activeColor;
   final Color inactiveColor;
 
-  const _RadioVisual({
-    required this.selected,
-    required this.activeColor,
-    required this.inactiveColor,
-  });
+  const _RadioVisual({required this.selected, required this.activeColor, required this.inactiveColor});
 
   @override
   Widget build(BuildContext context) {
@@ -283,20 +256,14 @@ class _RadioVisual extends StatelessWidget {
       height: outerSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: selected ? activeColor : inactiveColor,
-          width: 2,
-        ),
+        border: Border.all(color: selected ? activeColor : inactiveColor, width: 2),
       ),
       alignment: Alignment.center,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         width: selected ? innerSize : 0,
         height: selected ? innerSize : 0,
-        decoration: BoxDecoration(
-          color: selected ? activeColor : Colors.transparent,
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(color: selected ? activeColor : Colors.transparent, shape: BoxShape.circle),
       ),
     );
   }

@@ -10,6 +10,7 @@ import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
 import 'package:breezefood/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:breezefood/features/profile/presentation/ui/profile.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/stores_nav_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,6 +41,7 @@ class _MainShellState extends State<MainShell> {
     StoresNavTab(),
     FavoritePage(),
     BlocProvider(create: (_) => getIt<OrdersCubit>(), child: Orders()),
+    Profile(),
   ];
 
   @override
@@ -74,11 +76,13 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _favoritesCubit,
-      child: Scaffold(
-        body: IndexedStack(index: _index, children: _pages),
-        bottomNavigationBar: BottomNavBreeze(
-          currentIndex: _index,
-          onChanged: _onTabChanged,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: AppColor.Dark,
+          extendBody: true,
+          body: IndexedStack(index: _index, children: _pages),
+
+          bottomNavigationBar: BottomNavBreeze(currentIndex: _index, onChanged: _onTabChanged),
         ),
       ),
     );

@@ -72,9 +72,7 @@ class _SearchState extends State<Search> {
 
     setState(() {
       showSuggestions = true;
-      filteredSuggestions = base
-          .where((s) => s.toLowerCase().contains(q) && !searchTags.contains(s))
-          .toList();
+      filteredSuggestions = base.where((s) => s.toLowerCase().contains(q) && !searchTags.contains(s)).toList();
     });
   }
 
@@ -88,9 +86,7 @@ class _SearchState extends State<Search> {
 
   void _applySuggestionToField(String suggestion) {
     _controller.text = suggestion;
-    _controller.selection = TextSelection.fromPosition(
-      TextPosition(offset: _controller.text.length),
-    );
+    _controller.selection = TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
     setState(() => showSuggestions = false);
   }
 
@@ -108,10 +104,7 @@ class _SearchState extends State<Search> {
   Widget _buildTagChip(String tag) {
     return Container(
       margin: EdgeInsetsDirectional.only(end: 8.w, bottom: 8.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3A3A3A),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      decoration: BoxDecoration(color: AppColor.search, borderRadius: BorderRadius.circular(20.r)),
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -121,17 +114,13 @@ class _SearchState extends State<Search> {
             onTap: () => _removeTag(tag),
             child: Padding(
               padding: EdgeInsets.all(6.w),
-              child: Icon(Icons.close, size: 18.sp, color: Colors.white),
+              child: Icon(Icons.close, size: 18.sp, color: AppColor.white),
             ),
           ),
           SizedBox(width: 4.w),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.w),
-            child: CustomSubTitle(
-              subtitle: tag,
-              color: AppColor.white,
-              fontsize: 14.sp,
-            ),
+            child: CustomSubTitle(subtitle: tag, color: AppColor.white, fontsize: 14.sp),
           ),
         ],
       ),
@@ -141,10 +130,7 @@ class _SearchState extends State<Search> {
   Widget _buildHistoryChip(String h) {
     return Container(
       margin: EdgeInsets.only(right: 8.w, bottom: 8.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3A3A3A),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
+      decoration: BoxDecoration(color: AppColor.search, borderRadius: BorderRadius.circular(20.r)),
       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -160,7 +146,7 @@ class _SearchState extends State<Search> {
             },
             child: Padding(
               padding: EdgeInsets.all(6.w),
-              child: Icon(Icons.close, size: 18.sp, color: Colors.white),
+              child: Icon(Icons.close, size: 18.sp, color: AppColor.white),
             ),
           ),
           SizedBox(width: 4.w),
@@ -171,11 +157,7 @@ class _SearchState extends State<Search> {
             },
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w),
-              child: CustomSubTitle(
-                subtitle: h,
-                color: AppColor.white,
-                fontsize: 14.sp,
-              ),
+              child: CustomSubTitle(subtitle: h, color: AppColor.white, fontsize: 14.sp),
             ),
           ),
         ],
@@ -201,12 +183,7 @@ class _SearchState extends State<Search> {
               InkWell(
                 borderRadius: BorderRadius.circular(12.r),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ResturantDetails(restaurant_id: r.id),
-                    ),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ResturantDetails(restaurant_id: r.id)));
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -217,11 +194,7 @@ class _SearchState extends State<Search> {
                       constraints: BoxConstraints(maxWidth: 200.w),
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 6.h),
-                        child: CustomSubTitle(
-                          subtitle: r.name,
-                          color: AppColor.white,
-                          fontsize: 14.sp,
-                        ),
+                        child: CustomSubTitle(subtitle: r.name, color: AppColor.white, fontsize: 14.sp),
                       ),
                     ),
                   ],
@@ -238,17 +211,9 @@ class _SearchState extends State<Search> {
                 children: [
                   Icon(Icons.star, color: AppColor.yellow, size: 16.sp),
                   SizedBox(width: 4.w),
-                  CustomSubTitle(
-                    subtitle: ratingAvg.toStringAsFixed(1),
-                    color: AppColor.white,
-                    fontsize: 14.sp,
-                  ),
+                  CustomSubTitle(subtitle: ratingAvg.toStringAsFixed(1), color: AppColor.white, fontsize: 14.sp),
                   SizedBox(width: 6.w),
-                  CustomSubTitle(
-                    subtitle: "$ratingCount",
-                    color: Colors.white70,
-                    fontsize: 12.sp,
-                  ),
+                  CustomSubTitle(subtitle: "$ratingCount", color: Colors.white70, fontsize: 12.sp),
                 ],
               ),
             ],
@@ -269,33 +234,23 @@ class _SearchState extends State<Search> {
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: count,
-                  physics: count <= 2
-                      ? const NeverScrollableScrollPhysics()
-                      : const BouncingScrollPhysics(),
+                  physics: count <= 2 ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
                     final it = block.items[index];
 
-                    final title = context.pick(
-                      ar: it.names.ar,
-                      en: it.names.en,
-                    );
+                    final title = context.pick(ar: it.names.ar, en: it.names.en);
 
                     final fullImg = _toFullUrl(it.imageUrl ?? "");
 
                     /// ✅ Discount extraction (Safe)
                     final hasDiscount = (it.hasDiscount ?? false) == true;
-                    final before =
-                        (it.priceBefore ?? double.tryParse(it.basePrice) ?? 0)
-                            .toDouble();
+                    final before = (it.priceBefore ?? double.tryParse(it.basePrice) ?? 0).toDouble();
                     final after = (it.priceAfter ?? before).toDouble();
-                    final percent =
-                        double.tryParse(it.discountValue ?? "0") ?? 0;
+                    final percent = double.tryParse(it.discountValue ?? "0") ?? 0;
 
                     return Container(
                       width: itemWidth,
-                      margin: EdgeInsetsDirectional.only(
-                        end: index == count - 1 ? 0 : gap,
-                      ),
+                      margin: EdgeInsetsDirectional.only(end: index == count - 1 ? 0 : gap),
                       child: GestureDetector(
                         onTap: () {
                           showAddOrderDialog(
@@ -305,9 +260,7 @@ class _SearchState extends State<Search> {
                             title: title,
                             price: hasDiscount ? after : before,
                             oldPrice: before,
-                            imagePathOrUrl: fullImg.isNotEmpty
-                                ? fullImg
-                                : "assets/images/shawarma_box.png",
+                            imagePathOrUrl: fullImg.isNotEmpty ? fullImg : "assets/images/shawarma_box.png",
                             description: "",
                             extraMeals: const <MenuExtra>[],
                             isRestaurantOpen: isOpen,
@@ -367,11 +320,7 @@ class _SearchState extends State<Search> {
                         // =================== Search Bar ===================
                         Row(
                           children: [
-                            CustomArrow(
-                              onTap: () => Navigator.pop(context),
-                              color: AppColor.black,
-                              background: AppColor.white,
-                            ),
+                            CustomArrow(onTap: () => Navigator.pop(context), color: AppColor.white, background: Colors.transparent),
                             SizedBox(width: 8.w),
                             Expanded(
                               child: Container(
@@ -381,47 +330,34 @@ class _SearchState extends State<Search> {
                                 child: TextField(
                                   focusNode: _focusNode,
                                   controller: _controller,
-                                  onTap: () =>
-                                      _filterSuggestions(_controller.text),
+                                  onTap: () => _filterSuggestions(_controller.text),
                                   onChanged: (v) {
                                     _filterSuggestions(v);
                                     searchCubit.searchDebounced(v);
                                   },
                                   onSubmitted: (_) => _doSearchNow(),
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: AppColor.white,
                                     fontSize: 14.sp,
-                                    fontFamily: context.isAr
-                                        ? 'Cairo'
-                                        : 'Inter',
+                                    fontFamily: context.isAr ? 'Cairo' : 'Inter',
                                     fontWeight: FontWeight.bold,
                                   ),
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.all(10.w),
                                     filled: true,
-                                    fillColor: AppColor.white,
+                                    fillColor: AppColor.search,
                                     prefixIcon: Padding(
                                       padding: const EdgeInsets.all(10.0),
-                                      child: SvgPicture.asset(
-                                        'assets/icons/search.svg',
-                                        color: AppColor.gry,
-                                        width: 20.w,
-                                        height: 20.h,
-                                      ),
+                                      child: SvgPicture.asset('assets/icons/search.svg', color: AppColor.white, width: 20.w, height: 20.h),
                                     ),
                                     hintText: "search.hint".tr(),
                                     hintStyle: TextStyle(
-                                      color: AppColor.gry,
+                                      color: AppColor.LightActive,
                                       fontSize: 14.sp,
-                                      fontFamily: context.isAr
-                                          ? 'Cairo'
-                                          : 'Inter',
+                                      fontFamily: context.isAr ? 'Cairo' : 'Inter',
                                       fontWeight: FontWeight.w400,
                                     ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30.r),
-                                      borderSide: BorderSide.none,
-                                    ),
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30.r), borderSide: BorderSide.none),
                                   ),
                                 ),
                               ),
@@ -432,15 +368,8 @@ class _SearchState extends State<Search> {
                               borderRadius: BorderRadius.circular(50.0.r),
                               child: Container(
                                 padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(50.0.r),
-                                ),
-                                child: SvgPicture.asset(
-                                  'assets/icons/boxsearch.svg',
-                                  width: 20.w,
-                                  height: 20.h,
-                                ),
+                                decoration: BoxDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(50.0.r)),
+                                child: SvgPicture.asset('assets/icons/boxsearch.svg', width: 20.w, height: 20.h, color: AppColor.white),
                               ),
                             ),
                           ],
@@ -450,83 +379,46 @@ class _SearchState extends State<Search> {
                         if (searchTags.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(top: 20.h),
-                            child: Wrap(
-                              spacing: 8.w,
-                              runSpacing: 8.h,
-                              children: searchTags.map(_buildTagChip).toList(),
-                            ),
+                            child: Wrap(spacing: 8.w, runSpacing: 8.h, children: searchTags.map(_buildTagChip).toList()),
                           )
                         else if (s.history.isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(top: 20.h),
-                            child: Wrap(
-                              spacing: 8.w,
-                              runSpacing: 8.h,
-                              children: s.history
-                                  .map(_buildHistoryChip)
-                                  .toList(),
-                            ),
+                            child: Wrap(spacing: 8.w, runSpacing: 8.h, children: s.history.map(_buildHistoryChip).toList()),
                           ),
 
                         SizedBox(height: 12.h),
 
-                        if (s.provinceDetected != null &&
-                            s.provinceDetected!.trim().isNotEmpty)
+                        if (s.provinceDetected != null && s.provinceDetected!.trim().isNotEmpty)
                           Padding(
                             padding: EdgeInsets.only(bottom: 8.h),
                             child: Text(
                               "${'search.province'.tr()}: ${s.provinceDetected!}",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12.sp,
-                                fontFamily: context.isAr ? 'Cairo' : 'Inter',
-                              ),
+                              style: TextStyle(color: Colors.white70, fontSize: 12.sp, fontFamily: context.isAr ? 'Cairo' : 'Inter'),
                             ),
                           ),
 
                         // =================== Results ===================
                         Expanded(
                           child: s.loading
-                              ? Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppColor.white,
-                                  ),
-                                )
+                              ? Center(child: CircularProgressIndicator(color: AppColor.white))
                               : (s.error != null)
                               ? Center(
-                                  child: CustomSubTitle(
-                                    subtitle: s.error!,
-                                    color: AppColor.red,
-                                    fontsize: 14,
-                                  ),
+                                  child: CustomSubTitle(subtitle: s.error!, color: AppColor.red, fontsize: 14),
                                 )
                               : (_controller.text.trim().isEmpty)
                               ? Center(
                                   child: Text(
                                     "search.start_hint".tr(),
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14.sp,
-                                      fontFamily: context.isAr
-                                          ? 'Cairo'
-                                          : 'Inter',
-                                    ),
+                                    style: TextStyle(color: Colors.white70, fontSize: 14.sp, fontFamily: context.isAr ? 'Cairo' : 'Inter'),
                                     textAlign: TextAlign.center,
                                   ),
                                 )
                               : (s.results.isEmpty)
                               ? Center(
-                                  child: CustomSubTitle(
-                                    subtitle: "search.no_results".tr(),
-                                    color: Colors.white70,
-                                    fontsize: 14.sp,
-                                  ),
+                                  child: CustomSubTitle(subtitle: "search.no_results".tr(), color: Colors.white70, fontsize: 14.sp),
                                 )
-                              : ListView.builder(
-                                  itemCount: s.results.length,
-                                  itemBuilder: (context, i) =>
-                                      _apiRestaurantBlock(s.results[i]),
-                                ),
+                              : ListView.builder(itemCount: s.results.length, itemBuilder: (context, i) => _apiRestaurantBlock(s.results[i])),
                         ),
                       ],
                     ),
@@ -546,10 +438,7 @@ class _SearchState extends State<Search> {
     final fallback = Container(
       height: 35.h,
       width: 35.w,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(50),
-      ),
+      decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(50)),
       child: Center(
         child: Icon(Icons.store, color: AppColor.gry, size: 20.sp),
       ),
@@ -557,17 +446,9 @@ class _SearchState extends State<Search> {
 
     if (p.isEmpty) return fallback;
 
-    final url = p.startsWith("http")
-        ? p
-        : "https://breezefood.cloud/${p.startsWith("/") ? p.substring(1) : p}";
+    final url = p.startsWith("http") ? p : "https://breezefood.cloud/${p.startsWith("/") ? p.substring(1) : p}";
 
-    return Image.network(
-      url,
-      height: 35.h,
-      width: 35.w,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => fallback,
-    );
+    return Image.network(url, height: 35.h, width: 35.w, fit: BoxFit.cover, errorBuilder: (_, __, ___) => fallback);
   }
 }
 
@@ -594,14 +475,10 @@ class _SearchApiItemCard extends StatelessWidget {
     final beforeTxt = context.money(priceBefore, decimals: 0);
     final afterTxt = context.money(priceAfter, decimals: 0);
 
-    final showDiscount =
-        hasDiscount && discountPercent > 0 && priceAfter < priceBefore;
+    final showDiscount = hasDiscount && discountPercent > 0 && priceAfter < priceBefore;
 
     return Container(
-      decoration: BoxDecoration(
-        color: AppColor.black,
-        borderRadius: BorderRadius.circular(14.r),
-      ),
+      decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(14.r)),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,13 +489,7 @@ class _SearchApiItemCard extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: 90.h,
-                child: imageUrl.isEmpty
-                    ? _fallback()
-                    : Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _fallback(),
-                      ),
+                child: imageUrl.isEmpty ? _fallback() : Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback()),
               ),
 
               /// ✅ Discount Badge (مباشرة داخل Stack بدون Padding خارجي)
@@ -627,14 +498,8 @@ class _SearchApiItemCard extends StatelessWidget {
                   top: 8,
                   start: 8,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(12.r)),
                     child: Text(
                       "-${discountPercent.toStringAsFixed(0)}%",
                       style: TextStyle(
@@ -656,23 +521,13 @@ class _SearchApiItemCard extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: AppColor.white,
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w600,
-                fontFamily: context.isAr ? 'Cairo' : 'Inter',
-              ),
+              style: TextStyle(color: AppColor.Dark, fontSize: 13.sp, fontWeight: FontWeight.w600, fontFamily: context.isAr ? 'Cairo' : 'Inter'),
             ),
           ),
 
           /// ================= Price =================
           Padding(
-            padding: EdgeInsetsDirectional.only(
-              start: 8.w,
-              end: 8.w,
-              top: 2.h,
-              bottom: 8.h,
-            ),
+            padding: EdgeInsetsDirectional.only(start: 8.w, end: 8.w, top: 2.h, bottom: 8.h),
             child: showDiscount
                 ? Row(
                     children: [
@@ -687,6 +542,7 @@ class _SearchApiItemCard extends StatelessWidget {
                               color: AppColor.LightActive,
                               fontSize: 11.sp,
                               decoration: TextDecoration.lineThrough,
+                              decorationColor: AppColor.LightActive,
                               fontFamily: context.isAr ? 'Cairo' : 'Inter',
                             ),
                           ),
@@ -718,7 +574,7 @@ class _SearchApiItemCard extends StatelessWidget {
                     child: Text(
                       beforeTxt,
                       style: TextStyle(
-                        color: AppColor.white,
+                        color: AppColor.Dark,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w800,
                         fontFamily: context.isAr ? 'Cairo' : 'Inter',

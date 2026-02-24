@@ -1326,11 +1326,7 @@ class DiscountItemCard extends StatelessWidget {
   final MenuItem item;
   final String imageUrl;
 
-  const DiscountItemCard({
-    super.key,
-    required this.item,
-    required this.imageUrl,
-  });
+  const DiscountItemCard({super.key, required this.item, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -1364,22 +1360,16 @@ class DiscountItemCard extends StatelessWidget {
                   bottom: 0,
                   start: 0,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.w,
-                      vertical: 2.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: AppColor.red,
                       borderRadius: BorderRadiusDirectional.only(
                         topEnd: Radius.circular(20.r),
                         bottomEnd: Radius.circular(20.r),
+                        bottomStart: Radius.circular(25.r),
                       ),
                     ),
-                    child: CustomSubTitle(
-                      subtitle: "-${item.discountPercent.toStringAsFixed(0)}%",
-                      color: AppColor.white,
-                      fontsize: 11.sp,
-                    ),
+                    child: CustomSubTitle(subtitle: "-${item.discountPercent.toStringAsFixed(0)}%", color: Colors.white, fontsize: 11.sp),
                   ),
                 ),
             ],
@@ -1400,10 +1390,7 @@ class DiscountItemCard extends StatelessWidget {
                     color: AppColor.white,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
-                    fontFamily:
-                        Localizations.localeOf(context).languageCode == 'ar'
-                        ? 'Cairo'
-                        : 'Inter',
+                    fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                   ),
                 ),
                 Row(
@@ -1415,25 +1402,14 @@ class DiscountItemCard extends StatelessWidget {
                           color: AppColor.LightActive,
                           fontSize: 11.sp,
                           decoration: TextDecoration.lineThrough,
-                          fontFamily:
-                              Localizations.localeOf(context).languageCode ==
-                                  'ar'
-                              ? 'Cairo'
-                              : 'Inter',
+                          decorationColor: AppColor.LightActive,
+                          fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                         ),
                       ),
                       const SizedBox(width: 4),
-                      CustomSubTitle(
-                        subtitle: context.money(after, decimals: 0),
-                        color: AppColor.red,
-                        fontsize: 12.sp,
-                      ),
+                      CustomSubTitle(subtitle: context.money(after, decimals: 0), color: AppColor.red, fontsize: 12.sp),
                     ] else ...[
-                      CustomSubTitle(
-                        subtitle: context.money(after, decimals: 0),
-                        color: AppColor.white,
-                        fontsize: 12.sp,
-                      ),
+                      CustomSubTitle(subtitle: context.money(after, decimals: 0), color: AppColor.white, fontsize: 12.sp),
                     ],
                   ],
                 ),

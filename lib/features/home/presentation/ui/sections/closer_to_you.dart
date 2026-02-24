@@ -3,6 +3,7 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/prices_helper.dart';
+import 'package:breezefood/core/services/detect_language.dart' show extractLocalizedText;
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/breakfast_restaurants.dart';
@@ -11,6 +12,7 @@ import 'package:breezefood/features/home/presentation/ui/widgets/open_status_bad
 import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +21,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class CloserToYouCard extends StatefulWidget {
   final String? image;
   final String name;
+  final String opensAtLabel;
   final double rating;
   final double? deliveryFee;
   final bool isOpen; // ✅ NEW
@@ -27,6 +30,7 @@ class CloserToYouCard extends StatefulWidget {
   const CloserToYouCard({
     super.key,
     required this.image,
+    required this.opensAtLabel,
     required this.name,
     required this.rating,
     required this.deliveryFee,
@@ -61,24 +65,18 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
           Stack(
             children: [
               // ✅ Open/Closed badge
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child:
-                AppNetworkImage(
-                  path: widget.image,
-                  height: 100.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                 
-                  fallback: Image.asset(
-                    "assets/images/meal_breeze.jpeg",
-                    height: 100.h,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              AppNetworkImage(
+                path: widget.image,
+                height: 100.h,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                radius: BorderRadius.circular(12.r),
+                fallback: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset("assets/images/meal_breeze.jpeg", height: 100.h, width: double.infinity, fit: BoxFit.cover),
                 ),
               ),
-              if (!widget.isOpen) const ClosedOverlay(),
+              if (!widget.isOpen) ClosedOverlay(opensAtLabel: widget.opensAtLabel),
               PositionedDirectional(
                 top: 6,
                 end: 6,
@@ -86,14 +84,8 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                   padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2), //   خلفية خفيفة
-                    borderRadius: BorderRadius.circular(12.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 4,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(10.r),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 4, offset: Offset(0, 1))],
                   ),
                   child: Row(
                     children: [
@@ -101,11 +93,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
                       SizedBox(width: 3.w),
                       Text(
                         _rating.toStringAsFixed(1),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 11.sp, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -121,11 +109,7 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: AppColor.light, fontSize: 15.sp, fontWeight: FontWeight.w600),
             ),
           ),
 
@@ -133,18 +117,9 @@ class _CloserToYouCardState extends State<CloserToYouCard> {
 
           Row(
             children: [
-              SvgPicture.asset(
-                "assets/icons/motor.svg",
-                width: 16.w,
-                height: 16.h,
-                color: Colors.white,
-              ),
+              SvgPicture.asset("assets/icons/motor.svg", width: 16.w, height: 16.h, color: Colors.white),
               SizedBox(width: 4.w),
-              CustomSubTitle(
-                subtitle: feeText,
-                color: AppColor.white,
-                fontsize: 12.sp,
-              ),
+              CustomSubTitle(subtitle: feeText, color: AppColor.white, fontsize: 12.sp),
             ],
           ),
         ],
@@ -161,11 +136,7 @@ class CloserToYou extends StatelessWidget {
   final List<HomeRestaurantModel> restaurants;
   final bool hideWhenEmpty;
 
-  const CloserToYou({
-    super.key,
-    required this.restaurants,
-    this.hideWhenEmpty = true,
-  });
+  const CloserToYou({super.key, required this.restaurants, this.hideWhenEmpty = true});
 
   @override
   Widget build(BuildContext context) {
@@ -177,15 +148,8 @@ class CloserToYou extends StatelessWidget {
         child: Container(
           height: 100.h,
           alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: AppColor.black,
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: CustomSubTitle(
-            subtitle: "No restaurants found",
-            color: AppColor.white,
-            fontsize: 14.sp,
-          ),
+          decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(12.r)),
+          child: CustomSubTitle(subtitle: "No restaurants found", color: AppColor.white, fontsize: 14.sp),
         ),
       );
     }
@@ -209,9 +173,11 @@ class CloserToYou extends StatelessWidget {
             child: CloserToYouCard(
               isOpen: r.isOpen, // ✅ هون
               image: restaurantImage(r),
-              name: r.name,
+              // name: r.name,
+              name: extractLocalizedText(r.name, context.locale),
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,
               deliveryFee: r.deliveryFinalFee?.toDouble(),
+              opensAtLabel: r.opensAtLabel ?? '',
 
               onTap: () async {
                 await Navigator.push(

@@ -30,19 +30,14 @@ class ResturantDetails extends StatefulWidget {
   final int restaurant_id;
   final int? initialMenuItemId;
 
-  const ResturantDetails({
-    super.key,
-    required this.restaurant_id,
-    this.initialMenuItemId,
-  });
+  const ResturantDetails({super.key, required this.restaurant_id, this.initialMenuItemId});
 
   @override
   State<ResturantDetails> createState() => _ResturantDetailsState();
 }
 
 class _ResturantDetailsState extends State<ResturantDetails> {
-  late final RestaurantDetailsScrollController scrollCtl =
-      RestaurantDetailsScrollController()..init();
+  late final RestaurantDetailsScrollController scrollCtl = RestaurantDetailsScrollController()..init();
 
   late final RestaurantDetailsCubit cubit;
 
@@ -76,16 +71,9 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
     final delta = currentCenterX - desiredCenterX;
 
-    final target = (_tabsController.offset + delta).clamp(
-      _tabsController.position.minScrollExtent,
-      _tabsController.position.maxScrollExtent,
-    );
+    final target = (_tabsController.offset + delta).clamp(_tabsController.position.minScrollExtent, _tabsController.position.maxScrollExtent);
 
-    _tabsController.animateTo(
-      target,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
+    _tabsController.animateTo(target, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
   }
 
   Future<void> _precacheImage(String url) async {
@@ -93,10 +81,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     if (_preloadedImages.contains(url)) return;
 
     try {
-      await precacheImage(
-        CachedNetworkImageProvider(url, cacheManager: AppCacheManager.instance),
-        context,
-      );
+      await precacheImage(CachedNetworkImageProvider(url, cacheManager: AppCacheManager.instance), context);
       _preloadedImages.add(url);
     } catch (_) {}
   }
@@ -174,10 +159,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
             SizedBox(height: 14.h),
             SizedBox(
               height: 44.h,
-              child: ElevatedButton(
-                onPressed: () => cubit.load(widget.restaurant_id),
-                child: Text("common.retry".tr()),
-              ),
+              child: ElevatedButton(onPressed: () => cubit.load(widget.restaurant_id), child: Text("common.retry".tr())),
             ),
           ],
         ),
@@ -252,14 +234,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
     final hasMostPopular = mostPopularItems.isNotEmpty;
 
     final allItems = sections.expand((s) => s.items).toList();
-    discountedItems = allItems.where((x) => x.hasDiscount).toList()
-      ..sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
+    discountedItems = allItems.where((x) => x.hasDiscount).toList()..sort((a, b) => b.discountPercent.compareTo(a.discountPercent));
     final hasDiscountSection = discountedItems.isNotEmpty;
 
-    final totalCount =
-        sections.length +
-        (hasMostPopular ? 1 : 0) +
-        (hasDiscountSection ? 1 : 0);
+    final totalCount = sections.length + (hasMostPopular ? 1 : 0) + (hasDiscountSection ? 1 : 0);
 
     scrollCtl.setCategoryKeys(totalCount);
 
@@ -279,11 +257,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
       ...menuCats,
     ];
 
-    itemsByCategory = [
-      if (hasDiscountSection) discountedItems,
-      if (hasMostPopular) mostPopularItems,
-      ...sections.map((e) => e.items),
-    ];
+    itemsByCategory = [if (hasDiscountSection) discountedItems, if (hasMostPopular) mostPopularItems, ...sections.map((e) => e.items)];
 
     for (final section in sections) {
       for (final item in section.items.take(4)) {
@@ -308,20 +282,26 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               SizedBox(
                 height: 260.h,
                 child: _headerReady
-                    ? AppNetworkImage(
-                        height: 260,
-                        path: headerImageUrl,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset(
-                        "assets/images/meal_breeze.jpeg",
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                    ? AppNetworkImage(height: 260, path: headerImageUrl, width: double.infinity, fit: BoxFit.cover)
+                    : Image.asset("assets/images/meal_breeze.jpeg", width: double.infinity, fit: BoxFit.cover),
               ),
               Expanded(child: Container(color: AppColor.Dark)),
             ],
+          ),
+        ),
+
+        ///
+        /// here shadow
+        ///
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green.withOpacity(0.2), Colors.black.withOpacity(0.8), Colors.black.withOpacity(0.8), Colors.green.withOpacity(0.9)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
         ),
 
@@ -333,23 +313,15 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
             return [
               SliverOverlapAbsorber(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                  context,
-                ),
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                 sliver: RDHeaderSliver(
-                  innerBoxIsScrolled: innerBoxIsScrolled,  
+                  innerBoxIsScrolled: innerBoxIsScrolled,
                   restaurantName: restaurantName,
                   avgRatingText: avgRatingText,
                   reviewsCountText: reviewsCountText,
                   onBack: () => Navigator.pop(context),
                   onSearch: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            Search(restaurantId: widget.restaurant_id),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => Search(restaurantId: widget.restaurant_id)));
                   },
                 ),
               ),
@@ -361,6 +333,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     roundedTop: !innerBoxIsScrolled,
                     divider: _divider(),
                     deliveryTimeText: deliveryTime,
+                    restaurantName: restaurantName,
                     deliveryBaseText: deliveryBase,
                     deliveryFinalText: deliveryFinal,
                     showTwoPrices: showTwoPrices,
@@ -376,8 +349,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                     reviewsCountText: reviewsCountText,
                     onRateTap: () async {
                       final reviewId = myReviewId;
-                      final hasMyRating =
-                          (reviewId ?? 0) > 0 && myUserRating > 0;
+                      final hasMyRating = (reviewId ?? 0) > 0 && myUserRating > 0;
 
                       final res = await showRateDialog(
                         context,
@@ -391,22 +363,16 @@ class _ResturantDetailsState extends State<ResturantDetails> {
 
                       if (res.delete) {
                         if ((reviewId ?? 0) == 0) {
-                          EasyLoading.showError(
-                            "reviews.no_review_to_delete".tr(),
-                          );
+                          EasyLoading.showError("reviews.no_review_to_delete".tr());
                           return;
                         }
 
-                        await submitCubit.deleteRestaurantRate(
-                          reviewId: reviewId!,
-                        );
+                        await submitCubit.deleteRestaurantRate(reviewId: reviewId!);
                         if (!mounted) return;
 
                         submitCubit.state.maybeWhen(
                           deleteSuccess: () async {
-                            EasyLoading.showSuccess(
-                              "reviews.delete_success".tr(),
-                            );
+                            EasyLoading.showSuccess("reviews.delete_success".tr());
                             await cubit.load(widget.restaurant_id);
                           },
                           error: (msg) => EasyLoading.showError(msg.tr()),
@@ -420,10 +386,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
                         return;
                       }
 
-                      await submitCubit.submitRestaurantRate(
-                        restaurantId: widget.restaurant_id,
-                        rating: res.rating!,
-                      );
+                      await submitCubit.submitRestaurantRate(restaurantId: widget.restaurant_id, rating: res.rating!);
 
                       if (!mounted) return;
 
@@ -443,12 +406,10 @@ class _ResturantDetailsState extends State<ResturantDetails> {
           },
           body: Builder(
             builder: (context) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) => scrollCtl.attachInner(),
-              );
+              WidgetsBinding.instance.addPostFrameCallback((_) => scrollCtl.attachInner());
 
               return Container(
-                 color: AppColor.Dark, // ✅ أهم سطر: يمنع ظهور الغلاف ورا الوجبات
+                color: AppColor.Dark, // ✅ أهم سطر: يمنع ظهور الغلاف ورا الوجبات
                 child: RDSectionsSliverList(
                   restaurantId: widget.restaurant_id,
                   isRestaurantOpen: _isRestaurantOpen,
@@ -484,9 +445,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
               showCountAndTotal: true,
               onViewCart: () async {
                 if (!_isRestaurantOpen) {
-                  EasyLoading.showInfo(
-                    "restaurant.closed_cannot_checkout".tr(),
-                  );
+                  EasyLoading.showInfo("restaurant.closed_cannot_checkout".tr());
                   return;
                 }
 
@@ -514,12 +473,7 @@ class _ResturantDetailsState extends State<ResturantDetails> {
           body: BlocBuilder<RestaurantDetailsCubit, RestaurantDetailsState>(
             bloc: cubit,
             builder: (context, state) {
-              return state.when(
-                initial: _loadingView,
-                loading: _loadingView,
-                error: _errorView,
-                loaded: (data) => _buildLoaded(context, data),
-              );
+              return state.when(initial: _loadingView, loading: _loadingView, error: _errorView, loaded: (data) => _buildLoaded(context, data));
             },
           ),
         ),

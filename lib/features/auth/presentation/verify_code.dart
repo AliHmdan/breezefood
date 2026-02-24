@@ -103,19 +103,14 @@ class _VerfiyCodeState extends State<VerfiyCode> {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isResending = false);
 
-              final msg = (data is Map)
-                  ? (data["message"] ?? "auth.code_sent".tr())
-                  : "auth.code_sent".tr();
+              final msg = (data is Map) ? (data["message"] ?? "auth.code_sent".tr()) : "auth.code_sent".tr();
               _showSuccess(msg.toString());
             },
             verified: (data) {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isVerifying = false);
 
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const InformationScreen()),
-              );
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const InformationScreen()));
             },
           );
         },
@@ -129,10 +124,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
               errorBuilder: (_, __, ___) => Container(
                 color: AppColor.Dark,
                 alignment: Alignment.center,
-                child: Text(
-                  "common.placeholder".tr(),
-                  style: const TextStyle(color: AppColor.white),
-                ),
+                child: Text("common.placeholder".tr(), style: TextStyle(color: AppColor.white)),
               ),
             ),
             SafeArea(
@@ -146,38 +138,22 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                       child: Container(
                         width: 40.w,
                         height: 40.h,
-                        decoration: const BoxDecoration(
-                          color: AppColor.white,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: BoxDecoration(color: AppColor.white, shape: BoxShape.circle),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            color: AppColor.Dark,
-                            size: 16.sp,
-                          ),
+                          child: Icon(Icons.arrow_back_ios, color: AppColor.Dark, size: 16.sp),
                         ),
                       ),
                     ),
                     SizedBox(height: 10.h),
                     Text(
                       "auth.enter_code_title".tr(),
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.white,
-                      ),
+                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold, color: AppColor.white),
                     ),
                     SizedBox(height: 8.h),
                     Text(
                       "auth.enter_code_hint".tr(args: [widget.phone]),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AppColor.gry,
-                        fontFamily: "Manrope",
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: TextStyle(fontSize: 14.sp, color: AppColor.gry, fontFamily: "Manrope", fontWeight: FontWeight.w400),
                     ),
                     SizedBox(height: 45.h),
                     SizedBox(
@@ -214,26 +190,19 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                         padding: EdgeInsets.symmetric(vertical: 10.h),
                         child: Text(
                           _message!,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: _messageColor,
-                          ),
+                          style: TextStyle(fontSize: 14.sp, color: _messageColor),
                         ),
                       ),
                     SizedBox(height: 20.h),
                     InkWell(
                       onTap: (_isResending || _isVerifying) ? null : _resendCode,
                       child: Text(
-                        _isResending
-                            ? "common.sending".tr()
-                            : "auth.resend_code".tr(),
+                        _isResending ? "common.sending".tr() : "auth.resend_code".tr(),
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontFamily: "Manrope",
                           fontWeight: FontWeight.w400,
-                          color: (_isResending || _isVerifying)
-                              ? AppColor.gry
-                              : AppColor.primaryColor,
+                          color: (_isResending || _isVerifying) ? AppColor.gry : AppColor.primaryColor,
                         ),
                       ),
                     ),

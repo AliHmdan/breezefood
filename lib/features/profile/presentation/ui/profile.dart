@@ -46,32 +46,17 @@ class _ProfileState extends State<Profile> {
     return BlocBuilder<ProfileCubit, ProfileState>(
       bloc: cubit,
       builder: (context, state) {
-        final name = state.maybeWhen(
-          loaded: (user, _, __, ___, ____, _____) =>
-              user.fullName.isEmpty ? "—" : user.fullName,
-          orElse: () => "—",
-        );
+        final name = state.maybeWhen(loaded: (user, _, __, ___, ____, _____) => user.fullName.isEmpty ? "—" : user.fullName, orElse: () => "—");
         final profileImage = state.maybeWhen(
-          loaded: (user, _, __, ___, ____, _____) =>
-              user.profileImage, // عدّل الاسم حسب موديلك
+          loaded: (user, _, __, ___, ____, _____) => user.profileImage, // عدّل الاسم حسب موديلك
           orElse: () => null,
         );
 
-        final phone = state.maybeWhen(
-          loaded: (user, _, __, ___, ____, _____) =>
-              user.phone.isEmpty ? "" : user.phone,
-          orElse: () => "",
-        );
+        final phone = state.maybeWhen(loaded: (user, _, __, ___, ____, _____) => user.phone.isEmpty ? "" : user.phone, orElse: () => "");
 
-        final isLoading = state.maybeWhen(
-          loading: () => true,
-          orElse: () => false,
-        );
+        final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
-        final errorMsg = state.maybeWhen(
-          error: (msg) => msg,
-          orElse: () => null,
-        );
+        final errorMsg = state.maybeWhen(error: (msg) => msg, orElse: () => null);
 
         return Scaffold(
           backgroundColor: AppColor.Dark,
@@ -79,11 +64,7 @@ class _ProfileState extends State<Profile> {
             preferredSize: Size.fromHeight(60.h),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CustomAppbarProfile(
-                title: "profile.title".tr(),
-                icon: Icons.arrow_back_ios,
-                ontap: () => Navigator.pop(context),
-              ),
+              child: CustomAppbarProfile(title: "profile.title".tr(), icon: Icons.arrow_back_ios, ontap: () => Navigator.pop(context)),
             ),
           ),
           body: SafeArea(
@@ -94,16 +75,10 @@ class _ProfileState extends State<Profile> {
                   Center(
                     child: Column(
                       children: [
-                        _avatar(
-                          profileImage,
-                        ), // ✅ لأن _avatar صار يحول الرابط لحاله
+                        _avatar(profileImage), // ✅ لأن _avatar صار يحول الرابط لحاله
 
                         SizedBox(height: 12.h),
-                        CustomSubTitle(
-                          subtitle: name,
-                          color: AppColor.gry,
-                          fontsize: 16.sp,
-                        ),
+                        CustomSubTitle(subtitle: name, color: AppColor.white, fontsize: 16.sp),
 
                         // Text(
                         //   name,
@@ -113,25 +88,11 @@ class _ProfileState extends State<Profile> {
                         //     fontWeight: FontWeight.w700,
                         //   ),
                         // ),
-                        if (phone.isNotEmpty) ...[
-                          SizedBox(height: 6.h),
-                          CustomSubTitle(
-                            subtitle: phone,
-                            color: AppColor.gry,
-                            fontsize: 13.sp,
-                          ),
-                        ],
+                        if (phone.isNotEmpty) ...[SizedBox(height: 6.h), CustomSubTitle(subtitle: phone, color: AppColor.white, fontsize: 13.sp)],
 
                         SizedBox(height: 10.h),
 
-                        if (isLoading)
-                          SizedBox(
-                            width: 22.w,
-                            height: 22.w,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          ),
+                        if (isLoading) SizedBox(width: 22.w, height: 22.w, child: const CircularProgressIndicator(strokeWidth: 2)),
 
                         if (errorMsg != null && errorMsg.trim().isNotEmpty) ...[
                           SizedBox(height: 8.h),
@@ -141,13 +102,7 @@ class _ProfileState extends State<Profile> {
                               color: Colors.red,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
-                              fontFamily:
-                                  Localizations.localeOf(
-                                        context,
-                                      ).languageCode ==
-                                      'ar'
-                                  ? 'Cairo'
-                                  : 'Inter',
+                              fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -158,13 +113,7 @@ class _ProfileState extends State<Profile> {
                               "common.retry".tr(),
                               style: TextStyle(
                                 color: Colors.white,
-                                fontFamily:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar'
-                                    ? 'Cairo'
-                                    : 'Inter',
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
                               ),
                             ),
                           ),
@@ -178,10 +127,7 @@ class _ProfileState extends State<Profile> {
                   // --------- Menu 1 ----------
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 5.h),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(11.r),
-                      color: AppColor.black,
-                    ),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(11.r), color: AppColor.search),
                     child: Column(
                       children: [
                         ListtileProfile(
@@ -193,13 +139,9 @@ class _ProfileState extends State<Profile> {
                               MaterialPageRoute(
                                 builder: (_) => MultiBlocProvider(
                                   providers: [
-                                    BlocProvider.value(
-                                      value: context.read<HomeCubit>(),
-                                    ), // ✅ مرّر الهوم
+                                    BlocProvider.value(value: context.read<HomeCubit>()), // ✅ مرّر الهوم
                                   ],
-                                  child: InfoProfile(
-                                    profileCubit: getIt<ProfileCubit>(),
-                                  ),
+                                  child: InfoProfile(profileCubit: getIt<ProfileCubit>()),
                                 ),
                               ),
                             );
@@ -208,11 +150,7 @@ class _ProfileState extends State<Profile> {
                               await cubit.load();
 
                               final st = cubit.state;
-                              final avatarPath = st.maybeWhen(
-                                loaded: (user, _, __, ___, ____, _____) =>
-                                    user.profileImage,
-                                orElse: () => null,
-                              );
+                              final avatarPath = st.maybeWhen(loaded: (user, _, __, ___, ____, _____) => user.profileImage, orElse: () => null);
 
                               final full = UrlHelper.toFullUrl(avatarPath);
                               if (full != null && full.isNotEmpty) {
@@ -243,10 +181,7 @@ class _ProfileState extends State<Profile> {
                         ListtileProfile(
                           svgPath: "assets/icons/language.svg",
                           title: "profile.language".tr(),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const Language()),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Language())),
                         ),
                       ],
                     ),
@@ -257,35 +192,22 @@ class _ProfileState extends State<Profile> {
                   // --------- Menu 2 ----------
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 5.h),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(11.r),
-                      color: AppColor.black,
-                    ),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(11.r), color: AppColor.search),
                     child: Column(
                       children: [
                         ListtileProfile(
                           svgPath: "assets/icons/chate.svg",
                           title: "profile.help_center".tr(),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => HelpCenter()),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HelpCenter())),
                         ),
 
                         ListtileProfile(
                           svgPath: "assets/icons/question.svg",
                           title: "profile.terms".tr(),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const Terms()),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Terms())),
                         ),
 
-                        ListtileProfile(
-                          svgPath: "assets/icons/logout.svg",
-                          title: "profile.logout".tr(),
-                          onTap: () => showLogoutDialog(context),
-                        ),
+                        ListtileProfile(svgPath: "assets/icons/logout.svg", title: "profile.logout".tr(), onTap: () => showLogoutDialog(context)),
                       ],
                     ),
                   ),
@@ -304,26 +226,21 @@ Widget _avatar(String? rawPathOrUrl) {
 
   return CircleAvatar(
     radius: 60.r,
-    backgroundColor: AppColor.black,
+    backgroundColor: AppColor.white.withOpacity(0.8),
     child: ClipOval(
       child: SizedBox(
         width: 120.w,
         height: 120.w,
         child: (full == null || full.isEmpty)
-            ? Icon(Icons.person, color: AppColor.white, size: 44.sp)
+            ? Icon(Icons.person, color: AppColor.Dark.withOpacity(0.8), size: 44.sp)
             : CachedNetworkImage(
                 imageUrl: full,
                 fit: BoxFit.cover,
                 fadeInDuration: const Duration(milliseconds: 120),
                 placeholder: (_, __) => Center(
-                  child: SizedBox(
-                    width: 22.w,
-                    height: 22.w,
-                    child: const CircularProgressIndicator(strokeWidth: 2),
-                  ),
+                  child: SizedBox(width: 22.w, height: 22.w, child: const CircularProgressIndicator(strokeWidth: 2)),
                 ),
-                errorWidget: (_, __, ___) =>
-                    Icon(Icons.person, color: AppColor.white, size: 44.sp),
+                errorWidget: (_, __, ___) => Icon(Icons.person, color: AppColor.white, size: 44.sp),
               ),
       ),
     ),

@@ -21,8 +21,7 @@ class OrderTrackingScreen extends StatefulWidget {
   State<OrderTrackingScreen> createState() => _OrderTrackingScreenState();
 }
 
-class _OrderTrackingScreenState extends State<OrderTrackingScreen>
-    with WidgetsBindingObserver {
+class _OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBindingObserver {
   GoogleMapController? _mapController;
 
   // ✅ Sheet refresh throttle
@@ -44,10 +43,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
   // ================= Tracking + Sheet refresh =================
 
   void _startTracking() {
-    context.read<OrdersTrackingCubit>().start(
-      widget.orderId,
-      interval: const Duration(seconds: 15),
-    );
+    context.read<OrdersTrackingCubit>().start(widget.orderId, interval: const Duration(seconds: 15));
   }
 
   Future<void> _refreshSheetDetailsThrottled() async {
@@ -105,9 +101,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive || state == AppLifecycleState.detached) {
       context.read<OrdersTrackingCubit>().stop();
       return;
     }
@@ -125,14 +119,8 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
       const driverW = 64;
       const meW = 64;
 
-      final driver = await MapMarkerIcon.fromAsset(
-        "assets/b_driver/driver_map_point.png",
-        width: driverW,
-      );
-      final me = await MapMarkerIcon.fromAsset(
-        "assets/b_driver/customer_map_point.png",
-        width: meW,
-      );
+      final driver = await MapMarkerIcon.fromAsset("assets/b_driver/driver_map_point.png", width: driverW);
+      final me = await MapMarkerIcon.fromAsset("assets/b_driver/customer_map_point.png", width: meW);
 
       if (!mounted) return;
 
@@ -156,25 +144,18 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
       final ok = await _ensureLocationPermission();
       if (!ok) return;
 
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       if (!mounted) return;
 
       _setMyMarker(LatLng(pos.latitude, pos.longitude));
 
-      const settings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 15,
-      );
+      const settings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 15);
 
       await _posSub?.cancel();
-      _posSub = Geolocator.getPositionStream(locationSettings: settings).listen(
-        (p) {
-          if (!mounted) return;
-          _setMyMarker(LatLng(p.latitude, p.longitude));
-        },
-      );
+      _posSub = Geolocator.getPositionStream(locationSettings: settings).listen((p) {
+        if (!mounted) return;
+        _setMyMarker(LatLng(p.latitude, p.longitude));
+      });
     } catch (_) {}
   }
 
@@ -207,9 +188,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
         Marker(
           markerId: const MarkerId('driver'),
           position: p,
-          icon:
-              _driverIcon ??
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          icon: _driverIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
           anchor: const Offset(0.5, 0.5),
           infoWindow: InfoWindow(title: "tracking.driver".tr()),
         ),
@@ -232,9 +211,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
         Marker(
           markerId: const MarkerId('me'),
           position: p,
-          icon:
-              _meIcon ??
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          icon: _meIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
           anchor: const Offset(0.5, 0.5),
           infoWindow: InfoWindow(title: "tracking.me".tr()),
         ),
@@ -250,21 +227,10 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
     final me = _myLatLng;
 
     if (d != null && me != null) {
-      final sw = LatLng(
-        d.latitude < me.latitude ? d.latitude : me.latitude,
-        d.longitude < me.longitude ? d.longitude : me.longitude,
-      );
-      final ne = LatLng(
-        d.latitude > me.latitude ? d.latitude : me.latitude,
-        d.longitude > me.longitude ? d.longitude : me.longitude,
-      );
+      final sw = LatLng(d.latitude < me.latitude ? d.latitude : me.latitude, d.longitude < me.longitude ? d.longitude : me.longitude);
+      final ne = LatLng(d.latitude > me.latitude ? d.latitude : me.latitude, d.longitude > me.longitude ? d.longitude : me.longitude);
 
-      await _mapController!.animateCamera(
-        CameraUpdate.newLatLngBounds(
-          LatLngBounds(southwest: sw, northeast: ne),
-          80,
-        ),
-      );
+      await _mapController!.animateCamera(CameraUpdate.newLatLngBounds(LatLngBounds(southwest: sw, northeast: ne), 80));
       return;
     }
 
@@ -289,8 +255,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
 
               state.whenOrNull(
                 tracking: (tracking, driverLatLng, updatedAt) {
-                  if (tracking)
-                    _setDriverMarker(driverLatLng, moveCamera: true);
+                  if (tracking) _setDriverMarker(driverLatLng, moveCamera: true);
                 },
               );
             },
@@ -300,10 +265,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
           children: [
             GoogleMap(
               mapType: MapType.normal,
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(33.5138, 36.2765),
-                zoom: 13,
-              ),
+              initialCameraPosition: const CameraPosition(target: LatLng(33.5138, 36.2765), zoom: 13),
               onMapCreated: _onMapCreated,
               markers: _markers,
               zoomControlsEnabled: false,
@@ -316,10 +278,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
               top: MediaQuery.of(context).padding.top + 12.h,
               left: 12.w,
               child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColor.white,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: AppColor.white, shape: BoxShape.circle),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios, color: AppColor.black),
                   onPressed: () => Navigator.pop(context),
@@ -332,11 +291,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
               top: MediaQuery.of(context).padding.top + 12.h,
               left: 70.w,
               right: 14.w,
-              child: _TitleChip(
-                text: "tracking.title".tr(
-                  namedArgs: {"id": widget.orderId.toString()},
-                ),
-              ),
+              child: _TitleChip(text: "tracking.title".tr(namedArgs: {"id": widget.orderId.toString()})),
             ),
 
             // Status pill
@@ -349,13 +304,8 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                   return AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: state.maybeWhen(
-                      loading: () => _StatusPill(
-                        key: const ValueKey("l"),
-                        text: "tracking.loading".tr(),
-                        bg: Colors.white,
-                        fg: Colors.black,
-                        icon: Icons.sync,
-                      ),
+                      loading: () =>
+                          _StatusPill(key: const ValueKey("l"), text: "tracking.loading".tr(), bg: Colors.white, fg: Colors.black, icon: Icons.sync),
                       error: (mKey) => _StatusPill(
                         key: const ValueKey("e"),
                         text: mKey.tr(),
@@ -365,15 +315,9 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                       ),
                       tracking: (tracking, _, __) => _StatusPill(
                         key: const ValueKey("t"),
-                        text: tracking
-                            ? "tracking.live".tr()
-                            : "tracking.not_available".tr(),
-                        bg: tracking
-                            ? const Color(0xFFEFFFF3)
-                            : const Color(0xFFFFF7E6),
-                        fg: tracking
-                            ? const Color(0xFF0A7A2F)
-                            : const Color(0xFF8A5A00),
+                        text: tracking ? "tracking.live".tr() : "tracking.not_available".tr(),
+                        bg: tracking ? const Color(0xFFEFFFF3) : const Color(0xFFFFF7E6),
+                        fg: tracking ? const Color(0xFF0A7A2F) : const Color(0xFF8A5A00),
                         icon: tracking ? Icons.location_on : Icons.location_off,
                       ),
                       orElse: () => const SizedBox.shrink(),
@@ -384,12 +328,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
             ),
 
             // كارد السائق
-            Positioned(
-              bottom: 20.h,
-              left: 20.w,
-              right: 20.w,
-              child: const _DriverMiniCard(),
-            ),
+            Positioned(bottom: 20.h, left: 20.w, right: 20.w, child: const _DriverMiniCard()),
 
             // زر recenter
             Positioned(
@@ -411,10 +350,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen>
                   builder: (context, scrollController) {
                     return BlocProvider.value(
                       value: context.read<OrdersDetailsCubit>(),
-                      child: TrackingSheet(
-                        orderId: widget.orderId,
-                        scrollController: scrollController,
-                      ),
+                      child: TrackingSheet(orderId: widget.orderId, scrollController: scrollController),
                     );
                   },
                 ),
@@ -440,19 +376,13 @@ class _TitleChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.92),
         borderRadius: BorderRadius.circular(18.r),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12)],
       ),
       child: Text(
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w800,
-        ),
+        style: TextStyle(color: Colors.black, fontSize: 14.sp, fontWeight: FontWeight.w800),
       ),
     );
   }
@@ -465,27 +395,20 @@ class _DriverMiniCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OrdersTrackingCubit, OrdersTrackingState>(
       builder: (context, state) {
-        final bool isLive = state.maybeWhen(
-          tracking: (tracking, _, __) => tracking,
-          orElse: () => false,
-        );
+        final bool isLive = state.maybeWhen(tracking: (tracking, _, __) => tracking, orElse: () => false);
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
           decoration: BoxDecoration(
             color: AppColor.white,
             borderRadius: BorderRadius.circular(25.r),
-            boxShadow: [
-              BoxShadow(color: AppColor.black.withOpacity(0.2), blurRadius: 10),
-            ],
+            boxShadow: [BoxShadow(color: AppColor.black.withOpacity(0.2), blurRadius: 10)],
           ),
           child: Row(
             children: [
               const CircleAvatar(
                 radius: 20,
-                backgroundImage: AssetImage(
-                  'assets/b_driver/driver_map_point.png',
-                ),
+                backgroundImage: AssetImage('assets/b_driver/driver_map_point.png'),
                 backgroundColor: AppColor.primaryColor,
               ),
               SizedBox(width: 8.w),
@@ -494,21 +417,11 @@ class _DriverMiniCard extends StatelessWidget {
                 children: [
                   Text(
                     "tracking.driver".tr(),
-                    style: TextStyle(
-                      color: AppColor.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                    ),
+                    style: TextStyle(color: AppColor.black, fontWeight: FontWeight.bold, fontSize: 14.sp),
                   ),
                   Text(
-                    isLive
-                        ? "tracking.live".tr()
-                        : "tracking.not_available".tr(),
-                    style: TextStyle(
-                      color: isLive ? const Color(0xFF0A7A2F) : AppColor.gry,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    isLive ? "tracking.live".tr() : "tracking.not_available".tr(),
+                    style: TextStyle(color: isLive ? const Color(0xFF0A7A2F) : AppColor.gry, fontSize: 12.sp, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -526,13 +439,7 @@ class _StatusPill extends StatelessWidget {
   final Color bg;
   final Color fg;
 
-  const _StatusPill({
-    super.key,
-    required this.icon,
-    required this.text,
-    required this.bg,
-    required this.fg,
-  });
+  const _StatusPill({super.key, required this.icon, required this.text, required this.bg, required this.fg});
 
   @override
   Widget build(BuildContext context) {
@@ -543,9 +450,7 @@ class _StatusPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(999),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12)],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -554,11 +459,7 @@ class _StatusPill extends StatelessWidget {
             SizedBox(width: 8.w),
             Text(
               text,
-              style: TextStyle(
-                color: fg,
-                fontWeight: FontWeight.w700,
-                fontSize: 12.sp,
-              ),
+              style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12.sp),
             ),
           ],
         ),

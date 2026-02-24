@@ -38,10 +38,9 @@ class _InfoProfileState extends State<InfoProfile> {
       final st = widget.profileCubit.state;
 
       st.maybeWhen(
-        loaded:
-            (user, addresses, avatars, selectedAvatarId, isSaving, message) {
-              _fillFromLoadedOnce(st);
-            },
+        loaded: (user, addresses, avatars, selectedAvatarId, isSaving, message) {
+          _fillFromLoadedOnce(st);
+        },
         orElse: () {
           widget.profileCubit.load();
         },
@@ -72,21 +71,12 @@ class _InfoProfileState extends State<InfoProfile> {
   }
 
   ImageProvider _avatarImageProvider(ProfileState state) {
-    final selectedPath = state.maybeWhen(
-      loaded: (_, __, ___, selectedAvatarPath, ____, _____) =>
-          selectedAvatarPath,
-      orElse: () => null,
-    );
+    final selectedPath = state.maybeWhen(loaded: (_, __, ___, selectedAvatarPath, ____, _____) => selectedAvatarPath, orElse: () => null);
 
-    final serverPath = state.maybeWhen(
-      loaded: (user, _, __, ___, ____, _____) => user.profileImage,
-      orElse: () => null,
-    );
+    final serverPath = state.maybeWhen(loaded: (user, _, __, ___, ____, _____) => user.profileImage, orElse: () => null);
 
     // ✅ اختر الصورة: preview أولاً ثم السيرفر
-    final raw = (selectedPath != null && selectedPath.trim().isNotEmpty)
-        ? selectedPath
-        : serverPath;
+    final raw = (selectedPath != null && selectedPath.trim().isNotEmpty) ? selectedPath : serverPath;
 
     final full = UrlHelper.toFullUrl(raw);
     if (full != null && full.isNotEmpty) {
@@ -99,10 +89,7 @@ class _InfoProfileState extends State<InfoProfile> {
 
   Future<void> _openAvatarPicker(ProfileState state) async {
     // ✅ حمّل avatars لو فاضيين
-    final avatarsEmpty = state.maybeWhen(
-      loaded: (_, __, avatars, ___, ____, _____) => avatars.isEmpty,
-      orElse: () => true,
-    );
+    final avatarsEmpty = state.maybeWhen(loaded: (_, __, avatars, ___, ____, _____) => avatars.isEmpty, orElse: () => true);
 
     if (avatarsEmpty) {
       await widget.profileCubit.loadAvatars();
@@ -115,114 +102,84 @@ class _InfoProfileState extends State<InfoProfile> {
       context: context,
       backgroundColor: AppColor.Dark,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18.r))),
       builder: (_) => SafeArea(
         top: false,
         child: Padding(
           padding: EdgeInsets.all(16.r),
           child: latestState.maybeWhen(
-            loaded:
-                (
-                  user,
-                  addresses,
-                  avatars,
-                  selectedAvatarPath,
-                  isSaving,
-                  message,
-                ) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
+            loaded: (user, addresses, avatars, selectedAvatarPath, isSaving, message) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'اختر صورة Avatar',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      Expanded(
+                        child: Text(
+                          'اختر صورة Avatar',
+                          style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+
+                  if (avatars.isEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 18.h),
+                      child: const Center(child: CircularProgressIndicator()),
+                    )
+                  else
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: avatars.length,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, crossAxisSpacing: 12, mainAxisSpacing: 12),
+                      itemBuilder: (_, i) {
+                        final av = avatars[i];
+                        final selected = selectedAvatarPath == av.path;
+                        return GestureDetector(
+                          onTap: () async {
+                            widget.profileCubit.selectAvatar(av);
+
+                            // 🔥 اجبار تحديث الصورة فوراً
+                            final full = UrlHelper.toFullUrl(av.path);
+                            if (full != null && full.isNotEmpty) {
+                              await CachedNetworkImage.evictFromCache(full);
+                            }
+
+                            if (mounted) {
+                              setState(() {
+                                _avatarVer = DateTime.now().millisecondsSinceEpoch;
+                              });
+                            }
+
+                            Navigator.pop(context);
+                          },
+
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: selected ? AppColor.LightActive : Colors.white24, width: selected ? 3 : 1),
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: CircleAvatar(
+                              backgroundColor: Colors.white10,
+                              backgroundImage: av.fullUrl.isNotEmpty
+                                  ? NetworkImage(av.fullUrl)
+                                  : const AssetImage('assets/images/person.jpg') as ImageProvider,
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
-
-                      if (avatars.isEmpty)
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 18.h),
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      else
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: avatars.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                          itemBuilder: (_, i) {
-                            final av = avatars[i];
-                            final selected = selectedAvatarPath == av.path;
-                            return GestureDetector(
-                              onTap: () async {
-                                widget.profileCubit.selectAvatar(av);
-
-                                // 🔥 اجبار تحديث الصورة فوراً
-                                final full = UrlHelper.toFullUrl(av.path);
-                                if (full != null && full.isNotEmpty) {
-                                  await CachedNetworkImage.evictFromCache(full);
-                                }
-
-                                if (mounted) {
-                                  setState(() {
-                                    _avatarVer =
-                                        DateTime.now().millisecondsSinceEpoch;
-                                  });
-                                }
-
-                                Navigator.pop(context);
-                              },
-
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: selected
-                                        ? AppColor.LightActive
-                                        : Colors.white24,
-                                    width: selected ? 3 : 1,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(4),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.white10,
-                                  backgroundImage: av.fullUrl.isNotEmpty
-                                      ? NetworkImage(av.fullUrl)
-                                      : const AssetImage(
-                                              'assets/images/person.jpg',
-                                            )
-                                            as ImageProvider,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  );
-                },
+                        );
+                      },
+                    ),
+                ],
+              );
+            },
             orElse: () => Padding(
               padding: EdgeInsets.symmetric(vertical: 18.h),
               child: const Center(child: CircularProgressIndicator()),
@@ -235,12 +192,9 @@ class _InfoProfileState extends State<InfoProfile> {
 
   bool _validate() {
     if (_firstCtrl.text.trim().isEmpty || _lastCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter first & last name"),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please enter first & last name"), behavior: SnackBarBehavior.floating));
       return false;
     }
     return true;
@@ -253,22 +207,14 @@ class _InfoProfileState extends State<InfoProfile> {
       listener: (context, state) {
         _fillFromLoadedOnce(state);
 
-        final msg = state.maybeWhen(
-          loaded: (_, __, ___, ____, _____, message) => message,
-          orElse: () => null,
-        );
+        final msg = state.maybeWhen(loaded: (_, __, ___, ____, _____, message) => message, orElse: () => null);
 
         if (msg != null && msg.trim().isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
         }
       },
       builder: (context, state) {
-        final isSaving = state.maybeWhen(
-          loaded: (_, __, ___, ____, isSaving, _____) => isSaving,
-          orElse: () => false,
-        );
+        final isSaving = state.maybeWhen(loaded: (_, __, ___, ____, isSaving, _____) => isSaving, orElse: () => false);
 
         return Scaffold(
           backgroundColor: AppColor.Dark,
@@ -276,11 +222,7 @@ class _InfoProfileState extends State<InfoProfile> {
             preferredSize: Size.fromHeight(60.h),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: CustomAppbarProfile(
-                title: "profile.title".tr(),
-                icon: Icons.arrow_back_ios,
-                ontap: () => Navigator.pop(context),
-              ),
+              child: CustomAppbarProfile(title: "profile.title".tr(), icon: Icons.arrow_back_ios, ontap: () => Navigator.pop(context)),
             ),
           ),
           body: state.maybeWhen(
@@ -300,10 +242,7 @@ class _InfoProfileState extends State<InfoProfile> {
                     SizedBox(height: 10.h),
                     TextButton(
                       onPressed: () => widget.profileCubit.load(),
-                      child: Text(
-                        "common.retry".tr(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      child: Text("common.retry".tr(), style: const TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -312,19 +251,13 @@ class _InfoProfileState extends State<InfoProfile> {
             loaded: (_, __, ___, ____, _____, ______) {
               return SafeArea(
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 12.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   child: Column(
                     children: [
                       Stack(
                         alignment: Alignment.bottomRight,
                         children: [
-                          CircleAvatar(
-                            radius: 70.r,
-                            backgroundImage: _avatarImageProvider(state),
-                          ),
+                          CircleAvatar(radius: 70.r, backgroundImage: _avatarImageProvider(state)),
                           GestureDetector(
                             onTap: () => _openAvatarPicker(state),
                             child: Container(
@@ -332,19 +265,13 @@ class _InfoProfileState extends State<InfoProfile> {
                               decoration: BoxDecoration(
                                 color: AppColor.Dark,
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColor.LightActive,
-                                  width: 1.w,
-                                ),
+                                border: Border.all(color: AppColor.LightActive, width: 1.w),
                               ),
                               child: SvgPicture.asset(
                                 "assets/icons/edit.svg",
                                 width: 18.w,
                                 height: 18.h,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColor.white,
-                                  BlendMode.srcIn,
-                                ),
+                                colorFilter: ColorFilter.mode(AppColor.white, BlendMode.srcIn),
                               ),
                             ),
                           ),
@@ -352,20 +279,10 @@ class _InfoProfileState extends State<InfoProfile> {
                       ),
                       SizedBox(height: 35.h),
 
-                      CustomTextfaildInfo(
-                        label: "First Name",
-                        hint: "First Name",
-                        controller: _firstCtrl,
-                        keyboardType: TextInputType.text,
-                      ),
+                      CustomTextfaildInfo(label: "First Name", hint: "First Name", controller: _firstCtrl, keyboardType: TextInputType.text),
                       SizedBox(height: 15.h),
 
-                      CustomTextfaildInfo(
-                        label: "Last Name",
-                        hint: "Last Name",
-                        controller: _lastCtrl,
-                        keyboardType: TextInputType.text,
-                      ),
+                      CustomTextfaildInfo(label: "Last Name", hint: "Last Name", controller: _lastCtrl, keyboardType: TextInputType.text),
                       SizedBox(height: 15.h),
 
                       CustomTextfaildInfo(
@@ -378,23 +295,14 @@ class _InfoProfileState extends State<InfoProfile> {
                       SizedBox(height: 30.h),
 
                       CustomButton(
-                        title: isSaving
-                            ? "common.saving".tr()
-                            : "common.save".tr(),
+                        title: isSaving ? "common.saving".tr() : "common.save".tr(),
                         onPressed: isSaving
                             ? null
                             : () async {
-                                await widget.profileCubit.saveProfile(
-                                  firstName: _firstCtrl.text.trim(),
-                                  lastName: _lastCtrl.text.trim(),
-                                );
+                                await widget.profileCubit.saveProfile(firstName: _firstCtrl.text.trim(), lastName: _lastCtrl.text.trim());
 
                                 final st = widget.profileCubit.state;
-                                final serverPath = st.maybeWhen(
-                                  loaded: (user, _, __, ___, ____, _____) =>
-                                      user.profileImage,
-                                  orElse: () => null,
-                                );
+                                final serverPath = st.maybeWhen(loaded: (user, _, __, ___, ____, _____) => user.profileImage, orElse: () => null);
 
                                 final full = UrlHelper.toFullUrl(serverPath);
                                 if (full != null && full.isNotEmpty) {
@@ -404,13 +312,9 @@ class _InfoProfileState extends State<InfoProfile> {
                                 if (!mounted) return;
 
                                 // ✅ Restart app shell
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        const MainShell(initialIndex: 0),
-                                  ),
-                                  (route) => false,
-                                );
+                                Navigator.of(
+                                  context,
+                                ).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const MainShell(initialIndex: 0)), (route) => false);
                               },
                       ),
                     ],

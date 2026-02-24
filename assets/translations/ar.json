@@ -142,7 +142,8 @@
     "home": "الرئيسية",
     "stores": "المتاجر",
     "favorites": "المفضلة",
-    "orders": "الطلبات"
+    "orders": "الطلبات",
+    "Profile": "بروفايل"
   },
   "cart": {
     "item_notes_optional": "ملاحظات للوجبة (اختياري)",
@@ -190,6 +191,7 @@
   "restaurant": {
     "closed_cannot_add_to_cart": "المطعم مغلق حالياً",
     "open": "مفتوح",
+    "rate_us": "قيمنا",
     "closed": "مغلق",
     "closed_browse_only": "المطعم مغلق حالياً، يمكنك التصفح فقط",
     "closed_cannot_checkout": "المطعم مغلق حالياً، لا يمكن إتمام الطلب.",

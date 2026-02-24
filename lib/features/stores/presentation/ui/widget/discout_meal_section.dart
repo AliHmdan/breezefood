@@ -12,12 +12,7 @@ class DiscountMealSection extends StatelessWidget {
   final String Function(String raw) fullImageUrl;
   final void Function(MenuItem it) onTap;
 
-  const DiscountMealSection({
-    super.key,
-    required this.items,
-    required this.fullImageUrl,
-    required this.onTap,
-  });
+  const DiscountMealSection({super.key, required this.items, required this.fullImageUrl, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +26,9 @@ class DiscountMealSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
-
             children: <Widget>[
-              Icon(
-              Icons.local_offer,
-              color: AppColor.yellow,
-              size: 18.sp,
-            ),
-              SizedBox(width: 2,),
+              Icon(Icons.local_offer, color: AppColor.yellow, size: 18.sp),
+              SizedBox(width: 2),
               Expanded(
                 child: CustomTitleSection(
                   title: "discount.title".tr(),
@@ -49,9 +39,9 @@ class DiscountMealSection extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => DiscountGridPage(
-                            items: items, // 👈 نفس الليست
-                            fullImageUrl: fullImageUrl,
-                            onTap: onTap,
+                          items: items, // 👈 نفس الليست
+                          fullImageUrl: fullImageUrl,
+                          onTap: onTap,
                         ),
                       ),
                     );
@@ -67,13 +57,10 @@ class DiscountMealSection extends StatelessWidget {
         // ===== LIST =====
         SizedBox(
           height: 200.h,
-          child:
-          ListView.builder(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: count > 10 ? 10 : count,
-            physics: count <= 2
-                ? const NeverScrollableScrollPhysics()
-                : const BouncingScrollPhysics(),
+            physics: count <= 2 ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
             padding: const EdgeInsetsDirectional.only(
               start: 20, // مطابق تمامًا
             ),
@@ -87,15 +74,11 @@ class DiscountMealSection extends StatelessWidget {
                 ),
                 child: GestureDetector(
                   onTap: () => onTap(it),
-                  child: DiscountItemCard(
-                    item: it,
-                    imageUrl: fullImageUrl(it.image ?? ""),
-                  ),
+                  child: DiscountItemCard(item: it, imageUrl: fullImageUrl(it.image ?? "")),
                 ),
               );
             },
-          )
-
+          ),
         ),
         const SizedBox(height: 12),
       ],

@@ -3,6 +3,8 @@ import 'package:hive/hive.dart';
 class AuthStorageHelper {
   static const String _authBoxName = 'auth_box';
   static const String _prefsBoxName = 'app_prefs_box';
+  static const String _them = 'them';
+  static const String _themKey = 'themKey';
 
   static const String _tokenKey = 'auth_token';
   static const String _roleKey = 'user_role';
@@ -38,6 +40,22 @@ class AuthStorageHelper {
   static Future<void> clearGuestMode() async {
     final box = await Hive.openBox(_prefsBoxName);
     await box.delete(_isGuestKey);
+  }
+
+  ///
+  /// them
+  ///
+  // -------------------------------------------------------------
+  // ROLE
+  // -------------------------------------------------------------
+  static Future<void> saveThem(String? role) async {
+    final box = await Hive.openBox(_them);
+    await box.put(_themKey, role ?? 'dark');
+  }
+
+  static Future<String?> getThem() async {
+    final box = await Hive.openBox(_them);
+    return box.get(_themKey);
   }
 
   // -------------------------------------------------------------
@@ -130,22 +148,16 @@ class AuthStorageHelper {
     return box.get(key) as bool?;
   }
 
-  static Future<void> setAcceptCondition(bool accepted) async =>
-      setFlag(acceptConditionKey, accepted);
+  static Future<void> setAcceptCondition(bool accepted) async => setFlag(acceptConditionKey, accepted);
 
-  static Future<bool?> getAcceptCondition() async =>
-      getFlag(acceptConditionKey);
+  static Future<bool?> getAcceptCondition() async => getFlag(acceptConditionKey);
 
   // =============================================================
   // ✅ USER LOCATION (Home default)
   // text صار OPTIONAL حتى ما يكسر verify/addAddress
   // lat/lon صاروا double
   // =============================================================
-  static Future<void> saveUserLocation({
-    String? text,
-    required double lat,
-    required double lon,
-  }) async {
+  static Future<void> saveUserLocation({String? text, required double lat, required double lon}) async {
     final box = await Hive.openBox(_authBoxName);
 
     if (text != null && text.trim().isNotEmpty) {
@@ -165,11 +177,7 @@ class AuthStorageHelper {
 
     if (lat == null || lon == null) return null;
 
-    return {
-      "text": text,
-      "lat": (lat as num).toDouble(),
-      "lon": (lon as num).toDouble(),
-    };
+    return {"text": text, "lat": (lat as num).toDouble(), "lon": (lon as num).toDouble()};
   }
 
   static Future<void> removeUserLocation() async {
@@ -182,11 +190,7 @@ class AuthStorageHelper {
   // =============================================================
   // ✅ CART LOCATION (only if user changed in cart)
   // =============================================================
-  static Future<void> saveCartLocation({
-    required String text,
-    required double lat,
-    required double lon,
-  }) async {
+  static Future<void> saveCartLocation({required String text, required double lat, required double lon}) async {
     final box = await Hive.openBox(_authBoxName);
     await box.put(_cartLocTextKey, text.trim());
     await box.put(_cartLatKey, lat);
@@ -203,19 +207,12 @@ class AuthStorageHelper {
     if (text == null || text.trim().isEmpty) return null;
     if (lat == null || lon == null) return null;
 
-    return {
-      "text": text,
-      "lat": (lat as num).toDouble(),
-      "lon": (lon as num).toDouble(),
-    };
+    return {"text": text, "lat": (lat as num).toDouble(), "lon": (lon as num).toDouble()};
   }
-    /// ✅ لما تغيّر موقعك من الهوم: خليه default جديد للجميع
+
+  /// ✅ لما تغيّر موقعك من الهوم: خليه default جديد للجميع
   /// وبنفس الوقت صفّي cart_location حتى الكارت يتبع الجديد
-  static Future<void> overrideHomeLocation({
-    required String text,
-    required double lat,
-    required double lon,
-  }) async {
+  static Future<void> overrideHomeLocation({required String text, required double lat, required double lon}) async {
     await saveUserLocation(text: text, lat: lat, lon: lon);
 
     // ✅ خلي الكارت يرجع يتبع الـ user_location الجديد
@@ -229,6 +226,7 @@ class AuthStorageHelper {
     if (cart != null) return cart;
     return await getUserLocation();
   }
+
   static Future<void> clearCartLocation() async {
     final box = await Hive.openBox(_authBoxName);
     await box.delete(_cartLocTextKey);

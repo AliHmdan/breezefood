@@ -51,16 +51,8 @@ class _AppbarHomeState extends State<AppbarHome> {
     setState(() => _cachedTitle = (loc["text"] ?? "").toString());
   }
 
-  Future<void> _savePickedLocation({
-    required String text,
-    required double lat,
-    required double lon,
-  }) async {
-    await AuthStorageHelper.overrideHomeLocation(
-      text: text,
-      lat: lat,
-      lon: lon,
-    );
+  Future<void> _savePickedLocation({required String text, required double lat, required double lon}) async {
+    await AuthStorageHelper.overrideHomeLocation(text: text, lat: lat, lon: lon);
 
     if (!mounted) return;
     setState(() => _cachedTitle = text);
@@ -71,9 +63,7 @@ class _AppbarHomeState extends State<AppbarHome> {
     final hasCoords = widget.home?.hasCoordinates ?? false;
     final province = widget.home?.provinceDetected;
 
-    final title = (widget.home?.provinceDetected?.trim().isNotEmpty == true)
-        ? widget.home!.provinceDetected!.trim()
-        : ""; // أو "--"
+    final title = (widget.home?.provinceDetected?.trim().isNotEmpty == true) ? widget.home!.provinceDetected!.trim() : ""; // أو "--"
 
     final subtitle = ""; // دائماً فاضي
 
@@ -89,10 +79,7 @@ class _AppbarHomeState extends State<AppbarHome> {
             avatarUrl: widget.home?.avatar,
             onLocationTap: () => _openLocationSheet(context),
             onProfileTap: () async {
-              final changed = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const Profile()),
-              );
+              final changed = await Navigator.push(context, MaterialPageRoute(builder: (_) => const Profile()));
 
               if (changed == true && context.mounted) {
                 context.read<ProfileCubit>().load();
@@ -103,10 +90,7 @@ class _AppbarHomeState extends State<AppbarHome> {
           CustomSearch(
             hint: "common.search".tr(),
             readOnly: true,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const Search()),
-            ),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const Search())),
           ),
         ],
       ),
@@ -128,22 +112,11 @@ class _AppbarHomeState extends State<AppbarHome> {
         final initial = await _getInitialLatLng();
         if (!context.mounted) return;
 
-        final res = await Navigator.push<MapPickerResult>(
-          context,
-          MaterialPageRoute(builder: (_) => MapPickerScreen(initial: initial)),
-        );
+        final res = await Navigator.push<MapPickerResult>(context, MaterialPageRoute(builder: (_) => MapPickerScreen(initial: initial)));
 
         if (res != null) {
-          await widget.homeCubit.updateUserLocation(
-            address: res.address,
-            lat: res.latitude,
-            lon: res.longitude,
-          );
-          await _savePickedLocation(
-            text: res.address,
-            lat: res.latitude,
-            lon: res.longitude,
-          );
+          await widget.homeCubit.updateUserLocation(address: res.address, lat: res.latitude, lon: res.longitude);
+          await _savePickedLocation(text: res.address, lat: res.latitude, lon: res.longitude);
           await widget.homeCubit.load();
         }
         break;
@@ -154,16 +127,8 @@ class _AppbarHomeState extends State<AppbarHome> {
 
         if (res.pos != null) {
           final txt = "home.my_location".tr();
-          await widget.homeCubit.updateUserLocation(
-            address: txt,
-            lat: res.pos!.latitude,
-            lon: res.pos!.longitude,
-          );
-          await _savePickedLocation(
-            text: txt,
-            lat: res.pos!.latitude,
-            lon: res.pos!.longitude,
-          );
+          await widget.homeCubit.updateUserLocation(address: txt, lat: res.pos!.latitude, lon: res.pos!.longitude);
+          await _savePickedLocation(text: txt, lat: res.pos!.latitude, lon: res.pos!.longitude);
           await widget.homeCubit.load();
           return;
         }
@@ -181,14 +146,11 @@ class _AppbarHomeState extends State<AppbarHome> {
       if (perm == LocationPermission.denied) {
         perm = await Geolocator.requestPermission();
       }
-      if (perm == LocationPermission.denied ||
-          perm == LocationPermission.deniedForever) {
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
         return const LatLng(33.5138, 36.2765);
       }
 
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       return LatLng(pos.latitude, pos.longitude);
     } catch (_) {
       return const LatLng(33.5138, 36.2765);
@@ -212,9 +174,7 @@ class _AppbarHomeState extends State<AppbarHome> {
         return const _LocResult.fail(_LocFail.denied);
       }
 
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       return _LocResult.success(LatLng(pos.latitude, pos.longitude));
     } catch (_) {
       return const _LocResult.fail(_LocFail.error);
@@ -231,12 +191,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final h = MediaQuery.of(context).size.height;
 
-    Widget tile({
-      required IconData icon,
-      required String title,
-      required String subtitle,
-      required _HomeLocationAction action,
-    }) {
+    Widget tile({required IconData icon, required String title, required String subtitle, required _HomeLocationAction action}) {
       return InkWell(
         onTap: () => Navigator.pop(context, action),
         borderRadius: BorderRadius.circular(12.r),
@@ -253,10 +208,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
               Container(
                 width: 44.w,
                 height: 44.w,
-                decoration: BoxDecoration(
-                  color: AppColor.Dark,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
+                decoration: BoxDecoration(color: AppColor.Dark, borderRadius: BorderRadius.circular(12.r)),
                 child: Icon(icon, color: Colors.white),
               ),
               SizedBox(width: 12.w),
@@ -264,11 +216,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomSubTitle(
-                      subtitle: title,
-                      color: AppColor.white,
-                      fontsize: 12.sp,
-                    ),
+                    CustomSubTitle(subtitle: title, color: AppColor.white, fontsize: 12.sp),
                     // Text(
                     //   title,
                     //   style: TextStyle(
@@ -304,19 +252,12 @@ class _HomeLocationPickerSheet extends StatelessWidget {
           Container(
             width: 44.w,
             height: 5.h,
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(20),
-            ),
+            decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
           ),
           SizedBox(height: 14.h),
           Text(
             "home.location_picker_title".tr(),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w800,
-            ),
+            style: TextStyle(color: Colors.white, fontSize: 15.sp, fontWeight: FontWeight.w800),
           ),
           SizedBox(height: 10.h),
           const Divider(color: Colors.white24),

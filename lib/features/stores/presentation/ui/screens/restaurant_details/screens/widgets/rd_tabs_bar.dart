@@ -3,12 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RDTabsBar extends StatefulWidget {
-  const RDTabsBar({
-    super.key,
-    required this.categories,
-    required this.activeIndex,
-    required this.onTap,
-  });
+  const RDTabsBar({super.key, required this.categories, required this.activeIndex, required this.onTap});
 
   final List<String> categories;
   final int activeIndex;
@@ -36,21 +31,13 @@ class _RDTabsBarState extends State<RDTabsBar> {
       key: const ValueKey<String>("rd_tabs_controller"),
       length: widget.categories.length,
       initialIndex: safe,
-      child: _RDTabsBarInner(
-        categories: widget.categories,
-        activeIndex: safe,
-        onTap: widget.onTap,
-      ),
+      child: _RDTabsBarInner(categories: widget.categories, activeIndex: safe, onTap: widget.onTap),
     );
   }
 }
 
 class _RDTabsBarInner extends StatefulWidget {
-  const _RDTabsBarInner({
-    required this.categories,
-    required this.activeIndex,
-    required this.onTap,
-  });
+  const _RDTabsBarInner({required this.categories, required this.activeIndex, required this.onTap});
 
   final List<String> categories;
   final int activeIndex;
@@ -72,11 +59,7 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
       final ctl = DefaultTabController.of(context);
 
       if (ctl.index != widget.activeIndex && !ctl.indexIsChanging) {
-        ctl.animateTo(
-          widget.activeIndex,
-          duration: _anim,
-          curve: Curves.linear,
-        );
+        ctl.animateTo(widget.activeIndex, duration: _anim, curve: Curves.linear);
       }
     });
   }
@@ -86,8 +69,7 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
     final ctl = DefaultTabController.of(context);
 
     return SizedBox(
-      
-      height: 45.h,
+      height: 38.h,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
@@ -95,10 +77,7 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: Container(
-              height: 3.5.h,
-              color: AppColor.white.withOpacity(0.18),
-            ),
+            child: Container(height: 3.5.h, color: AppColor.white.withOpacity(0.18)),
           ),
           TabBar(
             tabAlignment: TabAlignment.center,
@@ -109,30 +88,16 @@ class _RDTabsBarInnerState extends State<_RDTabsBarInner> {
             labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
             labelColor: AppColor.white,
             unselectedLabelColor: AppColor.white.withOpacity(0.55),
-            labelStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+            unselectedLabelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             indicatorSize: TabBarIndicatorSize.tab,
             indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 2.h, color: AppColor.white),
+              borderSide: BorderSide(width: 3.h, color: AppColor.white),
               insets: EdgeInsets.symmetric(horizontal: 10.w),
             ),
-            tabs: widget.categories
-                .map(
-                  (t) => Tab(
-                    child: Text(
-                      t,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
+            dividerColor: Color(0xFFF9FAFB),
+            dividerHeight: -1.h,
+            tabs: widget.categories.map((t) => Tab(child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
           ),
         ],
       ),
