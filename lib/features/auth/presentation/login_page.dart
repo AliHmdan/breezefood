@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:video_player/video_player.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -18,64 +19,80 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with WidgetsBindingObserver {
   final TextEditingController phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   late final AuthFlowCubit cubit;
+  late final VideoPlayerController _videoController;
 
   bool _acceptedTerms = false;
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
     cubit = getIt<AuthFlowCubit>();
+
+    _videoController = VideoPlayerController.asset("assets/video/login.mp4")
+      ..setLooping(true)
+      ..setVolume(0)
+      ..initialize().then((_) {
+        if (mounted) {
+          setState(() {});
+          _videoController.play();
+        }
+      });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _videoController.dispose();
     phoneController.dispose();
     super.dispose();
   }
 
-  // ✅ يترجم فقط إذا الرسالة key، غير هيك يعرضها كما هي
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_videoController.value.isInitialized) return;
+
+    if (state == AppLifecycleState.paused) {
+      _videoController.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      _videoController.play();
+    }
+  }
+
   String trOrRaw(String s) {
     final k = s.trim();
     if (k.isEmpty) return k;
-
-    // keys عادة بتكون فيها نقطة: "errors.invalid_phone"
-    // أو underscore: "invalid_phone"
     final looksLikeKey = k.contains('.') || k.contains('_');
-
     if (!looksLikeKey) return k;
-
     final translated = k.tr();
-    // إذا ما انترجم ورجع نفس النص تماماً -> اعتبره raw
     return translated == k ? k : translated;
   }
 
   void _showSnackBar(
-    BuildContext context, {
-    required String message,
-    Color? background,
-    IconData? icon,
-  }) {
+      BuildContext context, {
+        required String message,
+        Color? background,
+        IconData? icon,
+      }) {
     final messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
+
     messenger.showSnackBar(
       SnackBar(
         content: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (icon != null) ...[
               Icon(icon, color: Colors.white),
               const SizedBox(width: 10),
             ],
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              ),
+              child: Text(message, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -83,7 +100,6 @@ class _LoginState extends State<Login> {
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -126,15 +142,15 @@ class _LoginState extends State<Login> {
     }
 
     final phone = "+963${phoneController.text.trim()}";
-    cubit.sendCode(phone: phone);
+    cubit.sendCode(phone: phone);   // 🔥 هون إرسال الكود
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColor.primaryColor,
-      body: BlocListener<AuthFlowCubit, AuthFlowState>(
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return
+      BlocListener<AuthFlowCubit, AuthFlowState>(
         bloc: cubit,
         listener: (context, state) {
           state.whenOrNull(
@@ -163,211 +179,306 @@ class _LoginState extends State<Login> {
 
               _showSnackBar(
                 context,
-                message: msg,
+                message: "auth.code_sent".tr(),
                 background: AppColor.primaryColor,
                 icon: Icons.check_circle_outline,
               );
             },
           );
         },
-        child: Stack(
-          children: [
-            Image.asset(
-              "assets/images/top-view-burgers-with-cherry-tomatoes.png",
-              width: double.infinity,
-              height: 265.h,
-              fit: BoxFit.cover,
-              cacheWidth: 600,
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: EdgeInsets.only(top: 80.h),
-                child: Image.asset(
-                  "assets/images/breeze-food2.png",
-                  width: 150.w,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 228.h,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColor.Dark,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24.r),
-                    topRight: Radius.circular(24.r),
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              /// 🎬 VIDEO (58%)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: screenHeight * 0.75,
+                child: _videoController.value.isInitialized
+                    ? FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _videoController.value.size.width,
+                    height: _videoController.value.size.height,
+                    child: VideoPlayer(_videoController),
                   ),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 24.w,
-                      vertical: 32.h,
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CustomTitle(
-                                    title: "auth.welcome_title".tr(),
-                                    color: Colors.white,
-                                  ),
-                                  SizedBox(height: 2.h),
-                                  CustomSubTitle(
-                                    subtitle: "auth.login_hint".tr(),
-                                    color: AppColor.gry,
-                                    fontsize: 12.sp,
-                                  ),
-                                  SizedBox(height: 32.h),
+                )
+                    : const SizedBox(),
+              ),
 
-                                  // Phone
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 10.h,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColor.white,
-                                          borderRadius: BorderRadius.circular(8.r),
-                                          border: Border.all(color: AppColor.gry),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Image.asset(
-                                              'assets/icons/syria.png',
-                                              width: 24.w,
-                                              height: 24.h,
-                                            ),
-                                            SizedBox(width: 8.w),
-                                            Text(
-                                              '+963',
-                                              style: TextStyle(fontSize: 14.sp),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 10.w),
-                                      Expanded(
-                                        child: _CustomTextFormField(
-                                          controller: phoneController,
-                                          keyboardType: TextInputType.number,
-                                          hintText: "auth.phone_number".tr(),
-                                          validator: (v) {
-                                            final val = (v ?? '').trim();
-                                            if (val.isEmpty) {
-                                              return "auth.enter_phone".tr();
-                                            }
-                                            if (val.length < 8) {
-                                              return "auth.invalid_phone".tr();
-                                            }
-                                            return null;
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 14.h),
-
-                                  // Terms checkbox + tap
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Checkbox(
-                                        value: _acceptedTerms,
-                                        activeColor: AppColor.primaryColor,
-                                        onChanged: (v) async {
-                                          if (v == true) {
-                                            await _openTermsAndMaybeAccept();
-                                          } else {
-                                            setState(() => _acceptedTerms = false);
-                                          }
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: _openTermsAndMaybeAccept,
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 12.h),
-                                            child: Text(
-                                              "terms.tap_to_view_and_accept".tr(),
-                                              style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 12.sp,
-                                                height: 1.4,
-                                                decoration: TextDecoration.underline,
-                                                decorationColor: Colors.white38,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 24.h),
-
-                                  // Continue button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 55.h,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(15.r),
-                                      onTap: _acceptedTerms ? _handleLogin : () {
-                                        _showSnackBar(
-                                          context,
-                                          message: "terms.must_accept".tr(),
-                                          background: Colors.orange,
-                                          icon: Icons.warning_amber_rounded,
-                                        );
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: _acceptedTerms
-                                              ? AppColor.primaryColor
-                                              : AppColor.gry,
-                                          borderRadius: BorderRadius.circular(15.r),
-                                        ),
-                                        child: Text(
-                                          "common.continue".tr(),
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Manrope',
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+              /// 🔥 PROFESSIONAL FADE BETWEEN VIDEO & CARD
+              // Container(
+              //   width: MediaQuery.of(context).size.width,
+              //   height: MediaQuery.of(context).size.height,
+              //   decoration: BoxDecoration(
+              //     gradient: LinearGradient(
+              //       colors: [
+              //         Colors.green.withOpacity(0.2),
+              //         Colors.black.withOpacity(0.8),
+              //         Colors.black.withOpacity(0.8),
+              //         Colors.green.withOpacity(0.9),
+              //       ],
+              //       begin: Alignment.topCenter,
+              //       end: Alignment.bottomCenter,
+              //     ),
+              //   ),
+              // ),
+              /// 🎬 FADE FROM BOTTOM (WOLT STYLE)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: screenHeight * 0.45,
+                height: screenHeight * 0.40,
+                child: IgnorePointer(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black,
+                          Colors.black87,
+                          Colors.black54,
+                          Colors.transparent,
                         ],
+                        stops: [0.0, 0.3, 0.65, 1.0],
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+              /// 🖼 PNG IMAGE ABOVE SHADOW
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: screenHeight * 0.35, // عدلها حسب المكان اللي بدك ياه
+                child: IgnorePointer(
+                  child: Center(
+                    child: Image.asset(
+                      "assets/images/logo-removebg.png",
+                      width: screenHeight * 0.40, // حجم مرن
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+              /// 📦 FLOATING CARD
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                top: screenHeight * 0.50,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: AppColor.Dark,
+                    // borderRadius: BorderRadius.only(
+                    //   topLeft: Radius.circular(34.r),
+                    //   topRight: Radius.circular(34.r),
+                    // ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.white.withOpacity(0.25),
+                        blurRadius: 40,
+                        offset: const Offset(0, -12),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24.w,
+                        vertical: 32.h,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child:
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // /// 🔷 LOGO STYLE LIKE WOLT
+                                    // Center(
+                                    //   child: Padding(
+                                    //     padding: EdgeInsets.only(bottom: 12.h),
+                                    //     child: Image.asset(
+                                    //       "assets/images/logo-removebg.png",
+                                    //       height: 28.h, // حجم ثابت أنعم
+                                    //       fit: BoxFit.contain,
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    CustomTitle(
+                                      title: "auth.welcome_title".tr(),
+                                      color: AppColor.white,
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    CustomSubTitle(
+                                      subtitle: "auth.login_hint".tr(),
+                                      color: AppColor.gry,
+                                      fontsize: 12.sp,
+                                    ),
+                                    SizedBox(height: 32.h),
+
+                                    // Phone
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w,
+                                            vertical: 10.h,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColor.white,
+                                            borderRadius: BorderRadius.circular(
+                                              8.r,
+                                            ),
+                                            border: Border.all(
+                                              color: AppColor.gry,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Image.asset(
+                                                'assets/icons/syria.png',
+                                                width: 24.w,
+                                                height: 24.h,
+                                              ),
+                                              SizedBox(width: 8.w),
+                                              Text(
+                                                '+963',
+                                                style: TextStyle(fontSize: 14.sp),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 10.w),
+                                        Expanded(
+                                          child: _CustomTextFormField(
+                                            controller: phoneController,
+                                            keyboardType: TextInputType.number,
+                                            hintText: "auth.phone_number".tr(),
+                                            validator: (v) {
+                                              final val = (v ?? '').trim();
+                                              if (val.isEmpty) {
+                                                return "auth.enter_phone".tr();
+                                              }
+                                              if (val.length < 8) {
+                                                return "auth.invalid_phone".tr();
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: 14.h),
+
+                                    // Terms checkbox + tap
+                                    Row(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Checkbox(
+                                          value: _acceptedTerms,
+                                          activeColor: AppColor.primaryColor,
+                                          onChanged: (v) async {
+                                            if (v == true) {
+                                              await _openTermsAndMaybeAccept();
+                                            } else {
+                                              setState(
+                                                    () => _acceptedTerms = false,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: _openTermsAndMaybeAccept,
+                                            child: Padding(
+                                              padding: EdgeInsets.only(top: 12.h),
+                                              child: Text(
+                                                "terms.tap_to_view_and_accept"
+                                                    .tr(),
+                                                style: TextStyle(
+                                                  color: AppColor.white,
+                                                  fontSize: 12.sp,
+                                                  height: 1.4,
+                                                  decoration:
+                                                  TextDecoration.underline,
+                                                  decorationColor: Colors.white38,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: 24.h),
+
+                                    // Continue button
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 55.h,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(15.r),
+                                        onTap: _acceptedTerms
+                                            ? _handleLogin
+                                            : () {
+                                          _showSnackBar(
+                                            context,
+                                            message: "terms.must_accept"
+                                                .tr(),
+                                            background: Colors.orange,
+                                            icon:
+                                            Icons.warning_amber_rounded,
+                                          );
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: _acceptedTerms
+                                                ? AppColor.primaryColor
+                                                : AppColor.gry,
+                                            borderRadius: BorderRadius.circular(
+                                              15.r,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            "common.continue".tr(),
+                                            style: TextStyle(
+                                              fontSize: 16.sp,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Manrope',
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 }
 

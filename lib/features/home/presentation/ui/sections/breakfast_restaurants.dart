@@ -3,7 +3,6 @@ import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/prices_helper.dart';
-import 'package:breezefood/core/services/detect_language.dart' show extractLocalizedText;
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -20,7 +19,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 class BreakfastRestaurantCard extends StatefulWidget {
   final String? image;
   final String name;
-  final String opensAtLabel;
   final double rating;
   final double? deliveryFee;
   final bool isOpen; // ✅ NEW
@@ -30,7 +28,6 @@ class BreakfastRestaurantCard extends StatefulWidget {
     super.key,
     required this.image,
     required this.name,
-    required this.opensAtLabel,
     required this.rating,
     required this.deliveryFee,
     required this.isOpen, // ✅
@@ -38,7 +35,8 @@ class BreakfastRestaurantCard extends StatefulWidget {
   });
 
   @override
-  State<BreakfastRestaurantCard> createState() => _BreakfastRestaurantCardState();
+  State<BreakfastRestaurantCard> createState() =>
+      _BreakfastRestaurantCardState();
 }
 
 class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
@@ -52,7 +50,9 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
 
   @override
   Widget build(BuildContext context) {
-    final feeText = (widget.deliveryFee != null && widget.deliveryFee! > 0) ? context.syp(widget.deliveryFee, decimals: 0) : "common.dash".tr();
+    final feeText = (widget.deliveryFee != null && widget.deliveryFee! > 0)
+        ? context.syp(widget.deliveryFee, decimals: 0)
+        : "common.dash".tr();
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -61,9 +61,25 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
         children: [
           Stack(
             children: [
-              AppNetworkImage(path: widget.image, height: 100.h, radius: BorderRadius.circular(12.r)),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child:
+                AppNetworkImage(
+                  path: widget.image,
+                  height: 100.h,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+
+                  fallback: Image.asset(
+                    "assets/images/meal_breeze.jpeg",
+                    height: 100.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
               // ✅ Open/Closed badge
-              if (!widget.isOpen) ClosedOverlay(opensAtLabel: widget.opensAtLabel),
+                  if (!widget.isOpen) const ClosedOverlay(),
 
               // Rating
               PositionedDirectional(
@@ -74,7 +90,13 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2), // لو حابب خلفية خفيفة
                     borderRadius: BorderRadius.circular(10.r),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 4, offset: Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -82,65 +104,18 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
                       SizedBox(width: 3.w),
                       Text(
                         _rating.toStringAsFixed(1),
-                        style: TextStyle(color: Colors.white, fontSize: 11.sp, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
 
-              // Name center
-              // Positioned.fill(
-              //   child: Center(
-              //     child:
-              //     Padding(
-              //       padding: EdgeInsets.symmetric(horizontal: 8.w),
-              //       child: Text(
-              //         widget.name,
-              //         textAlign: TextAlign.center,
-              //         maxLines: 2,
-              //         overflow: TextOverflow.ellipsis,
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 15.sp,
-              //           fontWeight: FontWeight.w600,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              //
-              // // "Breakfast" chip
-              // PositionedDirectional(
-              //   bottom: 6,
-              //   start: 6,
-              //   child: Container(
-              //     padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-              //     decoration: BoxDecoration(
-              //       color: Colors.black.withOpacity(0.35),
-              //       borderRadius: BorderRadius.circular(10.r),
-              //       border: Border.all(color: Colors.white.withOpacity(0.08)),
-              //     ),
-              //     child: Row(
-              //       children: [
-              //         Icon(
-              //           Icons.free_breakfast_rounded,
-              //           size: 14.sp,
-              //           color: Colors.white,
-              //         ),
-              //         SizedBox(width: 4.w),
-              //         Text(
-              //           "home.breakfast_chip".tr(),
-              //           style: TextStyle(
-              //             color: Colors.white,
-              //             fontSize: 11.sp,
-              //             fontWeight: FontWeight.w600,
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
+
             ],
           ),
           Padding(
@@ -150,17 +125,29 @@ class _BreakfastRestaurantCardState extends State<BreakfastRestaurantCard> {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: AppColor.light, fontSize: 15.sp, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           SizedBox(height: 6.h),
 
           Row(
             children: [
-              // SvgPicture.asset("assets/icons/motor.svg", width: 16.w, height: 16.h, color: Colors.white),
-              Image.asset("assets/icons/new_del.png", width: 15.w, height: 15.h, color: AppColor.white),
+              SvgPicture.asset(
+                "assets/icons/motor.svg",
+                width: 16.w,
+                height: 16.h,
+                color: Colors.white,
+              ),
               SizedBox(width: 4.w),
-              CustomSubTitle(subtitle: feeText, color: AppColor.white, fontsize: 12.sp),
+              CustomSubTitle(
+                subtitle: feeText,
+                color: AppColor.white,
+                fontsize: 12.sp,
+              ),
             ],
           ),
         ],
@@ -173,7 +160,11 @@ class BreakfastRestaurantsSection extends StatelessWidget {
   final List<HomeRestaurantModel> restaurants;
   final bool hideWhenEmpty;
 
-  const BreakfastRestaurantsSection({super.key, required this.restaurants, this.hideWhenEmpty = true});
+  const BreakfastRestaurantsSection({
+    super.key,
+    required this.restaurants,
+    this.hideWhenEmpty = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -185,8 +176,15 @@ class BreakfastRestaurantsSection extends StatelessWidget {
         child: Container(
           height: 100.h,
           alignment: Alignment.center,
-          decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(12.r)),
-          child: CustomSubTitle(subtitle: "home.empty_breakfast".tr(), color: AppColor.white, fontsize: 14.sp),
+          decoration: BoxDecoration(
+            color: AppColor.black,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: CustomSubTitle(
+            subtitle: "home.empty_breakfast".tr(),
+            color: AppColor.white,
+            fontsize: 14.sp,
+          ),
         ),
       );
     }
@@ -205,14 +203,14 @@ class BreakfastRestaurantsSection extends StatelessWidget {
 
           return Container(
             width: cardWidth,
-            margin: EdgeInsets.only(left: index == 0 ? 9.w : 0, right: index == restaurants.length - 1 ? 10.w : gap),
+            margin: EdgeInsets.only(
+              left: index == 0 ? 9.w : 0,
+              right: index == restaurants.length - 1 ? 10.w : gap,
+            ),
             child: BreakfastRestaurantCard(
               image: restaurantImage(r),
-              opensAtLabel: r.opensAtLabel ?? '',
               isOpen: r.isOpen, // ✅ هون
-              // name: r.name,
-              name: extractLocalizedText(r.name, context.locale),
-
+              name: r.name,
               rating: r.ratingAvg <= 0 ? 4.0 : r.ratingAvg,
               deliveryFee: r.deliveryFinalFee?.toDouble(),
               onTap: () async {
@@ -230,7 +228,7 @@ class BreakfastRestaurantsSection extends StatelessWidget {
                 );
 
                 if (context.mounted) {
-                  context.read<CartCubit>().loadCart();
+                  context.read<CartCubit>().loadCart(silent: true);
                 }
               },
             ),

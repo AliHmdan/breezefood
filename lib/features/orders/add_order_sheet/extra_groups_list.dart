@@ -8,8 +8,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ExtraGroupsList extends StatelessWidget {
   final List<ExtraGrouped> groups;
-  final Map<int, int> selectedChoice; // groupId -> extraId
-  final void Function(int groupId, int extraId) onChanged;
+
+  /// groupId -> extraId (nullable للسماح بإلغاء التحديد)
+  final Map<int, int?> selectedChoice;
+
+  final void Function(int groupId, int? extraId) onChanged;
 
   const ExtraGroupsList({
     super.key,
@@ -20,11 +23,14 @@ class ExtraGroupsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final isRTL =
+        Directionality.of(context) == mt.TextDirection.rtl;
 
     String groupTitle(ExtraGrouped g) {
       final t = isRTL ? (g.nameAr ?? "") : (g.nameEn ?? "");
-      return t.trim().isEmpty ? (isRTL ? "إضافات" : "Extras") : t;
+      return t.trim().isEmpty
+          ? (isRTL ? "إضافات" : "Extras")
+          : t;
     }
 
     return Column(
@@ -33,82 +39,102 @@ class ExtraGroupsList extends StatelessWidget {
         final title = groupTitle(g);
         final chosenId = selectedChoice[g.groupId];
 
-        final useRadio = g.items.length > 1;
-
         return Padding(
-          padding: EdgeInsets.only(bottom: 10.h),
+          padding: EdgeInsets.only(bottom: 14.h),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
+              /// GROUP TITLE
               CustomSubTitle(
                 subtitle: title,
-                color: AppColor.Lightgry,
-                fontsize: 13,
+                color: AppColor.white,
+                fontsize: 16,
               ),
-              SizedBox(height: 6.h),
+
+              SizedBox(height: 8.h),
+
               ...g.items.map((it) {
-                final name = isRTL ? it.nameAr : it.nameEn;
+                final name =
+                isRTL ? it.nameAr : it.nameEn;
+
+                final isSelected =
+                    chosenId == it.id;
 
                 return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 3.h),
+                  padding:
+                  EdgeInsets.symmetric(vertical: 4.h),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Row(
                           children: [
-                            if (useRadio)
-                              Radio<int>(
-                                value: it.id,
-                                groupValue: chosenId,
-                                activeColor: AppColor.primaryColor,
-                                visualDensity: const VisualDensity(
-                                  horizontal: -4,
-                                  vertical: -4,
-                                ),
-                                onChanged: (val) {
-                                  if (val == null) return;
-                                  onChanged(g.groupId, val);
-                                },
-                              )
-                            else
-                              Checkbox(
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                                visualDensity: const VisualDensity(
-                                  horizontal: -4,
-                                  vertical: -4,
-                                ),
-                                activeColor: AppColor.primaryColor,
-                                side: BorderSide(
-                                  color: AppColor.Lightgry,
-                                  width: 1.5,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                value: chosenId == it.id,
-                                onChanged: (val) {
-                                  if (val == true) {
-                                    onChanged(g.groupId, it.id);
+                            Checkbox(
+                              materialTapTargetSize:
+                              MaterialTapTargetSize
+                                  .shrinkWrap,
+                              visualDensity:
+                              const VisualDensity(
+                                horizontal: -4,
+                                vertical: -4,
+                              ),
+                              activeColor:
+                              AppColor.primaryColor,
+                              side: BorderSide(
+                                color:
+                                AppColor.LightActive,
+                                width: 1.5,
+                              ),
+                              shape:
+                              RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(
+                                    6),
+                              ),
+                              value: isSelected,
+                              onChanged: (val) {
+                                if (val == true) {
+                                  onChanged(
+                                      g.groupId, it.id);
+                                } else {
+                                  onChanged(
+                                      g.groupId, null);
+                                }
+                              },
+                            ),
+
+                            SizedBox(width: 6.w),
+
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (isSelected) {
+                                    onChanged(
+                                        g.groupId, null);
                                   } else {
-                                    selectedChoice.remove(g.groupId);
+                                    onChanged(
+                                        g.groupId,
+                                        it.id);
                                   }
                                 },
-                              ),
-                            Expanded(
-                              child: CustomSubTitle(
-                                subtitle: name,
-                                color: AppColor.Lightgry,
-                                fontsize: 12,
+                                child: CustomSubTitle(
+                                  subtitle: name,
+                                  color:
+                                  AppColor.white,
+                                  fontsize: 12,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
+
                       CustomSubTitle(
-                        subtitle: context.money(it.price),
-                        color: AppColor.yellow,
+                        subtitle:
+                        context.money(it.price),
+                        color: AppColor.white,
                         fontsize: 14,
                       ),
                     ],

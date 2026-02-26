@@ -360,7 +360,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
           child: BlocBuilder<CartCubit, CartState>(
             builder: (context, state) {
               final title = state.maybeWhen(
-                cartLoaded: (cart, __, ___) => cart.restaurantName.isNotEmpty
+                cartLoaded: (cart, updatingIds, toast, isRefreshing)=> cart.restaurantName.isNotEmpty
                     ? cart.restaurantName
                     : (isRTL ? "سلّتي" : "My Cart"),
                 orElse: () => isRTL ? "سلّتي" : "My Cart",
@@ -446,7 +446,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
-                    cartLoaded: (cart, updatingIds, toast) {
+                    cartLoaded: (cart, updatingIds, toast, isRefreshing) {
                       final isPlacingOrder = context
                           .watch<OrderFlowCubit>()
                           .state

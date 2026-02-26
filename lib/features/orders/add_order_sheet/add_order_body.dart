@@ -56,7 +56,7 @@ class _AddOrderBodyState extends State<AddOrderBody> {
   bool _highlightSizeRequired = false;
 
   // groupId -> selected extraId
-  final Map<int, int> _selectedGroupChoice = {};
+    Map<int, int?> _selectedGroupChoice = {};
 
   // legacy extras (إذا بدك تستعملها لاحقاً)
   final Set<int> _selectedExtrasIds = {};
@@ -107,13 +107,19 @@ class _AddOrderBodyState extends State<AddOrderBody> {
   List<AddToCartExtraRequest> _selectedExtrasPayload() {
     final ids = <int>{};
 
-    if (_selectedSizeExtraId != null) ids.add(_selectedSizeExtraId!);
-    ids.addAll(_selectedGroupChoice.values);
-    // legacy extras if you want:
+    if (_selectedSizeExtraId != null) {
+      ids.add(_selectedSizeExtraId!);
+    }
+
+    ids.addAll(
+      _selectedGroupChoice.values.whereType<int>(),
+    );
+
     ids.addAll(_selectedExtrasIds);
 
     return ids
-        .map((id) => AddToCartExtraRequest(extraId: id, quantity: 1))
+        .map((id) =>
+        AddToCartExtraRequest(extraId: id, quantity: 1))
         .toList();
   }
 
@@ -203,14 +209,23 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                           price: widget.price,
                           oldPrice: widget.oldPrice,
                           hasDiscount: _hasDiscount,
+                          description: widget.description,
+                          count: _qty,
+                          onInc: () =>
+                              setState(() => _qty++),
+                          onDec: () {
+                            setState(() {
+                              if (_qty > 1) _qty--;
+                            });
+                          },
                         ),
 
                         SizedBox(height: 15.h),
 
-                        AddOrderDescription(
-                          description: widget.description,
-                          maxWidth: 300.w,
-                        ),
+                        // AddOrderDescription(
+                        //   description: widget.description,
+                        //   maxWidth: 300.w,
+                        // ),
 
                         SizedBox(height: 8.h),
 
@@ -235,9 +250,15 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                             ExtraGroupsList(
                               groups: _otherGroups,
                               selectedChoice: _selectedGroupChoice,
-                              onChanged: (groupId, extraId) => setState(() {
-                                _selectedGroupChoice[groupId] = extraId;
-                              }),
+                              onChanged: (groupId, extraId) {
+                                setState(() {
+                                  if (extraId == null) {
+                                    _selectedGroupChoice.remove(groupId);
+                                  } else {
+                                    _selectedGroupChoice[groupId] = extraId;
+                                  }
+                                });
+                              },
                             ),
 
                           SizedBox(height: 8.h),

@@ -1,13 +1,18 @@
 import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart'; // OrderBundle
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
+import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_cubit.dart';
+import 'package:breezefood/features/orders/cart/request_order_screen.dart';
 
 class OrdersHistory extends StatefulWidget {
   const OrdersHistory({super.key});
@@ -40,118 +45,145 @@ class _OrdersHistoryState extends State<OrdersHistory> {
     if (s.contains("pending")) return Colors.orange;
     return Colors.white70;
   }
+  Future<void> _onReorderPressed(OrderBundle bundle) async {
+    final cartCubit = context.read<CartCubit>();
 
+    // 1️⃣ أضف الطلب للسلة
+    await cartCubit.reorderFromHistory(bundle);
+
+    if (!mounted) return;
+
+    // 2️⃣ انتقل لصفحة تفاصيل المطعم
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ResturantDetails(
+     restaurant_id: bundle.restaurant.id,
+        ),
+      ),
+    );
+  }
   Widget _buildOrderCard(OrderBundle bundle) {
     final item = bundle.order;
     final restaurant = bundle.restaurant;
 
-    final statusColor = _statusColor(item.status);
+    final createdAt = DateTime.parse(item.createdAt);
+    final date = DateFormat("dd MMM, yyyy • hh:mm a").format(createdAt);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Slidable(
-        key: ValueKey(item.id),
-        endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          extentRatio: 0.25,
-          children: [
-            CustomSlidableAction(
-              onPressed: (_) => _refresh(),
-              backgroundColor: AppColor.black,
-              borderRadius: BorderRadius.circular(15.r),
-              child: Center(
-                child: SvgPicture.asset(
-                  "assets/icons/refresh.svg",
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
+    return Container(
+      // color: Color(0xffF2F2F2), // ✅ خلفية فاتحة
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              /// صورة المطعم
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  _fullUrl(restaurant.logo),
+                  width: 60.w,
+                  height: 60.h,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Image.asset(
+                    "assets/images/003.jpg",
+                    width: 60.w,
+                    height: 60.h,
+                    fit: BoxFit.cover,
                   ),
-                  width: 30.w,
-                  height: 30.h,
                 ),
               ),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Container(
-            padding: const EdgeInsets.only(left: 1, right: 10, top: 4),
-            decoration: BoxDecoration(
-              color: AppColor.black,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.network(
-                      _fullUrl(restaurant.logo),
-                      width: 80.w,
-                      height: 80.h,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Image.asset(
-                        "assets/images/003.jpg",
-                        width: 80.w,
-                        height: 80.h,
-                        fit: BoxFit.cover,
+
+              const SizedBox(width: 12),
+
+              /// النصوص
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// اسم المطعم
+                    Text(
+                      restaurant.name,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColor.white, // ✅ أسود
                       ),
                     ),
-                  ),
+
+                    const SizedBox(height: 4),
+
+                    /// السعر
+                    Text(
+                      "${item.totalPrice.toStringAsFixed(2)} ${"common.currency".tr()}",
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColor.white,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+
+                  ],
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                    CustomSubTitle(
-  subtitle: "order_status.${item.status}".tr(),
-  color: statusColor,
-  fontsize: 12.sp,
-),
+              ),
 
-                      const SizedBox(height: 4),
-                      CustomSubTitle(
-                        subtitle: item.status,
-                        color: statusColor,
-                        fontsize: 12.sp,
-                      ),
-                      const SizedBox(height: 4),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                             text: "orders.price".tr(),
-
-                              style: TextStyle(
-                                color: AppColor.white,
-                                fontFamily: "Manrope",
-                                fontSize: 12.sp,
-                              ),
-                            ),
-                            TextSpan(
-                             text: "${item.totalPrice.toStringAsFixed(0)} ${"common.currency".tr()}",
-
-                              style: TextStyle(
-                                color: AppColor.yellow,
-                                fontFamily: "Manrope",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+              /// زر إعادة الطلب
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // ✅ خلفية رمادي فاتح
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.refresh_rounded),
+                  color: Colors.black87, // ✅ أيقونة غامقة
+                  onPressed: () => _onReorderPressed(bundle),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          /// التاريخ + الحالة
+          ///
+          RichText(
+            text: TextSpan(
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: Colors.grey[600], // اللون الافتراضي للتاريخ
+              ),
+              children: [
+                TextSpan(text: "$date • "),
+                TextSpan(
+                  text: "Delivered",
+                  style:  TextStyle(
+                    color: AppColor.white, // ✅ لون Delivered
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+          // Text(
+          //   "$date • Delivered",
+          //   style: TextStyle(
+          //     fontSize: 12.sp,
+          //     color: Colors.grey[600], // ✅ رمادي خفيف
+          //   ),
+          // ),
+          const SizedBox(height: 14),
+
+          /// Divider خفيف جداً
+          Divider(
+            color: Colors.grey.shade300,
+            thickness: 1,
+            height: 1,
+          ),
+        ],
       ),
     );
   }
@@ -188,13 +220,12 @@ class _OrdersHistoryState extends State<OrdersHistory> {
         }
 
         if (orders.isEmpty) {
-        return Center(
-  child: Text(
-    "orders.empty_history".tr(),
-    style: const TextStyle(color: Colors.white70),
-  ),
-);
-
+          return Center(
+            child: Text(
+              "orders.empty_history".tr(),
+              style: const TextStyle(color: Colors.white70),
+            ),
+          );
         }
 
         return RefreshIndicator(

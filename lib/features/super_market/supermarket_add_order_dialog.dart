@@ -56,7 +56,8 @@ class SupermarketAddOrderBody extends StatefulWidget {
   });
 
   @override
-  State<SupermarketAddOrderBody> createState() => _SupermarketAddOrderBodyState();
+  State<SupermarketAddOrderBody> createState() =>
+      _SupermarketAddOrderBodyState();
 }
 
 class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
@@ -96,8 +97,11 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                 Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-                      child: (widget.imagePath.startsWith("http://") ||
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(24.r),
+                      ),
+                      child:
+                          (widget.imagePath.startsWith("http://") ||
                               widget.imagePath.startsWith("https://"))
                           ? Image.network(
                               widget.imagePath,
@@ -125,7 +129,9 @@ class _SupermarketAddOrderBodyState extends State<SupermarketAddOrderBody> {
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close, color: Colors.white),
                         style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(Colors.black54),
+                          backgroundColor: WidgetStateProperty.all(
+                            Colors.black54,
+                          ),
                         ),
                       ),
                     ),

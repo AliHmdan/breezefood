@@ -80,22 +80,27 @@ class HomeCubit extends Cubit<HomeState> {
     await load();
   }
 
-  Future<void> load() async {
+ Future<void> load({bool silent = false}) async {
+  final prev = state.maybeWhen(loaded: (d) => d, orElse: () => null);
+
+  if (!silent || prev == null) {
     emit(const HomeState.loading());
-
-    final res = await repo.getHome();
-    if (!res.ok) {
-      emit(HomeState.error(res.message ?? "خطأ"));
-      return;
-    }
-
-    try {
-      final parsed = HomeResponse.fromJson(
-        (res.data as Map).cast<String, dynamic>(),
-      );
-      emit(HomeState.loaded(parsed));
-    } catch (e) {
-      emit(const HomeState.error("فشل قراءة بيانات الصفحة الرئيسية"));
-    }
   }
+
+  final res = await repo.getHome();
+  if (!res.ok) {
+    // لو silent ومعك prev، لا تطيّر الصفحة
+    if (silent && prev != null) return;
+    emit(HomeState.error(res.message ?? "خطأ"));
+    return;
+  }
+
+  try {
+    final parsed = HomeResponse.fromJson((res.data as Map).cast<String, dynamic>());
+    emit(HomeState.loaded(parsed));
+  } catch (_) {
+    if (silent && prev != null) return;
+    emit(const HomeState.error("فشل قراءة بيانات الصفحة الرئيسية"));
+  }
+}
 }

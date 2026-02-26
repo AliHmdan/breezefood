@@ -44,14 +44,14 @@ class AddOrderHeaderImage extends StatelessWidget {
           ),
         ),
 
-        PositionedDirectional(
-          bottom: 5,
-          end: 10,
-          child: AppShareFab(
-            text: shareText,
-            subject: "BreezeFood",
-          ),
-        ),
+        // PositionedDirectional(
+        //   bottom: 5,
+        //   end: 10,
+        //   child: AppShareFab(
+        //     text: shareText,
+        //     subject: "BreezeFood",
+        //   ),
+        // ),
       ],
     );
   }

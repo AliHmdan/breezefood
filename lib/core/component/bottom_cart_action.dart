@@ -37,7 +37,7 @@ class BottomCartAction extends StatelessWidget {
 
         st.maybeWhen(
           loading: () => loading = true,
-          cartLoaded: (cart, _, __) {
+          cartLoaded:(cart, updatingIds, toast, isRefreshing) {
             summary = CartSummary.from(cart);
           },
           orElse: () {},

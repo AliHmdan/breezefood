@@ -1,7 +1,12 @@
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/services/money.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/orders/add_order_sheet/Counter.dart';
+// import 'package:breezefood/features/orders/add_order_sheet/Counter.dart';
+import 'package:breezefood/features/orders/add_order_sheet/add_order_description.dart';
+import 'package:breezefood/features/orders/presentation/cubit/cart_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddOrderTitlePrice extends StatelessWidget {
@@ -10,54 +15,94 @@ class AddOrderTitlePrice extends StatelessWidget {
   final double oldPrice;
   final bool hasDiscount;
 
+  final String description;
+  final int count;
+  final VoidCallback onInc;
+  final VoidCallback onDec;
+
   const AddOrderTitlePrice({
     super.key,
     required this.title,
     required this.price,
     required this.oldPrice,
     required this.hasDiscount,
+    required this.description,
+    required this.count,
+    required this.onInc,
+    required this.onDec,
   });
 
   @override
   Widget build(BuildContext context) {
-    return
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    final isLoading = context.watch<CartCubit>().state.maybeWhen(
+      loading: () => true,
+      orElse: () => false,
+    );
 
-          CustomSubTitle(
-            subtitle: title.isEmpty ? "Empty" : title,
-            color: AppColor.white,
-            fontsize: 22.sp,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 20.h),
 
-          ),
+        /// TITLE
+        CustomSubTitle(
+          subtitle: title.isEmpty ? "Empty" : title,
+          color: AppColor.white,
+          fontsize: 20.sp,
+        ),
 
-          SizedBox(height: 8.h),
+        SizedBox(height: 8.h),
 
-          Row(
-            children: [
-              if (hasDiscount) ...[
+        /// DESCRIPTION
+        AddOrderDescription(
+          description: description,
+          maxWidth: 300.w,
+        ),
+
+        SizedBox(height: 12.h),
+
+        /// PRICE + COUNTER
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            /// PRICE SECTION
+            Row(
+              children: [
+                if (hasDiscount) ...[
+                  Text(
+                    context.money(oldPrice),
+                    style: TextStyle(
+                      color: AppColor.gry,
+                      fontSize: 14.sp,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                ],
+
                 Text(
-                  context.money(oldPrice),
+                  context.money(price),
                   style: TextStyle(
-                    color: AppColor.gry,
-                    fontSize: 14.sp,
-                    decoration: TextDecoration.lineThrough,
+                    color: hasDiscount
+                        ? AppColor.red
+                        : AppColor.white,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(width: 8.w),
               ],
-              Text(
-                context.money(price),
-                style: TextStyle(
-                  color: hasDiscount ? AppColor.red : AppColor.white,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
-      );
+            ),
+
+            // / COUNTER
+            CounterWidget(
+              count: count,
+              isLoading: isLoading,
+              onInc: onInc,
+              onDec: onDec,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

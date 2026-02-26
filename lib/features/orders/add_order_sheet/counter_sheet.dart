@@ -64,49 +64,49 @@ class CounterSheet extends StatelessWidget {
           Row(
             children: [
               // counter
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColor.black,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Material(
-                      color: Colors.transparent,
-                      child: GestureDetector(
-                        onTap: (isLoading || count <= 1) ? null : onDec,
-                        child: const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 16,
-                          child: Icon(Icons.remove, color: Colors.black),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    // ✅ ملاحظة: إذا CustomSubTitle عندك ما عم يتحدث، استبدله بـ Text مؤقتاً للتأكد
-                    CustomSubTitle(
-                      subtitle: "$count",
-                      color: AppColor.white,
-                      fontsize: 18,
-                    ),
-                    const SizedBox(width: 10),
-                    Material(
-                      color: Colors.transparent,
-                      child: GestureDetector(
-                        onTap: isLoading ? null : onInc,
-                        child: const CircleAvatar(
-                          backgroundColor: AppColor.primaryColor,
-                          radius: 16,
-                          child: Icon(Icons.add, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 8),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              //   decoration: BoxDecoration(
+              //     color: AppColor.black,
+              //     borderRadius: BorderRadius.circular(8),
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       Material(
+              //         color: Colors.transparent,
+              //         child: GestureDetector(
+              //           onTap: (isLoading || count <= 1) ? null : onDec,
+              //           child: const CircleAvatar(
+              //             backgroundColor: Colors.white,
+              //             radius: 16,
+              //             child: Icon(Icons.remove, color: Colors.black),
+              //           ),
+              //         ),
+              //       ),
+              //       const SizedBox(width: 10),
+              //       // ✅ ملاحظة: إذا CustomSubTitle عندك ما عم يتحدث، استبدله بـ Text مؤقتاً للتأكد
+              //       CustomSubTitle(
+              //         subtitle: "$count",
+              //         color: AppColor.white,
+              //         fontsize: 18,
+              //       ),
+              //       const SizedBox(width: 10),
+              //       Material(
+              //         color: Colors.transparent,
+              //         child: GestureDetector(
+              //           onTap: isLoading ? null : onInc,
+              //           child: const CircleAvatar(
+              //             backgroundColor: AppColor.primaryColor,
+              //             radius: 16,
+              //             child: Icon(Icons.add, color: Colors.white),
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              //
+              // const SizedBox(width: 8),
 
               // button
               Expanded(
@@ -135,8 +135,8 @@ class CounterSheet extends StatelessWidget {
                         },
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 10.w,vertical: 3),
-                          child: Column(
-
+                          child: Row(
+mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Flexible(
                                 child: AnimatedSwitcher(

@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeTabsBar extends StatefulWidget {
-  const HomeTabsBar({super.key, required this.titles, required this.activeIndex, required this.onTap});
+  const HomeTabsBar({
+    super.key,
+    required this.titles,
+    required this.activeIndex,
+    required this.onTap,
+  });
 
   final List<String> titles;
   final int activeIndex;
@@ -23,83 +28,150 @@ class _HomeTabsBarState extends State<HomeTabsBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.titles.isEmpty) return const SizedBox.shrink();
+    if (widget.titles.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-    final safe = _safe(widget.activeIndex, widget.titles.length);
+    final safe =
+    _safe(widget.activeIndex, widget.titles.length);
 
     return DefaultTabController(
-      key: const ValueKey<String>("home_tabs_controller"),
+      key: const ValueKey<String>(
+          "home_tabs_controller"),
       length: widget.titles.length,
       initialIndex: safe,
-      child: _HomeTabsBarInner(titles: widget.titles, activeIndex: safe, onTap: widget.onTap),
+      child: _HomeTabsBarInner(
+        titles: widget.titles,
+        activeIndex: safe,
+        onTap: widget.onTap,
+      ),
     );
   }
 }
 
 class _HomeTabsBarInner extends StatefulWidget {
-  const _HomeTabsBarInner({required this.titles, required this.activeIndex, required this.onTap});
+  const _HomeTabsBarInner({
+    required this.titles,
+    required this.activeIndex,
+    required this.onTap,
+  });
 
   final List<String> titles;
   final int activeIndex;
   final ValueChanged<int> onTap;
 
   @override
-  State<_HomeTabsBarInner> createState() => _HomeTabsBarInnerState();
+  State<_HomeTabsBarInner> createState() =>
+      _HomeTabsBarInnerState();
 }
 
-class _HomeTabsBarInnerState extends State<_HomeTabsBarInner> {
-  static const _anim = Duration(milliseconds: 220);
+class _HomeTabsBarInnerState
+    extends State<_HomeTabsBarInner> {
+  static const _anim =
+  Duration(milliseconds: 220);
 
   @override
-  void didUpdateWidget(covariant _HomeTabsBarInner oldWidget) {
+  void didUpdateWidget(
+      covariant _HomeTabsBarInner oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) {
       if (!mounted) return;
-      final ctl = DefaultTabController.of(context);
 
-      // ✅ sync من برا -> جوّا
-      if (ctl.index != widget.activeIndex && !ctl.indexIsChanging) {
-        ctl.animateTo(widget.activeIndex, duration: _anim, curve: Curves.linear);
+      final ctl =
+      DefaultTabController.of(context);
+
+      if (ctl.index != widget.activeIndex &&
+          !ctl.indexIsChanging) {
+        ctl.animateTo(
+          widget.activeIndex,
+          duration: _anim,
+          curve: Curves.easeOut,
+        );
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final ctl = DefaultTabController.of(context);
+    final ctl =
+    DefaultTabController.of(context);
 
     return SizedBox(
       height: 45.h,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
+          /// Bottom faint line
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: Container(height: 3.5.h, color: AppColor.white.withOpacity(0.18)),
+            child: Container(
+              height: 3.h,
+              color: AppColor.white
+                  .withOpacity(0.15),
+            ),
           ),
+
+          /// Tabs
           TabBar(
             controller: ctl,
-            tabAlignment: TabAlignment.center,
             isScrollable: true,
+            tabAlignment:
+            TabAlignment.center,
             padding: EdgeInsets.zero,
             onTap: widget.onTap,
-            labelPadding: EdgeInsets.symmetric(horizontal: 12.w),
+            labelPadding:
+            EdgeInsets.symmetric(
+                horizontal: 14.w),
+
             labelColor: AppColor.white,
-            unselectedLabelColor: AppColor.white.withOpacity(0.55),
-            labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
-            unselectedLabelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(width: 3.h, color: AppColor.white),
-              insets: EdgeInsets.symmetric(horizontal: 10.w),
+            unselectedLabelColor:
+            AppColor.white
+                .withOpacity(0.55),
+
+            labelStyle: TextStyle(
+              fontSize: 14.sp,
+              fontWeight:
+              FontWeight.w800,
             ),
 
-            dividerColor: Color(0xFFF9FAFB),
-            dividerHeight: -1.h,
-            tabs: widget.titles.map((t) => Tab(child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis))).toList(),
+            unselectedLabelStyle:
+            TextStyle(
+              fontSize: 14.sp,
+              fontWeight:
+              FontWeight.w500,
+            ),
+
+            indicatorSize:
+            TabBarIndicatorSize.tab,
+
+            indicator:
+            UnderlineTabIndicator(
+              borderSide: BorderSide(
+                width: 2.h,
+                color: AppColor.white,
+              ),
+              insets:
+              EdgeInsets.symmetric(
+                  horizontal: 12.w),
+            ),
+
+            tabs: widget.titles
+                .map(
+                  (t) => Tab(
+                child: Text(
+                  t,
+                  maxLines: 1,
+                  overflow:
+                  TextOverflow
+                      .ellipsis,
+                ),
+              ),
+            )
+                .toList(),
           ),
         ],
       ),

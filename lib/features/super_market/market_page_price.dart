@@ -313,7 +313,7 @@ class MarketPagePrice extends StatelessWidget {
                       num total = 0;
 
                       st.maybeWhen(
-                        cartLoaded: (cart, _, __) {
+                        cartLoaded: (cart, updatingIds, toast, isRefreshing) {
                           count = _cartCount(cart);
                           total = _cartTotal(cart);
                         },

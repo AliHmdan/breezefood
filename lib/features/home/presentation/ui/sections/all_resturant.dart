@@ -1,0 +1,294 @@
+
+import 'package:breezefood/core/component/app_image.dart';
+import 'package:breezefood/core/component/color.dart';
+import 'package:breezefood/core/component/url_helper.dart';
+import 'package:breezefood/core/services/del_price_helper.dart'
+    show deliveryFeeText;
+import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
+import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
+import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:breezefood/features/home/model/home_response.dart' as home;
+import 'package:flutter_svg/flutter_svg.dart';
+
+class RestaurantCard extends StatefulWidget {
+  final home.HomeRestaurantModel restaurant;
+  final VoidCallback? onTap;
+
+  const RestaurantCard({super.key, required this.restaurant, this.onTap});
+
+  @override
+  State<RestaurantCard> createState() => _RestaurantCardState();
+}
+
+class _RestaurantCardState extends State<RestaurantCard> {
+  late double _rating;
+
+  @override
+  void initState() {
+    super.initState();
+    _rating = (widget.restaurant.ratingAvg).toDouble();
+  }
+
+  @override
+  void didUpdateWidget(covariant RestaurantCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.restaurant.id != widget.restaurant.id ||
+        oldWidget.restaurant.ratingAvg != widget.restaurant.ratingAvg) {
+      _rating = (widget.restaurant.ratingAvg).toDouble();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final r = widget.restaurant;
+
+    final cover = UrlHelper.toFullUrl(r.coverImage);
+    final logo = UrlHelper.toFullUrl(r.logo);
+    final imageUrl = (cover ?? "").trim().isNotEmpty ? cover : logo;
+
+    final ratingCount = r.ratingCount;
+    final ordersText = ratingCount > 0 ? "$ratingCount Ratings" : "New";
+
+    // ✅ سعر التوصيل (من helper اللي عملناه)
+    final feeText = deliveryFeeText(r);
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Stack(
+                children: [
+                  // ✅ Open/Closed badge
+                  AppNetworkImage(
+                    path: imageUrl,
+                    height: 180.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    radius: BorderRadius.circular(12.r), // إذا بدك حواف
+                    fallback: Image.asset(
+                      "assets/images/meal_breeze.jpeg", // صورتك الافتراضية
+                      height: 180.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  if (!r.isOpen)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Center(
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 6.h,
+                              ),
+
+                              child:CustomSubTitle(subtitle:   "restaurant.closed".tr(), color: AppColor.white, fontsize: 13.sp)
+
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  PositionedDirectional(
+                    top: 10,
+                    end: 10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // ⭐ Rating
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 14,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                _rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              const Text(
+                                "|",
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                              SizedBox(width: 6.w),
+                              CustomSubTitle(
+                                subtitle: ordersText,
+                                color: AppColor.white,
+                                fontsize: 12.sp,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.h),
+            CustomSubTitle(
+              subtitle: (r.name).trim(),
+              color: AppColor.white,
+              fontsize: 16.sp,
+            ),
+            SizedBox(height: 5.h),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 2.h),
+
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    color: Colors.white,
+                    "assets/icons/motor.svg",
+                    width: 16.w,
+                    height: 16.h,
+                  ),
+                  SizedBox(width: 8.w),
+                  CustomSubTitle(
+                    subtitle: feeText,
+                    color: AppColor.white,
+                    fontsize: 12,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 15.h),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AllResturant extends StatelessWidget {
+  final List<home.HomeRestaurantModel> restaurants;
+  final void Function(home.HomeRestaurantModel r)? onTap;
+
+  const AllResturant({super.key, required this.restaurants, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    if (restaurants.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        child: Center(
+          child: Text(
+            "No restaurants available",
+            style: TextStyle(color: AppColor.gry, fontSize: 12.sp),
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: restaurants.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final r = restaurants[index];
+        return RestaurantCard(
+          restaurant: r,
+          onTap: onTap == null ? null : () => onTap!(r),
+        );
+      },
+    );
+  }
+}
+
+class _NetImage extends StatelessWidget {
+  final String? url;
+  final double height;
+  final bool grayscale;
+
+  const _NetImage({
+    required this.url,
+    required this.height,
+    this.grayscale = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final u = (url ?? "").trim();
+
+    Widget child;
+    if (u.isEmpty) {
+      child = Container(
+        height: height,
+        width: double.infinity,
+        color: Colors.grey.shade800,
+        child: Center(
+          child: Icon(Icons.restaurant, color: AppColor.white, size: 40.sp),
+        ),
+      );
+    } else {
+      child = Image.network(
+        u,
+        height: height,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return Container(
+            height: height,
+            color: Colors.black.withOpacity(0.2),
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: 22.w,
+              height: 22.w,
+              child: const CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        },
+        errorBuilder: (_, __, ___) => Container(
+          height: height,
+          width: double.infinity,
+          color: Colors.grey.shade800,
+          child: Center(
+            child: Icon(
+              Icons.image_not_supported,
+              color: AppColor.white,
+              size: 34.sp,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!grayscale) return child;
+
+    return ColorFiltered(
+      colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+      child: child,
+    );
+  }
+}

@@ -7,7 +7,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 /// ✅ Custom Cache Manager
 /// =======================================================
 class AppCacheManager {
-  static final CacheManager instance = CacheManager(Config('breezfoodCache', stalePeriod: const Duration(days: 30), maxNrOfCacheObjects: 3000));
+  static final CacheManager instance = CacheManager(
+    Config(
+      'breezfoodCache',
+      stalePeriod: const Duration(days: 30),
+      maxNrOfCacheObjects: 3000,
+    ),
+  );
 }
 
 /// =======================================================
@@ -72,7 +78,15 @@ class AppNetworkImage extends StatelessWidget {
   final BorderRadius? radius;
   final Widget? fallback;
 
-  const AppNetworkImage({super.key, required this.path, required this.height, this.width, this.fit = BoxFit.cover, this.radius, this.fallback});
+  const AppNetworkImage({
+    super.key,
+    required this.path,
+    required this.height,
+    this.width,
+    this.fit = BoxFit.cover,
+    this.radius,
+    this.fallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +99,10 @@ class AppNetworkImage extends StatelessWidget {
           width: width ?? double.infinity,
 
           alignment: Alignment.center,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r), color: Colors.grey.shade800),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+            color: Colors.grey.shade800,
+          ),
           child: const Icon(Icons.restaurant, color: Colors.white),
         );
 
@@ -132,14 +149,29 @@ class AppImage extends StatelessWidget {
   final BorderRadius? borderRadius;
   final String? fallbackAsset;
 
-  const AppImage({super.key, required this.url, this.width, this.height, this.fit = BoxFit.cover, this.borderRadius, this.fallbackAsset});
+  const AppImage({
+    super.key,
+    required this.url,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+    this.borderRadius,
+    this.fallbackAsset,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final fallback = Image.asset(fallbackAsset ?? "assets/images/meal_breeze.jpeg", width: width, height: height, fit: fit);
+    final fallback = Image.asset(
+      fallbackAsset ?? "assets/images/meal_breeze.jpeg",
+      width: width,
+      height: height,
+      fit: fit,
+    );
 
     if (url.trim().isEmpty) {
-      return borderRadius != null ? ClipRRect(borderRadius: borderRadius!, child: fallback) : fallback;
+      return borderRadius != null
+          ? ClipRRect(borderRadius: borderRadius!, child: fallback)
+          : fallback;
     }
 
     Widget image = CachedNetworkImage(
@@ -156,6 +188,8 @@ class AppImage extends StatelessWidget {
       errorWidget: (_, __, ___) => fallback,
     );
 
-    return borderRadius != null ? ClipRRect(borderRadius: borderRadius!, child: image) : image;
+    return borderRadius != null
+        ? ClipRRect(borderRadius: borderRadius!, child: image)
+        : image;
   }
 }
