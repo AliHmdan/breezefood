@@ -84,6 +84,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/video/splachscreene.mp4
+    - assets/video/login.mp4
     - assets/translations/
     - assets/b_driver/customer_map_point.png
     - assets/b_driver/driver_map_point.png

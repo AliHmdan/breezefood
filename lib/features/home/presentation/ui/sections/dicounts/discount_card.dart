@@ -1,7 +1,6 @@
 import 'package:breezefood/core/component/app_image.dart';
 import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/prices_helper.dart';
-import 'package:breezefood/core/services/detect_language.dart' show extractLocalizedText;
 import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 class Discount extends StatelessWidget {
   final String imagePath;
   final String subtitle;
-  final String opensAtLabel;
-  final dynamic price; // main price (meal price OR delivery final fee حسب استخدامك)
+  final dynamic
+  price; // main price (meal price OR delivery final fee حسب استخدامك)
   final String discount;
   final bool? isOpen; // null => ما نعرض شي
 
@@ -34,7 +33,6 @@ class Discount extends StatelessWidget {
     super.key,
     required this.imagePath,
     required this.subtitle,
-    required this.opensAtLabel,
     required this.price,
     required this.discount,
     required this.rating,
@@ -107,8 +105,12 @@ class Discount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ratingText = (rating <= 0) ? "no_ratings_yet".tr() : rating.toStringAsFixed(1);
-    final openText = (isOpen == true) ? "restaurant.open".tr() : "restaurant.closed".tr();
+    final ratingText = (rating <= 0)
+        ? "no_ratings_yet".tr()
+        : rating.toStringAsFixed(1);
+    final openText = (isOpen == true)
+        ? "restaurant.open".tr()
+        : "restaurant.closed".tr();
 
     final openColor = (isOpen == true) ? Colors.green : Colors.red;
 
@@ -141,7 +143,10 @@ class Discount extends StatelessWidget {
                       width: double.infinity,
                       fit: BoxFit.cover,
                       radius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                      fallback: Image.asset("assets/images/meal_breeze.jpeg", fit: BoxFit.cover),
+                      fallback: Image.asset(
+                        "assets/images/meal_breeze.jpeg",
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
 
@@ -150,8 +155,14 @@ class Discount extends StatelessWidget {
                     top: 6,
                     end: 6,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.30), borderRadius: BorderRadius.circular(20.r)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.30),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -159,25 +170,32 @@ class Discount extends StatelessWidget {
                           SizedBox(width: 3.w),
                           Text(
                             ratingText,
-                            style: TextStyle(color: Colors.white, fontSize: 12.sp, fontWeight: FontWeight.w700),
+                            style: TextStyle(
+                              color: AppColor.white,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  if (isOpen == false) ClosedOverlay(opensAtLabel: opensAtLabel),
+                  if (isOpen == false) const ClosedOverlay(),
 
                   if (hasFoodDiscount && discount.trim().isNotEmpty)
                     PositionedDirectional(
                       bottom: 0,
                       start: 0,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 2.h,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColor.red,
                           borderRadius: BorderRadiusDirectional.only(
                             // topStart:  Radius.circular(12.r),
-                            bottomStart: Radius.circular(25.r),
+                            bottomStart: Radius.circular(12.r),
                             topEnd: Radius.circular(20.r),
                             bottomEnd: Radius.circular(20.r),
                           ),
@@ -186,11 +204,20 @@ class Discount extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              "-$discount",
-                              style: TextStyle(color: Color(0xFFF9FAFB), fontSize: 12.sp, fontWeight: FontWeight.w800),
+                              discount,
+                              style: TextStyle(
+                                color: AppColor.white,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                             SizedBox(width: 4.w),
-                            //SvgPicture.asset("assets/icons/nspah.svg", width: 18.w, height: 18.h, color: Colors.white),
+                            SvgPicture.asset(
+                              "assets/icons/nspah.svg",
+                              width: 18.w,
+                              height: 18.h,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -200,12 +227,15 @@ class Discount extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
                 child: Text(
-                  // subtitle,
-                  extractLocalizedText(subtitle, context.locale),
+                  subtitle,
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: AppColor.light, fontSize: 15.sp, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: AppColor.white,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               SizedBox(height: gapH),
@@ -220,19 +250,23 @@ class Discount extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Image.asset("assets/icons/new_del.png", width: 15.w, height: 15.h, color: AppColor.white),
-                            // SvgPicture.asset("assets/icons/motor.svg", color: Colors.white, width: 16.w, height: 16.h),
+                            SvgPicture.asset(
+                              "assets/icons/motor.svg",
+                              color: Colors.white,
+                              width: 16.w,
+                              height: 16.h,
+                            ),
                             SizedBox(width: 4.w),
 
                             // ✅ إذا يوجد خصم توصيل (سعرين)
-                            if (deliveryOldPrice != null && deliveryNewPrice != null && deliveryOldPrice != deliveryNewPrice) ...[
+                            if (deliveryOldPrice != null &&
+                                deliveryNewPrice != null &&
+                                deliveryOldPrice != deliveryNewPrice) ...[
                               Text(
                                 context.syp(deliveryOldPrice, decimals: 0),
                                 style: TextStyle(
                                   color: AppColor.LightActive,
                                   decoration: TextDecoration.lineThrough,
-                                  decorationColor: AppColor.LightActive,
-
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -242,14 +276,22 @@ class Discount extends StatelessWidget {
 
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
-                                style: TextStyle(color: AppColor.red, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  color: AppColor.red,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ]
                             // ✅ إذا يوجد سعر واحد فقط (لا يوجد خصم توصيل)
                             else if (deliveryNewPrice != null)
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
-                                style: TextStyle(color: AppColor.white, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                           ],
                         ),

@@ -285,7 +285,7 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
             );
             context.read<CartCubit>().loadCart();
           },
-          cartLoaded: (cart, updatingIds, toast) {
+          cartLoaded:(cart, updatingIds, toast, isRefreshing) {
             EasyLoading.dismiss();
             if (toast != null && toast.trim().isNotEmpty) {
               EasyLoading.showInfo(toast);
@@ -296,7 +296,7 @@ class _MarketItemsScreenState extends State<MarketItemsScreen> {
             EasyLoading.showError(
               message.isEmpty ? "something_wrong".tr() : message,
             );
-          },
+          }, addingToCart: () {  },
         );
       },
       child: Scaffold(

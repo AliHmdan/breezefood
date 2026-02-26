@@ -140,7 +140,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                         height: 40.h,
                         decoration: BoxDecoration(color: AppColor.white, shape: BoxShape.circle),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 5),
+                          padding:  EdgeInsetsDirectional.only(start: 5),
                           child: Icon(Icons.arrow_back_ios, color: AppColor.Dark, size: 16.sp),
                         ),
                       ),

@@ -7,13 +7,10 @@ import 'package:flutter/material.dart' as mt;
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'required_badge_animated.dart';
-
 class RequiredSizeGroupList extends StatelessWidget {
   final ExtraGrouped group;
   final int? selectedExtraId;
-  final ValueChanged<int> onSelect;
-
+  final ValueChanged<int?> onSelect;
   final bool highlightRequired;
 
   const RequiredSizeGroupList({
@@ -26,73 +23,110 @@ class RequiredSizeGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final isRTL =
+        Directionality.of(context) == mt.TextDirection.rtl;
 
     String title() {
-      final t = isRTL ? (group.nameAr ?? "") : (group.nameEn ?? "");
-      return t.trim().isEmpty ? (isRTL ? "الحجم" : "Size") : t;
+      final t =
+      isRTL ? (group.nameAr ?? "") : (group.nameEn ?? "");
+      return t.trim().isEmpty
+          ? (isRTL ? "الحجم" : "Size")
+          : t;
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CustomSubTitle(
-              subtitle: title(),
-              color: AppColor.Lightgry,
-              fontsize: 13,
-            ),
-            RequiredBadgeAnimated(
-              isRTL: isRTL,
-              animate: highlightRequired && (selectedExtraId == null),
-              isSelected: selectedExtraId != null,
-            ),
-          ],
+        /// TITLE
+        CustomSubTitle(
+          subtitle: title(),
+          color: AppColor.white,
+          fontsize: 16,
         ),
-        SizedBox(height: 6.h),
+
+        SizedBox(height: 8.h),
+
+        /// ITEMS
         ...group.items.map((it) {
-          final name = isRTL ? it.nameAr : it.nameEn;
+          final name =
+          isRTL ? it.nameAr : it.nameEn;
+
+          final isSelected =
+              selectedExtraId == it.id;
 
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 3.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Radio<int>(
-                        value: it.id,
-                        groupValue: selectedExtraId,
-                        activeColor: AppColor.primaryColor,
-                        visualDensity: const VisualDensity(
-                          horizontal: -4,
-                          vertical: -4,
+            padding:
+            EdgeInsets.symmetric(vertical: 4.h),
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.vibrate();
+
+                if (isSelected) {
+                  onSelect(null);
+                } else {
+                  onSelect(it.id);
+                }
+              },
+              child: Row(
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          materialTapTargetSize:
+                          MaterialTapTargetSize
+                              .shrinkWrap,
+                          visualDensity:
+                          const VisualDensity(
+                            horizontal: -4,
+                            vertical: -4,
+                          ),
+                          activeColor:
+                          AppColor.primaryColor,
+                          side: BorderSide(
+                            color:
+                            AppColor.LightActive,
+                            width: 1.5,
+                          ),
+                          shape:
+                          RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(6),
+                          ),
+                          value: isSelected,
+                          onChanged: (_) {
+                            HapticFeedback.vibrate();
+
+                            if (isSelected) {
+                              onSelect(null);
+                            } else {
+                              onSelect(it.id);
+                            }
+                          },
                         ),
-                        onChanged: (val) {
-                          if (val == null) return;
-                          HapticFeedback.vibrate();
-                          onSelect(val);
-                        },
-                      ),
-                      Expanded(
-                        child: CustomSubTitle(
-                          subtitle: name,
-                          color: AppColor.Lightgry,
-                          fontsize: 12,
+
+                        Expanded(
+                          child: CustomSubTitle(
+                            subtitle: name,
+                            color:
+                            AppColor.white,
+                            fontsize: 12,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                CustomSubTitle(
-                  subtitle: context.money(it.price),
-                  color: AppColor.yellow,
-                  fontsize: 14,
-                ),
-              ],
+
+                  CustomSubTitle(
+                    subtitle:
+                    context.money(it.price),
+                    color: AppColor.white,
+                    fontsize: 14,
+                  ),
+                ],
+              ),
             ),
           );
         }),

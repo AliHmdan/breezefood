@@ -129,7 +129,7 @@
     "suggestion_drinks": "مشروبات"
   },
   "discount": {
-    "title": "الخصومات",
+    "title": "عروض من أجلك",
     "fallback": {
       "restaurant": "مطعم"
     },
@@ -231,7 +231,7 @@
     "currency": "ل.س",
     "sending": "جارٍ الإرسال...",
     "done": "تم",
-    "discounts": "الخصومات",
+    "discounts": "عروض من اجلك",
     "menu": "القائمة",
     "view_cart_loading": "عرض السلة ...",
     "view_cart": "عرض السلة • الكمية: {count} • {total}"
@@ -281,21 +281,25 @@
       "subtitle": "التحديث تلقائياً من GPS"
     },
     "filters": {
-      "breakfast": "فطور",
+      "breakfast": "فطورك اليوم",
       "closer": "الأقرب إليك",
       "stores": "القصص",
-      "discounts": "الخصومات",
-      "delivery": "خصومات التوصيل",
+      "discounts": "عروض من أجلك",
+      "delivery": "توصيل أوفر",
       "supermarket": "سوبر ماركت",
-      "open": " متاح الآن"
+      "open": " متاح الآن",
+      "sweets": "سكر زيادة"
     },
-    "discount_delivery": "خصومات التوصيل",
+    "discount_delivery": "توصيل أوفر",
     "closer_to_you": "الأقرب إليك",
     "stores": "المتاجر",
     "super_market": "السوبر ماركت",
     "open_now": "متاح الآن",
+    "all_resturant": "كل المطاعم",
     "your_order": "طلبك",
-    "breakfast_restaurants": "مطاعم الفطور",
+    "breakfast_restaurants": "فطورك اليوم",
+    "sweets": "سكر زيادة",
+    "empty_sweets": "لا يوجد محلات حلويات",
     "breakfast_chip": "فطور",
     "empty_breakfast": "لا يوجد مطاعم فطور",
     "empty_area_title": "لا يوجد مطاعم في منطقتك",

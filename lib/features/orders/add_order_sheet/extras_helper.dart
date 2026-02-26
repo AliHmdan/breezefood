@@ -26,7 +26,7 @@ class ExtrasHelper {
     required ExtraGrouped? sizeGroup,
     required int? selectedSizeExtraId,
     required List<ExtraGrouped> otherGroups,
-    required Map<int, int> selectedGroupChoice,
+    required Map<int, int?> selectedGroupChoice,
   }) {
     double sum = 0;
 

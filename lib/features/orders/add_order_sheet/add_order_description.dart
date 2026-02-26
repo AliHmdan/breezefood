@@ -19,7 +19,7 @@ class AddOrderDescription extends StatelessWidget {
       width: maxWidth,
       child: CustomSubTitle(
         subtitle: description.isEmpty ? "Empty" : description,
-        color: AppColor.gry,
+        color: AppColor.white,
         fontsize: 14.sp,
       ),
     );

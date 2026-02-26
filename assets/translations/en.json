@@ -127,7 +127,7 @@
     "suggestion_drinks": "Drinks"
   },
   "discount": {
-    "title": "Discounts",
+    "title": "Offers for you",
     "fallback": {
       "restaurant": "Restaurant"
     },
@@ -226,7 +226,7 @@
     "done": "Done",
     "empty": "Empty",
     "menu": "Menu",
-    "discounts": "Discounts",
+    "discounts": "Offers for you",
     "view_cart_loading": "View Cart ...",
     "view_cart": "View Cart • Qty: {count} • {total}",
     "min": "min",
@@ -278,23 +278,27 @@
       "subtitle": "Automatically detect using GPS"
     },
     "filters": {
-      "breakfast": "Breakfast",
+      "breakfast": "Breakfast Time",
       "closer": "Closer to you",
       "stores": "Stores",
-      "discounts": "Discounts",
-      "delivery": "Delivery discounts",
+      "discounts": "Offers for you",
+      "delivery": "save on delivery",
       "supermarket": "Super Market",
-      "open": "Open now"
+      "open": "Available Now",
+      "sweets": "Sweets"
     },
-    "discount_delivery": "Delivery discounts",
+    "discount_delivery": "save on delivery",
     "closer_to_you": "Closer to you",
     "stores": "Stores",
     "super_market": "Super Market",
-    "open_now": "Open Now",
+    "open_now": "Available Now",
+    "all_resturant": "Explore All",
     "your_order": "Your order",
-    "breakfast_restaurants": "Breakfast restaurants",
+    "breakfast_restaurants": "Breakfast Time",
     "breakfast_chip": "Breakfast",
     "empty_breakfast": "No breakfast restaurants available",
+    "sweets": "Sweets",
+    "empty_sweets": "No sweets available",
     "empty_area_title": "No restaurants available in your area",
     "empty_area_hint": "Try changing your location or pull to refresh"
   },

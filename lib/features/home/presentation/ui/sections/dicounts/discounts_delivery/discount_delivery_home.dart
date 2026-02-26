@@ -6,14 +6,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
-import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart' show CustomTitleSection;
+import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart'
+    show CustomTitleSection;
 
 class DiscountDeliveryHome extends StatelessWidget {
   final List<RestaurantDiscountModel> discountDelivery;
 
   const DiscountDeliveryHome({super.key, required this.discountDelivery});
 
-  String _logoUrl(RestaurantDiscountModel d) => UrlHelper.toFullUrl(d.logoSafe) ?? "";
+  String _logoUrl(RestaurantDiscountModel d) =>
+      UrlHelper.toFullUrl(d.logoSafe) ?? "";
 
   String _discountText(RestaurantDiscountModel d) {
     // ✅ prefer FOOD discount in the red badge
@@ -48,11 +50,17 @@ class DiscountDeliveryHome extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: CustomTitleSection(
-            title: "discount_delivery".tr(),
+            title: "home.discount_delivery".tr(),
             all: "common.all".tr(),
             icon: Icons.arrow_forward_ios_outlined,
             ontap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => DiscountDeliveryGridPage(discountDelivery: discountDelivery)));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DiscountDeliveryGridPage(
+                    discountDelivery: discountDelivery,
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -80,14 +88,14 @@ class DiscountDeliveryHome extends StatelessWidget {
                       margin: EdgeInsetsDirectional.only(end: 10.w),
                       child: Discount(
                         isOpen: d.isOpen,
-                        onTap: () => openRestaurantById(context, d.restaurantId),
+                        onTap: () =>
+                            openRestaurantById(context, d.restaurantId),
                         imagePath: _logoUrl(d),
                         subtitle: d.restaurantName,
                         price: fin ?? 0,
                         discount: _discountText(d),
                         rating: d.ratingAvg,
                         ratingCount: d.ratingCount,
-                        opensAtLabel: d.opensAtLabel ?? '',
 
                         hasFoodDiscount: d.foodDiscount != null,
                         hasDeliveryDiscount: d.deliveryDiscount != null,

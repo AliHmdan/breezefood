@@ -16,16 +16,19 @@ class _HomeFiltersState extends State<HomeFilters> {
 
   @override
   Widget build(BuildContext context) {
-    final items = <_HomeFilterItem>[
-      // _HomeFilterItem(id: "stores", titleKey: "home.filters.stores"),
-      _HomeFilterItem(id: "closer", titleKey: "home.filters.closer"),
-      _HomeFilterItem(id: "breakfast", titleKey: "home.filters.breakfast"),
+   final items = <_HomeFilterItem>[
+  // _HomeFilterItem(id: "stores", titleKey: "home.filters.stores"),
+  _HomeFilterItem(id: "closer", titleKey: "home.filters.closer"),
+  _HomeFilterItem(id: "breakfast", titleKey: "home.filters.breakfast"),
 
-      _HomeFilterItem(id: "discounts", titleKey: "home.filters.discounts"),
-      _HomeFilterItem(id: "delivery", titleKey: "home.filters.delivery"),
-      _HomeFilterItem(id: "supermarket", titleKey: "home.filters.supermarket"),
-      _HomeFilterItem(id: "open", titleKey: "home.filters.open"),
-    ];
+  // ✅ NEW: sweets
+  _HomeFilterItem(id: "sweets", titleKey: "home.filters.sweets"),
+
+  _HomeFilterItem(id: "discounts", titleKey: "home.filters.discounts"),
+  _HomeFilterItem(id: "delivery", titleKey: "home.filters.delivery"),
+  _HomeFilterItem(id: "supermarket", titleKey: "home.filters.supermarket"),
+  _HomeFilterItem(id: "open", titleKey: "home.filters.open"),
+];
 
     return SizedBox(
       height: 54.h,

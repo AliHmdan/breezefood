@@ -45,7 +45,7 @@ class _RequestOrderState extends State<RequestOrder> {
         child: BlocBuilder<CartCubit, CartState>(
           builder: (context, state) {
             final title = state.maybeWhen(
-              cartLoaded: (cart, updatingIds, toast) => cart.restaurantName,
+              cartLoaded:(cart, updatingIds, toast, isRefreshing)=> cart.restaurantName,
 
               orElse: () => "My Cart",
             );
@@ -66,7 +66,7 @@ class _RequestOrderState extends State<RequestOrder> {
               child: Text(msg, style: const TextStyle(color: Colors.red)),
             ),
             // داخل BlocBuilder
-            cartLoaded: (cart, updatingIds, toast) {
+            cartLoaded:(cart, updatingIds, toast, isRefreshing) {
               final subTotal = cart.itemsTotal; // ✅ كان غلط عندك deliveryFee
               final delivery = cart.deliveryFee;
               final total = cart.grandTotal;
