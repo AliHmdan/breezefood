@@ -295,6 +295,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   Future<void> _storeOrder(
     BuildContext context,
     CartResponse cart,
+    bool isVip,
     String paymentId,
   ) async {
     final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
@@ -340,6 +341,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
       address: addressToSend,
       items: items,
       appetizers: const [],
+      isVip: isVip,
     );
 
     context.read<OrderFlowCubit>().store(req);
@@ -561,8 +563,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                     setState(() => _selectedPayment = id),
                                 onOrder: isPlacingOrder
                                     ? null
-                                    : (paymentId) =>
-                                          _storeOrder(context, cart, paymentId),
+                                    : (paymentId) => _storeOrder(
+                                        context,
+                                        cart,
+                                        _isVipEnabled,
+                                        paymentId,
+                                      ),
                               ),
 
                               SizedBox(height: 18.h),
