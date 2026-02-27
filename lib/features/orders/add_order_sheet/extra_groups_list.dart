@@ -122,7 +122,7 @@ class ExtraGroupsList extends StatelessWidget {
                                 child: CustomSubTitle(
                                   subtitle: name,
                                   color:
-                                  AppColor.white,
+                                  AppColor.LightActive,
                                   fontsize: 12,
                                 ),
                               ),
@@ -134,7 +134,7 @@ class ExtraGroupsList extends StatelessWidget {
                       CustomSubTitle(
                         subtitle:
                         context.money(it.price),
-                        color: AppColor.white,
+                        color: AppColor.LightActive,
                         fontsize: 14,
                       ),
                     ],

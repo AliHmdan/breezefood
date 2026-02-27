@@ -41,7 +41,7 @@ class RequiredSizeGroupList extends StatelessWidget {
         CustomSubTitle(
           subtitle: title(),
           color: AppColor.white,
-          fontsize: 16,
+          fontsize: 18,
         ),
 
         SizedBox(height: 8.h),
@@ -111,8 +111,8 @@ class RequiredSizeGroupList extends StatelessWidget {
                           child: CustomSubTitle(
                             subtitle: name,
                             color:
-                            AppColor.white,
-                            fontsize: 12,
+                            AppColor.LightActive,
+                            fontsize: 11,
                           ),
                         ),
                       ],
@@ -122,8 +122,8 @@ class RequiredSizeGroupList extends StatelessWidget {
                   CustomSubTitle(
                     subtitle:
                     context.money(it.price),
-                    color: AppColor.white,
-                    fontsize: 14,
+                    color: AppColor.LightActive,
+                    fontsize: 12,
                   ),
                 ],
               ),

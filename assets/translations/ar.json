@@ -146,7 +146,7 @@
     "Profile": "بروفايل"
   },
   "cart": {
-    "item_notes_optional": "ملاحظات للوجبة (اختياري)",
+    "item_notes_optional": "ملاحظات الوجبة ",
     "item_notes_hint": "مثال: بدون بصل، سبايسي خفيف...",
     "view_cart": "عرض السلة",
     "view_cart_loading": "عرض السلة ..."

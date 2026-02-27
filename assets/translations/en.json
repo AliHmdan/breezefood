@@ -144,7 +144,7 @@
     "Profile": "Profile"
   },
   "cart": {
-    "item_notes_optional": "Item notes (optional)",
+    "item_notes_optional": "Item notes ",
     "item_notes_hint": "e.g. No onion, mild spicy...",
     "view_cart": "View Cart",
     "view_cart_loading": "View Cart ..."

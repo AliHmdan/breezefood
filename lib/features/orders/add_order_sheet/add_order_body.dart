@@ -269,32 +269,7 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
                         NotesField(controller: _noteCtrl),
 
                         SizedBox(height: 10.h),
-                        CounterSheet(
-                          count: _qty,
-                          onInc: () => setState(() => _qty++),
-                          onDec: () => setState(() {
-                            if (_qty > 1) _qty--;
-                          }),
-
-                          isRestaurantOpen: widget.isRestaurantOpen,
-                          basePrice: widget.price,
-                          extrasTotal: _extrasTotal,
-                          isSizeRequired: sg != null && sg.items.isNotEmpty,
-                          isSizeSelected: _selectedSizeExtraId != null,
-                          onMissingSize: () =>
-                              setState(() => _highlightSizeRequired = true),
-                          onAdd: (qty) {
-                            final req = AddToCartRequest(
-                              restaurantId: widget.restaurantId,
-                              menuItemId: widget.menuItemId,
-                              quantity: qty,
-                              specialNotes: _noteCtrl.text.trim(),
-                              withSpicy: _withSpicy,
-                              extras: _selectedExtrasPayload(),
-                            );
-                            context.read<CartCubit>().add(req);
-                          },
-                        ),
+                       
 
                         SizedBox(height: 8.h),
                       ],
@@ -304,6 +279,36 @@ ${productUrl.isEmpty ? "" : "\n$productUrl"}
               ),
             ),
           ),
+          SafeArea(child:  Container( padding: const EdgeInsets.symmetric(
+              horizontal: 16, vertical: 10),
+            color:  Theme.of(context).colorScheme.surface,
+            child: CounterSheet(
+              count: _qty,
+              onInc: () => setState(() => _qty++),
+              onDec: () => setState(() {
+                if (_qty > 1) _qty--;
+              }),
+
+              isRestaurantOpen: widget.isRestaurantOpen,
+              basePrice: widget.price,
+              extrasTotal: _extrasTotal,
+              isSizeRequired: sg != null && sg.items.isNotEmpty,
+              isSizeSelected: _selectedSizeExtraId != null,
+              onMissingSize: () =>
+                  setState(() => _highlightSizeRequired = true),
+              onAdd: (qty) {
+                final req = AddToCartRequest(
+                  restaurantId: widget.restaurantId,
+                  menuItemId: widget.menuItemId,
+                  quantity: qty,
+                  specialNotes: _noteCtrl.text.trim(),
+                  withSpicy: _withSpicy,
+                  extras: _selectedExtrasPayload(),
+                );
+                context.read<CartCubit>().add(req);
+              },
+            ),
+          ),)
         ],
       ),
     );

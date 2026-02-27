@@ -69,7 +69,7 @@ class _NotesFieldState extends State<NotesField> {
             decoration: InputDecoration(
               hintText: "cart.item_notes_hint".tr(),
               hintStyle: TextStyle(
-                color: AppColor.white,
+                color: AppColor.LightActive,
                 fontSize: 12.sp,
               ),
 
