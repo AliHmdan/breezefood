@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:breezefood/core/component/color.dart';
 
 class MiniMapPreview extends StatefulWidget {
   final double lat;
@@ -37,6 +36,7 @@ class _MiniMapPreviewState extends State<MiniMapPreview> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final pos = LatLng(widget.lat, widget.lng);
 
     return GestureDetector(
@@ -46,7 +46,7 @@ class _MiniMapPreviewState extends State<MiniMapPreview> {
         child: Container(
           height: 120.h,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.white10),
+            border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
             borderRadius: BorderRadius.circular(14.r),
           ),
           child: Stack(
@@ -66,7 +66,7 @@ class _MiniMapPreviewState extends State<MiniMapPreview> {
                 child: Icon(
                   Icons.location_history,
                   size: 22.sp,
-                  color: AppColor.primaryColor,
+                  color: colorScheme.primary,
                 ),
               ),
             ],

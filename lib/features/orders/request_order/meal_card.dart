@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -21,66 +20,66 @@ class MealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-
-      padding:  EdgeInsetsDirectional.only( end: 10),
-      decoration: BoxDecoration(
-        // color: AppColor.black,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Stack(children: [
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadiusDirectional.only(
-                topEnd: Radius.circular(40),
-                bottomEnd: Radius.circular(40),
+      padding: EdgeInsetsDirectional.only(end: 10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+      child: Stack(
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadiusDirectional.only(
+                  topEnd: Radius.circular(40),
+                  bottomEnd: Radius.circular(40),
+                ),
+                child: _MealImage(image: image),
               ),
-              child: _MealImage(image: image),
-            ),
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
 
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomSubTitle(
-                    subtitle: name,
-                    color: AppColor.white,
-                    fontsize: 14.sp,
-                  ),
-                  const SizedBox(height: 4),
-
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Price : ",
-                          style: TextStyle(color: AppColor.gry, fontSize: 14.sp),
-                        ),
-                        TextSpan(
-                          text: context.syp(price),
-                          style: TextStyle(
-                            color: AppColor.yellow,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                      ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomSubTitle(
+                      subtitle: name,
+                      color: colorScheme.onSurface,
+                      fontsize: 14.sp,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Price : ",
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.7),
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          TextSpan(
+                            text: context.syp(price),
+                            style: TextStyle(
+                              color: colorScheme.primary,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // ✅ العداد من برا
-            if (counter != null) ...[const SizedBox(width: 10), counter!],
-          ],
-        ),
-        // PositionedDirectional(bottom: 5,end: 10,child: CustomSubTitle(subtitle: " <<<<<Delete", color: AppColor.red, fontsize: 12.sp))
+              // ✅ العداد من برا
+              if (counter != null) ...[const SizedBox(width: 10), counter!],
+            ],
+          ),
 
-      ],
-
+          // PositionedDirectional(bottom: 5,end: 10,child: CustomSubTitle(subtitle: " <<<<<Delete", color: AppColor.red, fontsize: 12.sp))
+        ],
       ),
     );
   }

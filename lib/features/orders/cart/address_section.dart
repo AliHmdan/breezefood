@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/orders/model/store_order_request.dart';
 import 'mini_map_preview.dart';
 
@@ -28,13 +27,14 @@ class AddressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppColor.black,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
       ),
       child: InkWell(
         onTap: onChangeTap,
@@ -50,17 +50,17 @@ class AddressSection extends StatelessWidget {
                     width: 34.w,
                     height: 34.w,
                     decoration: BoxDecoration(
-                      color: AppColor.primaryColor.withOpacity(0.18),
+                      color: colorScheme.primary.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(10.r),
                     ),
-                    child: const Icon(Icons.location_on, color: Colors.white),
+                    child: Icon(Icons.location_on, color: colorScheme.primary),
                   ),
                   SizedBox(width: 10.w),
                   Expanded(
                     child: Text(
                       isRTL ? "موقع الاستلام" : "Delivery location",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: colorScheme.onSurface,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w800,
                       ),
@@ -72,7 +72,7 @@ class AddressSection extends StatelessWidget {
                       vertical: 6.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white12,
+                      color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(20.r),
                     ),
                     child: Row(
@@ -80,14 +80,16 @@ class AddressSection extends StatelessWidget {
                         Text(
                           isRTL ? "تغيير" : "Change",
                           style: TextStyle(
-                            color: Colors.white70,
+                            color: colorScheme.onSurface.withOpacity(0.8),
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(width: 6.w),
-                        const Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white70),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: colorScheme.onSurface.withOpacity(0.8),
+                        ),
                       ],
                     ),
                   ),
@@ -112,17 +114,24 @@ class AddressSection extends StatelessWidget {
                 child: TextField(
                   controller: detailsCtrl,
                   focusNode: detailsFocus,
-                  style: TextStyle(color: AppColor.Dark, fontSize: 14.sp),
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 14.sp,
+                  ),
                   onChanged: onDetailsChanged,
                   decoration: InputDecoration(
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 10,
+                    ),
                     hintText: isRTL
                         ? "تفاصيل العنوان: بناية، طابق، شقة..."
                         : "Address details: building, floor, apt...",
-                    hintStyle: const TextStyle(color: Colors.white54),
+                    hintStyle: TextStyle(
+                      color: colorScheme.onSurface.withOpacity(0.6),
+                    ),
                     filled: true,
-                    fillColor: AppColor.grye,
+                    fillColor: colorScheme.surfaceContainerHighest,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12.r),
                       borderSide: BorderSide.none,

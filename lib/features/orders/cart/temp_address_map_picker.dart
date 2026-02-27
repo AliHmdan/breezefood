@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:breezefood/core/component/color.dart';
 import 'location_helper.dart';
 
 class TempAddressMapPicker extends StatefulWidget {
@@ -75,9 +74,10 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
   @override
   Widget build(BuildContext context) {
     final isRTL = widget.isRTL;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColor.Dark,
+      backgroundColor: colorScheme.surface,
 
       body: Stack(
         children: [
@@ -104,14 +104,14 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                           vertical: 10.h,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColor.black.withOpacity(0.65),
+                          color: colorScheme.surface.withOpacity(0.85),
                           borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
                           isRTL ? "اختيار موقع" : "Pick location",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: colorScheme.onSurface,
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
                           ),
@@ -140,7 +140,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
               child: Icon(
                 Icons.location_pin,
                 size: 46,
-                color: AppColor.primaryColor,
+                color: colorScheme.primary,
               ),
             ),
           ),
@@ -153,13 +153,15 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.15),
+                    color: colorScheme.errorContainer,
                     borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(color: Colors.red.withOpacity(0.4)),
+                    border: Border.all(
+                      color: colorScheme.error.withOpacity(0.4),
+                    ),
                   ),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onErrorContainer),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -168,8 +170,10 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
           if (_locating)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.25),
-                child: const Center(child: CircularProgressIndicator()),
+                color: colorScheme.surface.withOpacity(0.25),
+                child: Center(
+                  child: CircularProgressIndicator(color: colorScheme.primary),
+                ),
               ),
             ),
           Positioned(
@@ -191,7 +195,8 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
               height: 44.h,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.primaryColor,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -215,10 +220,7 @@ class _TempAddressMapPickerState extends State<TempAddressMapPicker> {
                           "text": text,
                         });
                       },
-                child: Text(
-                  isRTL ? "تأكيد الموقع" : "Confirm location",
-                  style: TextStyle(color: AppColor.white),
-                ),
+                child: Text(isRTL ? "تأكيد الموقع" : "Confirm location"),
               ),
             ),
           ),
@@ -236,6 +238,7 @@ class _MapCircleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(40),
@@ -243,10 +246,10 @@ class _MapCircleButton extends StatelessWidget {
         width: 42.w,
         height: 42.w,
         decoration: BoxDecoration(
-          color: AppColor.black.withOpacity(0.65),
+          color: colorScheme.surface.withOpacity(0.85),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white, size: 20.sp),
+        child: Icon(icon, color: colorScheme.onSurface, size: 20.sp),
       ),
     );
   }
@@ -265,17 +268,18 @@ class _MapFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(30),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: AppColor.black.withOpacity(0.75),
+          color: colorScheme.surface.withOpacity(0.9),
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: colorScheme.shadow.withOpacity(0.25),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -284,12 +288,12 @@ class _MapFloatingButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 18.sp),
+            Icon(icon, color: colorScheme.onSurface, size: 18.sp),
             SizedBox(width: 6.w),
             Text(
               label,
               style: TextStyle(
-                color: Colors.white,
+                color: colorScheme.onSurface,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w700,
               ),

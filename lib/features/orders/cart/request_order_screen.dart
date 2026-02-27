@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/dialogs.dart';
 import 'package:breezefood/core/services/money.dart';
 
@@ -250,19 +249,20 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
     BuildContext context, {
     required bool isRTL,
   }) async {
+    final colorScheme = Theme.of(context).colorScheme;
     return await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            backgroundColor: AppColor.black,
+            backgroundColor: colorScheme.surface,
             title: Text(
               isRTL ? "حذف العنصر؟" : "Delete item?",
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: colorScheme.onSurface),
             ),
             content: Text(
               isRTL
                   ? "هل تريد حذف هذا العنصر من السلة؟"
                   : "Do you want to remove this item from cart?",
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.8)),
             ),
             actions: [
               TextButton(
@@ -349,6 +349,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   @override
   Widget build(BuildContext context) {
     final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -360,7 +361,8 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
           child: BlocBuilder<CartCubit, CartState>(
             builder: (context, state) {
               final title = state.maybeWhen(
-                cartLoaded: (cart, updatingIds, toast, isRefreshing)=> cart.restaurantName.isNotEmpty
+                cartLoaded: (cart, updatingIds, toast, isRefreshing) =>
+                    cart.restaurantName.isNotEmpty
                     ? cart.restaurantName
                     : (isRTL ? "سلّتي" : "My Cart"),
                 orElse: () => isRTL ? "سلّتي" : "My Cart",
@@ -385,7 +387,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
             ),
           ),
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.55)),
+            child: Container(color: colorScheme.surface.withOpacity(0.85)),
           ),
           SafeArea(
             child: BlocListener<OrderFlowCubit, OrderFlowState>(
@@ -425,7 +427,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                         content: Text(
                           isRTL ? "❌ فشل إنشاء الطلب: $msg" : "❌ Failed: $msg",
                         ),
-                        backgroundColor: Colors.red,
+                        backgroundColor: colorScheme.error,
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
@@ -443,7 +445,7 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                     error: (msg) => Center(
                       child: Text(
                         msg,
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: colorScheme.error),
                       ),
                     ),
                     cartLoaded: (cart, updatingIds, toast, isRefreshing) {
@@ -569,18 +571,19 @@ class _ToastBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.15),
+        color: colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.red.withOpacity(0.35)),
+        border: Border.all(color: colorScheme.error.withOpacity(0.35)),
       ),
       child: Text(
         toast,
-        style: const TextStyle(color: Colors.red, fontSize: 12),
+        style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 12),
       ),
     );
   }
@@ -592,11 +595,12 @@ class _EmptyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(top: 30.h, bottom: 10.h),
       child: Text(
         isRTL ? "السلة فارغة" : "Cart is empty",
-        style: TextStyle(color: Colors.white, fontSize: 16.sp),
+        style: TextStyle(color: colorScheme.onSurface, fontSize: 16.sp),
       ),
     );
   }
@@ -624,6 +628,7 @@ class _CartItemsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: cart.items.map((it) {
         final isUpdating = updatingIds.contains(it.id);
@@ -644,8 +649,8 @@ class _CartItemsSection extends StatelessWidget {
               children: [
                 SlidableAction(
                   onPressed: isUpdating ? null : (_) => onDelete(it),
-                  backgroundColor: Colors.red.withOpacity(0.9),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colorScheme.error,
+                  foregroundColor: colorScheme.onError,
                   icon: Icons.delete_outline,
                   label: isRTL ? "حذف" : "Delete",
                 ),
@@ -653,8 +658,10 @@ class _CartItemsSection extends StatelessWidget {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: AppColor.black,
-                border: Border.all(color: Colors.white10),
+                color: colorScheme.surface,
+                border: Border.all(
+                  color: colorScheme.outline.withOpacity(0.25),
+                ),
               ),
               child: Column(
                 children: [
@@ -743,13 +750,14 @@ class _TotalsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 12.w),
       decoration: BoxDecoration(
-        color: AppColor.black,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(11.r),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -759,6 +767,7 @@ class _TotalsSection extends StatelessWidget {
             value: cart.itemsTotalAfter,
             before: cart.itemsTotalBefore,
             money: (n) => context.money(n),
+            context: context,
           ),
           if (cart.itemsDiscount > 0)
             Total(isRTL ? "خصم العناصر" : "Items discount", cart.itemsDiscount),
@@ -767,6 +776,7 @@ class _TotalsSection extends StatelessWidget {
             value: cart.deliveryAfter,
             before: cart.deliveryBefore,
             money: (n) => context.money(n),
+            context: context,
           ),
           if (cart.deliveryDiscount > 0)
             Total(
@@ -778,7 +788,7 @@ class _TotalsSection extends StatelessWidget {
             child: Divider(
               height: 1,
               thickness: 0.8,
-              color: Colors.white.withOpacity(0.25),
+              color: colorScheme.outline.withOpacity(0.25),
               indent: 4.w,
               endIndent: 4.w,
             ),
@@ -789,6 +799,7 @@ class _TotalsSection extends StatelessWidget {
             before: cart.grandBefore,
             isTotal: true,
             money: (n) => context.money(n),
+            context: context,
           ),
         ],
       ),
@@ -804,25 +815,29 @@ class _OrderNotesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: AppColor.black,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
       ),
       child: TextField(
         controller: ctrl,
         maxLines: 3,
-        style: TextStyle(color: Colors.white, fontSize: 13.sp),
+        style: TextStyle(color: colorScheme.onSurface, fontSize: 13.sp),
         decoration: InputDecoration(
           hintText: isRTL
               ? "ملاحظات للطلب (اختياري) مثال: اتصل قبل الوصول..."
               : "Order notes (optional) e.g. call before arrival...",
-          hintStyle: TextStyle(color: Colors.white54, fontSize: 12.sp),
+          hintStyle: TextStyle(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 12.sp,
+          ),
           filled: true,
-          fillColor: Colors.white10,
+          fillColor: colorScheme.surfaceContainerHighest,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.r),
             borderSide: BorderSide.none,
@@ -842,7 +857,9 @@ Widget _totalLine({
   double? before,
   bool isTotal = false,
   required String Function(num v) money,
+  required BuildContext context,
 }) {
+  final colorScheme = Theme.of(context).colorScheme;
   final hasBefore = before != null && before! > value;
 
   return Padding(
@@ -853,7 +870,9 @@ Widget _totalLine({
           child: Text(
             title,
             style: TextStyle(
-              color: isTotal ? Colors.white : Colors.white70,
+              color: isTotal
+                  ? colorScheme.onSurface
+                  : colorScheme.onSurface.withOpacity(0.8),
               fontSize: isTotal ? 14 : 13,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.w500,
             ),
@@ -862,8 +881,8 @@ Widget _totalLine({
         if (hasBefore) ...[
           Text(
             money(before!),
-            style: const TextStyle(
-              color: Colors.redAccent,
+            style: TextStyle(
+              color: colorScheme.error,
               fontSize: 12,
               decoration: TextDecoration.lineThrough,
             ),
@@ -873,7 +892,7 @@ Widget _totalLine({
         Text(
           money(value),
           style: TextStyle(
-            color: isTotal ? AppColor.yellow : Colors.white,
+            color: isTotal ? colorScheme.primary : colorScheme.onSurface,
             fontSize: isTotal ? 15 : 13,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.w600,
           ),

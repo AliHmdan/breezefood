@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart' show AppColor;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -48,37 +47,28 @@ class _CounterRequestState extends State<CounterRequest> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Stack(
       alignment: Alignment.center,
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-          decoration: BoxDecoration(
-            // color: AppColor.black,
-            borderRadius: BorderRadius.circular(12.r),
-            // border: Border.all(color: Colors.white12),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.r)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _btn(
-                icon: Icons.remove,
-                onTap: () => _set(_count - 1),
-              ),
+              _btn(icon: Icons.remove, onTap: () => _set(_count - 1)),
               SizedBox(width: 10.w),
               Text(
                 "x$_count",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: colorScheme.onSurface,
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               SizedBox(width: 10.w),
-              _btn(
-                icon: Icons.add,
-                onTap: () => _set(_count + 1),
-              ),
+              _btn(icon: Icons.add, onTap: () => _set(_count + 1)),
             ],
           ),
         ),
@@ -87,14 +77,17 @@ class _CounterRequestState extends State<CounterRequest> {
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.35),
+                color: colorScheme.surface.withOpacity(0.35),
                 borderRadius: BorderRadius.circular(12.r),
               ),
-              child: const Center(
+              child: Center(
                 child: SizedBox(
                   width: 14,
                   height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
             ),
@@ -104,6 +97,7 @@ class _CounterRequestState extends State<CounterRequest> {
   }
 
   Widget _btn({required IconData icon, required VoidCallback onTap}) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: widget.loading ? null : onTap,
       borderRadius: BorderRadius.circular(99),
@@ -111,10 +105,10 @@ class _CounterRequestState extends State<CounterRequest> {
         width: 26.w,
         height: 26.w,
         decoration: BoxDecoration(
-          color: AppColor.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(99),
         ),
-        child: Icon(icon, size: 16, color: AppColor.black),
+        child: Icon(icon, size: 16, color: colorScheme.onSurface),
       ),
     );
   }
