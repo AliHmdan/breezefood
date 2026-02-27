@@ -1,10 +1,10 @@
 class StoreOrderRequest {
   final int restaurantId;
-  final String deliveryType;   // "pickup" | "delivery"
-  final String paymentMethod;  // "cash"
+  final String deliveryType; // "pickup" | "delivery"
+  final String paymentMethod; // "cash"
   final String notes;
   final double deliveryFee;
-
+  final bool isVip;
   final OrderAddress address;
   final List<OrderItemRequest> items;
   final List<AppetizerRequest> appetizers;
@@ -18,18 +18,20 @@ class StoreOrderRequest {
     required this.address,
     required this.items,
     this.appetizers = const [],
+    this.isVip = false,
   });
 
   Map<String, dynamic> toJson() => {
-        "restaurant_id": restaurantId,
-        "delivery_type": deliveryType,
-        "payment_method": paymentMethod,
-        "notes": notes,
-        "delivery_fee": deliveryFee,
-        "address": address.toJson(),
-        "items": items.map((e) => e.toJson()).toList(),
-        "appetizers": appetizers.map((e) => e.toJson()).toList(),
-      };
+    "restaurant_id": restaurantId,
+    "delivery_type": deliveryType,
+    "payment_method": paymentMethod,
+    "notes": notes,
+    "delivery_fee": deliveryFee,
+    "address": address.toJson(),
+    "items": items.map((e) => e.toJson()).toList(),
+    "appetizers": appetizers.map((e) => e.toJson()).toList(),
+    "is_vip": isVip ? 1 : 0,
+  };
 }
 
 class OrderAddress {
@@ -44,10 +46,10 @@ class OrderAddress {
   });
 
   Map<String, dynamic> toJson() => {
-        "text": text,
-        "latitude": latitude,
-        "longitude": longitude,
-      };
+    "text": text,
+    "latitude": latitude,
+    "longitude": longitude,
+  };
 }
 
 class OrderItemRequest {
@@ -64,39 +66,30 @@ class OrderItemRequest {
   });
 
   Map<String, dynamic> toJson() => {
-        "menu_item_id": menuItemId,
-        "quantity": quantity,
-        "special_notes": specialNotes,
-        "extras": extras.map((e) => e.toJson()).toList(),
-      };
+    "menu_item_id": menuItemId,
+    "quantity": quantity,
+    "special_notes": specialNotes,
+    "extras": extras.map((e) => e.toJson()).toList(),
+  };
 }
 
 class OrderExtraRequest {
   final int extraId;
   final int quantity;
 
-  const OrderExtraRequest({
-    required this.extraId,
-    this.quantity = 1,
-  });
+  const OrderExtraRequest({required this.extraId, this.quantity = 1});
 
-  Map<String, dynamic> toJson() => {
-        "extra_id": extraId,
-        "quantity": quantity,
-      };
+  Map<String, dynamic> toJson() => {"extra_id": extraId, "quantity": quantity};
 }
 
 class AppetizerRequest {
   final int appetizerId;
   final int quantity;
 
-  const AppetizerRequest({
-    required this.appetizerId,
-    required this.quantity,
-  });
+  const AppetizerRequest({required this.appetizerId, required this.quantity});
 
   Map<String, dynamic> toJson() => {
-        "appetizer_id": appetizerId,
-        "quantity": quantity,
-      };
+    "appetizer_id": appetizerId,
+    "quantity": quantity,
+  };
 }
