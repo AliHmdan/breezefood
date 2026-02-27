@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/services/shared_perfrences_key.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
@@ -144,7 +143,7 @@ class _AppbarHomeState extends State<AppbarHome> {
             lat: res.latitude,
             lon: res.longitude,
           );
-          await widget.homeCubit.load( silent: true);
+          await widget.homeCubit.load(silent: true);
         }
         break;
 
@@ -164,7 +163,7 @@ class _AppbarHomeState extends State<AppbarHome> {
             lat: res.pos!.latitude,
             lon: res.pos!.longitude,
           );
-          await widget.homeCubit.load( silent: true);
+          await widget.homeCubit.load(silent: true);
           return;
         }
 
@@ -229,6 +228,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final h = MediaQuery.of(context).size.height;
 
     Widget tile({
@@ -244,9 +244,9 @@ class _HomeLocationPickerSheet extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           padding: EdgeInsets.all(14.w),
           decoration: BoxDecoration(
-            color: AppColor.black,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
+            border: Border.all(color: colorScheme.outline.withOpacity(0.35)),
           ),
           child: Row(
             children: [
@@ -254,10 +254,10 @@ class _HomeLocationPickerSheet extends StatelessWidget {
                 width: 44.w,
                 height: 44.w,
                 decoration: BoxDecoration(
-                  color: AppColor.Dark,
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
-                child: Icon(icon, color: Colors.white),
+                child: Icon(icon, color: colorScheme.onSurface),
               ),
               SizedBox(width: 12.w),
               Expanded(
@@ -266,7 +266,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
                   children: [
                     CustomSubTitle(
                       subtitle: title,
-                      color: AppColor.white,
+                      color: colorScheme.onSurface,
                       fontsize: 12.sp,
                     ),
                     // Text(
@@ -280,12 +280,18 @@ class _HomeLocationPickerSheet extends StatelessWidget {
                     SizedBox(height: 4.h),
                     Text(
                       subtitle,
-                      style: TextStyle(color: Colors.white70, fontSize: 11.sp),
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withOpacity(0.7),
+                        fontSize: 11.sp,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_right, color: Colors.white54),
+              Icon(
+                Icons.keyboard_arrow_right,
+                color: colorScheme.onSurface.withOpacity(0.6),
+              ),
             ],
           ),
         ),
@@ -295,7 +301,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
     return Container(
       height: h * 0.46,
       decoration: BoxDecoration(
-        color: AppColor.Dark,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(22.r)),
       ),
       child: Column(
@@ -305,7 +311,7 @@ class _HomeLocationPickerSheet extends StatelessWidget {
             width: 44.w,
             height: 5.h,
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: colorScheme.onSurface.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
             ),
           ),
@@ -313,13 +319,13 @@ class _HomeLocationPickerSheet extends StatelessWidget {
           Text(
             "home.location_picker_title".tr(),
             style: TextStyle(
-              color: Colors.white,
+              color: colorScheme.onSurface,
               fontSize: 15.sp,
               fontWeight: FontWeight.w800,
             ),
           ),
           SizedBox(height: 10.h),
-          const Divider(color: Colors.white24),
+          Divider(color: colorScheme.outline.withOpacity(0.35)),
 
           tile(
             icon: Icons.map_outlined,

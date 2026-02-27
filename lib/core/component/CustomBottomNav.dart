@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:breezefood/core/component/color.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,7 +8,11 @@ class BottomNavBreeze extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onChanged;
 
-  const BottomNavBreeze({super.key, required this.currentIndex, required this.onChanged});
+  const BottomNavBreeze({
+    super.key,
+    required this.currentIndex,
+    required this.onChanged,
+  });
 
   static const double _barHeight = 60;
 
@@ -21,20 +24,37 @@ class BottomNavBreeze extends StatelessWidget {
     'assets/icons/profile.svg',
   ];
 
-  static const List<String> _labelKeys = ["nav.home", "nav.stores", "nav.favorites", "nav.orders", "nav.Profile"];
+  static const List<String> _labelKeys = [
+    "nav.home",
+    "nav.stores",
+    "nav.favorites",
+    "nav.orders",
+    "nav.Profile",
+  ];
 
-  Widget _icon(String path, {required bool selected, double size = 22}) {
+  Widget _icon(
+    BuildContext context,
+    String path, {
+    required bool selected,
+    double size = 22,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SvgPicture.asset(
       path,
       width: size,
       height: size,
-      // colorFilter: ColorFilter.mode(selected ? AppColor.white : AppColor.gry.withOpacity(0.8), BlendMode.srcIn),
-      colorFilter: ColorFilter.mode(selected ? AppColor.white : AppColor.gryForNavBar.withOpacity(0.8), BlendMode.srcIn),
+      colorFilter: ColorFilter.mode(
+        selected
+            ? colorScheme.onPrimary
+            : colorScheme.onSurface.withOpacity(0.7),
+        BlendMode.srcIn,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return SafeArea(
       top: false,
@@ -42,9 +62,20 @@ class BottomNavBreeze extends StatelessWidget {
         height: 60.h, // 👈 ارتفاع متوازن
         decoration: BoxDecoration(
           // color: Colors.white.withOpacity(0.08),
-          color: AppColor.Dark,
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.2), width: 1)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, -2))],
+          color: colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: colorScheme.outline.withOpacity(0.35),
+              width: 1,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.15),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -62,7 +93,9 @@ class BottomNavBreeze extends StatelessWidget {
                     curve: Curves.easeOutCubic,
                     // padding: EdgeInsets.symmetric(vertical: 2.h),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColor.primaryColor : Colors.transparent,
+                      color: isSelected
+                          ? colorScheme.primary
+                          : Colors.transparent,
                       borderRadius: BorderRadiusDirectional.only(
                         bottomStart: Radius.circular(index == 0 ? 0 : 12.r),
                         bottomEnd: Radius.circular(index == 4 ? 0 : 12.r),
@@ -73,7 +106,12 @@ class BottomNavBreeze extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _icon(_svgIcons[index], selected: isSelected, size: index == 4 ? 18.sp : 22.sp),
+                        _icon(
+                          context,
+                          _svgIcons[index],
+                          selected: isSelected,
+                          size: index == 4 ? 18.sp : 22.sp,
+                        ),
 
                         // 👇 أنيميشن ظهور/اختفاء النص
                         AnimatedSize(
@@ -91,10 +129,16 @@ class BottomNavBreeze extends StatelessWidget {
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        color: AppColor.white,
+                                        color: colorScheme.onPrimary,
                                         fontSize: 11.sp,
                                         fontWeight: FontWeight.w600,
-                                        fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
+                                        fontFamily:
+                                            Localizations.localeOf(
+                                                  context,
+                                                ).languageCode ==
+                                                'ar'
+                                            ? 'Cairo'
+                                            : 'Inter',
                                       ),
                                     ),
                                   )

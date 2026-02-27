@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/auth/presentation/cubit/auth_flow_cubit.dart';
 import 'package:breezefood/features/main_shell.dart';
@@ -11,12 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-enum _LocationGate {
-  none,
-  serviceOff,
-  deniedForever,
-  denied,
-}
+enum _LocationGate { none, serviceOff, deniedForever, denied }
 
 class UpdateAddressScreen extends StatefulWidget {
   const UpdateAddressScreen({super.key});
@@ -181,6 +175,7 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocListener<AuthFlowCubit, AuthFlowState>(
       bloc: cubit,
       listener: (context, state) {
@@ -212,7 +207,7 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen>
         );
       },
       child: Scaffold(
-        backgroundColor: AppColor.Dark,
+        backgroundColor: colorScheme.surface,
         body: SafeArea(
           child: Center(
             child: Padding(
@@ -223,19 +218,19 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen>
                   Icon(
                     Icons.location_on,
                     size: 84.w,
-                    color: AppColor.primaryColor,
+                    color: colorScheme.primary,
                   ),
                   const SizedBox(height: 16),
 
                   if (_isBusy) ...[
-                    CircularProgressIndicator(color: AppColor.primaryColor),
+                    CircularProgressIndicator(color: colorScheme.primary),
                     const SizedBox(height: 12),
                   ],
 
                   Text(
                     _status,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onSurface),
                   ),
 
                   if (!_isBusy && _gate != _LocationGate.none) ...[
@@ -251,6 +246,10 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen>
                               ? "auth.open_location_settings".tr()
                               : "auth.open_app_settings".tr(),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -261,6 +260,12 @@ class _UpdateAddressScreenState extends State<UpdateAddressScreen>
                         onPressed: _start,
                         icon: const Icon(Icons.refresh),
                         label: Text("common.retry".tr()),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colorScheme.onSurface,
+                          side: BorderSide(
+                            color: colorScheme.outline.withOpacity(0.35),
+                          ),
+                        ),
                       ),
                     ),
                   ],

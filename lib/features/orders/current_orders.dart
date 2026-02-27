@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/order_traking_map.dart';
@@ -51,11 +50,12 @@ class _CurrentOrdersState extends State<CurrentOrders> {
     if (s.contains("pending")) return Colors.orange;
     if (s.contains("preparing")) return Colors.cyan;
     if (s.contains("delivered") || s.contains("completed")) return Colors.green;
-    if (s.contains("cancel")) return AppColor.red;
-    return Colors.white70;
+    if (s.contains("cancel")) return Theme.of(context).colorScheme.error;
+    return Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
   }
 
   Widget _buildOrderCard(OrderBundle bundle) {
+    final colorScheme = Theme.of(context).colorScheme;
     final item = bundle.order;
     final restaurant = bundle.restaurant;
 
@@ -90,8 +90,9 @@ class _CurrentOrdersState extends State<CurrentOrders> {
           child: Container(
             padding: const EdgeInsets.only(left: 1, right: 10, top: 4),
             decoration: BoxDecoration(
-              color: AppColor.black,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
             ),
             child: Row(
               children: [
@@ -121,7 +122,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                     children: [
                       CustomSubTitle(
                         subtitle: restaurant.name,
-                        color: AppColor.white,
+                        color: colorScheme.onSurface,
                         fontsize: 14.sp,
                       ),
                       const SizedBox(height: 4),
@@ -137,7 +138,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                             TextSpan(
                               text: "orders.price_label".tr(),
                               style: TextStyle(
-                                color: AppColor.white,
+                                color: colorScheme.onSurface,
                                 fontFamily: "Manrope",
                                 fontSize: 12.sp,
                               ),
@@ -146,7 +147,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                               text:
                                   "${item.totalPrice.toStringAsFixed(0)} ${"common.currency".tr()}",
                               style: TextStyle(
-                                color: AppColor.yellow,
+                                color: colorScheme.primary,
                                 fontFamily: "Manrope",
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.sp,
@@ -160,7 +161,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
                         subtitle: "orders.items_count".tr(
                           namedArgs: {"count": item.itemsCount.toString()},
                         ),
-                        color: Colors.white70,
+                        color: colorScheme.onSurface.withOpacity(0.7),
                         fontsize: 11.sp,
                       ),
                     ],
@@ -201,7 +202,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
 
         if (errorMsg != null && orders.isEmpty) {
           return Center(
-            child: Text(errorMsg, style: const TextStyle(color: Colors.red)),
+            child: Text(errorMsg, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           );
         }
 
@@ -209,7 +210,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
           return Center(
             child: Text(
               "orders.no_current_orders".tr(),
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7)),
             ),
           );
         }

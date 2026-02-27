@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/have_order.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/core/services/money.dart';
@@ -232,14 +231,16 @@ class _HomeState extends State<Home> with RouteAware {
     return Padding(
       padding: padding,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade800,
-        highlightColor: Colors.grey.shade600,
+        baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        highlightColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         child: Container(
           height: height,
           decoration: BoxDecoration(
-            color: Colors.grey.shade800,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.35),
+            ),
           ),
         ),
       ),
@@ -454,7 +455,7 @@ class _HomeState extends State<Home> with RouteAware {
         }
 
         return Scaffold(
-          backgroundColor: AppColor.Dark,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: Stack(
             children: [
               SafeArea(
@@ -646,7 +647,7 @@ class _StickyTabsHeader extends SliverPersistentHeaderDelegate {
   ) {
     return SizedBox.expand(
       child: Container(
-        color: AppColor.Dark,
+        color: Theme.of(context).colorScheme.surface,
         child: Align(alignment: Alignment.centerLeft, child: child),
       ),
     );

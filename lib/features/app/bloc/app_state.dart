@@ -2,6 +2,9 @@ part of 'app_cubit.dart';
 
 sealed class AppState extends Equatable {
   const AppState();
+
+  @override
+  List<Object?> get props => const [];
 }
 
 final class AppInitial extends AppState {
@@ -10,13 +13,9 @@ final class AppInitial extends AppState {
 }
 
 class changeThemFirstStep extends AppState {
-  @override
-  // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+  const changeThemFirstStep();
 }
 
 class changeThemSecondStep extends AppState {
-  @override
-  // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+  const changeThemSecondStep();
 }

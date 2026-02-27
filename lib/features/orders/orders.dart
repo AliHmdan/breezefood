@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/orders/orders_history.dart';
 import 'package:breezefood/features/orders/presentation/cubit/orders/orders_cubit.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
@@ -26,8 +25,9 @@ class _OrdersState extends State<Orders> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColor.Dark,
+      backgroundColor: colorScheme.surface,
       body:  Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

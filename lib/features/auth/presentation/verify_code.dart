@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:breezefood/features/auth/presentation/information_screen.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -82,6 +81,7 @@ class _VerfiyCodeState extends State<VerfiyCode> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: BlocListener<AuthFlowCubit, AuthFlowState>(
@@ -103,14 +103,19 @@ class _VerfiyCodeState extends State<VerfiyCode> {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isResending = false);
 
-              final msg = (data is Map) ? (data["message"] ?? "auth.code_sent".tr()) : "auth.code_sent".tr();
+              final msg = (data is Map)
+                  ? (data["message"] ?? "auth.code_sent".tr())
+                  : "auth.code_sent".tr();
               _showSuccess(msg.toString());
             },
             verified: (data) {
               EasyLoading.dismiss();
               if (mounted) setState(() => _isVerifying = false);
 
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const InformationScreen()));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const InformationScreen()),
+              );
             },
           );
         },
@@ -122,9 +127,12 @@ class _VerfiyCodeState extends State<VerfiyCode> {
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                color: AppColor.Dark,
+                color: colorScheme.surface,
                 alignment: Alignment.center,
-                child: Text("common.placeholder".tr(), style: TextStyle(color: AppColor.white)),
+                child: Text(
+                  "common.placeholder".tr(),
+                  style: TextStyle(color: colorScheme.onSurface),
+                ),
               ),
             ),
             SafeArea(
@@ -138,22 +146,41 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                       child: Container(
                         width: 40.w,
                         height: 40.h,
-                        decoration: BoxDecoration(color: AppColor.white, shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.outline.withOpacity(0.35),
+                          ),
+                        ),
                         child: Padding(
-                          padding:  EdgeInsetsDirectional.only(start: 5),
-                          child: Icon(Icons.arrow_back_ios, color: AppColor.Dark, size: 16.sp),
+                          padding: EdgeInsetsDirectional.only(start: 5),
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            color: colorScheme.onSurface,
+                            size: 16.sp,
+                          ),
                         ),
                       ),
                     ),
                     SizedBox(height: 10.h),
                     Text(
                       "auth.enter_code_title".tr(),
-                      style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold, color: AppColor.white),
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
                     ),
                     SizedBox(height: 8.h),
                     Text(
                       "auth.enter_code_hint".tr(args: [widget.phone]),
-                      style: TextStyle(fontSize: 14.sp, color: AppColor.gry, fontFamily: "Manrope", fontWeight: FontWeight.w400),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: colorScheme.onSurface.withOpacity(0.7),
+                        fontFamily: "Manrope",
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     SizedBox(height: 45.h),
                     SizedBox(
@@ -168,21 +195,27 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                           borderRadius: BorderRadius.circular(10),
                           fieldHeight: 70,
                           fieldWidth: 70,
-                          activeColor: AppColor.primaryColor,
-                          selectedColor: AppColor.primaryColor,
-                          inactiveColor: AppColor.gry,
+                          activeColor: colorScheme.primary,
+                          selectedColor: colorScheme.primary,
+                          inactiveColor: colorScheme.outline.withOpacity(0.5),
                           activeBorderWidth: 4,
                           selectedBorderWidth: 4,
                           inactiveBorderWidth: 4,
-                          activeFillColor: AppColor.white,
-                          selectedFillColor: AppColor.white,
-                          inactiveFillColor: AppColor.gry,
+                          activeFillColor: colorScheme.surface,
+                          selectedFillColor: colorScheme.surface,
+                          inactiveFillColor:
+                              colorScheme.surfaceContainerHighest,
                         ),
                         animationDuration: const Duration(milliseconds: 300),
                         enableActiveFill: true,
                         enabled: !_isVerifying,
                         onCompleted: _verifyCode,
                         onChanged: (_) {},
+                        textStyle: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     if (_message != null)
@@ -190,19 +223,28 @@ class _VerfiyCodeState extends State<VerfiyCode> {
                         padding: EdgeInsets.symmetric(vertical: 10.h),
                         child: Text(
                           _message!,
-                          style: TextStyle(fontSize: 14.sp, color: _messageColor),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: _messageColor,
+                          ),
                         ),
                       ),
                     SizedBox(height: 20.h),
                     InkWell(
-                      onTap: (_isResending || _isVerifying) ? null : _resendCode,
+                      onTap: (_isResending || _isVerifying)
+                          ? null
+                          : _resendCode,
                       child: Text(
-                        _isResending ? "common.sending".tr() : "auth.resend_code".tr(),
+                        _isResending
+                            ? "common.sending".tr()
+                            : "auth.resend_code".tr(),
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontFamily: "Manrope",
                           fontWeight: FontWeight.w400,
-                          color: (_isResending || _isVerifying) ? AppColor.gry : AppColor.primaryColor,
+                          color: (_isResending || _isVerifying)
+                              ? colorScheme.onSurface.withOpacity(0.5)
+                              : colorScheme.primary,
                         ),
                       ),
                     ),

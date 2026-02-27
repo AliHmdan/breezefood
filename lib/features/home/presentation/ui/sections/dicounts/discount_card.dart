@@ -105,6 +105,7 @@ class Discount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final ratingText = (rating <= 0)
         ? "no_ratings_yet".tr()
         : rating.toStringAsFixed(1);
@@ -160,7 +161,7 @@ class Discount extends StatelessWidget {
                         vertical: 3.h,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.30),
+                        color: colorScheme.inverseSurface.withOpacity(0.30),
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Row(
@@ -171,7 +172,7 @@ class Discount extends StatelessWidget {
                           Text(
                             ratingText,
                             style: TextStyle(
-                              color: AppColor.white,
+                              color: colorScheme.onInverseSurface,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                             ),
@@ -232,7 +233,7 @@ class Discount extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColor.white,
+                    color: colorScheme.onSurface,
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -252,7 +253,7 @@ class Discount extends StatelessWidget {
                           children: [
                             SvgPicture.asset(
                               "assets/icons/motor.svg",
-                              color: Colors.white,
+                              color: colorScheme.onSurface,
                               width: 16.w,
                               height: 16.h,
                             ),
@@ -265,7 +266,7 @@ class Discount extends StatelessWidget {
                               Text(
                                 context.syp(deliveryOldPrice, decimals: 0),
                                 style: TextStyle(
-                                  color: AppColor.LightActive,
+                                  color: colorScheme.onSurface.withOpacity(0.6),
                                   decoration: TextDecoration.lineThrough,
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
@@ -277,7 +278,7 @@ class Discount extends StatelessWidget {
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
                                 style: TextStyle(
-                                  color: AppColor.red,
+                                  color: colorScheme.error,
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -288,7 +289,7 @@ class Discount extends StatelessWidget {
                               Text(
                                 context.syp(deliveryNewPrice, decimals: 0),
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: colorScheme.onSurface,
                                   fontSize: 10.sp,
                                   fontWeight: FontWeight.w900,
                                 ),

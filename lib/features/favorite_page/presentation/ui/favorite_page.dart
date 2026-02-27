@@ -1,9 +1,7 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/prices_helper.dart';
 import 'package:breezefood/features/favorite_page/data/model/favorites_response.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_appbar_home.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +51,7 @@ class FavoritePageState extends State<FavoritePage> {
 
   Widget _buildOrderCard(FavoriteItem item) {
     final imageUrl = UrlHelper.toFullUrl(item.image);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12.h),
@@ -64,12 +63,15 @@ class FavoritePageState extends State<FavoritePage> {
           children: [
             CustomSlidableAction(
               onPressed: (context) => _deleteFavorite(item),
-              backgroundColor: AppColor.red,
+              backgroundColor: colorScheme.error,
               borderRadius: BorderRadius.circular(15.r),
               child: Center(
                 child: SvgPicture.asset(
                   "assets/icons/delete.svg",
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                    colorScheme.onError,
+                    BlendMode.srcIn,
+                  ),
                   width: 30.w,
                   height: 30.h,
                 ),
@@ -81,18 +83,29 @@ class FavoritePageState extends State<FavoritePage> {
           padding: const EdgeInsetsDirectional.only(end: 8),
           child: Container(
             padding: const EdgeInsetsDirectional.only(start: 1, end: 10),
-            decoration: BoxDecoration(color: AppColor.black, borderRadius: BorderRadius.circular(15)),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
+            ),
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadiusDirectional.only(topEnd: Radius.circular(40), bottomEnd: Radius.circular(40)),
+                  borderRadius: const BorderRadiusDirectional.only(
+                    topEnd: Radius.circular(40),
+                    bottomEnd: Radius.circular(40),
+                  ),
                   child: (imageUrl ?? "").trim().isEmpty
                       ? Container(
                           width: 120.w,
                           height: 100.h,
-                          color: AppColor.Dark,
+                          color: colorScheme.surfaceContainerHighest,
                           child: Center(
-                            child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
+                            child: Icon(
+                              Icons.fastfood,
+                              color: colorScheme.onSurface,
+                              size: 30.sp,
+                            ),
                           ),
                         )
                       : Image.network(
@@ -103,9 +116,13 @@ class FavoritePageState extends State<FavoritePage> {
                           errorBuilder: (_, __, ___) => Container(
                             width: 111.w,
                             height: 100.h,
-                            color: AppColor.Dark,
+                            color: colorScheme.surfaceContainerHighest,
                             child: Center(
-                              child: Icon(Icons.fastfood, color: AppColor.white, size: 30.sp),
+                              child: Icon(
+                                Icons.fastfood,
+                                color: colorScheme.onSurface,
+                                size: 30.sp,
+                              ),
                             ),
                           ),
                         ),
@@ -116,9 +133,17 @@ class FavoritePageState extends State<FavoritePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomSubTitle(subtitle: item.nameAr, color: AppColor.white, fontsize: 14.sp),
+                      CustomSubTitle(
+                        subtitle: item.nameAr,
+                        color: colorScheme.onSurface,
+                        fontsize: 14.sp,
+                      ),
                       const SizedBox(height: 4),
-                      CustomSubTitle(subtitle: item.restaurantName, color: AppColor.white, fontsize: 12.sp),
+                      CustomSubTitle(
+                        subtitle: item.restaurantName,
+                        color: colorScheme.onSurface.withOpacity(0.75),
+                        fontsize: 12.sp,
+                      ),
                       const SizedBox(height: 4),
                       RichText(
                         text: TextSpan(
@@ -127,16 +152,28 @@ class FavoritePageState extends State<FavoritePage> {
                               text: "favorites.price".tr(),
 
                               style: TextStyle(
-                                color: AppColor.white,
-                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
+                                color: colorScheme.onSurface,
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                                 fontSize: 12.sp,
                               ),
                             ),
                             TextSpan(
                               text: context.syp(item.price),
                               style: TextStyle(
-                                color: AppColor.yellow,
-                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
+                                color: colorScheme.primary,
+                                fontFamily:
+                                    Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar'
+                                    ? 'Cairo'
+                                    : 'Inter',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.sp,
                               ),
@@ -157,8 +194,9 @@ class FavoritePageState extends State<FavoritePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColor.Dark,
+      backgroundColor: colorScheme.surface,
       body: BlocListener<FavoritesCubit, FavoritesState>(
         listener: (context, state) {
           state.maybeWhen(
@@ -184,10 +222,16 @@ class FavoritePageState extends State<FavoritePage> {
         },
         child: BlocBuilder<FavoritesCubit, FavoritesState>(
           builder: (context, state) {
-            final items = state.maybeWhen(loaded: (items) => items, orElse: () => const <FavoriteItem>[]);
+            final items = state.maybeWhen(
+              loaded: (items) => items,
+              orElse: () => const <FavoriteItem>[],
+            );
 
             // ✅ لا نعرض spinner إلا لو فعلاً state=loading (وهذا بيصير فقط بالـ load العادي)
-            final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
+            final isLoading = state.maybeWhen(
+              loading: () => true,
+              orElse: () => false,
+            );
 
             return RefreshIndicator(
               onRefresh: _handleRefresh,
@@ -195,7 +239,10 @@ class FavoritePageState extends State<FavoritePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    CustomAppbarProfile(ontap: () {}, title: "favorites.title".tr()),
+                    CustomAppbarProfile(
+                      ontap: () {},
+                      title: "favorites.title".tr(),
+                    ),
 
                     Expanded(
                       child: isLoading
@@ -205,13 +252,25 @@ class FavoritePageState extends State<FavoritePage> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.favorite_border, color: AppColor.white, size: 50),
+                                  Icon(
+                                    Icons.favorite_border,
+                                    color: colorScheme.onSurface,
+                                    size: 50,
+                                  ),
                                   SizedBox(height: 10.h),
                                   Text(
                                     "favorites.empty".tr(),
                                     style: TextStyle(
-                                      color: Colors.white70,
-                                      fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Cairo' : 'Inter',
+                                      color: colorScheme.onSurface.withOpacity(
+                                        0.7,
+                                      ),
+                                      fontFamily:
+                                          Localizations.localeOf(
+                                                context,
+                                              ).languageCode ==
+                                              'ar'
+                                          ? 'Cairo'
+                                          : 'Inter',
                                     ),
                                   ),
                                 ],
@@ -219,7 +278,10 @@ class FavoritePageState extends State<FavoritePage> {
                             )
                           : ListView(
                               physics: const AlwaysScrollableScrollPhysics(),
-                              children: [for (final f in items) _buildOrderCard(f), const SizedBox(height: 40)],
+                              children: [
+                                for (final f in items) _buildOrderCard(f),
+                                const SizedBox(height: 40),
+                              ],
                             ),
                     ),
                   ],

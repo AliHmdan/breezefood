@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
@@ -28,6 +27,7 @@ class CachedAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final full = UrlHelper.toFullUrl(url); // ✅ استخدم UrlHelper تبعك
 
     return InkWell(
@@ -44,7 +44,7 @@ class CachedAvatar extends StatelessWidget {
                   fit: BoxFit.cover,
                   fadeInDuration: const Duration(milliseconds: 120),
                   placeholder: (_, __) => Container(
-                    color: Colors.white10,
+                    color: colorScheme.surfaceContainerHighest,
                     alignment: Alignment.center,
                     child: SizedBox(
                       width: 16.w,
@@ -83,6 +83,7 @@ class CustomAppbarHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -162,7 +163,7 @@ class CustomAppbarHome extends StatelessWidget {
                       if (image != null)
                         SvgPicture.asset(
                           image!,
-                          color: AppColor.LightActive,
+                          color: colorScheme.onSurface.withOpacity(0.7),
                           width: 20,
                           height: 20,
                         ),
@@ -173,7 +174,7 @@ class CustomAppbarHome extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: AppColor.LightActive,
+                            color: colorScheme.onSurface,
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
                           ),
@@ -181,7 +182,7 @@ class CustomAppbarHome extends StatelessWidget {
                       ),
 
                       if (icon != null)
-                        Icon(icon, color: AppColor.LightActive, size: 22.sp),
+                        Icon(icon, color: colorScheme.onSurface.withOpacity(0.7), size: 22.sp),
                     ],
                   ),
 
@@ -192,7 +193,7 @@ class CustomAppbarHome extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: colorScheme.onSurface.withOpacity(0.7),
                         fontSize: 11.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -222,11 +223,11 @@ class CustomAppbarHome extends StatelessWidget {
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColor.LightActive, width: 2),
+              border: Border.all(color: colorScheme.outline, width: 2),
             ),
             child: SvgPicture.asset(
               'assets/icons/notification.svg',
-              color: Colors.white,
+              color: colorScheme.onSurface,
               width: 20,
               height: 20,
             ),

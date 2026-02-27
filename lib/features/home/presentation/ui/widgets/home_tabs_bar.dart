@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -32,12 +31,10 @@ class _HomeTabsBarState extends State<HomeTabsBar> {
       return const SizedBox.shrink();
     }
 
-    final safe =
-    _safe(widget.activeIndex, widget.titles.length);
+    final safe = _safe(widget.activeIndex, widget.titles.length);
 
     return DefaultTabController(
-      key: const ValueKey<String>(
-          "home_tabs_controller"),
+      key: const ValueKey<String>("home_tabs_controller"),
       length: widget.titles.length,
       initialIndex: safe,
       child: _HomeTabsBarInner(
@@ -61,29 +58,22 @@ class _HomeTabsBarInner extends StatefulWidget {
   final ValueChanged<int> onTap;
 
   @override
-  State<_HomeTabsBarInner> createState() =>
-      _HomeTabsBarInnerState();
+  State<_HomeTabsBarInner> createState() => _HomeTabsBarInnerState();
 }
 
-class _HomeTabsBarInnerState
-    extends State<_HomeTabsBarInner> {
-  static const _anim =
-  Duration(milliseconds: 220);
+class _HomeTabsBarInnerState extends State<_HomeTabsBarInner> {
+  static const _anim = Duration(milliseconds: 220);
 
   @override
-  void didUpdateWidget(
-      covariant _HomeTabsBarInner oldWidget) {
+  void didUpdateWidget(covariant _HomeTabsBarInner oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      final ctl =
-      DefaultTabController.of(context);
+      final ctl = DefaultTabController.of(context);
 
-      if (ctl.index != widget.activeIndex &&
-          !ctl.indexIsChanging) {
+      if (ctl.index != widget.activeIndex && !ctl.indexIsChanging) {
         ctl.animateTo(
           widget.activeIndex,
           duration: _anim,
@@ -95,8 +85,8 @@ class _HomeTabsBarInnerState
 
   @override
   Widget build(BuildContext context) {
-    final ctl =
-    DefaultTabController.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final ctl = DefaultTabController.of(context);
 
     return SizedBox(
       height: 45.h,
@@ -110,8 +100,7 @@ class _HomeTabsBarInnerState
             bottom: 0,
             child: Container(
               height: 3.h,
-              color: AppColor.white
-                  .withOpacity(0.15),
+              color: colorScheme.outline.withOpacity(0.25),
             ),
           ),
 
@@ -119,58 +108,38 @@ class _HomeTabsBarInnerState
           TabBar(
             controller: ctl,
             isScrollable: true,
-            tabAlignment:
-            TabAlignment.center,
+            tabAlignment: TabAlignment.center,
             padding: EdgeInsets.zero,
             onTap: widget.onTap,
-            labelPadding:
-            EdgeInsets.symmetric(
-                horizontal: 14.w),
+            labelPadding: EdgeInsets.symmetric(horizontal: 14.w),
 
-            labelColor: AppColor.white,
-            unselectedLabelColor:
-            AppColor.white
-                .withOpacity(0.55),
+            labelColor: colorScheme.onSurface,
+            unselectedLabelColor: colorScheme.onSurface.withOpacity(0.55),
 
-            labelStyle: TextStyle(
+            labelStyle: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
+
+            unselectedLabelStyle: TextStyle(
               fontSize: 14.sp,
-              fontWeight:
-              FontWeight.w800,
+              fontWeight: FontWeight.w500,
             ),
 
-            unselectedLabelStyle:
-            TextStyle(
-              fontSize: 14.sp,
-              fontWeight:
-              FontWeight.w500,
-            ),
+            indicatorSize: TabBarIndicatorSize.tab,
 
-            indicatorSize:
-            TabBarIndicatorSize.tab,
-
-            indicator:
-            UnderlineTabIndicator(
-              borderSide: BorderSide(
-                width: 2.h,
-                color: AppColor.white,
-              ),
-              insets:
-              EdgeInsets.symmetric(
-                  horizontal: 12.w),
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(width: 2.h, color: colorScheme.primary),
+              insets: EdgeInsets.symmetric(horizontal: 12.w),
             ),
 
             tabs: widget.titles
                 .map(
                   (t) => Tab(
-                child: Text(
-                  t,
-                  maxLines: 1,
-                  overflow:
-                  TextOverflow
-                      .ellipsis,
-                ),
-              ),
-            )
+                    child: Text(
+                      t,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
                 .toList(),
           ),
         ],

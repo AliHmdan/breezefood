@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,22 +19,40 @@ class ListtileProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
-            color: AppColor.Dark,
+            color: colorScheme.surface,
             shape: BoxShape.circle,
-            border: Border.all(color: AppColor.LightActive, width: 1.w),
+            border: Border.all(color: colorScheme.outline, width: 1.w),
           ),
           child: svgPath != null
-              ? SvgPicture.asset(svgPath!, width: 17.sp, height: 17.sp, colorFilter: ColorFilter.mode(AppColor.white, BlendMode.srcIn))
-              : Icon(iconData, size: 18.sp, color: AppColor.white),
+              ? SvgPicture.asset(
+                  svgPath!,
+                  width: 17.sp,
+                  height: 17.sp,
+                  colorFilter: ColorFilter.mode(
+                    colorScheme.onSurface,
+                    BlendMode.srcIn,
+                  ),
+                )
+              : Icon(iconData, size: 18.sp, color: colorScheme.onSurface),
         ),
-        title: CustomSubTitle(subtitle: title, color: AppColor.white, fontsize: 14.sp),
-        trailing: Icon(Icons.chevron_right, size: 22.sp, color: AppColor.white),
+        title: CustomSubTitle(
+          subtitle: title,
+          color: colorScheme.onSurface,
+          fontsize: 14.sp,
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          size: 22.sp,
+          color: colorScheme.onSurface,
+        ),
       ),
     );
   }

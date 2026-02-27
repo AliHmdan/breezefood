@@ -19,7 +19,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'features/app/bloc/app_cubit.dart';
 
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,11 @@ Future<void> main() async {
   configEasyLoading();
 
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.light, statusBarBrightness: Brightness.dark),
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
   );
 
   await setupDi();
@@ -73,6 +78,20 @@ class MyApp extends StatelessWidget {
           return BlocConsumer<AppCubit, AppState>(
             listener: (context, state) {},
             builder: (context, state) {
+              final isDark = AppCubit.get(context).isThemDark();
+
+              SystemChrome.setSystemUIOverlayStyle(
+                SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: isDark
+                      ? Brightness.light
+                      : Brightness.dark,
+                  statusBarBrightness: isDark
+                      ? Brightness.dark
+                      : Brightness.light,
+                ),
+              );
+
               return MaterialApp(
                 navigatorObservers: [routeObserver],
                 navigatorKey: NavigationKey.navigatorKey,
@@ -85,22 +104,47 @@ class MyApp extends StatelessWidget {
                 supportedLocales: context.supportedLocales,
                 localizationsDelegates: context.localizationDelegates,
 
+                themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
                 theme: ThemeData(
-                  scaffoldBackgroundColor: AppColor.Dark,
-                  colorScheme: ColorScheme.fromSeed(seedColor: AppColor.primaryColor, brightness: Brightness.dark),
-                  progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColor.primaryColor, circularTrackColor: AppColor.backfilter),
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: AppColor.primaryColor,
+                    brightness: Brightness.light,
+                  ),
+                  progressIndicatorTheme: const ProgressIndicatorThemeData(
+                    color: AppColor.primaryColor,
+                    circularTrackColor: AppColor.backfilter,
+                  ),
+                ),
+                darkTheme: ThemeData(
+                  useMaterial3: true,
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: AppColor.primaryColor,
+                    brightness: Brightness.dark,
+                  ),
+                  progressIndicatorTheme: const ProgressIndicatorThemeData(
+                    color: AppColor.primaryColor,
+                    circularTrackColor: AppColor.backfilter,
+                  ),
                 ),
 
                 builder: (context, widget) {
                   final wrapped = MediaQuery(
-                    data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                    data: MediaQuery.of(
+                      context,
+                    ).copyWith(textScaler: const TextScaler.linear(1.0)),
                     child: widget ?? const SizedBox.shrink(),
                   );
 
-                  final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+                  final isArabic =
+                      Localizations.localeOf(context).languageCode == 'ar';
 
                   return Theme(
-                    data: Theme.of(context).copyWith(textTheme: Theme.of(context).textTheme.apply(fontFamily: isArabic ? 'Cairo' : 'Inter')),
+                    data: Theme.of(context).copyWith(
+                      textTheme: Theme.of(context).textTheme.apply(
+                        fontFamily: isArabic ? 'Cairo' : 'Inter',
+                      ),
+                    ),
                     child: EasyLoading.init()(context, wrapped),
                   );
                 },

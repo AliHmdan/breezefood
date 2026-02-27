@@ -1,11 +1,7 @@
 import 'package:breezefood/core/component/app_image.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/del_price_helper.dart'
     show deliveryFeeText;
-import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
-import 'package:breezefood/features/home/presentation/ui/widgets/open_status_badge.dart';
-import 'package:breezefood/features/stores/model/restaurant_details_model.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,153 +39,147 @@ class _RestaurantCardState extends State<RestaurantCard> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final r = widget.restaurant;
 
     final cover = UrlHelper.toFullUrl(r.coverImage);
     final logo = UrlHelper.toFullUrl(r.logo);
     final imageUrl = (cover ?? "").trim().isNotEmpty ? cover : logo;
 
-    final ratingCount = r.ratingCount;
-    final ordersText = ratingCount > 0 ? "$ratingCount Ratings" : "New";
-
     // ✅ سعر التوصيل (من helper اللي عملناه)
     final feeText = deliveryFeeText(r);
 
-    return
-      Material(
-        color: Colors.transparent,
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child:
-          Container(
-            width: double.infinity, // نفس عرض Discount
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12.r), // نفس الخصومات
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9, //
-                        child: AppNetworkImage(
-                          path: imageUrl,
-                          height: 100.h, // نفس ارتفاع الصورة
-                          width: double.infinity,
+    return Material(
+      color: Colors.transparent,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          width: double.infinity, // نفس عرض Discount
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r), // نفس الخصومات
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9, //
+                      child: AppNetworkImage(
+                        path: imageUrl,
+                        height: 100.h, // نفس ارتفاع الصورة
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        fallback: Image.asset(
+                          "assets/images/meal_breeze.jpeg",
                           fit: BoxFit.cover,
-                          fallback: Image.asset(
-                            "assets/images/meal_breeze.jpeg",
-                            fit: BoxFit.cover,
-                          ),
                         ),
                       ),
                     ),
+                  ),
 
-                    // ⭐ Rating chip (نفس padding + نفس الحجم)
-                    PositionedDirectional(
-                      top: 6,
-                      end: 6,
+                  // ⭐ Rating chip (نفس padding + نفس الحجم)
+                  PositionedDirectional(
+                    top: 6,
+                    end: 6,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 3.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorScheme.inverseSurface.withOpacity(0.30),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 12.sp),
+                          SizedBox(width: 3.w),
+                          Text(
+                            _rating.toStringAsFixed(1),
+                            style: TextStyle(
+                              color: colorScheme.onInverseSurface,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // 🔒 Closed overlay بنفس radius
+                  if (!r.isOpen)
+                    Positioned.fill(
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 6.w,
-                          vertical: 3.h,
-                        ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.30),
-                          borderRadius: BorderRadius.circular(20.r),
+                          color: colorScheme.inverseSurface.withOpacity(0.45),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.star,
-                                color: Colors.amber, size: 12.sp),
-                            SizedBox(width: 3.w),
-                            Text(
-                              _rating.toStringAsFixed(1),
-                              style: TextStyle(
-                                color: AppColor.white,
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                              ),
+                        child: Center(
+                          child: Text(
+                            "restaurant.closed".tr(),
+                            style: TextStyle(
+                              color: colorScheme.onInverseSurface,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
+                ],
+              ),
 
-                    // 🔒 Closed overlay بنفس radius
-                    if (!r.isOpen)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.45),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "restaurant.closed".tr(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
+              SizedBox(height: 6.h), // نفس gapH الطبيعي
+              // 🏷️ Name (center مثل Discount)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: Text(
+                  r.name.trim(),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 4.h),
+
+              // 🚚 Delivery row بنفس padding الداخلي
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: 8.w),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      "assets/icons/motor.svg",
+                      color: colorScheme.onSurface,
+                      width: 16.w,
+                      height: 16.h,
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      feeText,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
                       ),
+                    ),
                   ],
                 ),
-
-                SizedBox(height: 6.h), // نفس gapH الطبيعي
-
-                // 🏷️ Name (center مثل Discount)
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                  child: Text(
-                    r.name.trim(),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: AppColor.white,
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 4.h),
-
-                // 🚚 Delivery row بنفس padding الداخلي
-                Padding(
-                  padding: EdgeInsetsDirectional.only(start: 8.w),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SvgPicture.asset(
-                        "assets/icons/motor.svg",
-                        color: Colors.white,
-                        width: 16.w,
-                        height: 16.h,
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        feeText,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -201,13 +191,17 @@ class OpenNow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (restaurants.isEmpty) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 14.h),
         child: Center(
           child: Text(
             "No restaurants available",
-            style: TextStyle(color: AppColor.gry, fontSize: 12.sp),
+            style: TextStyle(
+              color: colorScheme.onSurface.withOpacity(0.7),
+              fontSize: 12.sp,
+            ),
           ),
         ),
       );
@@ -241,74 +235,6 @@ class OpenNow extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class _NetImage extends StatelessWidget {
-  final String? url;
-  final double height;
-  final bool grayscale;
-
-  const _NetImage({
-    required this.url,
-    required this.height,
-    this.grayscale = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final u = (url ?? "").trim();
-
-    Widget child;
-    if (u.isEmpty) {
-      child = Container(
-        height: height,
-        width: double.infinity,
-        color: Colors.grey.shade800,
-        child: Center(
-          child: Icon(Icons.restaurant, color: AppColor.white, size: 40.sp),
-        ),
-      );
-    } else {
-      child = Image.network(
-        u,
-        height: height,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return Container(
-            height: height,
-            color: Colors.black.withOpacity(0.2),
-            alignment: Alignment.center,
-            child: SizedBox(
-              width: 22.w,
-              height: 22.w,
-              child: const CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        },
-        errorBuilder: (_, __, ___) => Container(
-          height: height,
-          width: double.infinity,
-          color: Colors.grey.shade800,
-          child: Center(
-            child: Icon(
-              Icons.image_not_supported,
-              color: AppColor.white,
-              size: 34.sp,
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (!grayscale) return child;
-
-    return ColorFiltered(
-      colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
-      child: child,
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:breezefood/core/component/app_image.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/features/home/model/home_response.dart';
 import 'package:breezefood/features/home/presentation/ui/sections/dicounts/discount_card.dart';
 import 'package:breezefood/features/stores/presentation/ui/screens/most_popular.dart';
 import 'package:breezefood/features/profile/presentation/widget/custom_appbar_profile.dart';
-import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart' show ResturantDetails;
+import 'package:breezefood/features/stores/presentation/ui/screens/restaurant_details/screens/restaurant_details_screen.dart'
+    show ResturantDetails;
 import 'package:breezefood/features/stores/presentation/ui/screens/resturant_details.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -80,19 +80,18 @@ class DiscountHome extends StatelessWidget {
                     final d = discounts[index];
 
                     final base = d.deliveryBaseFee;
-                    final fin  = d.deliveryFinalFee;
+                    final fin = d.deliveryFinalFee;
 
-// يوجد خصم توصيل فقط إذا deliveryDiscount موجود
+                    // يوجد خصم توصيل فقط إذا deliveryDiscount موجود
                     final hasDeliveryDiscount =
                         d.deliveryDiscount != null &&
-                            base != null &&
-                            fin != null;
+                        base != null &&
+                        fin != null;
                     return Container(
                       width: itemWidth,
                       margin: EdgeInsetsDirectional.only(end: 10.w),
                       child: Discount(
-                        
-  isOpen: d.isOpen, // ✅ هون
+                        isOpen: d.isOpen, // ✅ هون
                         onTap: () =>
                             openRestaurantById(context, d.restaurantId),
                         imagePath: _logoUrl(d),
@@ -161,8 +160,9 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColor.Dark,
+      backgroundColor: colorScheme.surface,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50.h),
         child: Padding(
@@ -200,9 +200,11 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16.r),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColor.black,
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(color: Colors.white.withOpacity(0.06)),
+                      border: Border.all(
+                        color: colorScheme.outline.withOpacity(0.25),
+                      ),
                     ),
 
                     // ✅ ديناميك: نتحكم بحجم الصورة حسب ارتفاع التايل
@@ -223,10 +225,9 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                               child: Container(
                                 height: imageH,
                                 width: double.infinity,
-                                color: Colors.black,
+                                color: colorScheme.surfaceContainerHighest,
                                 alignment: Alignment.center,
-                                child:
-                                AppNetworkImage(
+                                child: AppNetworkImage(
                                   path: _logoUrl(d),
                                   height: imageH, // حدد حسب حجم الكونتينر عندك
                                   width: double.infinity,
@@ -238,7 +239,6 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-
 
                             Expanded(
                               child: Padding(
@@ -252,7 +252,7 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: colorScheme.onSurface,
                                         fontSize: 13.sp,
                                         fontWeight: FontWeight.w800,
                                         fontFamily:
@@ -274,14 +274,14 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                           vertical: 4.h,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.55),
+                                          color: colorScheme.inverseSurface
+                                              .withOpacity(0.55),
                                           borderRadius: BorderRadius.circular(
                                             12.r,
                                           ),
                                           border: Border.all(
-                                            color: Colors.white.withOpacity(
-                                              0.10,
-                                            ),
+                                            color: colorScheme.outline
+                                                .withOpacity(0.25),
                                           ),
                                         ),
 
@@ -292,7 +292,8 @@ class DiscountRestaurantsGridPage extends StatelessWidget {
                                           child: Text(
                                             discount,
                                             style: TextStyle(
-                                              color: Colors.white,
+                                              color:
+                                                  colorScheme.onInverseSurface,
                                               fontSize: 11.sp,
                                               fontWeight: FontWeight.w800,
                                               fontFamily:

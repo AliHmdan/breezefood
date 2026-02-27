@@ -1,4 +1,3 @@
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/home/presentation/ui/widgets/custom_sub_title.dart';
 import 'package:breezefood/features/orders/model/active_orders_response.dart'; // OrderBundle
@@ -41,10 +40,11 @@ class _OrdersHistoryState extends State<OrdersHistory> {
   Color _statusColor(String status) {
     final s = status.toLowerCase();
     if (s.contains("delivered") || s.contains("completed")) return Colors.green;
-    if (s.contains("cancel")) return AppColor.red;
+    if (s.contains("cancel")) return Theme.of(context).colorScheme.error;
     if (s.contains("pending")) return Colors.orange;
-    return Colors.white70;
+    return Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
   }
+
   Future<void> _onReorderPressed(OrderBundle bundle) async {
     final cartCubit = context.read<CartCubit>();
 
@@ -57,13 +57,13 @@ class _OrdersHistoryState extends State<OrdersHistory> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ResturantDetails(
-     restaurant_id: bundle.restaurant.id,
-        ),
+        builder: (_) => ResturantDetails(restaurant_id: bundle.restaurant.id),
       ),
     );
   }
+
   Widget _buildOrderCard(OrderBundle bundle) {
+    final colorScheme = Theme.of(context).colorScheme;
     final item = bundle.order;
     final restaurant = bundle.restaurant;
 
@@ -108,7 +108,7 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
-                        color: AppColor.white, // ✅ أسود
+                        color: colorScheme.onSurface,
                       ),
                     ),
 
@@ -120,13 +120,11 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
-                        color: AppColor.white,
+                        color: colorScheme.onSurface,
                       ),
                     ),
 
                     const SizedBox(height: 6),
-
-
                   ],
                 ),
               ),
@@ -136,32 +134,33 @@ class _OrdersHistoryState extends State<OrdersHistory> {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200], // ✅ خلفية رمادي فاتح
+                  color: colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.refresh_rounded),
-                  color: Colors.black87, // ✅ أيقونة غامقة
+                  color: colorScheme.onSurface,
                   onPressed: () => _onReorderPressed(bundle),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 2),
+
           /// التاريخ + الحالة
           ///
           RichText(
             text: TextSpan(
               style: TextStyle(
                 fontSize: 12.sp,
-                color: Colors.grey[600], // اللون الافتراضي للتاريخ
+                color: colorScheme.onSurface.withOpacity(0.7),
               ),
               children: [
                 TextSpan(text: "$date • "),
                 TextSpan(
                   text: "Delivered",
-                  style:  TextStyle(
-                    color: AppColor.white, // ✅ لون Delivered
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -179,7 +178,7 @@ class _OrdersHistoryState extends State<OrdersHistory> {
 
           /// Divider خفيف جداً
           Divider(
-            color: Colors.grey.shade300,
+            color: colorScheme.outline.withOpacity(0.25),
             thickness: 1,
             height: 1,
           ),
@@ -215,7 +214,10 @@ class _OrdersHistoryState extends State<OrdersHistory> {
 
         if (errorMsg != null && orders.isEmpty) {
           return Center(
-            child: Text(errorMsg, style: const TextStyle(color: Colors.red)),
+            child: Text(
+              errorMsg,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           );
         }
 
@@ -223,7 +225,9 @@ class _OrdersHistoryState extends State<OrdersHistory> {
           return Center(
             child: Text(
               "orders.empty_history".tr(),
-              style: const TextStyle(color: Colors.white70),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
             ),
           );
         }

@@ -1,5 +1,4 @@
 import 'package:breezefood/core/component/CustomBottomNav.dart';
-import 'package:breezefood/core/component/color.dart';
 import 'package:breezefood/core/di/di.dart';
 import 'package:breezefood/features/favorite_page/presentation/cubit/favorites_cubit.dart';
 import 'package:breezefood/features/home/presentation/cubit/home_cubit.dart';
@@ -74,11 +73,12 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocProvider.value(
       value: _favoritesCubit,
       child: SafeArea(
         child: Scaffold(
-          backgroundColor: AppColor.Dark,
+          backgroundColor: colorScheme.surface,
           extendBody: true,
           body: IndexedStack(index: _index, children: _pages),
 
