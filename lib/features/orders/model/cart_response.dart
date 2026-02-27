@@ -4,7 +4,7 @@ import 'package:breezefood/core/services/translation_model.dart'
 class CartResponse {
   final int orderId;
   final String orderStatus;
-
+  final VipModel? vip;
   final int restaurantId;
   final String restaurantName;
   final String restaurantLogo;
@@ -42,6 +42,7 @@ class CartResponse {
     required this.deliveryDiscount,
     required this.grandBefore,
     required this.grandAfter,
+    required this.vip,
   });
 
   // ================= Helpers =================
@@ -101,7 +102,7 @@ class CartResponse {
     return CartResponse(
       orderId: _toInt(order["id"]),
       orderStatus: (order["status"] ?? "").toString(),
-
+      vip: VipModel.fromJson(json['vip']),
       restaurantId: _toInt(restaurant["id"]),
       restaurantName: (restaurant["name"] ?? "My Cart").toString(),
       restaurantLogo: (restaurant["logo"] ?? "").toString(),
@@ -168,6 +169,7 @@ class CartResponse {
       deliveryDiscount: deliveryDiscount ?? this.deliveryDiscount,
       grandBefore: grandBefore ?? this.grandBefore,
       grandAfter: grandAfter ?? this.grandAfter,
+      vip: vip,
     );
   }
 }
@@ -312,8 +314,6 @@ class CartItem {
   }
 }
 
-
-
 class CartExtra {
   final int id;
   final int extraId;
@@ -447,5 +447,72 @@ class CartUserAddress {
       longitude: _toDouble(json["longitude"]),
       isDefault: _toBool(json["is_default"]),
     );
+  }
+}
+
+class VipModel {
+  int? id;
+  int? price;
+  List<Images>? images;
+
+  VipModel({this.id, this.price, this.images});
+
+  VipModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    price = json['price'];
+    if (json['images'] != null) {
+      images = <Images>[];
+      json['images'].forEach((v) {
+        images!.add(new Images.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['price'] = this.price;
+    if (this.images != null) {
+      data['images'] = this.images!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class Images {
+  int? id;
+  int? vipId;
+  int? orderImage;
+  String? path;
+  String? createdAt;
+  String? updatedAt;
+
+  Images({
+    this.id,
+    this.vipId,
+    this.orderImage,
+    this.path,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  Images.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    vipId = json['vip_id'];
+    orderImage = json['order_image'];
+    path = json['path'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['vip_id'] = this.vipId;
+    data['order_image'] = this.orderImage;
+    data['path'] = this.path;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
+    return data;
   }
 }

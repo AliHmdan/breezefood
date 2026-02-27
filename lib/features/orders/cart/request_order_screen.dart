@@ -1,3 +1,4 @@
+import 'package:breezefood/core/component/url_helper.dart';
 import 'package:breezefood/core/services/shared_perfrences_key.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as mt;
@@ -17,7 +18,6 @@ import 'package:breezefood/features/orders/presentation/cubit/orders/order_flow_
 
 import 'package:breezefood/features/orders/request_order/counter_request.dart';
 import 'package:breezefood/features/orders/request_order/meal_card.dart';
-import 'package:breezefood/features/orders/request_order/total.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'address_section.dart';
@@ -47,6 +47,9 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
   String _deliveryType = "delivery"; // "pickup" | "delivery"
 
   String _selectedPayment = 'cash';
+
+  // VIP state
+  bool _isVipEnabled = false;
 
   final methods = const [
     PaymentMethod(
@@ -498,10 +501,6 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
 
                               SizedBox(height: 10.h),
 
-                              _TotalsSection(cart: cart),
-
-                              SizedBox(height: 10.h),
-
                               if (_deliveryType == "delivery") ...[
                                 AddressSection(
                                   isRTL: isRTL,
@@ -524,6 +523,24 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                                 SizedBox(height: 10.h),
                               ],
 
+                              // VIP Section
+                              if (cart.vip != null)
+                                _VipSection(
+                                  vip: cart.vip!,
+                                  isVipEnabled: _isVipEnabled,
+                                  onToggleVip: (enabled) {
+                                    setState(() {
+                                      _isVipEnabled = enabled;
+                                    });
+                                  },
+                                ),
+
+                              _TotalsSection(
+                                cart: cart,
+                                isVipEnabled: _isVipEnabled,
+                              ),
+
+                              SizedBox(height: 10.h),
                               _OrderNotesSection(
                                 ctrl: _orderNotesCtrl,
                                 isRTL: isRTL,
@@ -532,7 +549,12 @@ class _RequestOrderScreenState extends State<RequestOrderScreen> {
                               SizedBox(height: 10.h),
 
                               PaymentMethodSection(
-                                amountText: context.money(cart.grandAfter),
+                                amountText: context.money(
+                                  cart.grandAfter +
+                                      (_isVipEnabled
+                                          ? (cart.vip?.price?.toDouble() ?? 0.0)
+                                          : 0.0),
+                                ),
                                 methods: methods,
                                 initialSelectedId: _selectedPayment,
                                 onChanged: (id) =>
@@ -745,14 +767,21 @@ class _CartItemsSection extends StatelessWidget {
 
 class _TotalsSection extends StatelessWidget {
   final CartResponse cart;
-  const _TotalsSection({required this.cart});
+  final bool isVipEnabled;
+
+  const _TotalsSection({required this.cart, this.isVipEnabled = false});
 
   @override
   Widget build(BuildContext context) {
     final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
     final colorScheme = Theme.of(context).colorScheme;
 
+    // Calculate VIP price if enabled
+    final vipPrice = isVipEnabled ? (cart.vip?.price?.toDouble() ?? 0.0) : 0.0;
+    final totalWithVip = cart.grandAfter + vipPrice;
+
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 12.w),
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -760,7 +789,6 @@ class _TotalsSection extends StatelessWidget {
         border: Border.all(color: colorScheme.outline.withOpacity(0.25)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           _totalLine(
             title: isRTL ? "المجموع الفرعي" : "Sub total",
@@ -769,8 +797,6 @@ class _TotalsSection extends StatelessWidget {
             money: (n) => context.money(n),
             context: context,
           ),
-          if (cart.itemsDiscount > 0)
-            Total(isRTL ? "خصم العناصر" : "Items discount", cart.itemsDiscount),
           _totalLine(
             title: isRTL ? "التوصيل" : "Delivery",
             value: cart.deliveryAfter,
@@ -778,11 +804,16 @@ class _TotalsSection extends StatelessWidget {
             money: (n) => context.money(n),
             context: context,
           ),
-          if (cart.deliveryDiscount > 0)
-            Total(
-              isRTL ? "خصم التوصيل" : "Delivery discount",
-              cart.deliveryDiscount,
+
+          // VIP line if enabled
+          if (isVipEnabled && vipPrice > 0)
+            _totalLine(
+              title: isRTL ? "خدمة VIP" : "VIP Service",
+              value: vipPrice.toDouble(),
+              money: (n) => context.money(n),
+              context: context,
             ),
+
           Padding(
             padding: EdgeInsets.symmetric(vertical: 6.h),
             child: Divider(
@@ -795,8 +826,8 @@ class _TotalsSection extends StatelessWidget {
           ),
           _totalLine(
             title: isRTL ? "الإجمالي" : "Total",
-            value: cart.grandAfter,
-            before: cart.grandBefore,
+            value: totalWithVip,
+            before: vipPrice > 0 ? cart.grandBefore : null,
             isTotal: true,
             money: (n) => context.money(n),
             context: context,
@@ -843,6 +874,209 @@ class _OrderNotesSection extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ----------------------------
+// VIP Section
+// ----------------------------
+class _VipSection extends StatelessWidget {
+  final VipModel vip;
+  final bool isVipEnabled;
+  final ValueChanged<bool> onToggleVip;
+
+  const _VipSection({
+    required this.vip,
+    required this.isVipEnabled,
+    required this.onToggleVip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+      decoration: BoxDecoration(
+        color: isVipEnabled
+            ? colorScheme.primary.withOpacity(0.1)
+            : colorScheme.surface,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isVipEnabled
+              ? colorScheme.primary.withOpacity(0.3)
+              : colorScheme.outline.withOpacity(0.25),
+        ),
+      ),
+      child: InkWell(
+        onTap: () => _showVipPopup(context),
+        borderRadius: BorderRadius.circular(12.r),
+        child: Row(
+          children: [
+            // VIP Crown Icon
+            Container(
+              width: 34.w,
+              height: 34.w,
+              decoration: BoxDecoration(
+                color: isVipEnabled
+                    ? colorScheme.primary.withOpacity(0.2)
+                    : colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                Icons.emoji_events,
+                color: isVipEnabled
+                    ? colorScheme.primary
+                    : colorScheme.primary.withOpacity(0.7),
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isRTL ? "خدمة VIP" : "VIP Service",
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    isRTL
+                        ? "سعر الخدمة: ${context.money(vip.price ?? 0)}"
+                        : "Service price: ${context.money(vip.price ?? 0)}",
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withOpacity(0.7),
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: isVipEnabled
+                    ? colorScheme.primary
+                    : colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                isVipEnabled
+                    ? (isRTL ? "مفعل" : "Enabled")
+                    : (isRTL ? "تفعيل" : "Enable"),
+                style: TextStyle(
+                  color: isVipEnabled
+                      ? colorScheme.onPrimary
+                      : colorScheme.onSurface.withOpacity(0.8),
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showVipPopup(BuildContext context) {
+    final isRTL = Directionality.of(context) == mt.TextDirection.rtl;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colorScheme.surface,
+        title: Text(
+          isRTL ? "خدمة VIP" : "VIP Service",
+          style: TextStyle(color: colorScheme.onSurface),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // VIP Images
+            if (vip.images != null && vip.images!.isNotEmpty)
+              Container(
+                // height: 250.h,
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8.h,
+                    crossAxisSpacing: 8.w,
+                  ),
+                  // scrollDirection: Axis.vertical,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: vip.images!.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final image = vip.images![index];
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 8.h, right: 8.w),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.network(
+                          UrlHelper.toFullUrl(image.path ?? '') ?? '',
+                          width: 100.w,
+                          height: 100.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 100.w,
+                            height: 100.w,
+                            color: colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            SizedBox(height: 16.h),
+            Text(
+              isRTL
+                  ? "تفعيل خدمة VIP يضيف لك مميزات خاصة بسعر ${context.money(vip.price ?? 0)}"
+                  : "Enable VIP service for special features at ${context.money(vip.price ?? 0)}",
+              style: TextStyle(
+                color: colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(isRTL ? "إلغاء" : "Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onToggleVip(!isVipEnabled);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+            ),
+            child: Text(
+              isVipEnabled
+                  ? (isRTL ? "إلغاء التفعيل" : "Disable")
+                  : (isRTL ? "تفعيل" : "Enable"),
+            ),
+          ),
+        ],
       ),
     );
   }
